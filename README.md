@@ -16,6 +16,8 @@ go mod edit -require=mujicaui@v0.0.0 -replace=mujicaui=/path/to/MujicaUI
 
 ## 最小示例
 
+即 `examples/minimal/main.go`，CI 校验两者一致。
+
 ```go
 package main
 
