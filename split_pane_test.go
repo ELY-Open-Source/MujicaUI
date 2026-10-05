@@ -211,3 +211,16 @@ func TestSplitPaneSizesInsideBorder(t *testing.T) {
 		t.Fatalf("drag to x=201 gave %v, want 200", st.Size)
 	}
 }
+
+func TestSplitPaneClampsOnResizeAlone(t *testing.T) {
+	st := &SplitPaneState{Size: 299}
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		SplitPane(c, st, SplitPaneOptions{}, func() { ui.Text(c, "Files") }, func() { ui.Text(c, "Editor") }).Fill()
+	}, 400, 200)
+	tt.SetSize(250, 200)
+	// 250 less the divider and the 40 DIP second minimum.
+	if r, _ := tt.Find("Editor"); st.Size != 209 || r.X != 210 {
+		t.Fatalf("after resize: size %v, second pane at %v; want 209 and 210", st.Size, r.X)
+	}
+}

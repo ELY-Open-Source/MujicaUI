@@ -62,12 +62,10 @@ func TestAspectRatioFollowsWindowResize(t *testing.T) {
 		t.Fatalf("short window: %vx%v, want 200x100", box.W, box.H)
 	}
 	tt.SetSize(400, 400)
-	tt.Frame()
 	if box.W != 400 || box.H != 200 {
 		t.Fatalf("tall window: %vx%v, want 400x200", box.W, box.H)
 	}
 	tt.SetSize(300, 400)
-	tt.Frame()
 	if box.W != 300 || box.H != 150 {
 		t.Fatalf("narrow window: %vx%v, want 300x150", box.W, box.H)
 	}

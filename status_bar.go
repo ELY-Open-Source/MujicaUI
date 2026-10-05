@@ -65,7 +65,9 @@ func StatusBar(c *ui.Context, opts StatusBarOptions) StatusBarResult {
 	e := ui.Row(c).MinHeight(max(theme.MinHitSize, d.ControlHeight()-8)).Shrink(0).PaddingX(d.Unit()*2).Gap(gap).
 		Background(k.Surface).BorderWidth(theme.BorderWidth, 0, 0, 0).BorderColor(k.Border).
 		Label(msg(c, "status_bar.label"))
-	hidden := statusBarHide(c, e, opts, e.Bounds().W-d.Unit()*4, gap)
+	was := e.Bounds()
+	internal.Remeasure(c, e, was.W, was.H)
+	hidden := statusBarHide(c, opts, was.W-d.Unit()*4, gap)
 	open := ui.Local(e, "status_bar.open", func() bool { return false })
 	*open = *open && len(hidden) > 0
 	var res StatusBarResult
@@ -76,8 +78,8 @@ func StatusBar(c *ui.Context, opts StatusBarOptions) StatusBarResult {
 			slog.Debug("mujica: status_bar clicked", "id", it.ID)
 		}
 	}
-	group := func(items []StatusItem) {
-		ui.Row(c).Gap(gap).Shrink(0).Dividers(theme.BorderWidth, k.Border).Children(func() {
+	group := func(key string, items []StatusItem) {
+		ui.Row(c).Key(key).Gap(gap).Shrink(0).Dividers(theme.BorderWidth, k.Border).Children(func() {
 			for _, it := range items {
 				if !hidden[it.ID] {
 					item(it)
@@ -86,8 +88,8 @@ func StatusBar(c *ui.Context, opts StatusBarOptions) StatusBarResult {
 		})
 	}
 	e.Children(func() {
-		group(opts.Left)
-		ui.Spacer(c)
+		group("status_bar.left", opts.Left)
+		ui.Spacer(c).Key("status_bar.spacer")
 		if len(hidden) > 0 {
 			more := statusBarMore(c, len(hidden))
 			if more.Clicked() {
@@ -107,7 +109,7 @@ func StatusBar(c *ui.Context, opts StatusBarOptions) StatusBarResult {
 				})
 			}
 		}
-		group(opts.Right)
+		group("status_bar.right", opts.Right)
 	})
 	res.Element = e
 	return res
@@ -152,14 +154,10 @@ func statusBarCheck(opts StatusBarOptions) {
 }
 
 // statusBarHide returns the secondary items to hide, last first, so the rest fit in room DIPs.
-func statusBarHide(c *ui.Context, bar *ui.Element, opts StatusBarOptions, room, gap float32) map[string]bool {
+func statusBarHide(c *ui.Context, opts StatusBarOptions, room, gap float32) map[string]bool {
 	hidden := map[string]bool{}
 	if room <= 0 {
-		// Not laid out yet: show all, and measure in the next frame.
-		if once := ui.Local(bar, "status_bar.first", func() bool { return true }); *once {
-			*once = false
-			c.Invalidate()
-		}
+		// Not laid out yet: show all; Remeasure rebuilds once measured.
 		return hidden
 	}
 	u := Density(c).Unit()
