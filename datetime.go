@@ -69,6 +69,8 @@ func (d Date) within(lo, hi Date) bool {
 // DateTimeResult is a date or time component and what happened to it this frame.
 type DateTimeResult struct {
 	*ui.Element
+	// Input is the text field inside, for labels and focus; nil without one.
+	Input     *ui.Element
 	changed   bool
 	cancelled bool
 }
@@ -194,6 +196,12 @@ func datetimePopup(c *ui.Context, anchor *ui.Element, open *bool, readOnly bool,
 			Shadow(0, 6, 18, 0, ui.RGBA(0, 0, 0, 0.16)).Opacity(fade)
 		fn()
 	})
+}
+
+// datetimeSelectedMark strokes the 1 DIP inset frame that marks a chosen cell.
+func datetimeSelectedMark(p *ui.Painter, r ui.Rect, c ui.Color) {
+	const inset = 2
+	p.Stroke(ui.Rect{X: r.X + inset, Y: r.Y + inset, W: r.W - 2*inset, H: r.H - 2*inset}, c, theme.ControlRadius/2, theme.BorderWidth)
 }
 
 // datetimeError shows a field error in Danger beneath a control.

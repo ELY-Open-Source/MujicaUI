@@ -102,7 +102,7 @@ func TestCompositeFormInvalidThenValid(t *testing.T) {
 	tt.Type("Mortis")
 	click(t, tt, "Password")
 	tt.Type("hunter22secret")
-	click(t, tt, "Select date") // the date field itself; its FormItem label focuses the picker's column
+	click(t, tt, "Debut date") // the FormItem label now reaches the picker's text box
 	tt.Type("2026-12-24")
 	tt.Key(0, ui.KeyEnter)
 	click(t, tt, "Roles")

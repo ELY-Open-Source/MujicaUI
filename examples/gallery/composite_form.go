@@ -152,7 +152,7 @@ func (g *gallery) formFields(c *ui.Context, f *mujica.FormScope, log func(string
 		if r.Changed() {
 			log("debut " + s.debut.Format("2006-01-02"))
 		}
-		return r.Element
+		return r.Input
 	})
 	mujica.FormItem(f, "roles", &s.tags, mujica.FormItemOptions[[]string]{Label: g.t("Roles", "担当"), Required: true,
 		Description: g.t("Up to 4; press Enter after each.", "最多 4 个；每个后按 Enter。")}, func() *ui.Element {
