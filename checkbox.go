@@ -26,7 +26,15 @@ func Checkbox(c *ui.Context, value *bool, label string, opts CheckboxOptions) *u
 	}
 	k := Tokens(c)
 	d := Density(c)
-	row := ui.CheckboxBase(c, value).Gap(d.Unit() * 2).MinHeight(d.ControlHeight()).FocusRing(false).Disabled(opts.Disabled)
+	// Disabled on a wrapper blocks the base's click before it toggles.
+	var row *ui.Element
+	wrap := ui.Row(c).Shrink(0).Disabled(opts.Disabled)
+	wrap.Children(func() {
+		row = ui.CheckboxBase(c, value).Gap(d.Unit() * 2).MinHeight(d.ControlHeight()).FocusRing(false)
+	})
+	if opts.Disabled && wrap.FocusWithin() {
+		wrap.FocusRing(false).Focus()
+	}
 	if row.Changed() && opts.Indeterminate && !*value {
 		// From mixed, a click always checks.
 		*value = true
@@ -37,17 +45,9 @@ func Checkbox(c *ui.Context, value *bool, label string, opts CheckboxOptions) *u
 	on, mixed := *value, opts.Indeterminate
 	hover, pressed := row.Hovered(), row.Pressed()
 	row.Children(func() {
-		box := ui.Box(c).Size(checkboxSize, checkboxSize).Shrink(0).Radius(theme.ControlRadius)
-		switch {
-		case on || mixed:
-			box.Background(k.Accent).Border(theme.BorderWidth, k.AccentText)
-		case pressed:
-			box.Background(k.Selection).Border(theme.BorderWidth, k.AccentText)
-		case hover:
-			box.Background(k.SurfaceHover).Border(theme.BorderWidth, k.AccentText)
-		default:
-			box.Background(k.Surface).Border(theme.BorderWidth, k.ControlBorder)
-		}
+		bg, border := checkboxColors(k, on || mixed, hover, pressed)
+		box := ui.Box(c).Size(checkboxSize, checkboxSize).Shrink(0).Radius(theme.ControlRadius).
+			Background(bg).Border(theme.BorderWidth, border)
 		box.Transition(textInputFade)
 		box.DrawOver(func(p *ui.Painter, r ui.Rect) {
 			switch {
@@ -70,6 +70,23 @@ func Checkbox(c *ui.Context, value *bool, label string, opts CheckboxOptions) *u
 		slog.Debug("mujica: checkbox toggle", "label", label, "checked", *value)
 	}
 	return row
+}
+
+// checkboxColors gives a check box or radio mark its fill and edge.
+func checkboxColors(k theme.Tokens, on, hover, pressed bool) (bg, border ui.Color) {
+	switch {
+	case on && pressed:
+		return k.AccentPressed, k.Text
+	case on && hover:
+		return k.AccentHover, k.Text
+	case on:
+		return k.Accent, k.AccentText
+	case pressed:
+		return k.Selection, k.AccentText
+	case hover:
+		return k.SurfaceHover, k.AccentText
+	}
+	return k.Surface, k.ControlBorder
 }
 
 // CheckboxItem is one box of a CheckboxGroup.

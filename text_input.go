@@ -53,10 +53,10 @@ func TextInput(c *ui.Context, value *string, opts TextInputOptions) InputResult 
 		if opts.Leading != nil {
 			opts.Leading()
 		}
-		in := textInputEditor(c, frame, value, opts.ReadOnly, false).Grow(1).MinWidth(Density(c).Unit() * 10).
+		in := textInputEditor(c, frame, value, opts.ReadOnly || opts.Disabled, ui.TextInputBase).Grow(1).MinWidth(Density(c).Unit() * 10).
 			Placeholder(opts.Placeholder).Label(opts.Label)
-		r.changed = in.Changed() && !opts.ReadOnly
-		r.submitted = in.Submitted()
+		r.changed = in.Changed() && !opts.ReadOnly && !opts.Disabled
+		r.submitted = in.Submitted() && !opts.Disabled
 		if opts.Clearable && *value != "" && !opts.ReadOnly && !opts.Disabled {
 			if textInputClear(c, in) {
 				*value = ""
@@ -95,6 +95,10 @@ func textInputFrame(c *ui.Context, look *textInputLook, build func(frame *ui.Ele
 		}
 		frame.Children(func() { in = build(frame) })
 		in.FocusRing(false)
+		if look.disabled && outer.FocusWithin() {
+			// A field disabled while focused gives the focus up.
+			outer.FocusRing(false).Focus()
+		}
 		if look.err != "" {
 			in.Error(look.err)
 		}
@@ -125,7 +129,7 @@ func textInputFrame(c *ui.Context, look *textInputLook, build func(frame *ui.Ele
 		}
 		ui.Row(c).Gap(d.Unit() * 2).AlignItems(ui.Start).Children(func() {
 			if look.err != "" {
-				ui.Text(c, look.err).TextColor(k.Danger).FontSize(theme.CaptionSize).Grow(1)
+				ui.Text(c, look.err).TextColor(k.Danger).FontSize(FontSize(c, theme.CaptionSize)).Grow(1)
 			} else {
 				ui.Spacer(c)
 			}
@@ -137,16 +141,12 @@ func textInputFrame(c *ui.Context, look *textInputLook, build func(frame *ui.Ele
 	return outer, in
 }
 
-// textInputEditor builds the MyGo editor; read-only edits are undone.
-func textInputEditor(c *ui.Context, frame *ui.Element, value *string, readOnly, area bool) *ui.Element {
-	base := ui.TextInputBase
-	if area {
-		base = ui.TextAreaBase
-	}
-	if !readOnly {
+// textInputEditor builds the MyGo editor; a locked one edits a copy, undone at once.
+func textInputEditor(c *ui.Context, frame *ui.Element, value *string, locked bool, base func(*ui.Context, *string) *ui.Element) *ui.Element {
+	if !locked {
 		return base(c, value)
 	}
-	shown := ui.Local(frame, "readonly", func() string { return *value })
+	shown := ui.Local(frame, "locked", func() string { return *value })
 	*shown = *value
 	in := base(c, shown)
 	*shown = *value

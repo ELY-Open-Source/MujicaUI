@@ -47,11 +47,14 @@ func (s numberInputSpec) format(v float64) string {
 	return strconv.FormatFloat(v, 'f', s.decimals, 64)
 }
 
-// clamp bounds v and rounds it to the precision.
+// clamp rounds v to the precision, then bounds it; the bounds sit on that grid.
 func (s numberInputSpec) clamp(v float64) float64 {
 	p := math.Pow(10, float64(s.decimals))
-	return math.Round(math.Max(s.lo, math.Min(s.hi, v))*p) / p
+	return math.Max(s.lo, math.Min(s.hi, math.Round(v*p)/p))
 }
+
+// numberInputSame reports equal values, counting NaN (empty) as equal.
+func numberInputSame(a, b float64) bool { return a == b || math.IsNaN(a) && math.IsNaN(b) }
 
 func numberInputResolve(opts NumberInputOptions) numberInputSpec {
 	s := numberInputSpec{lo: opts.Min, hi: opts.Max, step: opts.Step, decimals: opts.Precision}
@@ -74,6 +77,13 @@ func numberInputResolve(opts NumberInputOptions) numberInputSpec {
 		if t := strconv.FormatFloat(s.step, 'f', -1, 64); strings.Contains(t, ".") {
 			s.decimals = len(t) - strings.IndexByte(t, '.') - 1
 		}
+	}
+	// Bounds move inward onto the precision grid, so clamped values keep both.
+	p := math.Pow(10, float64(s.decimals))
+	s.lo = math.Ceil(math.Round(s.lo*p*1e6)/1e6) / p
+	s.hi = math.Floor(math.Round(s.hi*p*1e6)/1e6) / p
+	if s.lo > s.hi {
+		panic("mujica: NumberInput has no value in range at this precision")
 	}
 	return s
 }
@@ -114,12 +124,18 @@ func NumberInput(c *ui.Context, value *float64, opts NumberInputOptions) InputRe
 	r.Element, r.Input = textInputFrame(c, look, func(frame *ui.Element) *ui.Element {
 		text := ui.Local(frame, "text", func() string { return s.format(*value) })
 		invalid := ui.Local(frame, "invalid", func() string { return "" })
-		in := ui.TextInputBase(c, text).Grow(1).MinWidth(Density(c).Unit() * 12).
+		seen := ui.Local(frame, "seen", func() float64 { return *value })
+		if !numberInputSame(*seen, *value) {
+			// Set from outside: the text follows, and a typing error goes.
+			*text, *invalid = s.format(*value), ""
+		}
+		in := textInputEditor(c, frame, text, opts.Disabled, ui.TextInputBase).Grow(1).MinWidth(Density(c).Unit() * 12).
 			Placeholder(opts.Placeholder).Label(opts.Label)
-		if in.Changed() {
+		if in.Changed() && !opts.Disabled {
 			*invalid = numberInputParse(c, s, *text, opts.AllowEmpty, set)
 		}
 		switch {
+		case opts.Disabled:
 		case in.Shortcut(0, ui.KeyUp):
 			stepBy(1)
 			*text, *invalid = s.format(*value), ""
@@ -127,9 +143,11 @@ func NumberInput(c *ui.Context, value *float64, opts NumberInputOptions) InputRe
 			stepBy(-1)
 			*text, *invalid = s.format(*value), ""
 		}
-		if !in.Focused() {
-			*text, *invalid = s.format(*value), ""
+		if !in.Focused() && *invalid == "" {
+			// Leaving shows the value rounded; invalid text stays to be fixed.
+			*text = s.format(*value)
 		}
+		defer func() { *seen = *value }()
 		for _, b := range []struct {
 			name  string
 			icon  string

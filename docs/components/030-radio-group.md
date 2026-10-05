@@ -37,7 +37,7 @@ if mujica.RadioGroup(c, &size, items, mujica.RadioGroupOptions{Label: "Size"}).C
 
 ## 状态
 
-未选（空心圆）、悬停与按下（AccentText 边）、选中（酒红实心圆与象牙白圆点）、键盘聚焦、禁用。
+未选（空心圆）、悬停与按下（AccentText 边）、选中（酒红实心圆与象牙白圆点；悬停与按下时底色加深、边框变为正文色）、键盘聚焦、禁用。
 
 ## 事件
 
@@ -48,5 +48,7 @@ if mujica.RadioGroup(c, &size, items, mujica.RadioGroupOptions{Label: "Size"}).C
 Tab 进入组并落在已选项；Up/Down/Left/Right 移动并直接选择，循环，跳过禁用项；Home、End 选择首末可用项。
 
 ## 限制
+
+- 每个选项以 `Value` 为键，选项重新排序后焦点仍跟随原来的值。
 
 - 方向键对横向与纵向组都同时响应上下左右（MyGo `RadioGroup` 固定使用 `Horizontal|Vertical`）。

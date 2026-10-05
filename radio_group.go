@@ -43,37 +43,44 @@ func RadioGroup[T comparable](c *ui.Context, value *T, items []RadioItem[T], opt
 	k := Tokens(c)
 	d := Density(c)
 	var r InputResult
-	r.Element = ui.RadioGroup(c, func() {
-		for _, it := range items {
-			if radioGroupItem(c, k, d, value, it) {
-				r.changed = true
-				slog.Debug("mujica: radio_group choose", "label", it.Label)
+	// Disabled on a wrapper blocks the bases' clicks before they choose.
+	wrap := ui.Box(c).Shrink(0).Disabled(opts.Disabled)
+	wrap.Children(func() {
+		r.Element = ui.RadioGroup(c, func() {
+			for _, it := range items {
+				if radioGroupItem(c, k, d, value, it) {
+					r.changed = true
+					slog.Debug("mujica: radio_group choose", "label", it.Label)
+				}
 			}
-		}
-	}).Label(opts.Label).Disabled(opts.Disabled).Gap(0)
+		}).Label(opts.Label).Gap(0)
+	})
 	if opts.Horizontal {
 		r.Element.Row().Gap(d.Unit() * 6)
+	}
+	if opts.Disabled && wrap.FocusWithin() {
+		wrap.FocusRing(false).Focus()
 	}
 	return r
 }
 
 // radioGroupItem builds one radio and reports whether it was chosen.
 func radioGroupItem[T comparable](c *ui.Context, k theme.Tokens, d theme.Density, value *T, it RadioItem[T]) bool {
-	row := ui.RadioBase(c, value, it.Value).Gap(d.Unit() * 2).MinHeight(d.ControlHeight()).FocusRing(false).Disabled(it.Disabled)
+	// Keyed by value so focus follows the item, not its position.
+	var row *ui.Element
+	item := ui.Box(c).Key(it.Value).Disabled(it.Disabled)
+	item.Children(func() {
+		row = ui.RadioBase(c, value, it.Value).Gap(d.Unit() * 2).MinHeight(d.ControlHeight()).FocusRing(false)
+	})
+	if it.Disabled && item.FocusWithin() {
+		item.FocusRing(false).Focus()
+	}
 	on := *value == it.Value
 	hover, pressed := row.Hovered(), row.Pressed()
 	row.Children(func() {
-		dot := ui.Box(c).Size(checkboxSize, checkboxSize).Shrink(0).Radius(checkboxSize / 2)
-		switch {
-		case on:
-			dot.Background(k.Accent).Border(theme.BorderWidth, k.AccentText)
-		case pressed:
-			dot.Background(k.Selection).Border(theme.BorderWidth, k.AccentText)
-		case hover:
-			dot.Background(k.SurfaceHover).Border(theme.BorderWidth, k.AccentText)
-		default:
-			dot.Background(k.Surface).Border(theme.BorderWidth, k.ControlBorder)
-		}
+		bg, border := checkboxColors(k, on, hover, pressed)
+		dot := ui.Box(c).Size(checkboxSize, checkboxSize).Shrink(0).Radius(checkboxSize/2).
+			Background(bg).Border(theme.BorderWidth, border)
 		dot.Transition(textInputFade)
 		dot.DrawOver(func(p *ui.Painter, r ui.Rect) {
 			if on {

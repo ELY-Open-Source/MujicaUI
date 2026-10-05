@@ -21,7 +21,7 @@ if mujica.NumberInput(c, &copies, mujica.NumberInputOptions{Min: 1, Max: 99, Lab
 | `value` | `*float64` | 必填 | 数值；空值用 `math.NaN()` 表示，仅在 `AllowEmpty` 时允许。 |
 | `Min` / `Max` | `float64` | 都为 0 | 范围；相等（含零值）表示不限范围；`Min > Max` 时 panic。 |
 | `Step` | `float64` | `1` | 方向键与按钮的步长；负数 panic。 |
-| `Precision` | `int` | 取 `Step` 的小数位 | 保留与显示的小数位。 |
+| `Precision` | `int` | 取 `Step` 的小数位 | 保留与显示的小数位。范围边界向内取到该精度上（如 [0.11, 0.29] 精度 1 时有效值只有 0.2）；范围内没有任何该精度的值时 panic。 |
 | `AllowEmpty` | `bool` | `false` | 允许清空，值变为 NaN；从空值步进时从 0（夹在范围内）开始。 |
 | `StepperOnly` | `bool` | `false` | 只显示数值与上下箭头，不可输入；必须给出 `Min < Max`，且不能与 `AllowEmpty` 同用。 |
 | `Placeholder` | `string` | `""` | 空值时的占位。 |
@@ -31,7 +31,7 @@ if mujica.NumberInput(c, &copies, mujica.NumberInputOptions{Min: 1, Max: 99, Lab
 
 ## 状态
 
-输入模式同 TextInput；输入非数字或超出范围时显示内置错误（“请输入数字”“请输入 a 到 b 之间的数字”），值保持上一次有效值；失去焦点后文本恢复为当前值并清除该错误。到达边界时对应按钮禁用。
+输入模式同 TextInput；输入非数字或超出范围时显示内置错误（“请输入数字”“请输入 a 到 b 之间的数字”），值保持上一次有效值；失去焦点后错误文本与提示保留，直到用户改正，或调用方从外部改变了值。值在聚焦期间被外部修改时，输入框立即显示新值。到达边界时对应按钮禁用。
 
 ## 事件
 

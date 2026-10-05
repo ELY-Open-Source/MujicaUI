@@ -23,7 +23,7 @@ if i := mujica.ButtonGroup(c, items, mujica.ButtonGroupOptions{Label: "Range"}).
 | --- | --- | --- | --- |
 | `Label` | `string` | `""` | 文字；与 `Icon` 至少给一个，否则 panic。 |
 | `Icon` | `*ui.SVG` | `nil` | 图标。 |
-| `Name` | `string` | `""` | 仅图标项的无障碍名称。 |
+| `Name` | `string` | `""` | 仅图标项的无障碍名称；仅图标且为空时 panic。 |
 | `Disabled` | `bool` | `false` | 单项禁用；方向键跳过该项。 |
 
 `ButtonGroupOptions`

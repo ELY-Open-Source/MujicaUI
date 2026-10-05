@@ -33,7 +33,7 @@ func CheckboxGroup(c *ui.Context, label string, items []CheckboxItem, opts Check
 
 ## 状态
 
-未选（Surface 底、ControlBorder 边）、悬停与按下（AccentText 边）、选中（酒红底、象牙白勾）、半选（酒红底、象牙白横线）、键盘聚焦（方框外焦点环）、禁用。行高不低于密度控件高度。
+未选（Surface 底、ControlBorder 边）、悬停与按下（AccentText 边）、选中（酒红底、象牙白勾；悬停与按下时底色加深、边框变为正文色）、半选（酒红底、象牙白横线）、键盘聚焦（方框外焦点环）、禁用。行高不低于密度控件高度。
 
 全选框：全部选中为选中，部分选中为半选，全不选为未选。点击时若可用项未全选则全部勾选，否则全部清除；禁用项保持不变。
 

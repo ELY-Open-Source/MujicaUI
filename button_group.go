@@ -9,7 +9,7 @@ import (
 	"mujicaui/theme"
 )
 
-// ButtonGroupItem is one button of a ButtonGroup. Give Label, Icon or both.
+// ButtonGroupItem is one button of a ButtonGroup. Give Label, Icon or both; icon-only needs Name.
 type ButtonGroupItem struct {
 	Label string
 	Icon  *ui.SVG
@@ -54,6 +54,9 @@ func ButtonGroup(c *ui.Context, items []ButtonGroupItem, opts ButtonGroupOptions
 		for i, it := range items {
 			if it.Label == "" && it.Icon == nil {
 				panic("mujica: ButtonGroupItem needs a Label or an Icon")
+			}
+			if it.Label == "" && it.Name == "" {
+				panic("mujica: icon-only ButtonGroupItem needs a Name")
 			}
 			b := ui.ButtonBase(c).Key(i).MinHeight(d.ControlHeight()).MinWidth(d.ControlHeight()).
 				Padding(0, d.Unit()*3).Gap(d.Unit() * 2).Disabled(it.Disabled)
