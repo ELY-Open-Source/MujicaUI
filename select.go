@@ -41,6 +41,11 @@ type selectTypeahead struct {
 	at      time.Time
 }
 
+type selectLifetime struct {
+	disabled   bool
+	generation int
+}
+
 // Select chooses *value from options in a popup; typing on the closed select jumps to a match.
 func Select[T comparable](c *ui.Context, value *T, options []SelectOption[T], opts SelectOptions) ChoiceResult {
 	k := Tokens(c)
@@ -48,7 +53,15 @@ func Select[T comparable](c *ui.Context, value *T, options []SelectOption[T], op
 	// SelectBase chooses into a copy as it is built; a choice counts once the option is known enabled.
 	pick := old
 	var s *ui.SelectParts[T]
-	ui.Row(c).Shrink(0).Disabled(opts.Disabled).Children(func() { s = ui.SelectBase(c, &pick) })
+	site := ui.Row(c).Shrink(0).Disabled(opts.Disabled)
+	life := ui.Local(site, selectKey{"lifetime"}, func() selectLifetime { return selectLifetime{} })
+	if disabled := site.IsDisabled(); disabled != life.disabled {
+		life.disabled = disabled
+		life.generation++
+	}
+	site.Children(func() {
+		ui.Row(c).Key(life.generation).Children(func() { s = ui.SelectBase(c, &pick) })
+	})
 	tr := s.Trigger
 	commit := func() {
 		if pick != *value && !tr.IsDisabled() && selectEnabled(options, pick) {
@@ -62,6 +75,9 @@ func Select[T comparable](c *ui.Context, value *T, options []SelectOption[T], op
 	}
 	ta := ui.Local(tr, selectKey{"typeahead"}, func() selectTypeahead { return selectTypeahead{} })
 	tr.TextCaret(ui.Rect{W: 1, H: Density(c).ControlHeight()}).HandleInput(func(ev ui.InputEvent) bool {
+		if tr.IsDisabled() {
+			return false
+		}
 		if ev.Kind != ui.InputText || strings.TrimSpace(ev.Text) == "" {
 			return false
 		}
@@ -97,8 +113,7 @@ func Select[T comparable](c *ui.Context, value *T, options []SelectOption[T], op
 	})
 	pick = *value
 	lastHi := ui.Local(tr, selectKey{"shown"}, func() int { return -1 })
-	if opts.Disabled {
-		// SelectParts has no way to close it (ui/base.go:310): a disabled select builds no popup.
+	if tr.IsDisabled() {
 		return ChoiceResult{tr, false}
 	}
 	s.Popup(func(panel *ui.Element) {

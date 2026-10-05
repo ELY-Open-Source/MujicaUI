@@ -1,7 +1,6 @@
 package mujica
 
 import (
-	"math"
 	"strings"
 
 	"github.com/egoist/mygo/ui"
@@ -160,13 +159,6 @@ func codeBadge(c *ui.Context, letter string, col ui.Color) {
 		Role(ui.RoleNone).Children(func() {
 		ui.Text(c, letter).Font(theme.MonoFont).FontSize(FontSize(c, 11)).FontWeight(700).TextColor(col)
 	})
-}
-
-// codeRule draws a pixel-aligned 1 DIP line.
-func codeRule(p *ui.Painter, x0, x1, y float32, c ui.Color) {
-	s := float64(p.Scale())
-	yy := float32((math.Floor(float64(y)*s) + 0.5) / s)
-	p.Line(x0, yy, x1, yy, 1, c)
 }
 
 // codeTextWidth returns the width of s in the code font.
