@@ -1,0 +1,86 @@
+# MujicaUI
+
+宫廷哥特风格的 Go 桌面组件库，建立在 [MyGo](https://mygo.egoist.dev/docs/ui) 原生 UI 之上。象牙白与炭黑底色，酒红主色，旧金装饰线，衬线标题。100 个组件，浅深两套主题，三种密度。
+
+界面由 MyGo 在 GPU 上自绘，不使用 HTML、JavaScript 或 WebView。
+
+## 安装
+
+模块路径暂为 `mujicaui`，尚未发布到代码托管地址。本地使用：
+
+```sh
+go mod edit -require=mujicaui@v0.0.0 -replace=mujicaui=/path/to/MujicaUI
+```
+
+要求 Go 1.27.1 与 MyGo v0.2.10（见 [兼容表](docs/compat.md)）。
+
+## 最小示例
+
+```go
+package main
+
+import (
+	"log"
+
+	"github.com/egoist/mygo"
+	"github.com/egoist/mygo/ui"
+
+	mujica "mujicaui"
+)
+
+type app struct{ name string }
+
+func (a *app) view(c *ui.Context) {
+	mujica.Use(c, mujica.Settings{Locale: mujica.ZhCN})
+	ui.Column(c).Fill().Center().Gap(12).Children(func() {
+		mujica.TextInput(c, &a.name, mujica.TextInputOptions{Placeholder: "姓名"})
+		if mujica.Button(c, "觐见", mujica.ButtonOptions{}).Clicked() {
+			log.Println("hello", a.name)
+		}
+	})
+}
+
+func main() {
+	a := &app{}
+	mygo.App.WhenReady(func() {
+		mygo.NewWindow(mygo.WindowOptions{Title: "Mujica", Width: 480, Height: 320, Content: ui.View(a.view)})
+	})
+	if err := mygo.App.Run(); err != nil {
+		log.Fatal(err)
+	}
+}
+```
+
+## 主题
+
+每帧开头调用 `mujica.Use(c, settings)`。`Settings` 决定模式（`System`、`Light`、`Dark`）、密度（`theme.Compact`、`theme.Default`、`theme.Comfortable`）、语言与文案覆盖。每个窗口各自设置，切换不重置业务状态。
+
+```go
+mujica.Use(c, mujica.Settings{
+	Mode:    mujica.Dark,
+	Density: theme.Compact,
+	Locale:  mujica.ZhCN,
+})
+k := mujica.Tokens(c) // 当前窗口的颜色
+```
+
+覆盖顺序：组件参数，窗口 `Settings`，库默认值。系统高对比度、文本缩放、减少动画始终生效。
+
+## Gallery
+
+```sh
+go run ./examples/gallery            # 原生窗口
+go run ./examples/gallery -web :8080 # 浏览器镜像
+```
+
+浏览器镜像不在浏览器里运行组件。Go 进程用 `ui.NewTester` 驱动同一个 Gallery 视图，把帧推给页面，再把指针、键盘、输入法和剪贴板事件送回 Go。
+
+## 文档
+
+- [组件文档](docs/components/)：每个组件一页。
+- [兼容与平台依赖](docs/compat.md)
+- [上游归并](docs/upstream.md)
+
+## 许可
+
+MIT。第三方声明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。

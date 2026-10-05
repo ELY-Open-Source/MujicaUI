@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MujicaUI Mirror</title>
+<style>
+:root {
+  --bg: #F2EBDD; --surface: #FBF7EF; --text: #211C1D; --muted: #6A5B55;
+  --border: #D2C3AF; --accent: #7D2034; --ornament: #AD9164; --ok: #326247; --bad: #A12635;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #191618; --surface: #242024; --text: #F2EBDD; --muted: #BCAEAA;
+    --border: #51424A; --accent: #E4A0AE; --ornament: #BDA172; --ok: #94C6A4; --bad: #F0A1AA;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); }
+body { display: grid; grid-template-rows: auto 1fr auto; font: 13px/1.5 system-ui, sans-serif; }
+header {
+  display: flex; align-items: center; gap: 16px; padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.mark { width: 9px; height: 9px; background: var(--ornament); transform: rotate(45deg); flex: none; }
+h1 { margin: 0; font: 600 18px/1 Georgia, "Songti SC", serif; letter-spacing: .04em; }
+.tag { color: var(--muted); }
+.stats { margin-left: auto; display: flex; gap: 14px; color: var(--muted); font: 12px ui-monospace, monospace; }
+.dot { display: inline-block; width: 7px; height: 7px; transform: rotate(45deg); margin-right: 6px; background: var(--bad); }
+.live .dot { background: var(--ok); }
+main { position: relative; min-height: 0; overflow: hidden; }
+canvas { position: absolute; inset: 0; width: 100%; height: 100%; outline: none; touch-action: none; }
+#keys { position: absolute; left: -9999px; top: 0; width: 1px; height: 1px; opacity: 0; }
+footer {
+  padding: 6px 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px;
+  display: flex; gap: 16px; flex-wrap: wrap;
+}
+footer b { color: var(--text); font-weight: 600; }
+#error { color: var(--bad); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+@media (max-width: 640px) { .tag, .stats .hide { display: none; } }
+</style>
+</head>
+<body>
+<header>
+  <span class="mark" aria-hidden="true"></span>
+  <h1>MujicaUI</h1>
+  <span class="tag">Go components, drawn by MyGo, mirrored here</span>
+  <div class="stats" aria-hidden="true">
+    <span id="link"><span class="dot"></span><span id="linktext">connecting</span></span>
+    <span class="hide">frame <b id="seq">0</b></span>
+    <span class="hide">input→pixels <b id="lat">–</b></span>
+  </div>
+</header>
+<main>
+  <canvas id="screen" tabindex="0" aria-label="MujicaUI Gallery, rendered by the Go server"></canvas>
+  <textarea id="keys" aria-hidden="true" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>
+</main>
+<footer>
+  <span>The browser runs no component code. Every pixel comes from <b>ui.NewTester</b> in the Go process; your pointer, keys, IME and clipboard travel back to it.</span>
+  <span id="error" role="alert"></span>
+</footer>
+<div id="say" class="sr" aria-live="polite"></div>
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const canvas = $("screen"), ctx = canvas.getContext("2d"), keys = $("keys");
+let shown = 0, wanted = 0, loading = false, sentAt = 0, queue = Promise.resolve();
+
+function fail(msg) { $("error").textContent = msg; console.error("[mirror]", msg); }
+
+function send(ev) {
+  if (ev.type !== "move") sentAt = performance.now();
+  queue = queue.then(() => fetch("/input", {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(ev),
+  })).then(async (r) => { if (!r.ok) fail(`input ${ev.type}: ${r.status} ${await r.text()}`); })
+    .catch((e) => fail(`input ${ev.type}: ${e}`));
+}
+
+function mods(e) { return [e.shiftKey, e.ctrlKey, e.altKey, e.metaKey]; }
+
+function fetchFrame() {
+  if (loading || shown === wanted) return;
+  loading = true;
+  const seq = wanted, img = new Image();
+  img.onload = () => {
+    canvas.width = img.width; canvas.height = img.height;
+    ctx.drawImage(img, 0, 0);
+    shown = seq; loading = false; $("seq").textContent = seq;
+    if (sentAt) { $("lat").textContent = Math.round(performance.now() - sentAt) + " ms"; sentAt = 0; }
+    fetchFrame();
+  };
+  img.onerror = () => { loading = false; fail(`frame ${seq} failed to load`); };
+  img.src = `/frame.png?s=${seq}`;
+}
+
+function connect() {
+  const es = new EventSource("/events");
+  es.onopen = () => { $("link").className = "live"; $("linktext").textContent = "live"; resize(); };
+  es.onerror = () => { $("link").className = ""; $("linktext").textContent = "reconnecting"; };
+  es.onmessage = (m) => {
+    const n = JSON.parse(m.data);
+    if (n.cursor) canvas.style.cursor = n.cursor;
+    for (const url of n.open || []) window.open(url, "_blank", "noopener");
+    for (const line of n.announce || []) $("say").textContent = line;
+    if (typeof n.clipboard === "string") {
+      navigator.clipboard.writeText(n.clipboard).catch((e) => fail(`clipboard write: ${e.message}`));
+    }
+    wanted = n.seq; fetchFrame();
+  };
+}
+
+const media = {
+  dark: matchMedia("(prefers-color-scheme: dark)"),
+  motion: matchMedia("(prefers-reduced-motion: reduce)"),
+  contrast: matchMedia("(prefers-contrast: more)"),
+};
+function resize() {
+  const r = canvas.getBoundingClientRect();
+  send({
+    type: "resize", w: Math.max(320, Math.round(r.width)), h: Math.max(240, Math.round(r.height)),
+    scale: Math.min(window.devicePixelRatio || 1, 2), dark: media.dark.matches,
+    reduceMotion: media.motion.matches, moreContrast: media.contrast.matches,
+  });
+}
+new ResizeObserver(() => { clearTimeout(resize.t); resize.t = setTimeout(resize, 80); }).observe(canvas);
+Object.values(media).forEach((q) => q.addEventListener("change", resize));
+
+function at(e) { const r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+canvas.addEventListener("pointerdown", (e) => {
+  canvas.setPointerCapture(e.pointerId); keys.focus({ preventScroll: true });
+  send({ type: "down", button: e.button, mods: mods(e), ...at(e) }); e.preventDefault();
+});
+canvas.addEventListener("pointerup", (e) => send({ type: "up", button: e.button, mods: mods(e), ...at(e) }));
+let move = null;
+canvas.addEventListener("pointermove", (e) => {
+  const first = move === null; move = at(e);
+  if (first) requestAnimationFrame(() => { send({ type: "move", ...move }); move = null; });
+});
+canvas.addEventListener("wheel", (e) => {
+  const k = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? canvas.clientHeight : 1;
+  send({ type: "wheel", dx: -e.deltaX * k, dy: -e.deltaY * k, ...at(e) }); e.preventDefault();
+}, { passive: false });
+canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+canvas.addEventListener("focus", () => keys.focus({ preventScroll: true }));
+
+const commands = { KeyC: "copy", KeyX: "cut", KeyA: "selectAll", KeyZ: "undo" };
+let composing = false;
+keys.addEventListener("keydown", (e) => {
+  if (e.isComposing || composing || e.key === "Process") return;
+  if (["ShiftLeft", "ShiftRight", "ControlLeft", "ControlRight", "AltLeft", "AltRight", "MetaLeft", "MetaRight", "CapsLock"].includes(e.code)) return;
+  const cmd = e.metaKey || e.ctrlKey;
+  if (cmd && e.code === "KeyV") return;
+  if (cmd && commands[e.code] && !e.altKey) {
+    send({ type: "command", text: e.code === "KeyZ" && e.shiftKey ? "redo" : commands[e.code] });
+  } else {
+    send({ type: "key", code: e.code, text: e.key.length === 1 ? e.key : "", mods: mods(e) });
+  }
+  e.preventDefault();
+});
+keys.addEventListener("compositionstart", () => { composing = true; });
+keys.addEventListener("compositionupdate", (e) => send({ type: "compose", text: e.data, caret: [...e.data].length }));
+keys.addEventListener("compositionend", (e) => {
+  composing = false;
+  send({ type: "compose", text: "", caret: 0 });
+  if (e.data) send({ type: "text", text: e.data });
+  keys.value = "";
+});
+keys.addEventListener("input", () => { if (!composing) keys.value = ""; });
+keys.addEventListener("paste", (e) => { send({ type: "paste", text: e.clipboardData.getData("text/plain") }); e.preventDefault(); });
+window.addEventListener("focus", () => send({ type: "focus", text: "in" }));
+window.addEventListener("blur", () => send({ type: "focus", text: "out" }));
+
+connect();
+canvas.focus();
+</script>
+</body>
+</html>

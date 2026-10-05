@@ -1,9 +1,11 @@
 // Gallery tours every MujicaUI component in a native MyGo window.
 //
-//	go run ./examples/gallery
+//	go run ./examples/gallery            native window
+//	go run ./examples/gallery -web :8080 browser mirror
 package main
 
 import (
+	"flag"
 	"log"
 
 	"github.com/egoist/mygo"
@@ -11,7 +13,12 @@ import (
 )
 
 func main() {
+	web := flag.String("web", "", "serve the gallery to a browser at this address instead of opening a window")
+	flag.Parse()
 	app := newGallery()
+	if *web != "" {
+		log.Fatal(serveWeb(*web, app.view))
+	}
 	mygo.App.WhenReady(func() {
 		mygo.NewWindow(mygo.WindowOptions{
 			Title:     "MujicaUI Gallery",
