@@ -88,3 +88,61 @@ func TestSchemaTreeSnapshot(t *testing.T) {
 		}
 	})
 }
+
+func TestSchemaTreeAncestorDisabled(t *testing.T) {
+	var s SchemaTreeState
+	disabled := false
+	changes := 0
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Disabled(disabled).Children(func() {
+			if SchemaTree(c, &s, schemaSample, SchemaTreeOptions{}).Changed() {
+				changes++
+			}
+		})
+	}, 520, 420)
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeyDown)
+	before, _ := s.Selected()
+	old := changes
+	disabled = true
+	tt.Key(0, ui.KeyRight)
+	tt.Key(0, ui.KeyDown)
+	if after, _ := s.Selected(); after != before || changes != old || tt.HasText("guests") {
+		t.Fatalf("disabled schema: before=%q after=%q events=%d old=%d texts=%q", before, after, changes, old, tt.Texts())
+	}
+}
+
+func TestSchemaTreeDisclosureHitArea(t *testing.T) {
+	var state SchemaTreeState
+	changes := 0
+	tt := schemaTester(&state, schemaSample, &changes)
+	row, ok := tt.Find("court")
+	if !ok {
+		t.Fatal("database row missing")
+	}
+	tt.ClickAt(row.X+31, row.Y+8)
+	if !tt.HasText("guests") {
+		t.Fatal("disclosure missed 28 DIP hit area")
+	}
+}
+
+func TestSchemaTreeClearsSelectionWhenEmpty(t *testing.T) {
+	var state SchemaTreeState
+	roots := schemaSample
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		SchemaTree(c, &state, roots, SchemaTreeOptions{})
+	}, 520, 420)
+	if err := tt.Click("court"); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := state.Selected(); !ok {
+		t.Fatal("database selection missing")
+	}
+	roots = nil
+	tt.Frame()
+	if _, ok := state.Selected(); ok || !tt.HasText("No databases") {
+		t.Fatal("empty schema retained selection")
+	}
+}

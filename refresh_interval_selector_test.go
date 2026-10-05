@@ -84,3 +84,45 @@ func TestRefreshIntervalSelectorSnapshot(t *testing.T) {
 		})
 	})
 }
+
+func TestRefreshIntervalSelectorKeyboardAncestorDisable(t *testing.T) {
+	interval := time.Duration(0)
+	disabled := false
+	changes, refreshes := 0, 0
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Disabled(disabled).Children(func() {
+			r := RefreshIntervalSelector(c, &interval, RefreshIntervalSelectorOptions{})
+			if r.Changed {
+				changes++
+			}
+			if r.Refresh {
+				refreshes++
+			}
+		})
+	}, 500, 400)
+	_ = tt.Click("Refresh interval")
+	tt.Key(0, ui.KeyDown)
+	tt.Key(0, ui.KeyEnter)
+	if interval != 5*time.Second || changes != 1 {
+		t.Fatal("keyboard interval")
+	}
+	_ = tt.Click("Refresh interval")
+	disabled = true
+	tt.Key(0, ui.KeyDown)
+	tt.Key(0, ui.KeyEnter)
+	if interval != 5*time.Second || changes != 1 || refreshes != 0 || tt.HasText("Every 10 s") {
+		t.Fatal("disabled popup remained active")
+	}
+}
+
+func TestRefreshIntervalSelectorRejectsDuplicateIntervals(t *testing.T) {
+	defer func() {
+		if recover() == nil {
+			t.Fatal("duplicate intervals accepted")
+		}
+	}()
+	interval := time.Duration(0)
+	refreshes, changes := 0, 0
+	refreshTester(&interval, &RefreshIntervalSelectorOptions{Intervals: []time.Duration{time.Second, time.Second}}, &refreshes, &changes)
+}

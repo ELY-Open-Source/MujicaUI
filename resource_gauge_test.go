@@ -1,6 +1,7 @@
 package mujica
 
 import (
+	"math"
 	"testing"
 
 	"github.com/egoist/mygo/ui"
@@ -53,4 +54,50 @@ func TestResourceGaugeSnapshot(t *testing.T) {
 	snapshot(t, "resource_gauge", 680, 250, func(c *ui.Context) {
 		ui.Column(c).Padding(16).Children(func() { ResourceGauge(c, resourceSample, ResourceGaugeOptions{}) })
 	})
+}
+
+func TestResourceGaugeRejectsInfiniteTotal(t *testing.T) {
+	defer func() {
+		if recover() == nil {
+			t.Fatal("infinite capacity accepted")
+		}
+	}()
+	ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ResourceGauge(c, []ResourceReading{{Name: "CPU", Total: math.Inf(1)}}, ResourceGaugeOptions{})
+	}, 400, 300)
+}
+
+func TestResourceGaugeEmptyState(t *testing.T) {
+	tt := ui.NewTester(func(c *ui.Context) { Use(c, Settings{}); ResourceGauge(c, nil, ResourceGaugeOptions{}) }, 600, 300)
+	if !tt.HasText("No resources") {
+		t.Fatal("empty resource state")
+	}
+}
+
+func TestResourceGaugeLoadingErrorAndDisabledRetry(t *testing.T) {
+	status, disabled := DataLoading, false
+	retries := 0
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Disabled(disabled).Children(func() {
+			if ResourceGauge(c, resourceSample[:1], ResourceGaugeOptions{Status: status, Error: "offline"}).Changed() {
+				retries++
+			}
+		})
+	}, 400, 300)
+	if !tt.HasText("Loading") {
+		t.Fatal("loading resource")
+	}
+	status = DataFailed
+	tt.Frame()
+	_ = tt.Click("Retry")
+	if retries != 1 || !tt.HasText("offline") {
+		t.Fatal("error retry")
+	}
+	disabled = true
+	tt.Key(0, ui.KeyEnter)
+	if retries != 1 {
+		t.Fatal("disabled resource retry")
+	}
 }

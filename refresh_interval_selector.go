@@ -12,7 +12,7 @@ import (
 
 // RefreshIntervalSelectorOptions configure a RefreshIntervalSelector.
 type RefreshIntervalSelectorOptions struct {
-	// Intervals to offer besides Off; nil uses 5 s, 10 s, 30 s, 1 m and 5 m.
+	// Intervals defaults to 5s, 10s, 30s, 1m and 5m.
 	Intervals []time.Duration
 	// Refreshing shows the refresh in progress and holds the timer.
 	Refreshing bool
@@ -22,7 +22,7 @@ type RefreshIntervalSelectorOptions struct {
 // RefreshResult reports this frame's events.
 type RefreshResult struct {
 	Element *ui.Element
-	// Refresh asks the caller to reload, by hand or because the interval elapsed.
+	// Refresh requests caller loading, manually or after the interval.
 	Refresh bool
 	// Changed reports a new interval.
 	Changed bool
@@ -32,7 +32,7 @@ type refreshState struct{ last time.Time }
 
 var refreshDefaults = []time.Duration{5 * time.Second, 10 * time.Second, 30 * time.Second, time.Minute, 5 * time.Minute}
 
-// RefreshIntervalSelector picks an auto-refresh interval, zero for off, and refreshes by hand.
+// RefreshIntervalSelector selects timed refresh intervals and reports manual requests.
 func RefreshIntervalSelector(c *ui.Context, interval *time.Duration, opts RefreshIntervalSelectorOptions) RefreshResult {
 	if interval == nil {
 		panic("mujica: RefreshIntervalSelector needs an interval")
@@ -43,10 +43,12 @@ func RefreshIntervalSelector(c *ui.Context, interval *time.Duration, opts Refres
 	}
 	options := []SelectOption[time.Duration]{{Value: 0, Label: msg(c, "refresh_interval_selector.off")}}
 	known := *interval == 0
+	seen := map[time.Duration]bool{}
 	for _, d := range choices {
-		if d < time.Second || d%time.Second != 0 {
+		if d < time.Second || d%time.Second != 0 || seen[d] {
 			panic("mujica: RefreshIntervalSelector intervals must be whole seconds")
 		}
+		seen[d] = true
 		known = known || d == *interval
 		label := fmt.Sprintf(msg(c, "refresh_interval_selector.seconds"), int(d/time.Second))
 		if d%time.Minute == 0 {

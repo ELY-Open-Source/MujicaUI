@@ -45,7 +45,7 @@ type JsonViewerResult struct {
 	Copied string
 }
 
-// JsonViewer shows JSON as a tree with folding, path copy and search, virtualized.
+// JsonViewer shows searchable JSON trees with folding and path copying.
 func JsonViewer(c *ui.Context, data string, s *JsonViewerState, opts JsonViewerOptions) JsonViewerResult {
 	if s == nil || opts.Height < 0 {
 		panic("mujica: JsonViewer needs a state and Height >= 0")
@@ -66,6 +66,11 @@ func JsonViewer(c *ui.Context, data string, s *JsonViewerState, opts JsonViewerO
 	u := Density(c).Unit()
 	var r JsonViewerResult
 	r.Element = codePanel(c).Height(h)
+	if r.Element.IsDisabled() {
+		for _, key := range []ui.Key{ui.KeyDown, ui.KeyUp, ui.KeyHome, ui.KeyEnd, ui.KeyPageDown, ui.KeyPageUp} {
+			r.Element.Shortcut(0, key)
+		}
+	}
 	r.Element.Children(func() {
 		if s.err != nil {
 			ui.Row(c).Padding(u * 3).Gap(u * 2).TextColor(Tokens(c).Danger).Role(ui.RoleStatus).Children(func() {
@@ -103,10 +108,10 @@ func JsonViewer(c *ui.Context, data string, s *JsonViewerState, opts JsonViewerO
 		s.list.Selected = &at
 		s.list.Label = func(i int) string { return s.tree.nodes[s.rows[i]].label() }
 		list := codeRows(c, &s.list, len(s.rows), func(i int) { jsonViewerRow(c, s, s.rows[i]) })
-		if at != was && at >= 0 {
+		if !list.IsDisabled() && at != was && at >= 0 {
 			s.sel = s.rows[at]
 		}
-		if at >= 0 && at < len(s.rows) {
+		if !list.IsDisabled() && at >= 0 && at < len(s.rows) {
 			n := s.tree.nodes[s.rows[at]]
 			if n.container() && (list.Shortcut(0, ui.KeyRight) && !s.open[n.path] || list.Shortcut(0, ui.KeyLeft) && s.open[n.path] || list.Submitted()) {
 				s.open[n.path] = !s.open[n.path]
@@ -117,7 +122,7 @@ func JsonViewer(c *ui.Context, data string, s *JsonViewerState, opts JsonViewerO
 	return r
 }
 
-// jsonViewerSearch finds matches and opens their ancestors when the query changes.
+// jsonViewerSearch finds matches and opens their ancestors.
 func jsonViewerSearch(s *JsonViewerState) {
 	if s.searched == s.Query {
 		return
@@ -142,7 +147,7 @@ func jsonViewerSearch(s *JsonViewerState) {
 	s.stale = true
 }
 
-// jsonViewerRows lists the visible nodes, skipping closed subtrees, when anything changed.
+// jsonViewerRows rebuilds visible indices when nodes change.
 func jsonViewerRows(s *JsonViewerState) {
 	if !s.stale {
 		return
@@ -167,7 +172,7 @@ func jsonViewerRows(s *JsonViewerState) {
 	}
 }
 
-// jsonViewerRow shows one node: fold mark, key, and value or size.
+// jsonViewerRow shows disclosure, key and value.
 func jsonViewerRow(c *ui.Context, s *JsonViewerState, i int) {
 	k := Tokens(c)
 	n := s.tree.nodes[i]
@@ -180,7 +185,7 @@ func jsonViewerRow(c *ui.Context, s *JsonViewerState, i int) {
 		}
 		mark.Role(ui.RoleDisclosure).Label(n.path).Cursor(ui.CursorPointer)
 		mark.Children(func() { ui.Icon(c, icons.Must(name)).Size(14, 14).TextColor(k.TextMuted) })
-		if mark.Clicked() {
+		if !mark.IsDisabled() && mark.Clicked() {
 			s.open[n.path], s.stale = !s.open[n.path], true
 		}
 	}

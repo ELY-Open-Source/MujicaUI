@@ -9,13 +9,13 @@ import (
 	"mujicaui/theme"
 )
 
-// devtoolsAgo formats how long before now t was, as "5 m ago".
+// devtoolsAgo formats elapsed time using localized copy.
 func devtoolsAgo(c *ui.Context, t time.Time) string {
 	d := max(c.Now().Sub(t), 0).Truncate(time.Second)
 	return fmt.Sprintf(msg(c, "devtools.ago"), agentDuration(d))
 }
 
-// devtoolsSeverity shows a severity by icon and word, never color alone.
+// devtoolsSeverity shows severity with an icon and word.
 func devtoolsSeverity(c *ui.Context, s Severity, word string) {
 	tone, icon := severityLook(Tokens(c), s)
 	ui.Row(c).Gap(Density(c).Unit()).AlignItems(ui.Center).Shrink(0).Children(func() {

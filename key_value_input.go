@@ -3,13 +3,14 @@ package mujica
 import (
 	"fmt"
 	"log/slog"
+	"slices"
 
 	"github.com/egoist/mygo/ui"
 
 	"mujicaui/icons"
 )
 
-// KeyValue is one editable pair; disabled pairs are kept but not used.
+// KeyValue holds an editable pair and enable flag.
 type KeyValue struct {
 	Key, Value string
 	Enabled    bool
@@ -22,11 +23,13 @@ type KeyValueInputOptions struct {
 	// Label names the editor for assistive technology.
 	Label    string
 	Disabled bool
+	// MaxHeight caps the rows; zero means 320.
+	MaxHeight float32
 }
 
-// KeyValueInput edits rows of pairs with an enable switch, add and remove.
+// KeyValueInput edits virtualized pairs with enable, add and remove.
 func KeyValueInput(c *ui.Context, rows *[]KeyValue, opts KeyValueInputOptions) ChoiceResult {
-	if rows == nil {
+	if rows == nil || opts.MaxHeight < 0 {
 		panic("mujica: KeyValueInput needs rows")
 	}
 	kp, vp := opts.KeyPlaceholder, opts.ValuePlaceholder
@@ -40,9 +43,17 @@ func KeyValueInput(c *ui.Context, rows *[]KeyValue, opts KeyValueInputOptions) C
 	var r ChoiceResult
 	r.Element = ui.Column(c).Shrink(0).Gap(u * 2).Disabled(opts.Disabled).Label(opts.Label)
 	locked := r.Element.IsDisabled()
+	if locked {
+		copy := slices.Clone(*rows)
+		rows = &copy
+	}
+	maxH := opts.MaxHeight
+	if maxH == 0 {
+		maxH = 320
+	}
 	remove := -1
 	r.Element.Children(func() {
-		for i := range *rows {
+		agentRows(c, len(*rows), func(i int) {
 			kv := &(*rows)[i]
 			ui.Row(c).Key(i).Gap(u * 2).AlignItems(ui.Center).Children(func() {
 				name := fmt.Sprintf(msg(c, "key_value_input.row"), i+1)
@@ -60,7 +71,7 @@ func KeyValueInput(c *ui.Context, rows *[]KeyValue, opts KeyValueInputOptions) C
 					remove = i
 				}
 			})
-		}
+		}).Shrink(1).MaxHeight(maxH)
 		if Button(c, msg(c, "key_value_input.add"), ButtonOptions{Variant: Ghost, Icon: icons.Must("plus"), Disabled: locked}).AlignSelf(ui.Start).Clicked() && !locked {
 			*rows = append(*rows, KeyValue{Enabled: true})
 			r.changed = true

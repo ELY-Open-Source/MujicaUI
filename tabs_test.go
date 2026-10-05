@@ -201,3 +201,26 @@ func tabsMode(c *ui.Context) Mode {
 	}
 	return Light
 }
+
+func TestTabsAncestorDisabledNavigation(t *testing.T) {
+	for _, key := range []ui.Key{ui.KeyRight, ui.KeyDown, ui.KeyEnd} {
+		selected, changes := 0, 0
+		disabled := false
+		tt := ui.NewTester(func(c *ui.Context) {
+			Use(c, Settings{})
+			ui.Column(c).Disabled(disabled).Children(func() {
+				if Tabs(c, &selected, tabsSample(), TabsOptions{}).Changed() {
+					changes++
+				}
+			})
+		}, 500, 200)
+		if err := tt.Click("General"); err != nil {
+			t.Fatal(err)
+		}
+		disabled = true
+		tt.Key(0, key)
+		if selected != 0 || changes != 0 {
+			t.Fatalf("disabled tab navigation: selected=%d events=%d", selected, changes)
+		}
+	}
+}

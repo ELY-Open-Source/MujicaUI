@@ -81,3 +81,13 @@ func TestAlertListSnapshot(t *testing.T) {
 		ui.Column(c).Padding(16).Children(func() { AlertList(c, alerts, AlertListOptions{}) })
 	})
 }
+
+func TestAlertListRejectsDuplicateIDs(t *testing.T) {
+	defer func() {
+		if recover() == nil {
+			t.Fatal("duplicate alerts accepted")
+		}
+	}()
+	var results []AlertListResult
+	alertTester([]AlertItem{{ID: "a", Title: "One"}, {ID: "a", Title: "Two"}}, AlertListOptions{}, &results)
+}

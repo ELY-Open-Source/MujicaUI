@@ -85,3 +85,41 @@ func TestUptimeBarSnapshot(t *testing.T) {
 		})
 	})
 }
+
+func TestUptimeBarManyDaysBounded(t *testing.T) {
+	days := uptimeSample(100000)
+	var pts []int
+	tt := uptimeTester(days, ChartFrame{}, &pts)
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeyEnd)
+	if pts[len(pts)-1] != 99999 {
+		t.Fatal("end boundary")
+	}
+	for i := range 20 {
+		tt.Key(0, ui.KeyRight)
+		_ = i
+	}
+	if pts[len(pts)-1] != 99999 {
+		t.Fatal("right boundary")
+	}
+}
+
+func TestUptimeBarPixelBucketsPreserveOutages(t *testing.T) {
+	days := uptimeSample(100000)
+	var cache uptimeCache
+	cache.prepare(days, 500)
+	if len(cache.slots) > 500 || cache.slots[0].index != 7 {
+		t.Fatalf("%d buckets, first worst %d", len(cache.slots), cache.slots[0].index)
+	}
+	cache.prepare(days, 1000)
+	if len(cache.slots) > 1000 || cache.slots[len(cache.slots)-1].last != 99999 {
+		t.Fatal("resized buckets")
+	}
+	for _, n := range []int{1, 3, 12} {
+		cache.width = -1
+		cache.prepare(days[:n], 500)
+		if len(cache.slots) != n {
+			t.Fatalf("%d days rendered as %d buckets", n, len(cache.slots))
+		}
+	}
+}

@@ -31,19 +31,25 @@ type ServiceStatusOptions struct {
 	MaxHeight float32
 }
 
-// ServiceStatus lists services as operational, degraded or down, under an overall summary.
+// ServiceStatus lists service health and an overall summary.
 func ServiceStatus(c *ui.Context, services []ServiceItem, opts ServiceStatusOptions) *ui.Element {
 	if opts.MaxHeight < 0 {
 		panic("mujica: ServiceStatus MaxHeight is negative")
 	}
-	worst, counts := ServiceOperational, [3]int{}
-	for i, s := range services {
-		if s.Name == "" || s.Health < ServiceOperational || s.Health > ServiceOutage {
-			panic(fmt.Sprintf("mujica: ServiceStatus service %d needs a Name and a known Health", i))
+	col := ui.Column(c).Shrink(0).Gap(Density(c).Unit() * 2)
+	summaryState := ui.Local(col, "mujica.services.summary", func() serviceSummary { return serviceSummary{key: "unset"} })
+	if key := chartID(services); key != summaryState.key {
+		worst, counts := ServiceOperational, [3]int{}
+		for i, s := range services {
+			if s.Name == "" || s.Health < ServiceOperational || s.Health > ServiceOutage {
+				panic(fmt.Sprintf("mujica: ServiceStatus service %d needs a Name and a known Health", i))
+			}
+			worst = max(worst, s.Health)
+			counts[s.Health]++
 		}
-		worst = max(worst, s.Health)
-		counts[s.Health]++
+		summaryState.key, summaryState.worst, summaryState.counts = key, worst, counts
 	}
+	worst, counts := summaryState.worst, summaryState.counts
 	maxH := opts.MaxHeight
 	if maxH == 0 {
 		maxH = 360
@@ -51,7 +57,7 @@ func ServiceStatus(c *ui.Context, services []ServiceItem, opts ServiceStatusOpti
 	k := Tokens(c)
 	u := Density(c).Unit()
 	summary := msg(c, [...]string{"service_status.all_ok", "service_status.some_degraded", "service_status.some_down"}[worst])
-	col := ui.Column(c).Shrink(0).Gap(u * 2).Label(summary)
+	col.Label(summary)
 	col.Children(func() {
 		ui.Row(c).Gap(u*3).AlignItems(ui.Center).Padding(u*3).Radius(theme.CardRadius).Border(theme.BorderWidth, k.Border).
 			Background(k.Surface).Role(ui.RoleStatus).Label(summary).Children(func() {
@@ -88,4 +94,10 @@ func serviceSeverity(h ServiceHealth) Severity {
 
 func serviceWord(c *ui.Context, h ServiceHealth) string {
 	return msg(c, [...]string{"service_status.operational", "service_status.degraded", "service_status.outage"}[h])
+}
+
+type serviceSummary struct {
+	key    string
+	worst  ServiceHealth
+	counts [3]int
 }

@@ -63,3 +63,29 @@ func TestKeyValueInputSnapshot(t *testing.T) {
 		ui.Column(c).Padding(16).Children(func() { KeyValueInput(c, &rows, KeyValueInputOptions{}) })
 	})
 }
+
+func TestKeyValueInputManyRows(t *testing.T) {
+	rows := make([]KeyValue, 100000)
+	for i := range rows {
+		rows[i] = KeyValue{Key: "item", Value: "value", Enabled: true}
+	}
+	n := 0
+	tt := kvTester(&rows, KeyValueInputOptions{}, &n)
+	if got := len(tt.Texts()); got > 500 {
+		t.Fatalf("built %d texts for 100000 rows", got)
+	}
+}
+
+func TestKeyValueInputAncestorDisabledAndEmpty(t *testing.T) {
+	var rows []KeyValue
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Disabled(true).Children(func() { KeyValueInput(c, &rows, KeyValueInputOptions{}) })
+	}, 600, 300)
+	_ = tt.Click("Add row")
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeyEnter)
+	if len(rows) != 0 {
+		t.Fatal("disabled empty editor changed")
+	}
+}

@@ -71,3 +71,37 @@ func TestDashboardFilterBarSnapshot(t *testing.T) {
 		ui.Column(c).Padding(16).Children(func() { DashboardFilterBar(c, &f, filterOpts) })
 	})
 }
+
+func TestDashboardFilterBarKeyboardAndAncestorDisabled(t *testing.T) {
+	var f DashboardFilters
+	disabled := false
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Disabled(disabled).Children(func() { DashboardFilterBar(c, &f, filterOpts) })
+	}, 900, 420)
+	_ = tt.Click("Environment")
+	tt.Key(0, ui.KeyDown)
+	tt.Key(0, ui.KeyEnter)
+	if f.Env != "production" {
+		t.Fatal("keyboard environment")
+	}
+	_ = tt.Click("Environment")
+	disabled = true
+	tt.Key(0, ui.KeyDown)
+	tt.Key(0, ui.KeyEnter)
+	_ = tt.Click("Clear filters")
+	if f.Env != "production" || tt.HasText("staging") {
+		t.Fatal("disabled filter or popup changed")
+	}
+}
+
+func TestDashboardFilterBarRejectsUnknownTags(t *testing.T) {
+	defer func() {
+		if recover() == nil {
+			t.Fatal("unoffered tag accepted")
+		}
+	}()
+	f := DashboardFilters{Tags: []string{"unknown"}}
+	n := 0
+	filterTester(&f, filterOpts, &n)
+}

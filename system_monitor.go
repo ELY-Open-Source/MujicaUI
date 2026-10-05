@@ -2,6 +2,7 @@ package mujica
 
 import (
 	"fmt"
+	"log/slog"
 	"math"
 	"time"
 
@@ -10,7 +11,7 @@ import (
 	"mujicaui/theme"
 )
 
-// MonitorMetric is one sampled resource; Samples line up with the shared times.
+// MonitorMetric holds samples aligned with the shared timestamps.
 type MonitorMetric struct {
 	Name    string
 	Unit    string
@@ -25,15 +26,9 @@ type SystemMonitorOptions struct {
 	Error  string
 }
 
-// SystemMonitorResult reports this frame's events.
-type SystemMonitorResult struct {
-	Element *ui.Element
-	Retry   bool
-}
-
-// SystemMonitor stacks a live line chart per metric over one time axis, sampled by the caller.
-func SystemMonitor(c *ui.Context, times []time.Time, metrics []MonitorMetric, opts SystemMonitorOptions) SystemMonitorResult {
-	if opts.Height < 0 {
+// SystemMonitor combines resource charts sampled by the caller.
+func SystemMonitor(c *ui.Context, times []time.Time, metrics []MonitorMetric, opts SystemMonitorOptions) ChoiceResult {
+	if opts.Height < 0 || opts.Status != DataReady && opts.Status != DataLoading && opts.Status != DataFailed {
 		panic("mujica: SystemMonitor Height is negative")
 	}
 	for i, m := range metrics {
@@ -47,11 +42,18 @@ func SystemMonitor(c *ui.Context, times []time.Time, metrics []MonitorMetric, op
 	}
 	k := Tokens(c)
 	u := Density(c).Unit()
-	var r SystemMonitorResult
+	var r ChoiceResult
 	r.Element = ui.Column(c).Shrink(0).Gap(u * 3)
 	r.Element.Children(func() {
+		if len(metrics) == 0 {
+			ui.Column(c).Height(h).Children(func() { r.changed = dataPlaceholder(c, opts.Status, opts.Error, msg(c, "system_monitor.empty"), "") })
+			return
+		}
 		for _, m := range metrics {
-			ui.Column(c).Key(m.Name).Gap(u).Children(func() {
+			panel := ui.Column(c).Key(m.Name).Gap(u)
+			series := ui.Local(panel, "mujica.monitor.series", func() []ChartSeries { return []ChartSeries{{Name: m.Name, Values: m.Samples}} })
+			(*series)[0].Name, (*series)[0].Values = m.Name, m.Samples
+			panel.Children(func() {
 				ui.Row(c).Gap(u * 2).AlignItems(ui.Center).Children(func() {
 					ui.Text(c, m.Name).FontWeight(600).Grow(1)
 					last := math.NaN()
@@ -64,13 +66,16 @@ func SystemMonitor(c *ui.Context, times []time.Time, metrics []MonitorMetric, op
 					}
 				})
 				unit := m.Unit
-				res := LineChart(c, []ChartSeries{{Name: m.Name, Values: m.Samples}}, LineChartOptions{
+				res := LineChart(c, *series, LineChartOptions{
 					Frame: ChartFrame{Label: m.Name, Height: h, Status: opts.Status, Error: opts.Error},
 					Times: times, Format: func(v float64) string { return sandboxNum(v) + " " + unit },
 				})
-				r.Retry = r.Retry || res.Retried()
+				r.changed = r.changed || res.Retried()
 			})
 		}
 	})
+	if r.changed {
+		slog.Debug("mujica: system_monitor retry")
+	}
 	return r
 }

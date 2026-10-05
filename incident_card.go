@@ -10,7 +10,7 @@ import (
 	"mujicaui/theme"
 )
 
-// IncidentStatus is where an incident stands. The zero value is IncidentInvestigating.
+// IncidentStatus tracks investigation; zero means IncidentInvestigating.
 type IncidentStatus int
 
 const (
@@ -20,7 +20,7 @@ const (
 	IncidentResolved
 )
 
-// IncidentImpact is how badly users are affected. The zero value is ImpactNone.
+// IncidentImpact tracks severity; zero means ImpactNone.
 type IncidentImpact int
 
 const (
@@ -75,8 +75,8 @@ func IncidentCard(c *ui.Context, inc Incident) *ui.Element {
 				agentCaption(c, fmt.Sprintf(msg(c, "incident_card.started"), inc.Started.Format("2006-01-02 15:04")))
 			}
 		})
-		for i, up := range inc.Updates {
-			incidentUpdate(c, k, up, i == len(inc.Updates)-1)
+		if len(inc.Updates) > 0 {
+			agentRows(c, len(inc.Updates), func(i int) { incidentUpdate(c, k, inc.Updates[i], i == len(inc.Updates)-1) }).Shrink(1).MaxHeight(320)
 		}
 	})
 	return card
