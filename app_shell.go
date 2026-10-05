@@ -33,8 +33,7 @@ type AppShellResult struct {
 	Toggled bool
 }
 
-// AppShell lays out a window: title bar, sidebar, content and status bar.
-// *collapsed folds the sidebar to a rail; its toggle button and Cmd/Ctrl+B flip it.
+// AppShell lays out title bar, sidebar, content and status bar; *collapsed folds the sidebar.
 func AppShell(c *ui.Context, collapsed *bool, opts AppShellOptions) AppShellResult {
 	if collapsed == nil {
 		panic("mujica: AppShell needs a collapsed state")

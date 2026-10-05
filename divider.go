@@ -52,7 +52,7 @@ func Divider(c *ui.Context, opts DividerOptions) *ui.Element {
 	return e.Children(func() {
 		segment()
 		if opts.Label != "" {
-			ui.Text(c, opts.Label).Font(theme.SerifFont).FontSize(theme.CaptionSize).
+			ui.Text(c, opts.Label).Font(theme.SerifFont).FontSize(FontSize(c, theme.CaptionSize)).
 				TextColor(k.TextMuted).SingleLine().Shrink(0)
 		} else {
 			ui.Box(c).Size(dividerDiamond, dividerDiamond).Shrink(0).Role(ui.RoleNone).

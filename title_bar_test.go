@@ -80,3 +80,21 @@ func TestTitleBarSnapshot(t *testing.T) {
 		})
 	})
 }
+
+func TestTitleBarTextScale(t *testing.T) {
+	var bar ui.Rect
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		bar = TitleBar(c, "Archive", TitleBarOptions{}).Bounds()
+	}, 400, 300)
+	plain, _ := tt.Find("Archive")
+	tt.SetPreferences(ui.Preferences{TextScale: 2})
+	tt.Frame()
+	big, _ := tt.Find("Archive")
+	if big.H < 1.8*plain.H {
+		t.Fatalf("title height %v at 200%%, was %v", big.H, plain.H)
+	}
+	if bar.H < big.H {
+		t.Fatalf("bar %v shorter than its title %v", bar.H, big.H)
+	}
+}

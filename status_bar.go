@@ -3,7 +3,6 @@ package mujica
 import (
 	"fmt"
 	"log/slog"
-	"strings"
 
 	"github.com/egoist/mygo/ui"
 
@@ -52,29 +51,36 @@ type StatusBarResult struct {
 	Clicked string
 }
 
-const statusBarProgressWidth float32 = 64
+const (
+	statusBarProgressWidth float32 = 64
+	statusBarIcon          float32 = 16
+)
 
 // StatusBar is a window's bottom strip with left and right groups of status items.
 func StatusBar(c *ui.Context, opts StatusBarOptions) StatusBarResult {
 	k := Tokens(c)
 	d := Density(c)
 	statusBarCheck(opts)
-	h := max(theme.MinHitSize, d.ControlHeight()-8)
 	gap := d.Unit() * 2
-	e := ui.Row(c).Height(h).Shrink(0).PaddingX(d.Unit()*2).Gap(gap).
+	e := ui.Row(c).MinHeight(max(theme.MinHitSize, d.ControlHeight()-8)).Shrink(0).PaddingX(d.Unit()*2).Gap(gap).
 		Background(k.Surface).BorderWidth(theme.BorderWidth, 0, 0, 0).BorderColor(k.Border).
 		Label(msg(c, "status_bar.label"))
 	hidden := statusBarHide(c, e, opts, e.Bounds().W-d.Unit()*4, gap)
+	open := ui.Local(e, "status_bar.open", func() bool { return false })
+	*open = *open && len(hidden) > 0
 	var res StatusBarResult
+	item := func(it StatusItem) {
+		if statusBarItem(c, it) {
+			res.Clicked = it.ID
+			*open = false
+			slog.Debug("mujica: status_bar clicked", "id", it.ID)
+		}
+	}
 	group := func(items []StatusItem) {
 		ui.Row(c).Gap(gap).Shrink(0).Dividers(theme.BorderWidth, k.Border).Children(func() {
 			for _, it := range items {
-				if hidden[it.ID] {
-					continue
-				}
-				if statusBarItem(c, it) {
-					res.Clicked = it.ID
-					slog.Debug("mujica: status_bar clicked", "id", it.ID)
+				if !hidden[it.ID] {
+					item(it)
 				}
 			}
 		})
@@ -83,15 +89,23 @@ func StatusBar(c *ui.Context, opts StatusBarOptions) StatusBarResult {
 		group(opts.Left)
 		ui.Spacer(c)
 		if len(hidden) > 0 {
-			var names []string
-			for _, it := range append(append([]StatusItem{}, opts.Left...), opts.Right...) {
-				if hidden[it.ID] {
-					names = append(names, statusBarName(it))
-				}
+			more := statusBarMore(c, len(hidden))
+			if more.Clicked() {
+				*open = !*open
+				slog.Debug("mujica: status_bar hidden items", "open", *open)
 			}
-			label := fmt.Sprintf(msg(c, "status_bar.hidden"), len(hidden))
-			ui.Text(c, fmt.Sprintf("+%d", len(hidden))).FontSize(theme.CaptionSize).TextColor(k.TextMuted).
-				Label(label).Tooltip(strings.Join(names, "\n")).Shrink(0)
+			if *open {
+				ui.PopoverBase(c, more, open, func(panel *ui.Element) {
+					panel.Margin(d.Unit(), 0, 0, 0).Padding(d.Unit()).Gap(d.Unit()).AlignItems(ui.Stretch).
+						Radius(theme.PopupRadius).Background(k.Surface).Border(theme.BorderWidth, k.Border).
+						Shadow(0, 4, 12, 0, ui.RGBA(0, 0, 0, 0.16))
+					for _, it := range statusBarAll(opts) {
+						if hidden[it.ID] {
+							item(it)
+						}
+					}
+				})
+			}
 		}
 		group(opts.Right)
 	})
@@ -99,9 +113,30 @@ func StatusBar(c *ui.Context, opts StatusBarOptions) StatusBarResult {
 	return res
 }
 
+// statusBarMore is the "+N" button that opens the hidden items.
+func statusBarMore(c *ui.Context, n int) *ui.Element {
+	k := Tokens(c)
+	b := ui.ButtonBase(c).Key("status_bar.more").MinHeight(theme.MinHitSize).MinWidth(theme.MinHitSize).
+		PaddingX(Density(c).Unit()).Radius(theme.ControlRadius).TextColor(k.Text).
+		Label(fmt.Sprintf(msg(c, "status_bar.hidden"), n))
+	internal.Ring(b, k.Focus, theme.ControlRadius)
+	if b.Pressed() {
+		b.Background(k.Selection)
+	} else if b.Hovered() {
+		b.Background(k.SurfaceHover)
+	}
+	return b.Children(func() {
+		ui.Text(c, fmt.Sprintf("+%d", n)).FontSize(FontSize(c, theme.CaptionSize)).SingleLine()
+	})
+}
+
+func statusBarAll(opts StatusBarOptions) []StatusItem {
+	return append(append([]StatusItem{}, opts.Left...), opts.Right...)
+}
+
 func statusBarCheck(opts StatusBarOptions) {
 	seen := map[string]bool{}
-	for _, it := range append(append([]StatusItem{}, opts.Left...), opts.Right...) {
+	for _, it := range statusBarAll(opts) {
 		switch {
 		case it.ID == "":
 			panic("mujica: StatusItem needs an ID")
@@ -116,38 +151,39 @@ func statusBarCheck(opts StatusBarOptions) {
 	}
 }
 
-func statusBarName(it StatusItem) string {
-	if it.Text != "" {
-		return it.Text
-	}
-	return it.Label
-}
-
-// statusBarHide returns the secondary items to hide so the rest fit in room DIPs.
+// statusBarHide returns the secondary items to hide, last first, so the rest fit in room DIPs.
 func statusBarHide(c *ui.Context, bar *ui.Element, opts StatusBarOptions, room, gap float32) map[string]bool {
 	hidden := map[string]bool{}
 	if room <= 0 {
 		// Not laid out yet: show all, and measure in the next frame.
-		if first := ui.Local(bar, "status_bar.first", func() bool { return true }); *first {
-			*first = false
+		if once := ui.Local(bar, "status_bar.first", func() bool { return true }); *once {
+			*once = false
 			c.Invalidate()
 		}
 		return hidden
 	}
-	all := append(append([]StatusItem{}, opts.Left...), opts.Right...)
-	need := func() float32 {
+	u := Density(c).Unit()
+	group := func(items []StatusItem) float32 {
 		var w float32
-		for _, it := range all {
+		n := 0
+		for _, it := range items {
 			if !hidden[it.ID] {
-				w += statusBarWidth(c, it) + gap
+				w += statusBarWidth(c, it)
+				n++
 			}
 		}
+		return w + gap*float32(max(n-1, 0))
+	}
+	// The bar's children: left group, spacer, the "+N" button when shown, right group.
+	need := func() float32 {
+		w := group(opts.Left) + group(opts.Right) + 2*gap
 		if len(hidden) > 0 {
-			mw, _ := c.MeasureText(0, ui.Span{Text: fmt.Sprintf("+%d", len(hidden)), Size: theme.CaptionSize})
-			w += mw + gap
+			tw, _ := c.MeasureText(0, ui.Span{Text: fmt.Sprintf("+%d", len(hidden)), Size: FontSize(c, theme.CaptionSize)})
+			w += max(theme.MinHitSize, tw+2*u) + gap
 		}
 		return w
 	}
+	all := statusBarAll(opts)
 	for i := len(all) - 1; i >= 0 && need() > room; i-- {
 		if all[i].Secondary {
 			hidden[all[i].ID] = true
@@ -156,19 +192,29 @@ func statusBarHide(c *ui.Context, bar *ui.Element, opts StatusBarOptions, room, 
 	return hidden
 }
 
-// statusBarWidth estimates the width an item takes.
+// statusBarWidth is the width an item takes, as statusBarItem lays it out.
 func statusBarWidth(c *ui.Context, it StatusItem) float32 {
-	d := Density(c)
-	w := d.Unit() * 2
+	u := Density(c).Unit()
+	var parts []float32
 	if it.Icon != nil {
-		w += 14 + d.Unit()
+		parts = append(parts, statusBarIcon)
 	}
 	if it.Text != "" {
-		tw, _ := c.MeasureText(0, ui.Span{Text: it.Text, Size: theme.CaptionSize})
-		w += tw + d.Unit()
+		tw, _ := c.MeasureText(0, ui.Span{Text: it.Text, Size: FontSize(c, theme.CaptionSize)})
+		parts = append(parts, tw)
 	}
 	if it.ShowProgress {
-		w += statusBarProgressWidth + d.Unit()
+		parts = append(parts, statusBarProgressWidth)
+	}
+	w := 2 * u
+	for i, p := range parts {
+		w += p
+		if i > 0 {
+			w += u
+		}
+	}
+	if it.Action {
+		w = max(w, theme.MinHitSize)
 	}
 	return w
 }
@@ -212,10 +258,10 @@ func statusBarItem(c *ui.Context, it StatusItem) bool {
 	}
 	e.Children(func() {
 		if it.Icon != nil {
-			ui.Icon(c, it.Icon).Size(14, 14)
+			ui.Icon(c, it.Icon).Size(statusBarIcon, statusBarIcon)
 		}
 		if it.Text != "" {
-			ui.Text(c, it.Text).FontSize(theme.CaptionSize).SingleLine()
+			ui.Text(c, it.Text).FontSize(FontSize(c, theme.CaptionSize)).SingleLine()
 		}
 		if it.ShowProgress {
 			statusBarProgress(c, it.Progress)

@@ -2,6 +2,7 @@ package mujica
 
 import (
 	"fmt"
+	"image/color"
 	"math"
 	"testing"
 
@@ -115,4 +116,22 @@ func TestScrollAreaSnapshot(t *testing.T) {
 			}).Height(128).Background(k.Surface).Border(1, k.Border).Radius(4)
 		})
 	})
+}
+
+func TestScrollAreaFocusRingKeepsGap(t *testing.T) {
+	var focus, bg ui.Color
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{Mode: Light})
+		focus, bg = Tokens(c).Focus, Tokens(c).Background
+		ScrollArea(c, nil, ScrollAreaOptions{Label: "Log"}, func() { ui.Box(c).Height(400).Shrink(0) }).Size(100, 100)
+	}, 200, 200)
+	tt.Key(0, ui.KeyTab)
+	img := tt.Image()
+	// The edge's first 2 DIPs are the gap; the ring follows inside it.
+	if got := img.RGBAAt(50, 1); got != (color.RGBA{bg.R, bg.G, bg.B, 255}) {
+		t.Fatalf("gap pixel %v, want background %v", got, bg)
+	}
+	if got := img.RGBAAt(50, 3); got != (color.RGBA{focus.R, focus.G, focus.B, 255}) {
+		t.Fatalf("ring pixel %v, want focus %v", got, focus)
+	}
 }

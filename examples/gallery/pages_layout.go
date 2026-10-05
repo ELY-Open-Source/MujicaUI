@@ -17,7 +17,7 @@ var layoutPages = []page{
 	{ID: "002", Name: "TitleBar", ZhName: "标题栏", Category: "Layout", Demo: layoutTitleBarDemo, Code: layoutTitleBarCode,
 		Keys: "Tools in the slots take Tab and Enter/Space as usual. Dragging the empty bar moves the window; double-click zooms it."},
 	{ID: "003", Name: "StatusBar", ZhName: "状态栏", Category: "Layout", Demo: layoutStatusBarDemo, Code: layoutStatusBarCode,
-		Keys: "Tab reaches action items; Enter or Space activates them. Plain status text is not a tab stop."},
+		Keys: "Tab reaches action items and the +N button; Enter or Space activates them. +N opens the folded items, Tab moves through them, Escape closes the list. Plain status text is not a tab stop."},
 	{ID: "004", Name: "Container", ZhName: "容器", Category: "Layout", Demo: layoutContainerDemo, Code: layoutContainerCode,
 		Keys: "None: Container never takes the focus."},
 	{ID: "005", Name: "Stack", ZhName: "堆叠", Category: "Layout", Demo: layoutStackDemo, Code: layoutStackCode,
@@ -46,10 +46,7 @@ func layoutCheck(c *ui.Context, v *bool, label string, log func(string)) {
 // layoutChoice is a labeled drop-down that logs its changes.
 func layoutChoice(c *ui.Context, v *string, label string, options []string, log func(string)) {
 	was := *v
-	ui.Row(c).Gap(8).Children(func() {
-		ui.Text(c, label)
-		ui.Select(c, v, options)
-	})
+	ui.Row(c).Gap(8).Children(func() { ui.Text(c, label); ui.Select(c, v, options) })
 	if *v != was {
 		log(fmt.Sprintf("%s: %s", label, *v))
 	}
@@ -70,8 +67,7 @@ func layoutSlider(c *ui.Context, v *float64, label string, lo, hi float64, log f
 func layoutControls(c *ui.Context, fn func()) { ui.Row(c).Wrap().Gap(12).Children(fn) }
 
 func layoutFrame(c *ui.Context, h float32, fn func()) *ui.Element {
-	k := mujica.Tokens(c)
-	return ui.Column(c).Height(h).Border(1, k.Border).Radius(4).Clip().Children(fn)
+	return ui.Column(c).Height(h).Border(1, mujica.Tokens(c).Border).Radius(4).Clip().Children(fn)
 }
 
 var layoutSpaces = []string{"Default", "None", "XS", "S", "M", "L", "XL", "XXL"}
@@ -266,7 +262,9 @@ func layoutStackDemo(c *ui.Context, log func(string)) {
 	layoutControls(c, func() {
 		layoutCheck(c, &s.horizontal, "Horizontal", log)
 		s.wrap = s.wrap && s.horizontal
-		layoutCheck(c, &s.wrap, "Wrap", log)
+		if s.horizontal {
+			layoutCheck(c, &s.wrap, "Wrap", log)
+		}
 		layoutCheck(c, &s.hide, "Hide Draft", log)
 		layoutChoice(c, &s.gap, "Gap", layoutSpaces, log)
 		layoutChoice(c, &s.align, "Align", aligns, log)

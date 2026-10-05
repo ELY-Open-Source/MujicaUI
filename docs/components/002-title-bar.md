@@ -24,7 +24,7 @@ mujica.TitleBar(c, "Court Records", mujica.TitleBarOptions{
 
 ## 状态
 
-- 高度取 `c.TitleBar().Height` 与 `控件高度 + 2 单位` 中较大者（默认密度 44 DIP）。
+- 最小高度取 `c.TitleBar().Height` 与 `控件高度 + 2 单位` 中较大者（默认密度 44 DIP）；标题字号随系统文本缩放，放大后标题栏随之增高。
 - 左右内边距在 `c.TitleBar().Left/Right` 之外再加 3 单位，不覆盖系统按钮；全屏时预留为 0。
 - Surface 底色，底部 1 DIP Border 分隔线。
 

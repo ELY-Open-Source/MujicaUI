@@ -22,10 +22,7 @@ type ScrollAreaOptions struct {
 	Label string
 }
 
-// ScrollArea scrolls its children with the wheel, its scroll bars and the keyboard.
-// state keeps the offset across frames: set X or Y to scroll there, math.MaxFloat32 for the end.
-// A nil state keeps the offset by the area's place in the view.
-// The area takes the focus while its content overflows, so the keys reach it.
+// ScrollArea scrolls children; state keeps and sets the offset, nil keeps it by place.
 func ScrollArea(c *ui.Context, state *ui.ScrollState, opts ScrollAreaOptions, children func()) *ui.Element {
 	if children == nil {
 		panic("mujica: ScrollArea needs children")
@@ -45,16 +42,22 @@ func ScrollArea(c *ui.Context, state *ui.ScrollState, opts ScrollAreaOptions, ch
 		state = ui.Local(e, "scroll_area.state", func() ui.ScrollState { return ui.ScrollState{} })
 	}
 	e.TrackScroll(state)
-	if state.MaxX > 0 || state.MaxY > 0 {
-		focus := Tokens(c).Focus
-		// The ring goes inside: areas often fill a clipped pane edge to edge.
-		e.Focusable().FocusRing(false).DrawOver(func(p *ui.Painter, r ui.Rect) {
-			if e.FocusVisible() {
-				in := theme.FocusWidth / 2
-				p.Stroke(ui.Rect{X: r.X + in, Y: r.Y + in, W: r.W - 2*in, H: r.H - 2*in}, focus, theme.ControlRadius, theme.FocusWidth)
-			}
-		})
+	overflow := state.MaxX > 0 || state.MaxY > 0
+	if overflow {
+		e.Focusable()
 	}
+	focus := Tokens(c).Focus
+	// The ring goes inside, past the focus gap: areas often fill a clipped pane.
+	e.FocusRing(false).DrawOver(func(p *ui.Painter, r ui.Rect) {
+		if overflow != (state.MaxX > 0 || state.MaxY > 0) {
+			// Layout changed the overflow: rebuild so the focus stop follows it.
+			c.Invalidate()
+		}
+		if e.FocusVisible() {
+			in := theme.FocusGap + theme.FocusWidth/2
+			p.Stroke(ui.Rect{X: r.X + in, Y: r.Y + in, W: r.W - 2*in, H: r.H - 2*in}, focus, theme.ControlRadius, theme.FocusWidth)
+		}
+	})
 	if opts.Label != "" {
 		e.Label(opts.Label)
 	}
