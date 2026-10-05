@@ -172,14 +172,27 @@ func InputGroup(c *ui.Context, value *string, opts InputGroupOptions) InputGroup
 	return parts
 }
 
-// inputGroupEditor builds the input; a disabled one edits a copy, so queued input cannot reach value.
+// inputGroupLock remembers locks so an unlocked input starts afresh.
+type inputGroupLock struct {
+	locked bool
+	gen    int
+}
+
+// inputGroupEditor builds the input, or plain selectable text while locked, so no edit command runs.
 func inputGroupEditor(c *ui.Context, box *ui.Element, value *string, locked bool) *ui.Element {
-	if !locked {
-		return ui.TextInputBase(c, value)
+	lk := ui.Local(box, "lock", func() inputGroupLock { return inputGroupLock{} })
+	if lk.locked && !locked {
+		// A new identity drops the edits queued in the old editor while locked.
+		lk.gen++
 	}
-	shown := ui.Local(box, "locked", func() string { return *value })
-	*shown = *value
-	in := ui.TextInputBase(c, shown)
-	*shown = *value
+	lk.locked = locked
+	var in *ui.Element
+	ui.Row(c).Key(lk.gen).FillWidth().MinWidth(0).Children(func() {
+		if locked {
+			in = ui.Text(c, *value).SingleLine().Selectable()
+		} else {
+			in = ui.TextInputBase(c, value)
+		}
+	})
 	return in
 }
