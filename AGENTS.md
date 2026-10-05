@@ -52,6 +52,7 @@ testdata/snapshots/  <os>/<name>-<light|dark>.png
 - `ui.NewTester` drives click, keys, typing. Assert values, not existence.
 - Every component: one `snapshot(t, name, w, h, view)` call (light and dark). Refresh with `go test -run <Name> -update .`
 - Run `go vet ./... && go test ./...` before reporting done.
+- Snapshots assume the default test order. MyGo shares its path-mask cache across a process, and its own chevrons are not snapped, so `-shuffle` can shift a few pixels (docs/upstream.md).
 
 ## Gallery page
 
