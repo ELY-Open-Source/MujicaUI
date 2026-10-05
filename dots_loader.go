@@ -12,18 +12,18 @@ import (
 type LoaderOptions struct {
 	// Size is the mark's height in DIPs; zero means 16.
 	Size float32
-	// Label is read out, and shown with ShowLabel; empty means "Loading".
+	// Label is read out; empty means "Loading".
 	Label     string
 	ShowLabel bool
 	// Color paints the mark; zero uses AccentText.
 	Color ui.Color
 }
 
-// loaderDraw paints a loader at phase t in [0, 1); t is 0 and still is set under reduced motion.
+// loaderDraw paints phase t; still enables reduced motion.
 type loaderDraw func(p *ui.Painter, r ui.Rect, t float64, col ui.Color, still bool)
 
-// loaderMark builds a loader of aspect w:1 that repaints only while painted and moving.
-func loaderMark(c *ui.Context, opts LoaderOptions, aspect float32, period int64, draw loaderDraw) *ui.Element {
+// loaderMark builds a loader that repaints only while painted.
+func loaderMark(c *ui.Context, opts LoaderOptions, key string, aspect float32, period int64, draw loaderDraw) *ui.Element {
 	if !(opts.Size >= 0) || math.IsInf(float64(opts.Size), 1) {
 		panic("mujica: loader Size must be finite and not negative")
 	}
@@ -34,7 +34,7 @@ func loaderMark(c *ui.Context, opts LoaderOptions, aspect float32, period int64,
 	}
 	label := opts.Label
 	if label == "" {
-		label = msg(c, "loading")
+		label = msg(c, key+".loading")
 	}
 	col := opts.Color
 	if col.A == 0 {
@@ -59,12 +59,12 @@ func loaderMark(c *ui.Context, opts LoaderOptions, aspect float32, period int64,
 	return row
 }
 
-// loaderWave is a smooth 0..1 rise and fall over phase t.
+// loaderWave rises and falls between 0 and 1.
 func loaderWave(t float64) float32 { return float32(0.5 - 0.5*math.Cos(2*math.Pi*t)) }
 
 // DotsLoader shows three dots lighting up in turn.
 func DotsLoader(c *ui.Context, opts LoaderOptions) *ui.Element {
-	return loaderMark(c, opts, 2.5, 1200, func(p *ui.Painter, r ui.Rect, t float64, col ui.Color, still bool) {
+	return loaderMark(c, opts, "dots_loader", 2.5, 1200, func(p *ui.Painter, r ui.Rect, t float64, col ui.Color, still bool) {
 		d := r.H * 0.36
 		for i := range 3 {
 			a := float32(1)

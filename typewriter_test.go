@@ -1,6 +1,7 @@
 package mujica
 
 import (
+	"math"
 	"testing"
 	"time"
 
@@ -11,7 +12,7 @@ func TestTypewriterRevealsFinishesAndSkips(t *testing.T) {
 	text := "The court assembles at dusk."
 	finished := 0
 	tt, n := motionFrames(func(c *ui.Context) {
-		if Typewriter(c, text, TypewriterOptions{Speed: 100, Skippable: true}).Finished() {
+		if Typewriter(c, text, TypewriterOptions{Speed: 100, Skippable: true}).Changed() {
 			finished++
 		}
 	}, 400, 120)
@@ -51,13 +52,13 @@ func TestTypewriterReducedMotionAndInvalid(t *testing.T) {
 	finished := false
 	tt := ui.NewTester(func(c *ui.Context) {
 		Use(c, Settings{})
-		finished = Typewriter(c, "All at once", TypewriterOptions{}).Finished() || finished
+		finished = Typewriter(c, "All at once", TypewriterOptions{}).Changed() || finished
 	}, 300, 80)
 	tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})
 	_ = tt
 	tt2 := ui.NewTester(func(c *ui.Context) {
 		Use(c, Settings{})
-		finished = Typewriter(c, "Shown now", TypewriterOptions{}).Finished() || finished
+		finished = Typewriter(c, "Shown now", TypewriterOptions{}).Changed() || finished
 	}, 300, 80)
 	tt2.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})
 	if motionCount(tt2, "Shown now") != 2 || !finished {
@@ -77,4 +78,52 @@ func TestTypewriterSnapshot(t *testing.T) {
 			Typewriter(c, "The court assembles at dusk; the music begins.", TypewriterOptions{Skippable: true})
 		})
 	})
+}
+
+func TestTypewriterReplacementRestartsClock(t *testing.T) {
+	text := "A long opening message"
+	tt, _ := motionFrames(func(c *ui.Context) {
+		Typewriter(c, text, TypewriterOptions{Speed: 10})
+	}, 300, 100)
+	time.Sleep(220 * time.Millisecond)
+	text = "New letter"
+	tt.Frame()
+	if motionCount(tt, "Ne") > 0 {
+		t.Fatalf("replacement consumed old elapsed time: %q", tt.Texts())
+	}
+}
+
+func TestTypewriterInvalidSpeedBoundary(t *testing.T) {
+	for _, speed := range []float64{nanValue(), math.Inf(1), 2e9} {
+		func() {
+			defer func() {
+				if recover() == nil {
+					t.Errorf("invalid speed %v accepted", speed)
+				}
+			}()
+			ui.Render(func(c *ui.Context) {
+				Use(c, Settings{})
+				Typewriter(c, "text", TypewriterOptions{Speed: speed})
+			}, 200, 100, 1)
+		}()
+	}
+}
+
+func TestTypewriterMinimumIntervalBoundary(t *testing.T) {
+	minimum := float64(time.Second) / float64(math.MaxInt64)
+	tt, n := motionFrames(func(c *ui.Context) {
+		Typewriter(c, "letter", TypewriterOptions{Speed: minimum})
+	}, 200, 100)
+	if motionCount(tt, "letter") != 1 || motionBusy(tt, n) {
+		t.Fatal("slow typing should wait with partial text")
+	}
+	defer func() {
+		if recover() == nil {
+			t.Fatal("unrepresentable interval accepted")
+		}
+	}()
+	ui.Render(func(c *ui.Context) {
+		Use(c, Settings{})
+		Typewriter(c, "letter", TypewriterOptions{Speed: math.Nextafter(minimum, 0)})
+	}, 200, 100, 1)
 }

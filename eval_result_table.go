@@ -26,18 +26,27 @@ type EvalResultTableOptions struct {
 	Decimals int
 	Status   DataStatus
 	Error    string
+	// Version changes when cases are edited in place.
+	Version int
 }
 
 // EvalResultTableResult is a built EvalResultTable and its events.
 type EvalResultTableResult struct {
-	Table DataTableView
-	diff  string
+	Element *ui.Element
+	Table   DataTableView
+	diff    string
 }
 
-// Diff returns the case whose differences the user asked to see this frame.
+// Diff returns the case to show differences for.
 func (r EvalResultTableResult) Diff() (string, bool) { return r.diff, r.diff != "" }
 
-// EvalResultTable lists eval cases with score and pass or fail, sortable, with a pass summary; give it a height.
+type evalSummary struct {
+	src                *EvalCase
+	n, version, passed int
+	built              bool
+}
+
+// EvalResultTable lists scored cases with a pass summary.
 func EvalResultTable(c *ui.Context, s *DataTableState[string], cases []EvalCase, opts EvalResultTableOptions) EvalResultTableResult {
 	if opts.Decimals < 0 {
 		panic("mujica: EvalResultTable Decimals is negative")
@@ -46,18 +55,30 @@ func EvalResultTable(c *ui.Context, s *DataTableState[string], cases []EvalCase,
 	if dec == 0 {
 		dec = 2
 	}
-	passed := 0
-	for _, ec := range cases {
-		if ec.ID == "" || math.IsNaN(ec.Score) || math.IsInf(ec.Score, 0) {
-			panic("mujica: EvalCase needs an ID and a finite Score")
-		}
-		if ec.Passed {
-			passed++
-		}
-	}
 	k := Tokens(c)
 	u := Density(c).Unit()
-	var res EvalResultTableResult
+	col := ui.Column(c).AlignItems(ui.Stretch).Gap(u * 2)
+	res := EvalResultTableResult{Element: col}
+	summary := ui.Local(col, "summary", func() evalSummary { return evalSummary{} })
+	var first *EvalCase
+	if len(cases) > 0 {
+		first = &cases[0]
+	}
+	if !summary.built || summary.src != first || summary.n != len(cases) || summary.version != opts.Version {
+		passed := 0
+		seen := make(map[string]bool, len(cases))
+		for _, ec := range cases {
+			if ec.ID == "" || seen[ec.ID] || math.IsNaN(ec.Score) || math.IsInf(ec.Score, 0) {
+				panic("mujica: EvalCase needs a unique ID and finite Score")
+			}
+			seen[ec.ID] = true
+			if ec.Passed {
+				passed++
+			}
+		}
+		*summary = evalSummary{src: first, n: len(cases), version: opts.Version, passed: passed, built: true}
+	}
+	passed := summary.passed
 	verdict := func(ec EvalCase) string {
 		if ec.Passed {
 			return msg(c, "eval_result_table.pass")
@@ -89,7 +110,6 @@ func EvalResultTable(c *ui.Context, s *DataTableState[string], cases []EvalCase,
 				}
 			}},
 	}
-	col := ui.Column(c).AlignItems(ui.Stretch).Gap(u * 2)
 	col.Children(func() {
 		if len(cases) > 0 {
 			ui.Row(c).Gap(u * 3).AlignItems(ui.Center).Role(ui.RoleStatus).Children(func() {
@@ -100,7 +120,7 @@ func EvalResultTable(c *ui.Context, s *DataTableState[string], cases []EvalCase,
 			})
 		}
 		res.Table = DataTable(c, s, cases, DataTableOptions[EvalCase, string]{Columns: cols, Key: func(e EvalCase) string { return e.ID },
-			Empty: msg(c, "eval_result_table.empty"), Status: opts.Status, Error: opts.Error})
+			Empty: msg(c, "eval_result_table.empty"), Status: opts.Status, Error: opts.Error, Version: opts.Version})
 		res.Table.Element.Grow(1)
 	})
 	res.Table.Element = col

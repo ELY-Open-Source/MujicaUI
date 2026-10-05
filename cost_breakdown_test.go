@@ -1,6 +1,8 @@
 package mujica
 
 import (
+	"math"
+	"strconv"
 	"testing"
 
 	"github.com/egoist/mygo/ui"
@@ -92,4 +94,59 @@ func TestCostBreakdownSnapshot(t *testing.T) {
 			CostBreakdown(c, *s, items, CostBreakdownOptions{}).Element.Grow(1)
 		})
 	})
+}
+
+func TestCostBreakdownVersionAndToolGroups(t *testing.T) {
+	var s CostBreakdownState
+	items := costSample()
+	version := 0
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		CostBreakdown(c, &s, items, CostBreakdownOptions{GroupBy: CostByTool, Version: version}).Element.Height(300)
+	}, 800, 400)
+	if len(s.rows) != 2 || s.rows[0].name != "search" || s.rows[0].calls != 2 {
+		t.Fatalf("tool groups %+v", s.rows)
+	}
+	items[0].Cost = 1.30
+	version++
+	tt.Frame()
+	if !tt.HasText("$2.50") {
+		t.Fatalf("stale total: %q", tt.Texts())
+	}
+}
+
+func TestCostBreakdownLargeData(t *testing.T) {
+	items := make([]CostItem, 100000)
+	for i := range items {
+		items[i] = CostItem{Model: strconv.Itoa(i), Cost: 1}
+	}
+	var s CostBreakdownState
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		CostBreakdown(c, &s, items, CostBreakdownOptions{}).Element.Height(300)
+	}, 800, 400)
+	if s.total.cost != 100000 || s.Table.Rows() != 100000 || len(tt.Texts()) > 300 {
+		t.Fatalf("rows %d texts %d total %v", s.Table.Rows(), len(tt.Texts()), s.total.cost)
+	}
+	a, b := s.Table.rows.Visible()
+	if b-a > 30 {
+		t.Fatalf("built %d rows", b-a)
+	}
+}
+
+func TestCostSumOverflowPanics(t *testing.T) {
+	for _, items := range [][]CostItem{
+		{{InputTokens: math.MaxInt}, {InputTokens: 1}},
+		{{OutputTokens: math.MaxInt}, {OutputTokens: 1}},
+		{{Cost: math.MaxFloat64}, {Cost: math.MaxFloat64}},
+	} {
+		func() {
+			defer func() {
+				if recover() == nil {
+					t.Error("unrepresentable cost total accepted")
+				}
+			}()
+			costSum(items, CostByModel, "unnamed")
+		}()
+	}
 }

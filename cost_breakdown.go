@@ -32,6 +32,8 @@ const (
 // CostBreakdownOptions configure a CostBreakdown.
 type CostBreakdownOptions struct {
 	GroupBy CostGroup
+	// Version changes when items are edited in place.
+	Version int
 	// Currency precedes amounts; empty means "$".
 	Currency string
 	// Decimals of amounts; zero means 2.
@@ -40,13 +42,15 @@ type CostBreakdownOptions struct {
 
 // CostBreakdownState holds the table's sort and selection and the sums.
 type CostBreakdownState struct {
-	Table DataTableState[string]
-	rows  []costRow
-	total costRow
-	src   *CostItem
-	n     int
-	group CostGroup
-	built bool
+	Table   DataTableState[string]
+	rows    []costRow
+	total   costRow
+	src     *CostItem
+	n       int
+	group   CostGroup
+	built   bool
+	version int
+	unnamed string
 }
 
 type costRow struct {
@@ -56,7 +60,7 @@ type costRow struct {
 	cost          float64
 }
 
-// CostBreakdown sums costs by model, tool or step in a sortable table with a total; give it a height.
+// CostBreakdown totals grouped costs; give the element a height.
 func CostBreakdown(c *ui.Context, s *CostBreakdownState, items []CostItem, opts CostBreakdownOptions) DataTableView {
 	if opts.GroupBy < CostByModel || opts.GroupBy > CostByStep || opts.Decimals < 0 {
 		panic("mujica: CostBreakdown needs a known GroupBy and non-negative Decimals")
@@ -72,9 +76,11 @@ func CostBreakdown(c *ui.Context, s *CostBreakdownState, items []CostItem, opts 
 	if len(items) > 0 {
 		first = &items[0]
 	}
-	if !s.built || s.src != first || s.n != len(items) || s.group != opts.GroupBy {
-		s.rows, s.total = costSum(items, opts.GroupBy, msg(c, "cost_breakdown.unnamed"))
+	unnamed := msg(c, "cost_breakdown.unnamed")
+	if !s.built || s.src != first || s.n != len(items) || s.group != opts.GroupBy || s.version != opts.Version || s.unnamed != unnamed {
+		s.rows, s.total = costSum(items, opts.GroupBy, unnamed)
 		s.src, s.n, s.group, s.built = first, len(items), opts.GroupBy, true
+		s.version, s.unnamed = opts.Version, unnamed
 		slog.Debug("mujica: cost breakdown sum", "items", len(items), "groups", len(s.rows))
 	}
 	money := func(v float64) string { return cur + strconv.FormatFloat(v, 'f', dec, 64) }
@@ -142,6 +148,9 @@ func costSum(items []CostItem, by CostGroup, unnamed string) ([]costRow, costRow
 			rows = append(rows, costRow{name: name})
 		}
 		for _, r := range []*costRow{&rows[i], &total} {
+			if r.input > math.MaxInt-it.InputTokens || r.output > math.MaxInt-it.OutputTokens || math.IsInf(r.cost+it.Cost, 0) {
+				panic("mujica: CostBreakdown total exceeds numeric range")
+			}
 			r.calls++
 			r.input += it.InputTokens
 			r.output += it.OutputTokens

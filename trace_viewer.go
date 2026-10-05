@@ -16,7 +16,7 @@ import (
 // TraceAttr is a key and value recorded on a span.
 type TraceAttr struct{ Key, Value string }
 
-// TraceSpan is one timed call of a trace; Start and End are offsets from the trace start.
+// TraceSpan records one call with trace-relative time offsets.
 type TraceSpan struct {
 	ID     string
 	Parent string
@@ -29,11 +29,12 @@ type TraceSpan struct {
 
 // TraceViewerState holds the tree's sort, open spans, selection and index.
 type TraceViewerState struct {
-	Tree  TreeTableState[string]
-	index traceIndex
-	src   *TraceSpan
-	n     int
-	built bool
+	Tree    TreeTableState[string]
+	index   traceIndex
+	src     *TraceSpan
+	n       int
+	built   bool
+	version int
 }
 
 type traceIndex struct {
@@ -47,19 +48,25 @@ type traceIndex struct {
 type TraceViewerOptions struct {
 	Status DataStatus
 	Error  string
+	// Version changes when spans are edited in place.
+	Version int
 }
 
-// TraceViewer shows a call tree with each span's time bar; the chosen span's attributes show below.
+// TraceViewer shows a span tree with time bars and attributes.
 func TraceViewer(c *ui.Context, s *TraceViewerState, spans []TraceSpan, opts TraceViewerOptions) DataTableView {
 	var first *TraceSpan
 	if len(spans) > 0 {
 		first = &spans[0]
 	}
-	if !s.built || s.src != first || s.n != len(spans) {
+	if !s.built || s.src != first || s.n != len(spans) || s.version != opts.Version {
+		previous := s.index.byID
 		s.index = traceBuild(spans)
 		s.src, s.n, s.built = first, len(spans), true
+		s.version = opts.Version
 		for _, id := range s.index.roots {
-			s.Tree.SetOpen(id, true)
+			if _, known := previous[id]; !known {
+				s.Tree.SetOpen(id, true)
+			}
 		}
 		slog.Debug("mujica: trace viewer index", "spans", len(spans), "roots", len(s.index.roots))
 	}
@@ -112,6 +119,8 @@ func TraceViewer(c *ui.Context, s *TraceViewerState, spans []TraceSpan, opts Tra
 	}
 	var v DataTableView
 	col := ui.Column(c).AlignItems(ui.Stretch).Gap(u * 2)
+	bounds := col.Bounds()
+	internal.Remeasure(c, col, bounds.W, bounds.H)
 	col.Children(func() {
 		v = TreeTable(c, &s.Tree, TreeTableOptions[string]{Columns: cols, Roots: ix.roots,
 			Children: func(id string) []string { return ix.kids[id] },
@@ -122,33 +131,44 @@ func TraceViewer(c *ui.Context, s *TraceViewerState, spans []TraceSpan, opts Tra
 		if _, known := ix.byID[id]; !ok || !known {
 			return
 		}
-		traceAttrs(c, span(id))
+		height := bounds.H
+		if height == 0 {
+			_, height = c.Size()
+		}
+		traceAttrs(c, span(id), height)
 	})
 	v.Element = col
 	return v
 }
 
 // traceAttrs lists the chosen span's timing and attributes.
-func traceAttrs(c *ui.Context, sp TraceSpan) {
+func traceAttrs(c *ui.Context, sp TraceSpan, height float32) {
 	k := Tokens(c)
 	u := Density(c).Unit()
 	ui.Column(c).Gap(u).Padding(u*3, u*4).Background(k.Background).Radius(theme.CardRadius).Shrink(0).Children(func() {
-		ui.Text(c, sp.Name).Font(theme.SerifFont).FontWeight(600)
+		ui.Row(c).Gap(u * 3).AlignItems(ui.Center).MinHeight(Density(c).ControlHeight()).Children(func() {
+			ui.Text(c, sp.Name).Font(theme.SerifFont).FontWeight(600).SingleLine().Grow(1).MinWidth(0)
+			ui.Text(c, msg(c, "trace_viewer.start")+" "+traceDuration(sp.Start)+" · "+msg(c, "trace_viewer.duration")+" "+traceDuration(sp.End-sp.Start)).
+				FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.TextMuted).SingleLine()
+		})
 		row := func(key, val string) {
-			ui.Row(c).Gap(u * 3).Children(func() {
+			ui.Row(c).Gap(u * 3).MinHeight(Density(c).ControlHeight()).Children(func() {
 				ui.Text(c, key).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.TextMuted).Width(140).Shrink(0)
 				ui.Text(c, val).Font(theme.MonoFont).FontSize(FontSize(c, theme.CaptionSize)).Grow(1).MinWidth(0)
 			})
 		}
-		row(msg(c, "trace_viewer.start"), traceDuration(sp.Start))
-		row(msg(c, "trace_viewer.duration"), traceDuration(sp.End-sp.Start))
-		for _, a := range sp.Attrs {
-			row(a.Key, a.Value)
+		if len(sp.Attrs) > 0 {
+			ui.Column(c).Key(sp.ID).Height(min(float32(len(sp.Attrs))*Density(c).ControlHeight(), max(Density(c).ControlHeight(), min(200, height/4)))).Children(func() {
+				ui.List(c, nil, len(sp.Attrs), func(i int) {
+					a := sp.Attrs[i]
+					row(a.Key, a.Value)
+				}).Grow(1).MinHeight(0)
+			})
 		}
 	})
 }
 
-// traceBuild indexes spans by ID and parent; unknown parents make roots.
+// traceBuild indexes spans; unknown parents make roots.
 func traceBuild(spans []TraceSpan) traceIndex {
 	ix := traceIndex{byID: make(map[string]int, len(spans)), kids: map[string][]string{}}
 	for i, sp := range spans {
@@ -162,7 +182,7 @@ func traceBuild(spans []TraceSpan) traceIndex {
 		ix.end = max(ix.end, sp.End)
 	}
 	for _, sp := range spans {
-		if _, ok := ix.byID[sp.Parent]; ok && sp.Parent != sp.ID {
+		if _, ok := ix.byID[sp.Parent]; ok {
 			ix.kids[sp.Parent] = append(ix.kids[sp.Parent], sp.ID)
 		} else {
 			ix.roots = append(ix.roots, sp.ID)

@@ -20,13 +20,11 @@ type StaggerOptions struct {
 }
 
 type staggerState struct {
-	born  time.Time
-	shown int
-	done  bool
+	born time.Time
+	done bool
 }
 
-// Stagger builds n items, each entering after the one before, once when it first appears.
-// Items added after the sequence ends appear with their own entry.
+// Stagger builds n items entering one after another, once.
 func Stagger(c *ui.Context, n int, opts StaggerOptions, item func(i int)) *ui.Element {
 	if n < 0 || opts.Interval < 0 || opts.Duration < 0 {
 		panic("mujica: Stagger needs non-negative n, Interval and Duration")
@@ -44,11 +42,14 @@ func Stagger(c *ui.Context, n int, opts StaggerOptions, item func(i int)) *ui.El
 	}
 	st := ui.Local(box, "stagger", func() *staggerState { return &staggerState{born: c.Now()} })
 	s := *st
+	if n == 0 {
+		return box
+	}
 	upto := n
 	if !s.done && !c.Preferences().ReduceMotion {
 		upto = min(n, 1+int(c.Now().Sub(s.born)/every))
 		if upto < n {
-			c.After(s.born.Add(time.Duration(upto) * every).Sub(c.Now()))
+			box.DrawOver(func(*ui.Painter, ui.Rect) { c.After(s.born.Add(time.Duration(upto) * every).Sub(c.Now())) })
 		} else {
 			s.done = true
 			slog.Debug("mujica: stagger done", "items", n)
@@ -64,7 +65,7 @@ func Stagger(c *ui.Context, n int, opts StaggerOptions, item func(i int)) *ui.El
 	box.Children(func() {
 		for i := range upto {
 			ui.Column(c).Key(i).AlignItems(ui.Stretch).
-				Transition(ui.ElementTransition{Duration: d, Enter: enter}).Children(func() { item(i) })
+				Transition(ui.ElementTransition{Duration: Motion(c, d), Enter: enter}).Children(func() { item(i) })
 		}
 	})
 	return box

@@ -2,6 +2,7 @@ package mujica
 
 import (
 	"fmt"
+	"math"
 	"strings"
 	"testing"
 	"time"
@@ -82,4 +83,48 @@ func TestCountUpSnapshot(t *testing.T) {
 			CountUp(c, 0.875, CountUpOptions{Format: func(v float64) string { return fmt.Sprintf("%.1f%%", v*100) }})
 		})
 	})
+}
+
+func TestCountUpFiniteExtremeInterpolation(t *testing.T) {
+	value := -math.MaxFloat64
+	tt, _ := motionFrames(func(c *ui.Context) {
+		CountUp(c, value, CountUpOptions{Duration: time.Second, Format: func(v float64) string {
+			if math.IsNaN(v) || math.IsInf(v, 0) {
+				t.Fatal("finite endpoints produced non-finite text")
+			}
+			return fmt.Sprintf("%g", v)
+		}})
+	}, 300, 80)
+	value = math.MaxFloat64
+	tt.Frame()
+}
+
+func TestCountUpOffscreenStopsFrames(t *testing.T) {
+	value := 1.0
+	tt, n := motionFrames(func(c *ui.Context) {
+		ui.Column(c).Height(80).Clip().Children(func() {
+			ui.Box(c).Size(10, 200).Shrink(0)
+			CountUp(c, value, CountUpOptions{Duration: time.Second})
+		})
+	}, 300, 80)
+	value = 2
+	tt.Frame()
+	if motionBusy(tt, n) {
+		t.Fatal("offscreen CountUp requested continuous rebuilds")
+	}
+}
+
+func TestCountUpRestoredMotionKeepsFinalValue(t *testing.T) {
+	value := 0.0
+	shown := 0.0
+	tt, n := motionFrames(func(c *ui.Context) {
+		CountUp(c, value, CountUpOptions{Duration: 5 * time.Second, Format: func(v float64) string { shown = v; return fmt.Sprintf("%g", v) }})
+	}, 300, 100)
+	value = 100
+	tt.Frame()
+	tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})
+	tt.SetPreferences(ui.Preferences{TextScale: 1})
+	if shown != 100 || motionBusy(tt, n) {
+		t.Fatalf("restored value %v", shown)
+	}
 }

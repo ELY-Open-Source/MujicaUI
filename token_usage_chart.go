@@ -14,20 +14,23 @@ type TokenUsage struct {
 
 // TokenUsageChartOptions configure a TokenUsageChart.
 type TokenUsageChartOptions struct {
-	// Frame names, sizes and states the chart; an empty Label uses the built-in name.
+	// Frame names, sizes and states the chart.
 	Frame ChartFrame
-	// Line draws input and output as lines instead of stacked bars.
+	// Line draws lines instead of stacked bars.
 	Line bool
+	// Version changes when usage is edited in place.
+	Version int
 }
 
 type tokenUsageSeries struct {
-	src    *TokenUsage
-	n      int
-	labels []string
-	series []ChartSeries
+	src     *TokenUsage
+	n       int
+	version int
+	labels  []string
+	series  []ChartSeries
 }
 
-// TokenUsageChart shows input and output tokens per session or step, as stacked bars or lines.
+// TokenUsageChart shows input and output tokens per step.
 func TokenUsageChart(c *ui.Context, usage []TokenUsage, opts TokenUsageChartOptions) ChartResult {
 	if opts.Frame.Label == "" {
 		opts.Frame.Label = msg(c, "token_usage_chart.label")
@@ -39,18 +42,30 @@ func TokenUsageChart(c *ui.Context, usage []TokenUsage, opts TokenUsageChartOpti
 	if len(usage) > 0 {
 		first = &usage[0]
 	}
-	if s.series == nil || s.src != first || s.n != len(usage) {
-		in, out := make([]float64, len(usage)), make([]float64, len(usage))
-		s.labels = make([]string, len(usage))
+	if s.series == nil || s.src != first || s.n != len(usage) || s.version != opts.Version {
+		step := max(1, (len(usage)+255)/256)
+		n := (len(usage) + step - 1) / step
+		in, out := make([]float64, n), make([]float64, n)
+		s.labels = make([]string, n)
 		for i, u := range usage {
 			if u.Input < 0 || u.Output < 0 {
 				panic("mujica: TokenUsage counts must not be negative")
 			}
-			in[i], out[i], s.labels[i] = float64(u.Input), float64(u.Output), u.Label
+			at := i / step
+			in[at] += float64(u.Input)
+			out[at] += float64(u.Output)
+			if i%step == 0 {
+				s.labels[at] = u.Label
+			}
+			if step > 1 && (i%step == step-1 || i == len(usage)-1) {
+				s.labels[at] += " … " + u.Label
+			}
 		}
 		s.series = []ChartSeries{{Name: msg(c, "token_usage_chart.input"), Values: in}, {Name: msg(c, "token_usage_chart.output"), Values: out}}
-		s.src, s.n = first, len(usage)
+		s.src, s.n, s.version = first, len(usage), opts.Version
 	}
+	s.series[0].Name = msg(c, "token_usage_chart.input")
+	s.series[1].Name = msg(c, "token_usage_chart.output")
 	format := func(v float64) string { return strconv.FormatFloat(v, 'f', 0, 64) }
 	var res ChartResult
 	holder.Children(func() {

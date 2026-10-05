@@ -74,3 +74,27 @@ func TestInterruptButtonSnapshot(t *testing.T) {
 		})
 	})
 }
+
+func TestInterruptButtonAncestorDisabledClosesConfirmation(t *testing.T) {
+	disabled := false
+	stops := 0
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Disabled(disabled).Children(func() {
+			if InterruptButton(c, true, InterruptButtonOptions{Confirm: true}).Changed() {
+				stops++
+			}
+		})
+	}, 400, 300)
+	_ = tt.Click("Stop")
+	disabled = true
+	tt.Frame()
+	if tt.HasText("Stop the agent?") || stops != 0 {
+		t.Fatal("disabled confirmation retained")
+	}
+	_ = tt.Click("Stop")
+	tt.Key(0, ui.KeyEnter)
+	if stops != 0 {
+		t.Fatal("disabled interrupt delivered")
+	}
+}

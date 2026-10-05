@@ -1,6 +1,7 @@
 package mujica
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/egoist/mygo/ui"
@@ -71,4 +72,70 @@ func TestEvalResultTableSnapshot(t *testing.T) {
 			EvalResultTable(c, *s, cases, EvalResultTableOptions{}).Table.Element.Grow(1)
 		})
 	})
+}
+
+func TestEvalResultTableDuplicateIDs(t *testing.T) {
+	defer func() {
+		if recover() == nil {
+			t.Fatal("duplicate case IDs accepted")
+		}
+	}()
+	ui.Render(func(c *ui.Context) {
+		Use(c, Settings{})
+		var state DataTableState[string]
+		EvalResultTable(c, &state, []EvalCase{{ID: "a"}, {ID: "a"}}, EvalResultTableOptions{})
+	}, 500, 300, 1)
+}
+
+func TestEvalResultTableDisabledKeyboardDiff(t *testing.T) {
+	var state DataTableState[string]
+	disabled := false
+	diffs := 0
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Disabled(disabled).Children(func() {
+			r := EvalResultTable(c, &state, evalSample(), EvalResultTableOptions{})
+			r.Table.Element.Height(300)
+			if _, ok := r.Diff(); ok {
+				diffs++
+			}
+		})
+	}, 700, 400)
+	tabTo(t, tt, "View differences for Greets by title")
+	for i := 0; i < 8 && diffs == 0; i++ {
+		tt.Key(0, ui.KeyTab)
+		tt.Key(0, ui.KeySpace)
+	}
+	if diffs != 1 {
+		t.Fatalf("keyboard diffs %d", diffs)
+	}
+	disabled = true
+	tt.Key(0, ui.KeyEnter)
+	_ = tt.Click("View differences for Greets by title")
+	if diffs != 1 {
+		t.Fatalf("disabled diffs %d", diffs)
+	}
+}
+
+func TestEvalResultTableLargeDataAndVersion(t *testing.T) {
+	cases := make([]EvalCase, 100000)
+	for i := range cases {
+		cases[i] = EvalCase{ID: strconv.Itoa(i), Name: "Case " + strconv.Itoa(i), Score: 1, Passed: true}
+	}
+	var s DataTableState[string]
+	version := 0
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		EvalResultTable(c, &s, cases, EvalResultTableOptions{Version: version}).Element.Height(300)
+	}, 700, 400)
+	a, b := s.rows.Visible()
+	if b-a > 30 || !tt.HasText("100000 of 100000 passed") {
+		t.Fatalf("rows %d summary missing", b-a)
+	}
+	cases[0].Passed = false
+	version++
+	tt.Frame()
+	if !tt.HasText("99999 of 100000 passed") {
+		t.Fatal("stale summary")
+	}
 }

@@ -1,6 +1,7 @@
 package mujica
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/egoist/mygo/ui"
@@ -86,4 +87,61 @@ func TestToolRegistryPanelSnapshot(t *testing.T) {
 			ToolRegistryPanel(c, *s, tools, ToolRegistryPanelOptions{}).Element.Grow(1)
 		})
 	}, func(tt *ui.Tester) { _ = tt.Click("Search the web") })
+}
+
+func TestToolRegistryPanelLargeDataKeyboardAndAncestorDisabled(t *testing.T) {
+	tools := make([]AgentTool, 100000)
+	for i := range tools {
+		tools[i] = AgentTool{Name: strconv.Itoa(i)}
+	}
+	var s ListState[string]
+	disabled := false
+	toggles := 0
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Disabled(disabled).Children(func() {
+			r := ToolRegistryPanel(c, &s, tools, ToolRegistryPanelOptions{})
+			r.Element.Height(300)
+			if _, _, ok := r.Toggled(); ok {
+				toggles++
+			}
+		})
+	}, 700, 400)
+	a, b := s.rows.Visible()
+	if b-a > 30 || len(tt.Texts()) > 150 {
+		t.Fatalf("built %d rows", b-a)
+	}
+	_ = tt.Click("0")
+	tt.Key(0, ui.KeyDown)
+	if id, _ := s.Selected(); id != "1" {
+		t.Fatalf("keyboard selected %q", id)
+	}
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeySpace)
+	if toggles != 1 {
+		t.Fatalf("keyboard toggles %d", toggles)
+	}
+	disabled = true
+	tt.Key(0, ui.KeySpace)
+	if toggles != 1 {
+		t.Fatal("ancestor disabled toggled")
+	}
+}
+
+func TestToolRegistryPanelLargeParameterPreview(t *testing.T) {
+	tools := []AgentTool{{Name: "Tool", Params: make([]ToolParam, 100000)}}
+	for i := range tools[0].Params {
+		tools[0].Params[i] = ToolParam{Name: "Param " + strconv.Itoa(i), Type: "string"}
+	}
+	var s ListState[string]
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ToolRegistryPanel(c, &s, tools, ToolRegistryPanelOptions{}).Element.Height(300)
+	}, 700, 400)
+	if err := tt.Click("Tool"); err != nil {
+		t.Fatal(err)
+	}
+	if !tt.HasText("Param 0") || len(tt.Texts()) > 150 {
+		t.Fatalf("parameter preview built %d texts", len(tt.Texts()))
+	}
 }

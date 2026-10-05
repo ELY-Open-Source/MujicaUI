@@ -1,6 +1,7 @@
 package mujica
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/egoist/mygo/ui"
@@ -61,4 +62,47 @@ func TestTokenUsageChartSnapshot(t *testing.T) {
 			TokenUsageChart(c, usage, TokenUsageChartOptions{})
 		})
 	})
+}
+
+func TestTokenUsageChartLocaleRefresh(t *testing.T) {
+	locale := EnUS
+	usage := tokenUsageSample()
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{Locale: locale})
+		TokenUsageChart(c, usage, TokenUsageChartOptions{})
+	}, 520, 420)
+	locale = ZhCN
+	tt.Frame()
+	if !tt.HasText("输入") || !tt.HasText("输出") {
+		t.Fatalf("stale legend: %q", tt.Texts())
+	}
+}
+
+func TestTokenUsageChartLargeDataBounded(t *testing.T) {
+	usage := make([]TokenUsage, 100000)
+	for i := range usage {
+		usage[i] = TokenUsage{Label: strconv.Itoa(i), Input: 1, Output: 2}
+	}
+	var cache *tokenUsageSeries
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		r := TokenUsageChart(c, usage, TokenUsageChartOptions{})
+		cache = *ui.Local(r.Element, "series", func() *tokenUsageSeries { panic("missing series cache") })
+	}, 520, 420)
+	if len(cache.labels) > 256 {
+		t.Fatalf("built %d categories", len(cache.labels))
+	}
+	in, out := 0.0, 0.0
+	for i := range cache.labels {
+		in += cache.series[0].Values[i]
+		out += cache.series[1].Values[i]
+	}
+	if in != 100000 || out != 200000 {
+		t.Fatalf("aggregated totals %v %v", in, out)
+	}
+	first := &cache.series[0].Values[0]
+	tt.Frame()
+	if &cache.series[0].Values[0] != first {
+		t.Fatal("unchanged data reaggregated")
+	}
 }
