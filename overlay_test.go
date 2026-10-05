@@ -3,6 +3,7 @@ package mujica
 import (
 	"runtime"
 	"testing"
+	"time"
 
 	"github.com/egoist/mygo/ui"
 )
@@ -93,6 +94,57 @@ func TestOverlayNonModal(t *testing.T) {
 	}
 }
 
+func TestOverlayEscapeClosesTopNonModalLayerFirst(t *testing.T) {
+	bottom, top := false, false
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		if Button(c, "Show", ButtonOptions{}).Clicked() {
+			if bottom {
+				top = true
+			}
+			bottom = true
+		}
+		Overlay(c, &top, OverlayOptions{Place: OverlayTopRight}, func() { ui.Text(c, "Top layer") })
+		Drawer(c, &bottom, DrawerOptions{Title: "Bottom layer", NonModal: true, Side: DrawerLeft}, nil)
+	}, 600, 400)
+	_ = tt.Click("Show")
+	_ = tt.Click("Show") // the overlay opens after the drawer, though built before it
+	if !bottom || !top {
+		t.Fatalf("bottom %v top %v", bottom, top)
+	}
+	tt.Key(0, ui.KeyEscape)
+	if top || !bottom {
+		t.Fatalf("first Escape: top %v bottom %v", top, bottom)
+	}
+	tt.Key(0, ui.KeyEscape)
+	if bottom {
+		t.Fatal("second Escape did not close the drawer")
+	}
+}
+
+func TestOverlayNonModalRestoresFocusToItsPlace(t *testing.T) {
+	open := true
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Children(func() {
+			Button(c, "First", ButtonOptions{})
+			Overlay(c, &open, OverlayOptions{}, func() { Button(c, "Inside", ButtonOptions{}) })
+			Button(c, "Next", ButtonOptions{})
+		})
+	}, 600, 400)
+	if err := tt.Click("Inside"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Key(0, ui.KeyEscape)
+	if open {
+		t.Fatal("Escape did not close")
+	}
+	tt.Key(0, ui.KeyTab)
+	if !tt.Focused("Next") {
+		t.Fatal("focus lost on close instead of staying at the overlay's place")
+	}
+}
+
 func TestOverlayDimNeedsModal(t *testing.T) {
 	defer func() {
 		if recover() == nil {
@@ -106,78 +158,114 @@ func TestOverlayDimNeedsModal(t *testing.T) {
 	}, 200, 200)
 }
 
-// TestOverlayLifecycle opens and closes every overlay 100 times and checks
-// that nothing grows: goroutines, heap objects or the elements left behind.
-func TestOverlayLifecycle(t *testing.T) {
-	var open bool
-	views := map[string]func(c *ui.Context, b *ui.Element){
-		"Dialog": func(c *ui.Context, b *ui.Element) { Dialog(c, &open, DialogOptions{Title: "T"}, func() {}) },
-		"Alert": func(c *ui.Context, b *ui.Element) {
-			AlertDialog(c, &open, AlertDialogOptions{Title: "T", ConfirmText: "x"})
-		},
-		"Drawer":  func(c *ui.Context, b *ui.Element) { Drawer(c, &open, DrawerOptions{Title: "T"}, nil) },
-		"Drawer2": func(c *ui.Context, b *ui.Element) { Drawer(c, &open, DrawerOptions{Title: "T", NonModal: true}, nil) },
-		"Popover": func(c *ui.Context, b *ui.Element) { Popover(c, b, &open, PopoverOptions{}, func() {}) },
-		"Confirm": func(c *ui.Context, b *ui.Element) { Popconfirm(c, b, &open, PopconfirmOptions{Title: "T"}) },
-		"Overlay": func(c *ui.Context, b *ui.Element) { Overlay(c, &open, OverlayOptions{Modal: true}, func() {}) },
-		"Menu": func(c *ui.Context, b *ui.Element) {
-			popupMenuOpen(c, b, &open, (&menuApp{}).build)
-		},
-		"Context": nil,
+// overlayCase drives one component open and closed through real input.
+type overlayCase struct {
+	name        string
+	view        func(c *ui.Context, open *bool)
+	open, close func(tt *ui.Tester)
+	marker      string
+}
+
+func overlayCases() []overlayCase {
+	clickAnchor := func(tt *ui.Tester) { _ = tt.Click("Anchor") }
+	escape := func(tt *ui.Tester) { tt.Key(0, ui.KeyEscape) }
+	hover := func(tt *ui.Tester) {
+		r, _ := tt.Find("Anchor")
+		tt.Move(r.X+4, r.Y+4)
 	}
-	for name, view := range views {
+	leave := func(tt *ui.Tester) { tt.Move(590, 390) }
+	anchor := func(c *ui.Context, open *bool) *ui.Element {
+		b := Button(c, "Anchor", ButtonOptions{})
+		if b.Clicked() {
+			*open = true
+		}
+		return b
+	}
+	body := func(c *ui.Context) func() { return func() { ui.Text(c, "Layer body") } }
+	return []overlayCase{
+		{"Dialog", func(c *ui.Context, open *bool) {
+			anchor(c, open)
+			Dialog(c, open, DialogOptions{Title: "T"}, body(c))
+		}, clickAnchor, escape, "Layer body"},
+		{"AlertDialog", func(c *ui.Context, open *bool) {
+			anchor(c, open)
+			AlertDialog(c, open, AlertDialogOptions{Title: "Layer body", ConfirmText: "x"})
+		}, clickAnchor, escape, "Layer body"},
+		{"Drawer", func(c *ui.Context, open *bool) {
+			anchor(c, open)
+			Drawer(c, open, DrawerOptions{Title: "T"}, body(c))
+		}, clickAnchor, escape, "Layer body"},
+		{"DrawerNonModal", func(c *ui.Context, open *bool) {
+			anchor(c, open)
+			Drawer(c, open, DrawerOptions{Title: "T", NonModal: true}, body(c))
+		}, clickAnchor, escape, "Layer body"},
+		{"Popover", func(c *ui.Context, open *bool) {
+			Popover(c, anchor(c, open), open, PopoverOptions{}, body(c))
+		}, clickAnchor, escape, "Layer body"},
+		{"Tooltip", func(c *ui.Context, open *bool) {
+			Tooltip(c, anchor(c, open), "Layer body", TooltipOptions{Delay: time.Millisecond})
+		}, hover, leave, "Layer body"},
+		{"HoverCard", func(c *ui.Context, open *bool) {
+			HoverCard(c, anchor(c, open), HoverCardOptions{OpenDelay: time.Millisecond, CloseDelay: time.Millisecond}, body(c))
+		}, hover, leave, "Layer body"},
+		{"DropdownMenu", func(c *ui.Context, open *bool) {
+			DropdownMenu(c, "Anchor", DropdownMenuOptions{}, (&menuApp{}).build)
+		}, clickAnchor, escape, "Rename"},
+		{"ContextMenu", func(c *ui.Context, open *bool) {
+			row := ui.Row(c)
+			row.Children(func() { Button(c, "Anchor", ButtonOptions{}) })
+			ContextMenu(c, row, ContextMenuOptions{}, (&menuApp{}).build)
+		}, func(tt *ui.Tester) {
+			clickAnchor(tt)
+			tt.Key(ui.Shift, ui.KeyF10)
+		}, escape, "Rename"},
+		{"Popconfirm", func(c *ui.Context, open *bool) {
+			Popconfirm(c, anchor(c, open), open, PopconfirmOptions{Title: "Layer body"})
+		}, clickAnchor, escape, "Layer body"},
+		{"Overlay", func(c *ui.Context, open *bool) {
+			anchor(c, open)
+			Overlay(c, open, OverlayOptions{Modal: true}, body(c))
+		}, clickAnchor, escape, "Layer body"},
+	}
+}
+
+// TestOverlayLifecycle opens and closes every overlay 100 times; goroutines, heap objects and elements must not grow.
+func TestOverlayLifecycle(t *testing.T) {
+	for _, oc := range overlayCases() {
+		open := false
 		tt := ui.NewTester(func(c *ui.Context) {
 			Use(c, Settings{})
-			row := ui.Row(c)
-			var b *ui.Element
-			row.Children(func() { b = Button(c, "Anchor", ButtonOptions{}) })
-			if view == nil {
-				ContextMenu(c, row, ContextMenuOptions{}, (&menuApp{}).build)
-			} else {
-				view(c, b)
-			}
+			oc.view(c, &open)
 		}, 600, 400)
 		tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})
-		cycle := func() {
-			open = true
-			if view == nil {
-				_ = tt.Click("Anchor")
-				tt.Key(ui.Shift, ui.KeyF10)
-				if !tt.HasText("Rename") {
-					t.Fatalf("%s: did not open", name)
-				}
+		shown := func() bool { return tt.HasText(oc.marker) }
+		cycle := func(i int) {
+			oc.open(tt)
+			if !overlayUntil(tt, shown) {
+				t.Fatalf("%s: cycle %d did not open", oc.name, i)
 			}
-			tt.Frame()
-			if name != "Drawer2" {
-				tt.Key(0, ui.KeyEscape)
-				if view == nil {
-					open = false
-				}
-			} else {
-				open = false
-				tt.Frame()
-			}
-			if open || tt.HasText("Rename") {
-				t.Fatalf("%s: Escape did not close", name)
+			oc.close(tt)
+			if !overlayUntil(tt, func() bool { return !shown() }) {
+				t.Fatalf("%s: cycle %d did not close", oc.name, i)
 			}
 		}
-		for range 20 {
-			cycle()
+		for i := range 20 {
+			cycle(i)
 		}
 		texts := len(tt.Texts())
 		before := heapObjects()
 		goroutines := runtime.NumGoroutine()
-		for range 100 {
-			cycle()
+		for i := range 100 {
+			cycle(i)
 		}
 		if got := len(tt.Texts()); got != texts {
-			t.Errorf("%s: texts %d -> %d", name, texts, got)
+			t.Errorf("%s: texts %d -> %d", oc.name, texts, got)
 		}
 		if g := runtime.NumGoroutine(); g > goroutines {
-			t.Errorf("%s: goroutines %d -> %d", name, goroutines, g)
+			t.Errorf("%s: goroutines %d -> %d", oc.name, goroutines, g)
 		}
 		if after := heapObjects(); after > before+2000 {
-			t.Errorf("%s: heap objects %d -> %d", name, before, after)
+			t.Errorf("%s: heap objects %d -> %d", oc.name, before, after)
 		}
 	}
 }

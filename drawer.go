@@ -22,8 +22,7 @@ const (
 type DrawerOptions struct {
 	Title string
 	Side  DrawerSide
-	// Size is the width (left, right) or height (top, bottom): 360 or 280 DIPs when zero.
-	// It is kept between 160 DIPs and 90% of the window.
+	// Size is the width or height (360 or 280 when zero), kept within 160 DIPs and 90% of the window.
 	Size float32
 	// NonModal leaves the window usable and the focus free.
 	NonModal bool
@@ -31,8 +30,7 @@ type DrawerOptions struct {
 	Actions func()
 }
 
-// Drawer shows a panel along a window edge while *open is true. A modal
-// drawer traps the focus and restores it on close; Escape closes either kind.
+// Drawer shows a panel along a window edge while *open is true; Escape closes it.
 func Drawer(c *ui.Context, open *bool, opts DrawerOptions, content func()) *ui.Element {
 	if opts.Title == "" {
 		panic("mujica: Drawer needs a Title")
@@ -43,7 +41,9 @@ func Drawer(c *ui.Context, open *bool, opts DrawerOptions, content func()) *ui.E
 	if opts.Size < 0 {
 		panic("mujica: Drawer Size is negative")
 	}
+	site, focus := overlaySite(c)
 	if !*open {
+		focus.closed(c, site)
 		return nil
 	}
 	k := Tokens(c)
@@ -69,8 +69,9 @@ func Drawer(c *ui.Context, open *bool, opts DrawerOptions, content func()) *ui.E
 			drawerPlace(c, panel, opts.Side, size*p)
 			panel.Children(func() { body(panel, p) })
 		})
-		escaped = c.Shortcut(0, ui.KeyEscape)
+		escaped = overlayEscape(c, open)
 	} else {
+		overlayLayer(c, open)
 		shown := true
 		panel = ui.DialogBase(c, &shown, func(back, panel *ui.Element) {
 			p := overlayEnter(c, panel)
@@ -80,6 +81,7 @@ func Drawer(c *ui.Context, open *bool, opts DrawerOptions, content func()) *ui.E
 		})
 		escaped = !shown
 	}
+	focus.shown(panel)
 	if closed || escaped {
 		slog.Debug("mujica: drawer close", "escape", escaped)
 		*open = false

@@ -15,10 +15,7 @@ type DropdownMenuOptions struct {
 	Label string
 }
 
-// DropdownMenu is a button opening an in-window menu that build fills.
-// Click, Enter, Space or Down opens it with the focus on the first item;
-// the arrows, Home and End move, Escape or Tab closes, and the focus
-// returns to the button. It returns the button.
+// DropdownMenu is a button opening an in-window menu that build fills; it returns the button.
 func DropdownMenu(c *ui.Context, label string, opts DropdownMenuOptions, build func(m *PopupMenu)) *ui.Element {
 	if build == nil {
 		panic("mujica: DropdownMenu needs a build function")

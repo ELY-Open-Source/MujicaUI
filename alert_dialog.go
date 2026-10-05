@@ -31,17 +31,18 @@ type AlertDialogResult struct {
 // alertDialogState is the typed confirmation, kept while the alert shows.
 type alertDialogState struct{ typed string }
 
-// AlertDialog asks to confirm a destructive action while *open is true.
-// Cancel takes the focus, the backdrop ignores clicks, Escape cancels,
-// and Enter never confirms before ConfirmText is typed.
+// AlertDialog confirms a destructive action; Cancel has the focus.
 func AlertDialog(c *ui.Context, open *bool, opts AlertDialogOptions) AlertDialogResult {
 	if opts.Title == "" {
 		panic("mujica: AlertDialog needs a Title")
 	}
 	var res AlertDialogResult
+	site, focus := overlaySite(c)
 	if !*open {
+		focus.closed(c, site)
 		return res
 	}
+	overlayLayer(c, open)
 	k := Tokens(c)
 	u := Density(c).Unit()
 	confirmLabel, cancelLabel := opts.ConfirmLabel, opts.CancelLabel
@@ -52,7 +53,7 @@ func AlertDialog(c *ui.Context, open *bool, opts AlertDialogOptions) AlertDialog
 		cancelLabel = msg(c, "alert_dialog.cancel")
 	}
 	shown, backClicked := true, false
-	ui.DialogBase(c, &shown, func(back, panel *ui.Element) {
+	panel := ui.DialogBase(c, &shown, func(back, panel *ui.Element) {
 		backClicked = back.Clicked()
 		st := ui.Local(panel, "mujica.alert", func() alertDialogState { return alertDialogState{} })
 		p := overlayEnter(c, panel)
@@ -62,15 +63,16 @@ func AlertDialog(c *ui.Context, open *bool, opts AlertDialogOptions) AlertDialog
 		ui.Row(c).Gap(u * 3).AlignItems(ui.Start).Shrink(0).Children(func() {
 			ui.Icon(c, icons.Must("triangle-alert")).Size(22, 22).TextColor(k.Danger).Shrink(0).Margin(1, 0, 0, 0)
 			ui.Column(c).Gap(u * 2).Grow(1).Children(func() {
-				ui.Text(c, opts.Title).Font(theme.SerifFont).FontSize(theme.H3Size).FontWeight(600)
+				ui.Text(c, opts.Title).Font(theme.SerifFont).FontSize(FontSize(c, theme.H3Size)).FontWeight(600)
 				if opts.Description != "" {
 					ui.Text(c, opts.Description).TextColor(k.TextMuted)
 				}
 			})
 		})
-		submitted := opts.ConfirmText != "" && alertDialogTyped(c, st, opts.ConfirmText)
+		if opts.ConfirmText != "" {
+			alertDialogTyped(c, st, opts.ConfirmText)
+		}
 		unlocked := opts.ConfirmText == "" || st.typed == opts.ConfirmText
-		res.Confirmed = submitted && unlocked
 		dialogActions(c, func() {
 			if Button(c, cancelLabel, ButtonOptions{Variant: Secondary}).AutoFocus().Clicked() {
 				res.Cancelled = true
@@ -80,6 +82,7 @@ func AlertDialog(c *ui.Context, open *bool, opts AlertDialogOptions) AlertDialog
 			}
 		})
 	})
+	focus.shown(panel)
 	if !shown && !backClicked {
 		res.Cancelled = true // Escape
 	}
@@ -93,18 +96,15 @@ func AlertDialog(c *ui.Context, open *bool, opts AlertDialogOptions) AlertDialog
 	return res
 }
 
-// alertDialogTyped builds the confirmation field and reports Enter in it.
-func alertDialogTyped(c *ui.Context, st *alertDialogState, want string) bool {
+// alertDialogTyped builds the confirmation field; Enter in it never confirms, even mid-composition.
+func alertDialogTyped(c *ui.Context, st *alertDialogState, want string) {
 	k := Tokens(c)
 	d := Density(c)
 	prompt := fmt.Sprintf(msg(c, "alert_dialog.type_to_unlock"), want)
-	submitted := false
 	ui.Column(c).Gap(d.Unit()).Shrink(0).Children(func() {
-		ui.Text(c, prompt).FontSize(theme.CaptionSize).TextColor(k.TextMuted)
+		ui.Text(c, prompt).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.TextMuted)
 		in := ui.TextInputBase(c, &st.typed).Label(prompt).MinHeight(d.ControlHeight()).Padding(0, d.Unit()*3).
 			Radius(theme.ControlRadius).Background(k.Surface).Border(theme.BorderWidth, k.ControlBorder)
 		internal.Ring(in, k.Focus, theme.ControlRadius)
-		submitted = in.Submitted()
 	})
-	return submitted
 }

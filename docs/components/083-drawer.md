@@ -51,5 +51,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 限制
 
-- 非模态抽屉不在打开时移动焦点，关闭时也不自动恢复焦点：MyGo 记录与恢复打开者的 `openOverlay` 不公开（`ui/scope.go:123`），也没有读取当前焦点的公开接口。
-- 非模态抽屉的 Escape 是窗口级快捷键，优先级最低；同时打开多个非模态浮层时由先构建的那个响应。
+- 输入法组合期间按 Escape 仍会关闭浮层：MyGo 没有公开组合状态（`ui/editor.go:73` 的 `compose` 未导出，组合事件不交给带编辑器元素的 `HandleInput`，`ui/input.go:689`），编辑器也不接收 Escape（`ui/editor.go:163`），macOS 上按键先于输入法送达应用（`internal/darwin/surface.go:704`）。
+- Escape 只关闭最上层的 MujicaUI 浮层（窗口内按打开顺序记录）。MyGo 自带的 `ui.Popover`、`ui.Select` 弹层不在这份记录中；它们打开在非模态 MujicaUI 浮层之上时，Escape 可能先关闭下面的 MujicaUI 浮层。
+- 关闭后焦点优先由 MyGo 还给打开者；打开者已消失、焦点落空时，焦点停在组件调用处的不可见占位元素上，Tab 从这里继续。不能回到打开者的父级：MyGo 不公开当前焦点或打开者（`ui/scope.go:123`、`ui/scope.go:137`）。
+- 非模态抽屉打开时不移动焦点，其内容排在窗口焦点顺序末尾。
