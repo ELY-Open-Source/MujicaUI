@@ -1,6 +1,9 @@
 package internal
 
-import "strings"
+import (
+	"strings"
+	"unicode"
+)
 
 // DiffOp says a line is kept, removed or added.
 type DiffOp uint8
@@ -115,6 +118,61 @@ func myers(out []DiffLine, a, b []string, ao, bo int) []DiffLine {
 	}
 	for i := len(rev) - 1; i >= 0; i-- {
 		out = append(out, rev[i])
+	}
+	return out
+}
+
+// WordSpan is a run of a line that a word diff kept, removed or added.
+type WordSpan struct {
+	Op   DiffOp
+	Text string
+}
+
+// WordDiff compares two lines by words: from holds kept and removed spans, to kept and added.
+func WordDiff(a, b string) (from, to []WordSpan) {
+	add := func(spans []WordSpan, op DiffOp, s string) []WordSpan {
+		if n := len(spans); n > 0 && spans[n-1].Op == op {
+			spans[n-1].Text += s
+			return spans
+		}
+		return append(spans, WordSpan{op, s})
+	}
+	for _, d := range LineDiff(wordTokens(a), wordTokens(b)) {
+		switch d.Op {
+		case DiffEqual:
+			from, to = add(from, DiffEqual, d.Text), add(to, DiffEqual, d.Text)
+		case DiffDelete:
+			from = add(from, DiffDelete, d.Text)
+		case DiffInsert:
+			to = add(to, DiffInsert, d.Text)
+		}
+	}
+	return from, to
+}
+
+// wordTokens splits s into words, runs of spaces and single other characters.
+func wordTokens(s string) []string {
+	var out []string
+	kind := func(r rune) int {
+		switch {
+		case r == '_' || unicode.IsLetter(r) || unicode.IsDigit(r):
+			return 1
+		case unicode.IsSpace(r):
+			return 2
+		}
+		return 0
+	}
+	start, prev := 0, -1
+	for i, r := range s {
+		k := kind(r)
+		if i > start && (k != prev || k == 0) {
+			out = append(out, s[start:i])
+			start = i
+		}
+		prev = k
+	}
+	if start < len(s) {
+		out = append(out, s[start:])
 	}
 	return out
 }
