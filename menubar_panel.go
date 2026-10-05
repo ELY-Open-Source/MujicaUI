@@ -20,6 +20,9 @@ func (m *menubarRun) overlay(titles []ui.Rect) {
 			m.close()
 			return
 		}
+		if back.Pressed() {
+			m.focus(st.open)
+		}
 		// Title hotspots above the backdrop switch menus as the pointer moves.
 		for i, r := range titles {
 			hot := ui.Box(c).Absolute().Left(r.X).Top(r.Y).Size(r.W, r.H).Cursor(ui.CursorPointer)
@@ -30,6 +33,9 @@ func (m *menubarRun) overlay(titles []ui.Rect) {
 					m.openMenu(i, false)
 				}
 				return
+			}
+			if hot.Pressed() {
+				m.focus(st.open)
 			}
 			if hot.Hovered() && i != st.open {
 				m.openMenu(i, false)
@@ -76,7 +82,7 @@ func (m *menubarRun) panel(l int, x, y float32, parent ui.Rect) (*ui.Element, *u
 		y = max(4, wh-4-pb.H)
 	}
 	panel.Left(max(4, x)).Top(y)
-	if panel.Clicked() {
+	if panel.Clicked() || panel.Pressed() {
 		m.focus(st.open)
 	}
 	var anchor *ui.Element

@@ -105,8 +105,16 @@ func Menubar(c *ui.Context, menus []MenubarMenu, opts MenubarOptions) MenubarRes
 			titles[i] = t.Bounds()
 		}
 	})
+	if m.st.open >= 0 && bar.Shortcut(0, ui.KeyEscape) {
+		m.close()
+	}
 	if m.st.open >= 0 {
 		m.overlay(titles)
+	}
+	// Presses in the menu refocus the title, so lost focus means Tab left the menubar.
+	if m.st.open >= 0 && m.st.focusTo < 0 && !bar.FocusWithin() {
+		slog.Debug("mujica: menubar close on focus out")
+		m.st.open, m.st.hl = -1, nil
 	}
 	// Focus stays on the title, so the highlighted item is read out.
 	if name := m.current(); m.moved && name != "" {
