@@ -1,0 +1,9 @@
+{
+  // Static docs site built by `go run ./tools/site`; no Worker script.
+  "name": "mujicaui",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./site/dist",
+    "not_found_handling": "404-page"
+  }
+}
