@@ -8,6 +8,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
+	"mujicaui/icons"
 	"mujicaui/internal"
 	"mujicaui/theme"
 )
@@ -221,7 +222,7 @@ func timeEditor(c *ui.Context, draft *TimeOfDay, cfg timeConfig) (field *ui.Elem
 		if cfg.readOnly {
 			return
 		}
-		b := datetimeIconButton(c, "clock", msg(c, "time_picker.open")).Role(ui.RolePopUpButton)
+		b := iconAction(c, icons.Must("clock"), msg(c, "time_picker.open")).Role(ui.RolePopUpButton)
 		if b.Clicked() {
 			*open, *fresh = !*open, true
 		}

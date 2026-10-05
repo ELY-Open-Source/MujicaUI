@@ -6,7 +6,6 @@ import (
 	"github.com/egoist/mygo/ui"
 
 	"mujicaui/icons"
-	"mujicaui/internal"
 	"mujicaui/theme"
 )
 
@@ -100,16 +99,7 @@ func appShellSidebar(c *ui.Context, collapsed bool, opts AppShellOptions) bool {
 			if collapsed {
 				label = msg(c, "app_shell.expand")
 			}
-			b := ui.ButtonBase(c).Size(theme.MinHitSize, theme.MinHitSize).Radius(theme.ControlRadius).
-				Label(label).Tooltip(label).TextColor(k.TextMuted)
-			internal.Ring(b, k.Focus, theme.ControlRadius)
-			if b.Pressed() {
-				b.Background(k.Selection).TextColor(k.Text)
-			} else if b.Hovered() {
-				b.Background(k.SurfaceHover).TextColor(k.Text)
-			}
-			b.Children(func() { ui.Icon(c, icons.Must("panel-left")).Size(16, 16) })
-			pressed = b.Clicked()
+			pressed = iconAction(c, icons.Must("panel-left"), label).Tooltip(label).Clicked()
 		})
 		if !collapsed {
 			ScrollArea(c, nil, ScrollAreaOptions{}, opts.Sidebar).Grow(1).MinHeight(0)

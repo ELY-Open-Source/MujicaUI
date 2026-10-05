@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/egoist/mygo/ui"
+
+	"mujicaui/icons"
 )
 
 // DatePickerOptions configure a DatePicker.
@@ -121,10 +123,10 @@ func DatePicker(c *ui.Context, value *Date, opts DatePickerOptions) DateTimeResu
 			if opts.ReadOnly {
 				return
 			}
-			if opts.Clearable && !value.IsZero() && datetimeIconButton(c, "x", msg(c, "calendar.clear")).Clicked() {
+			if opts.Clearable && !value.IsZero() && iconAction(c, icons.Must("x"), msg(c, "calendar.clear")).Clicked() {
 				commit(Date{}, "clear")
 			}
-			if datetimeIconButton(c, "calendar", msg(c, "date_picker.open")).Role(ui.RolePopUpButton).Clicked() {
+			if iconAction(c, icons.Must("calendar"), msg(c, "date_picker.open")).Role(ui.RolePopUpButton).Clicked() {
 				if *open {
 					*open = false
 				} else {

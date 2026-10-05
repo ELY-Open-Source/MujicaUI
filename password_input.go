@@ -6,8 +6,6 @@ import (
 	"github.com/egoist/mygo/ui"
 
 	"mujicaui/icons"
-	"mujicaui/internal"
-	"mujicaui/theme"
 )
 
 // PasswordInputOptions configure a PasswordInput.
@@ -55,21 +53,9 @@ func PasswordInput(c *ui.Context, value *string, opts PasswordInputOptions) Inpu
 
 // passwordInputToggle builds the show or hide button and reports a click.
 func passwordInputToggle(c *ui.Context, shown bool) bool {
-	k := Tokens(c)
 	name, icon := msg(c, "password_input.show"), "eye"
 	if shown {
 		name, icon = msg(c, "password_input.hide"), "eye-off"
 	}
-	b := ui.ButtonBase(c).Size(theme.MinHitSize, theme.MinHitSize).Radius(theme.ControlRadius).Label(name).Tooltip(name)
-	internal.Ring(b, k.Focus, theme.ControlRadius)
-	fg := k.TextMuted
-	if b.Pressed() {
-		b.Background(k.Selection)
-		fg = k.Text
-	} else if b.Hovered() {
-		b.Background(k.SurfaceHover)
-		fg = k.Text
-	}
-	b.Children(func() { ui.Icon(c, icons.Must(icon)).Size(16, 16).TextColor(fg) })
-	return b.Clicked()
+	return iconAction(c, icons.Must(icon), name).Tooltip(name).Clicked()
 }

@@ -3,6 +3,7 @@ package mujica
 import (
 	"github.com/egoist/mygo/ui"
 
+	"mujicaui/icons"
 	"mujicaui/internal"
 	"mujicaui/theme"
 )
@@ -36,12 +37,12 @@ func datetimeGrid(c *ui.Context, cursor *int, cfg datetimeGridConfig) (picked in
 		start, _ := cfg.pageOf(*cursor)
 		ui.Row(c).AlignItems(ui.Center).Gap(d.Unit()).BorderWidth(0, 0, theme.BorderWidth, 0).BorderColor(k.Border).
 			PaddingY(d.Unit()).Children(func() {
-			if datetimeIconButton(c, "chevron-left", cfg.prev).Clicked() {
+			if iconAction(c, icons.Must("chevron-left"), cfg.prev).Clicked() {
 				*cursor, *keyed = *cursor-cfg.page, false
 			}
 			ui.Text(c, cfg.title(start)).Font(theme.SerifFont).FontSize(FontSize(c, theme.BodySize+2)).Bold().
 				TextColor(k.Text).Grow(1).TextAlign(ui.Center).SingleLine()
-			if datetimeIconButton(c, "chevron-right", cfg.next).Clicked() {
+			if iconAction(c, icons.Must("chevron-right"), cfg.next).Clicked() {
 				*cursor, *keyed = *cursor+cfg.page, false
 			}
 		})
@@ -182,7 +183,7 @@ func datetimeGridPicker(c *ui.Context, f datetimeGridField, cfg datetimeGridConf
 			if !f.readOnly && (t.Clicked() || !*open && t.Shortcut(0, ui.KeyDown)) {
 				*open, *cursor = !*open, f.home
 			}
-			if f.clearable && f.hasValue && !f.readOnly && datetimeIconButton(c, "x", msg(c, "calendar.clear")).Clicked() {
+			if f.clearable && f.hasValue && !f.readOnly && iconAction(c, icons.Must("x"), msg(c, "calendar.clear")).Clicked() {
 				cleared = true
 			}
 		})

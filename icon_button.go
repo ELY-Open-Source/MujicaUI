@@ -2,6 +2,9 @@ package mujica
 
 import (
 	"github.com/egoist/mygo/ui"
+
+	"mujicaui/internal"
+	"mujicaui/theme"
 )
 
 // IconButtonOptions configure an IconButton.
@@ -30,4 +33,19 @@ func IconButton(c *ui.Context, icon *ui.SVG, label string, opts IconButtonOption
 		tip = label
 	}
 	return b.Tooltip(tip)
+}
+
+// iconAction is a square, borderless button showing icon, named label.
+func iconAction(c *ui.Context, icon *ui.SVG, label string) *ui.Element {
+	k := Tokens(c)
+	b := ui.ButtonBase(c).Size(theme.MinHitSize, theme.MinHitSize).Radius(theme.ControlRadius).Label(label).TextColor(k.TextMuted)
+	internal.Ring(b, k.Focus, theme.ControlRadius)
+	switch {
+	case b.Pressed():
+		b.Background(k.Selection).TextColor(k.Text)
+	case b.Hovered():
+		b.Background(k.SurfaceHover).TextColor(k.Text)
+	}
+	b.Children(func() { ui.Icon(c, icon).Size(16, 16) })
+	return b
 }

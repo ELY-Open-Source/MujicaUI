@@ -117,7 +117,7 @@ func dialogHeader(c *ui.Context, title string, decorated, closable bool, closeKe
 		ui.Row(c).Gap(u * 3).AlignItems(ui.Start).Children(func() {
 			ui.Text(c, title).Font(theme.SerifFont).FontSize(FontSize(c, theme.H3Size)).FontWeight(600).Grow(1)
 			if closable {
-				clicked = dialogCloseButton(c, msg(c, closeKey)).Clicked()
+				clicked = iconAction(c, icons.Must("x"), msg(c, closeKey)).Margin(-4, -4, 0, 0).Clicked()
 			}
 		})
 		if decorated {
@@ -135,21 +135,6 @@ func dialogRule(c *ui.Context, ink ui.Color) {
 		p.Line(cx+10, y, r.X+r.W, y, 1, ink)
 		p.FillPath(internal.Diamond(internal.Snap(p, cx), internal.Snap(p, y), 7), ink)
 	})
-}
-
-// dialogCloseButton is the 28 DIP icon button closing a panel.
-func dialogCloseButton(c *ui.Context, label string) *ui.Element {
-	k := Tokens(c)
-	b := ui.ButtonBase(c).Size(theme.MinHitSize, theme.MinHitSize).Radius(theme.ControlRadius).Label(label).Margin(-4, -4, 0, 0)
-	internal.Ring(b, k.Focus, theme.ControlRadius)
-	b.TextColor(k.TextMuted)
-	if b.Pressed() {
-		b.Background(k.Selection).TextColor(k.Text)
-	} else if b.Hovered() {
-		b.Background(k.SurfaceHover).TextColor(k.Text)
-	}
-	b.Children(func() { ui.Icon(c, icons.Must("x")).Size(16, 16) })
-	return b
 }
 
 // dialogActions lays out a dialog footer.

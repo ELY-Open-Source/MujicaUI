@@ -122,21 +122,6 @@ func datetimeDayLabel(c *ui.Context, d Date) string {
 	return fmt.Sprintf(msg(c, "calendar.day_label"), wd, datetimeMonthName(c, d.Month), d.Day, d.Year)
 }
 
-// datetimeIconButton is a square, borderless button showing icon, named label.
-func datetimeIconButton(c *ui.Context, icon, label string) *ui.Element {
-	k := Tokens(c)
-	b := ui.ButtonBase(c).Size(theme.MinHitSize, theme.MinHitSize).Radius(theme.ControlRadius).Label(label)
-	internal.Ring(b, k.Focus, theme.ControlRadius)
-	switch {
-	case b.Pressed():
-		b.Background(k.Selection)
-	case b.Hovered():
-		b.Background(k.SurfaceHover)
-	}
-	b.TextColor(k.TextMuted).Children(func() { ui.Icon(c, icons.Must(icon)).Size(16, 16) })
-	return b
-}
-
 // datetimeField styles row as a single-line field: solid fill and fine border.
 func datetimeField(c *ui.Context, row *ui.Element, invalid, readOnly bool) *ui.Element {
 	k := Tokens(c)

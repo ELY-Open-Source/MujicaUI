@@ -8,6 +8,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
+	"mujicaui/icons"
 	"mujicaui/internal"
 	"mujicaui/theme"
 )
@@ -132,18 +133,18 @@ func calendarMonth(c *ui.Context, cursor *Date, cfg calendarConfig) (picked, hov
 	}
 	root.Children(func() {
 		ui.Row(c).AlignItems(ui.Center).Gap(d.Unit()).Children(func() {
-			if datetimeIconButton(c, "chevrons-left", msg(c, "calendar.prev_year")).Clicked() {
+			if iconAction(c, icons.Must("chevrons-left"), msg(c, "calendar.prev_year")).Clicked() {
 				move(cur.AddMonths(-12), -1, false)
 			}
-			if datetimeIconButton(c, "chevron-left", msg(c, "calendar.prev_month")).Clicked() {
+			if iconAction(c, icons.Must("chevron-left"), msg(c, "calendar.prev_month")).Clicked() {
 				move(cur.AddMonths(-1), -1, false)
 			}
 			ui.Text(c, title).Font(theme.SerifFont).FontSize(FontSize(c, theme.BodySize+2)).Bold().
 				TextColor(k.Text).Grow(1).TextAlign(ui.Center).SingleLine()
-			if datetimeIconButton(c, "chevron-right", msg(c, "calendar.next_month")).Clicked() {
+			if iconAction(c, icons.Must("chevron-right"), msg(c, "calendar.next_month")).Clicked() {
 				move(cur.AddMonths(1), 1, false)
 			}
-			if datetimeIconButton(c, "chevrons-right", msg(c, "calendar.next_year")).Clicked() {
+			if iconAction(c, icons.Must("chevrons-right"), msg(c, "calendar.next_year")).Clicked() {
 				move(cur.AddMonths(12), 1, false)
 			}
 		})
