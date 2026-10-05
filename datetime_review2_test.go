@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/egoist/mygo/ui"
+
+	"mujicaui/theme"
 )
 
 func TestTimePickerDisabledIgnoresSegmentKeys(t *testing.T) {
@@ -158,4 +160,62 @@ func TestTimePickerPopupPickClearsSegmentError(t *testing.T) {
 	if v != (TimeOfDay{3, 30, 0}) || n != 1 || tt.HasText("Hours must be") {
 		t.Fatalf("popup pick: value %v, %d changes, %v", v, n, tt.Texts())
 	}
+}
+
+func TestFormFocusesDatePickerInput(t *testing.T) {
+	var st FormState
+	day := Date{}
+	var input *ui.Element
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		Form(c, &st, FormOptions{}, func(f *FormScope) {
+			FormItem(f, "debut", &day, FormItemOptions[Date]{Label: "Debut date", Required: true}, func() *ui.Element {
+				r := DatePicker(c, &day, DatePickerOptions{Today: calendarToday})
+				input = r.Input
+				return r.Input
+			})
+		})
+	}, 600, 500)
+	if err := tt.Click("Submit"); err != nil {
+		t.Fatal(err)
+	}
+	if input == nil || !input.Focused() || !tt.Focused("Debut date") {
+		t.Fatal("a failed submit should focus the DatePicker's text box")
+	}
+	tt.Type("2026-10-12")
+	tt.Key(0, ui.KeyEnter)
+	if day != oct(12) {
+		t.Fatalf("typing after the focus jump gave %v", day)
+	}
+}
+
+func TestSelectedCellsHaveTheirOwnMark(t *testing.T) {
+	k := theme.Light()
+	check := func(name string, tt *ui.Tester, label string, shift int) {
+		t.Helper()
+		r, ok := tt.Find(label)
+		if !ok {
+			t.Fatalf("%s: no cell %q", name, label)
+		}
+		r.X += float32(shift) * r.W
+		img := tt.Image()
+		y := int(r.Y + r.H/2)
+		frame, fill := img.RGBAAt(int(r.X)+2, y), img.RGBAAt(int(r.X)+5, y)
+		if !datetimeNear(frame, k.OnAccent) || !datetimeNear(fill, k.Accent) {
+			t.Fatalf("%s: selected cell frame %v fill %v", name, frame, fill)
+		}
+	}
+	v := oct(14)
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{Mode: Light})
+		Calendar(c, &v, CalendarOptions{Today: calendarToday})
+	}, 400, 400)
+	tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})
+	check("calendar", tt, datetimeTestLabel(oct(14)), 0)
+	y := 2024
+	ty := yearPickerTester(&y, YearPickerOptions{}, new(int))
+	ty.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})
+	_ = ty.Click("Vintage")
+	// The field also shows "2024", so locate the cell beside 2023.
+	check("year", ty, "2023", 1)
 }

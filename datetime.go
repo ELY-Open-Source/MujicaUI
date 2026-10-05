@@ -69,6 +69,8 @@ func (d Date) within(lo, hi Date) bool {
 // DateTimeResult is a date or time component and what happened to it this frame.
 type DateTimeResult struct {
 	*ui.Element
+	// Input is the text field inside, for labels and focus; nil without one.
+	Input     *ui.Element
 	changed   bool
 	cancelled bool
 }

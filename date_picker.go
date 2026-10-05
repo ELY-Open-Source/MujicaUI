@@ -102,11 +102,12 @@ func DatePicker(c *ui.Context, value *Date, opts DatePickerOptions) DateTimeResu
 	if placeholder == "" {
 		placeholder = msg(c, "date_picker.placeholder")
 	}
-	var field *ui.Element
+	var field, input *ui.Element
 	col.Children(func() {
 		field = datetimeField(c, ui.Row(c), *problem != "", opts.ReadOnly)
 		field.Children(func() {
 			in := textInputEditor(c, field, text, opts.ReadOnly, ui.TextInputBase).Grow(1).Shrink(1).Placeholder(placeholder).FontFeatures("tnum")
+			input = in
 			label := opts.Label
 			if label == "" {
 				label = placeholder
@@ -149,7 +150,7 @@ func DatePicker(c *ui.Context, value *Date, opts DatePickerOptions) DateTimeResu
 		})
 		datetimeError(c, *problem)
 	})
-	return DateTimeResult{Element: col, changed: changed}
+	return DateTimeResult{Element: col, Input: input, changed: changed}
 }
 
 // datePickerProblem explains why an existing day d cannot be chosen, or returns "".
