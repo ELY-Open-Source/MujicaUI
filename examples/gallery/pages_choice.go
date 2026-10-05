@@ -42,7 +42,7 @@ view := func(c *ui.Context) {
 view := func(c *ui.Context) {
 	mujica.Use(c, mujica.Settings{})
 	mujica.Slider(c, &volume, mujica.SliderOptions{Step: 5, ShowValue: true, Label: "Volume"})
-}`, Keys: "Arrows move one step; Home and End go to the ends."},
+}`, Keys: "Arrows move one step, Home and End go to the ends; the move applies when the key is released."},
 	{ID: "035", Name: "RangeSlider", ZhName: "范围滑块", Category: choiceCategory, Demo: rangeSliderDemo, Code: `low, high := 20.0, 80.0
 view := func(c *ui.Context) {
 	mujica.Use(c, mujica.Settings{})

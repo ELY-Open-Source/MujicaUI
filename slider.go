@@ -2,7 +2,6 @@ package mujica
 
 import (
 	"log/slog"
-	"math"
 	"strconv"
 	"strings"
 
@@ -69,11 +68,10 @@ func (g sliderGeom) move(v float64, n int) float64 {
 	return g.grid.stepBy(v, n)
 }
 
-// sliderKey is the last key released on a slider, a move waiting for it, and whether its press moved.
+// sliderKey is the last key released on a slider and how many presses MyGo saw before it.
 type sliderKey struct {
 	up      ui.Key
-	pending int
-	acted   bool
+	presses int
 }
 
 type sliderKeyID struct{}
@@ -91,69 +89,32 @@ func sliderControl(c *ui.Context, v float64, g sliderGeom, from, to float64) (s 
 		ks.up = ev.Key
 		return true
 	})
-	up, pending, acted := ks.up, ks.pending, ks.acted
-	ks.up, ks.pending = 0, 0
-	if up != 0 {
-		ks.acted = false
-	}
+	up := ks.up
+	ks.up = 0
 	if _, _, dragged = s.Dragged(); dragged {
+		ks.presses = 0
 		return s, max(from, min(to, g.snap(raw))), true
 	}
-	dir, jump, known := 0, false, true
-	switch {
-	case raw != v:
-		// MyGo moved the copy 1% (an arrow) or to an end (Home, End), rounded to 1e-9 (ui/widgets.go:375).
-		dir = 1
-		if raw < v {
-			dir = -1
-		}
-		end := g.lo
-		if dir > 0 {
-			end = g.hi
-		}
-		arrow := max(g.lo, min(g.hi, v+float64(dir)*(g.hi-g.lo)/100))
-		jump = math.Abs(raw-end) < math.Abs(raw-arrow)
-		if math.Abs(arrow-end) <= 1e-9+math.Abs(end)*1e-12 {
-			// Near an end an arrow and Home/End agree: the released key tells which it was.
-			dir, jump, known = sliderKeyMove(up, dir)
-		}
-		if up == 0 {
-			ks.acted = true
-		}
-	case pending != 0:
-		dir, jump, known = sliderKeyMove(up, pending)
-	case up != 0 && !acted:
-		// A step finer than MyGo's rounding leaves the copy still: act on the release.
-		dir, jump, known = sliderKeyMove(up, 0)
+	if raw != v {
+		// A key press MyGo applied to the copy; its rounded result (ui/widgets.go:375) says nothing of the direction.
+		ks.presses++
 	}
-	if !known {
-		ks.pending = dir
+	if up == 0 {
 		return s, v, false
 	}
-	switch {
-	case dir == 0:
-		return s, v, false
-	case jump && dir < 0:
-		return s, g.snap(from), false
-	case jump:
-		return s, g.snap(to), false
-	}
-	return s, max(from, min(to, g.move(v, dir))), false
-}
-
-// sliderKeyMove reads a released key as direction and jump; an unknown key keeps dir, unresolved.
-func sliderKeyMove(up ui.Key, dir int) (int, bool, bool) {
+	n := max(1, ks.presses)
+	ks.presses = 0
 	switch up {
 	case ui.KeyLeft, ui.KeyDown:
-		return -1, false, true
+		return s, max(from, min(to, g.move(v, -n))), false
 	case ui.KeyRight, ui.KeyUp:
-		return 1, false, true
+		return s, max(from, min(to, g.move(v, n))), false
 	case ui.KeyHome:
-		return -1, true, true
+		return s, g.snap(from), false
 	case ui.KeyEnd:
-		return 1, true, true
+		return s, g.snap(to), false
 	}
-	return dir, false, dir == 0
+	return s, v, false
 }
 
 func sliderSetup(min, max, step float64, marks []SliderMark, showValue bool, c *ui.Context) (sliderGeom, float32) {

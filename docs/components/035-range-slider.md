@@ -48,4 +48,4 @@ ui.Render(view, 400, 300, 1)
 
 - MyGo 自带的 `ui.RangeSlider` 使用玻璃质感滑块（ui/widgets.go:419），不符合本库风格；MyGo 也没有双滑块 Base，故每个滑块各是一个 `SliderBase`（报告 Slider 角色、范围与当前值，ui/base.go:128），拖动由外层的 `Dragged`、`PointerPosition` 处理。
 - 两个滑块的范围都报告为整条轨道 `Min`–`Max`；“不能越过另一端”这一动态上下限无法告诉辅助技术。
-- 按键处理与 Slider 相同：距端点不足 1% 时等到按键松开再移动（见 034 限制）。
+- 按键处理与 Slider 相同：方向取自松开的键，在松开时移动（见 034 限制）。
