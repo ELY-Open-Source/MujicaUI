@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/egoist/mygo/ui"
+
+	"mujicaui/theme"
 )
 
 func TestTextSelectAndCopy(t *testing.T) {
@@ -182,4 +184,35 @@ func TestTextSnapshot(t *testing.T) {
 			EditableText(c, &name, EditableTextOptions{Saving: true})
 		})
 	})
+}
+
+func TestEditableTextInputFocusRing(t *testing.T) {
+	name := "report.pdf"
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{Mode: Light})
+		ui.Column(c).Padding(20).Gap(20).AlignItems(ui.Start).Children(func() {
+			EditableText(c, &name, EditableTextOptions{Label: "File name"})
+			Button(c, "Other", ButtonOptions{})
+		})
+	}, 300, 160)
+	tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeyEnter)
+	r, ok := tt.Find("File name")
+	if !ok || !tt.Focused("File name") {
+		t.Fatal("editing input not found or not focused")
+	}
+	// The ring's middle: focus gap plus half its width outside the box.
+	x, y := int(r.X-theme.FocusGap-theme.FocusWidth/2), int(r.Y+r.H/2)
+	focused := tt.Image().RGBAAt(x, y)
+	tt.Key(0, ui.KeyEscape)
+	tt.Key(0, ui.KeyTab)
+	if tt.Focused("File name") {
+		t.Fatal("focus did not leave")
+	}
+	plain := tt.Image().RGBAAt(x, y)
+	want := theme.Light().Focus
+	if d := int(focused.R) - int(want.R); d < -24 || d > 24 || focused == plain {
+		t.Fatalf("ring pixel %v focused, %v unfocused, want near %v", focused, plain, want)
+	}
 }

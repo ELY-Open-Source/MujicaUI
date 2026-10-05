@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -172,116 +171,6 @@ const iconCode = `ui.Row(c).Gap(8).Children(func() {
 	mujica.Icon(c, "circle-check", mujica.IconOptions{Size: 20, Tone: mujica.IconSuccess, Label: "Done"})
 })`
 
-type imageState struct {
-	crop, loading, fail, empty bool
-	err                        error
-}
-
-var displayPicture = func() *ui.SVG {
-	return ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" width="240" height="160" viewBox="0 0 240 160">
-<rect width="240" height="160" fill="#2B2126"/><rect x="20" y="20" width="200" height="120" fill="none" stroke="#BDA172" stroke-width="2"/>
-<path d="M120 40 L150 80 L120 120 L90 80 Z" fill="#7D2034"/><circle cx="120" cy="80" r="8" fill="#F2EBDD"/></svg>`))
-}()
-
-func imageDemo(c *ui.Context, log func(string)) {
-	s := ui.Local(c.Root(), "014", func() imageState { return imageState{crop: true} })
-	mujica.Heading(c, "Image", mujica.HeadingOptions{Subtitle: "位图与 SVG；包含或裁切；占位、加载、错误；替代说明", Divider: true})
-	displaySection(c, "Parameters", func() {
-		displayControls(c, func() {
-			displayLog(log, ui.Checkbox(c, &s.crop, "Crop"), "crop", &s.crop)
-			displayLog(log, ui.Checkbox(c, &s.empty, "No source"), "empty", &s.empty)
-			displayLog(log, ui.Checkbox(c, &s.loading, "Loading"), "loading", &s.loading)
-			if ui.Checkbox(c, &s.fail, "Error").Changed() {
-				log(fmt.Sprintf("fail = %v", s.fail))
-				s.err = nil
-				if s.fail {
-					s.err = errors.New("connection reset")
-				}
-			}
-		})
-	})
-	displaySection(c, "Preview", func() {
-		var src ui.ImageSource = displayPicture
-		if s.empty {
-			src = nil
-		}
-		v := mujica.Image(c, src, mujica.ImageOptions{Width: 200, Height: 200, Crop: s.crop, Alt: "Gothic emblem", Loading: s.loading, Err: s.err})
-		if v.Retry {
-			s.fail, s.err = false, nil
-			log("retry")
-		}
-	})
-	displaySection(c, "States", func() {
-		ui.Row(c).Gap(12).Wrap().Children(func() {
-			mujica.Image(c, displayPicture, mujica.ImageOptions{Width: 120, Height: 120})
-			mujica.Image(c, displayPicture, mujica.ImageOptions{Width: 120, Height: 120, Crop: true})
-			mujica.Image(c, nil, mujica.ImageOptions{Width: 120, Height: 120})
-			mujica.Image(c, nil, mujica.ImageOptions{Width: 120, Height: 120, Loading: true})
-			if mujica.Image(c, nil, mujica.ImageOptions{Width: 160, Height: 140, Err: errors.New("404")}).Retry {
-				log("retry (static example)")
-			}
-		})
-	})
-	displayCode(c, imageCode, log)
-}
-
-const imageCode = `img := mujica.Image(c, photo, mujica.ImageOptions{
-	Width: 160, Height: 120, Crop: true, Alt: "Hall of mirrors",
-	Loading: loading, Err: loadErr,
-})
-if img.Retry {
-	loading, loadErr = true, nil // start loading again here
-}`
-
-type avatarState struct {
-	name string
-	size float64
-	img  bool
-}
-
-var displayBitmap = func() *ui.Bitmap {
-	return ui.NewBitmap(ui.Render(func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{Mode: mujica.Dark})
-		ui.Box(c).Fill().Background(ui.Hex("#7D2034"))
-	}, 64, 64, 1))
-}()
-
-func avatarDemo(c *ui.Context, log func(string)) {
-	s := ui.Local(c.Root(), "015", func() avatarState { return avatarState{name: "Sakiko Togawa", size: 48} })
-	mujica.Heading(c, "Avatar", mujica.HeadingOptions{Subtitle: "图片、姓名首字母与默认图标回退", Divider: true})
-	displaySection(c, "Parameters", func() {
-		displayControls(c, func() {
-			if ui.TextInput(c, &s.name).Width(200).Changed() {
-				log("name " + s.name)
-			}
-			ui.Text(c, fmt.Sprintf("Size %d", int(s.size)))
-			displayLog(log, ui.StepSlider(c, &s.size, 24, 80, 4).Width(160), "size", &s.size)
-			displayLog(log, ui.Checkbox(c, &s.img, "Image"), "img", &s.img)
-		})
-	})
-	displaySection(c, "Preview", func() {
-		var img *ui.Bitmap
-		if s.img {
-			img = displayBitmap
-		}
-		mujica.Avatar(c, s.name, mujica.AvatarOptions{Size: float32(s.size), Image: img})
-	})
-	displaySection(c, "Fallbacks", func() {
-		ui.Row(c).Gap(12).AlignItems(ui.Center).Children(func() {
-			mujica.Avatar(c, "Photo", mujica.AvatarOptions{Image: displayBitmap, Size: 40})
-			mujica.Avatar(c, "Uika Misumi", mujica.AvatarOptions{Size: 40})
-			mujica.Avatar(c, "若叶睦", mujica.AvatarOptions{Size: 40})
-			mujica.Avatar(c, "", mujica.AvatarOptions{Size: 40})
-		})
-	})
-	displayCode(c, avatarCode, log)
-}
-
-const avatarCode = `ui.Row(c).Gap(8).Children(func() {
-	mujica.Avatar(c, "Sakiko Togawa", mujica.AvatarOptions{Size: 40})
-	mujica.Avatar(c, "", mujica.AvatarOptions{})
-})`
-
 var displayPeople = []mujica.AvatarItem{
 	{Name: "Sakiko Togawa"}, {Name: "Uika Misumi"}, {Name: "Mutsumi Wakaba"}, {Name: "Umiri Yahata"},
 	{Name: "Nyamu Yutenji"}, {Name: "Tomori Takamatsu"}, {Name: "Anon Chihaya"}, {Name: "Rana Kaname"},
@@ -444,6 +333,7 @@ func linkDemo(c *ui.Context, log func(string)) {
 			}
 			if mujica.Button(c, "Clear error", mujica.ButtonOptions{Variant: mujica.Ghost}).Clicked() {
 				s.external = ""
+				log("open failure cleared")
 			}
 		})
 	})
