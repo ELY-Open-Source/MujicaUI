@@ -40,9 +40,10 @@ const (
 	sliderMarkH  float32 = 18
 )
 
-// sliderGeom maps values to x positions across a slider's box.
+// sliderGeom maps values to x positions across a slider's box; grid holds the step points.
 type sliderGeom struct {
 	lo, hi, step float64
+	grid         numberInputSpec
 	trackY       float32
 }
 
@@ -51,23 +52,28 @@ func (g sliderGeom) x(r ui.Rect, v float64) float32 {
 	return r.X + sliderThumb/2 + (r.W-sliderThumb)*max(0, min(1, f))
 }
 
-// snap rounds v to the nearest step inside the range.
+// snap moves v to the nearest step point inside the range.
 func (g sliderGeom) snap(v float64) float64 {
 	v = max(g.lo, min(g.hi, v))
 	if g.step <= 0 {
 		return v
 	}
-	v = g.lo + math.Round((v-g.lo)/g.step)*g.step
-	if v > g.hi {
-		v -= g.step
-	}
-	return math.Round(v*1e9) / 1e9
+	return g.grid.stepBy(v, 0)
 }
 
-// sliderKey is the last key released on a slider, and a move waiting for it.
+// move goes n steps from v, 1% of the range each when continuous, staying in range.
+func (g sliderGeom) move(v float64, n int) float64 {
+	if g.step <= 0 {
+		return max(g.lo, min(g.hi, v+float64(n)*(g.hi-g.lo)/100))
+	}
+	return g.grid.stepBy(v, n)
+}
+
+// sliderKey is the last key released on a slider, a move waiting for it, and whether its press moved.
 type sliderKey struct {
 	up      ui.Key
 	pending int
+	acted   bool
 }
 
 type sliderKeyID struct{}
@@ -85,46 +91,69 @@ func sliderControl(c *ui.Context, v float64, g sliderGeom, from, to float64) (s 
 		ks.up = ev.Key
 		return true
 	})
-	up, dir := ks.up, ks.pending
+	up, pending, acted := ks.up, ks.pending, ks.acted
 	ks.up, ks.pending = 0, 0
+	if up != 0 {
+		ks.acted = false
+	}
 	if _, _, dragged = s.Dragged(); dragged {
 		return s, max(from, min(to, g.snap(raw))), true
 	}
-	unsure := dir != 0
+	dir, jump, known := 0, false, true
 	switch {
-	case raw < v:
-		dir, unsure = -1, false
-	case raw > v:
-		dir, unsure = 1, false
+	case raw != v:
+		// MyGo moved the copy 1% (an arrow) or to an end (Home, End), rounded to 1e-9 (ui/widgets.go:375).
+		dir = 1
+		if raw < v {
+			dir = -1
+		}
+		end := g.lo
+		if dir > 0 {
+			end = g.hi
+		}
+		arrow := max(g.lo, min(g.hi, v+float64(dir)*(g.hi-g.lo)/100))
+		jump = math.Abs(raw-end) < math.Abs(raw-arrow)
+		if math.Abs(arrow-end) <= 1e-9+math.Abs(end)*1e-12 {
+			// Near an end an arrow and Home/End agree: the released key tells which it was.
+			dir, jump, known = sliderKeyMove(up, dir)
+		}
+		if up == 0 {
+			ks.acted = true
+		}
+	case pending != 0:
+		dir, jump, known = sliderKeyMove(up, pending)
+	case up != 0 && !acted:
+		// A step finer than MyGo's rounding leaves the copy still: act on the release.
+		dir, jump, known = sliderKeyMove(up, 0)
 	}
-	if dir == 0 {
+	if !known {
+		ks.pending = dir
 		return s, v, false
 	}
-	end, limit := g.lo, from
-	if dir > 0 {
-		end, limit = g.hi, to
+	switch {
+	case dir == 0:
+		return s, v, false
+	case jump && dir < 0:
+		return s, g.snap(from), false
+	case jump:
+		return s, g.snap(to), false
 	}
-	jump := raw == end
-	// An arrow within 1% of an end lands on it too: the released key tells which it was.
-	if unsure || jump && math.Abs(v-end) <= (g.hi-g.lo)/100*(1+1e-9) {
-		switch up {
-		case ui.KeyHome, ui.KeyEnd:
-			jump = true
-		case ui.KeyLeft, ui.KeyRight, ui.KeyUp, ui.KeyDown:
-			jump = false
-		default:
-			ks.pending = dir
-			return s, v, false
-		}
+	return s, max(from, min(to, g.move(v, dir))), false
+}
+
+// sliderKeyMove reads a released key as direction and jump; an unknown key keeps dir, unresolved.
+func sliderKeyMove(up ui.Key, dir int) (int, bool, bool) {
+	switch up {
+	case ui.KeyLeft, ui.KeyDown:
+		return -1, false, true
+	case ui.KeyRight, ui.KeyUp:
+		return 1, false, true
+	case ui.KeyHome:
+		return -1, true, true
+	case ui.KeyEnd:
+		return 1, true, true
 	}
-	if jump {
-		return s, limit, false
-	}
-	step := g.step
-	if step <= 0 {
-		step = (g.hi - g.lo) / 100
-	}
-	return s, max(from, min(to, g.snap(v+float64(dir)*step))), false
+	return dir, false, dir == 0
 }
 
 func sliderSetup(min, max, step float64, marks []SliderMark, showValue bool, c *ui.Context) (sliderGeom, float32) {
@@ -135,6 +164,10 @@ func sliderSetup(min, max, step float64, marks []SliderMark, showValue bool, c *
 		panic("mujica: slider needs Min < Max and Step >= 0")
 	}
 	g := sliderGeom{lo: min, hi: max, step: step}
+	if step > 0 {
+		// NumberInput's grid: exact bounds and integer step indexes at the decimals Min and Step need.
+		g.grid = numberInputResolve(NumberInputOptions{Min: min, Max: max, Step: step, Precision: sliderDecimals(min, step)})
+	}
 	h := Density(c).ControlHeight()
 	g.trackY = h / 2
 	if showValue {

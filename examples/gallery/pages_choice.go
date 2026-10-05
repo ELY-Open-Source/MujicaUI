@@ -37,7 +37,7 @@ items := []mujica.ToggleItem[string]{
 view := func(c *ui.Context) {
 	mujica.Use(c, mujica.Settings{})
 	mujica.ToggleGroup(c, &align, items, mujica.ToggleGroupOptions{Label: "Align"})
-}`, Keys: "Tab enters the group at the pressed item; Left/Right (Up/Down when vertical), Home and End move; Space presses."},
+}`, Keys: "Tab enters the group at the first enabled item, later at the last focused one; Left/Right (Up/Down when vertical), Home and End move; Space presses."},
 	{ID: "034", Name: "Slider", ZhName: "滑块", Category: choiceCategory, Demo: sliderDemo, Code: `volume := 40.0
 view := func(c *ui.Context) {
 	mujica.Use(c, mujica.Settings{})

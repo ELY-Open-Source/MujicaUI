@@ -44,11 +44,11 @@ func MultiSelect[T comparable](c *ui.Context, values *[]T, options []SelectOptio
 		*open = false
 	}
 	query := ui.Local(tr, multiSelectKey{"query"}, func() string { return "" })
-	if tr.Clicked() || (!*open && tr.Shortcut(0, ui.KeyDown)) {
+	if tr.Clicked() || (!*open && tr.Shortcut(0, ui.KeyDown) && !tr.IsDisabled()) {
 		*open = !*open
 		*query = ""
 	}
-	if n := len(*values); n > 0 && tr.Shortcut(0, ui.KeyBackspace) {
+	if n := len(*values); n > 0 && tr.Shortcut(0, ui.KeyBackspace) && !tr.IsDisabled() {
 		*values = slices.Clone((*values)[:n-1])
 	}
 	selectField(c, tr, *open, func() {
