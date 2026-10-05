@@ -293,7 +293,7 @@ func FormItem[T any](c *ui.Context, f *FormScope, name string, value *T, opts Fo
 		desc = msg(c, "form.checking")
 	}
 	var ctrl *ui.Element
-	field := formFieldBuild(c, opts.Label, FormFieldOptions{Required: opts.Required, Description: desc, Error: st.Error(name)}, f.horizontal, func() *ui.Element {
+	field := formFieldBuild(c, name, opts.Label, FormFieldOptions{Required: opts.Required, Description: desc, Error: st.Error(name)}, f.horizontal, func() *ui.Element {
 		ctrl = control()
 		return ctrl
 	})

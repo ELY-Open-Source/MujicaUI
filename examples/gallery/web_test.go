@@ -260,3 +260,62 @@ func TestMirrorForwardsEveryAnnouncement(t *testing.T) {
 		t.Fatalf("announcements forwarded %d times, want 2", heard)
 	}
 }
+
+func TestMirrorModifiedClickReleasedJustOutsideDoesNotClick(t *testing.T) {
+	clicks := 0
+	var box ui.Rect
+	m, srv := mirrorWith(t, func(c *ui.Context) {
+		mujica.Use(c, mujica.Settings{})
+		ui.Column(c).Padding(20).AlignItems(ui.Start).Children(func() {
+			b := mujica.Button(c, "Seal", mujica.ButtonOptions{})
+			box = b.Bounds()
+			if b.Clicked() {
+				clicks++
+			}
+		})
+	})
+	m.mu.Lock()
+	m.tt.Frame()
+	r := box
+	m.mu.Unlock()
+	shift := []bool{true}
+	y := r.Y + r.H/2
+	postInput(t, srv, input{Type: "down", X: r.X + r.W - 1, Y: y, Mods: shift})
+	postInput(t, srv, input{Type: "up", X: r.X + r.W + 2, Y: y, Mods: shift})
+	if clicks != 0 {
+		t.Fatalf("clicks %d after releasing 2 DIP outside", clicks)
+	}
+}
+
+func TestMirrorNotifiesEveryCopyOfEqualText(t *testing.T) {
+	m, srv := mirrorWith(t, func(c *ui.Context) {
+		mujica.Use(c, mujica.Settings{})
+		ui.Column(c).Padding(20).Children(func() {
+			if mujica.Button(c, "Copy", mujica.ButtonOptions{}).Clicked() {
+				c.WriteClipboard("snippet")
+			}
+		})
+	})
+	ch := make(chan []byte, 64)
+	m.mu.Lock()
+	m.subs[ch] = struct{}{}
+	m.mu.Unlock()
+	for range 2 {
+		postInput(t, srv, input{Type: "down", X: 40, Y: 35})
+		postInput(t, srv, input{Type: "up", X: 40, Y: 35})
+	}
+	copies := 0
+	for len(ch) > 0 {
+		if bytes.Contains(<-ch, []byte(`"clipboard":"snippet"`)) {
+			copies++
+		}
+	}
+	if copies != 2 {
+		t.Fatalf("copies forwarded %d, want 2", copies)
+	}
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if got := m.tt.Clipboard(); got != "snippet" {
+		t.Fatalf("clipboard %q", got)
+	}
+}
