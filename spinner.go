@@ -48,7 +48,7 @@ func Spinner(c *ui.Context, opts SpinnerOptions) *ui.Element {
 				x := cx + rad*float32(math.Cos(a))
 				y := cy + rad*float32(math.Sin(a))
 				alpha := 1 - float32(i)*0.22
-				p.FillPath(internal.Diamond(x, y, r.W*0.3), color.Alpha(alpha))
+				p.FillPath(internal.Diamond(internal.Snap(p, x), internal.Snap(p, y), internal.Snap(p, r.W*0.3)), color.Alpha(alpha))
 			}
 		})
 		if opts.ShowLabel {
