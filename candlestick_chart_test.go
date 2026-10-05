@@ -41,7 +41,6 @@ func TestCandlestickChartDrawsOnlyVisible(t *testing.T) {
 	if st.drawn != 120 {
 		t.Fatalf("drew %d candles of 100000", st.drawn)
 	}
-	// Zooming out is capped by the width: three DIPs a candle.
 	tt.Key(0, ui.KeyTab)
 	for range 40 {
 		tt.Key(0, ui.KeyMinus)

@@ -2,6 +2,7 @@ package mujica
 
 import (
 	"fmt"
+	"math"
 	"strings"
 	"time"
 
@@ -11,7 +12,7 @@ import (
 	"mujicaui/theme"
 )
 
-// QuotePoint is one tick of an intraday line: time, price and the volume traded since the last point.
+// QuotePoint holds time, price, and incremental volume.
 type QuotePoint struct {
 	Time   time.Time
 	Price  float64
@@ -21,14 +22,14 @@ type QuotePoint struct {
 // LineQuoteChartOptions configure a LineQuoteChart.
 type LineQuoteChartOptions struct {
 	Frame ChartFrame
-	// PrevClose draws the baseline the day's change is measured from; required.
+	// PrevClose is the required positive baseline price.
 	PrevClose float64
-	// RegularOpen and RegularClose bound the regular session; points outside are pre- and after-market. Zero draws one session.
+	// RegularOpen and RegularClose optionally delimit extended trading sessions.
 	RegularOpen, RegularClose time.Time
 	Decimals                  int
 }
 
-// lineQuoteSession names a point's session: -1 pre, 0 regular, 1 after.
+// lineQuoteSession returns pre-market, regular, or after-market.
 func lineQuoteSession(t time.Time, opts LineQuoteChartOptions) int {
 	switch {
 	case opts.RegularOpen.IsZero():
@@ -41,9 +42,9 @@ func lineQuoteSession(t time.Time, opts LineQuoteChartOptions) int {
 	return 0
 }
 
-// LineQuoteChart is an intraday line with the previous close as baseline, the average price, and shaded extended sessions.
+// LineQuoteChart draws price, weighted average, and extended sessions.
 func LineQuoteChart(c *ui.Context, points []QuotePoint, opts LineQuoteChartOptions) ChartResult {
-	if !(opts.PrevClose > 0) {
+	if math.IsInf(opts.PrevClose, 0) || !(opts.PrevClose > 0) {
 		panic("mujica: LineQuoteChart needs a positive PrevClose")
 	}
 	if opts.RegularOpen.IsZero() != opts.RegularClose.IsZero() || opts.RegularClose.Before(opts.RegularOpen) {
@@ -56,7 +57,7 @@ func LineQuoteChart(c *ui.Context, points []QuotePoint, opts LineQuoteChartOptio
 		out := make([]float64, len(points))
 		var pv, v float64
 		for i, p := range points {
-			if p.Time.IsZero() || i > 0 && !p.Time.After(points[i-1].Time) || !(p.Price > 0) || p.Volume < 0 {
+			if p.Time.IsZero() || i > 0 && !p.Time.After(points[i-1].Time) || !(p.Price > 0) || p.Volume < 0 || math.IsNaN(p.Volume) || math.IsInf(p.Volume, 0) || math.IsInf(p.Price, 0) {
 				panic(fmt.Sprintf("mujica: LineQuoteChart point %d is out of order or invalid", i))
 			}
 			pv += p.Price * p.Volume
@@ -68,12 +69,12 @@ func LineQuoteChart(c *ui.Context, points []QuotePoint, opts LineQuoteChartOptio
 		}
 		return out
 	})
-	dom := chartMemo(ch, "y", chartID(points), func() [2]float64 {
+	dom := chartMemo(ch, "y", [2]any{chartID(points), opts.PrevClose}, func() [2]float64 {
 		lo, hi := opts.PrevClose, opts.PrevClose
 		for i, p := range points {
 			lo, hi = min(lo, p.Price, avg[i]), max(hi, p.Price, avg[i])
 		}
-		// Symmetric around the previous close, so the baseline sits in the middle.
+		// Center the scale on the previous close.
 		d := max(hi-opts.PrevClose, opts.PrevClose-lo)
 		return [2]float64{opts.PrevClose - d, opts.PrevClose + d}
 	})
@@ -124,6 +125,9 @@ func LineQuoteChart(c *ui.Context, points []QuotePoint, opts LineQuoteChartOptio
 		if len(points) > 1 {
 			ts, layout := internal.TimeTicks(points[0].Time, points[len(points)-1].Time, max(2, int(plot.W/90)))
 			for _, t := range ts {
+				if layout == "Jan 2" {
+					layout = msg(c, "candlestick_chart.daily_time")
+				}
 				tx, tl = append(tx, xs.Map(float64(t.Unix()))), append(tl, t.Format(layout))
 			}
 		}
@@ -132,14 +136,22 @@ func LineQuoteChart(c *ui.Context, points []QuotePoint, opts LineQuoteChartOptio
 		for xx := plot.X; xx < plot.X+plot.W; xx += 6 {
 			p.Line(xx, by, min(xx+3, plot.X+plot.W), by, 1, k.TextMuted)
 		}
-		price := make([]float64, len(points))
-		for i, pt := range points {
-			price[i] = pt.Price
-		}
+		price := chartMemo(ch, "prices", chartID(points), func() []float64 {
+			out := make([]float64, len(points))
+			for i, pt := range points {
+				out[i] = pt.Price
+			}
+			return out
+		})
 		at := func(i int) float32 { return x(xs, i) }
 		for li, vals := range [][]float64{price, avg} {
 			col := []ui.Color{k.AccentText, k.Warning}[li]
-			chartRuns(vals, at, func(idx []int) {
+			runs := chartMemo(ch, fmt.Sprint("quote.runs.", li), [3]any{chartID(points), plot.X, plot.W}, func() [][]int {
+				var out [][]int
+				chartRuns(vals, at, func(idx []int) { out = append(out, idx) })
+				return out
+			})
+			for _, idx := range runs {
 				var line ui.Path
 				for j, i := range idx {
 					px, py := internal.Snap(p, at(i)), internal.Snap(p, ys.Map(vals[i]))
@@ -150,7 +162,11 @@ func LineQuoteChart(c *ui.Context, points []QuotePoint, opts LineQuoteChartOptio
 					}
 				}
 				p.StrokePath(&line, []float32{1.75, 1.25}[li], col)
-			})
+				for j := 0; j < len(idx); j += max(1, len(idx)/12) {
+					i := idx[j]
+					internal.Marker(p, []int{0, 3}[li], at(i), ys.Map(vals[i]), 5, col)
+				}
+			}
 		}
 		if active >= 0 {
 			ax := internal.Snap(p, at(active))

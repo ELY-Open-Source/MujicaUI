@@ -5,7 +5,7 @@ import (
 	"math"
 )
 
-// Indicator functions are pure: same input, same output, NaN until enough data.
+// Indicator helpers are pure; NaN marks insufficient data.
 
 // indicatorCheck panics on a period below one.
 func indicatorCheck(name string, n int) {
@@ -22,7 +22,7 @@ func indicatorNaN(n int) []float64 {
 	return out
 }
 
-// SMA is the simple moving average of the last n values.
+// SMA computes the n-period simple moving average.
 func SMA(vals []float64, n int) []float64 {
 	indicatorCheck("SMA", n)
 	out := indicatorNaN(len(vals))
@@ -39,7 +39,7 @@ func SMA(vals []float64, n int) []float64 {
 	return out
 }
 
-// EMA is the exponential moving average, k = 2/(n+1), seeded with the SMA of the first n values.
+// EMA uses 2/(n+1), seeded by the first n-period SMA.
 func EMA(vals []float64, n int) []float64 {
 	indicatorCheck("EMA", n)
 	out := indicatorNaN(len(vals))
@@ -60,7 +60,7 @@ func EMA(vals []float64, n int) []float64 {
 	return out
 }
 
-// Bollinger returns the n-period SMA and the bands width population deviations away.
+// Bollinger returns SMA and population-deviation bands.
 func Bollinger(vals []float64, n int, width float64) (mid, upper, lower []float64) {
 	indicatorCheck("Bollinger", n)
 	if !(width > 0) {
@@ -79,7 +79,7 @@ func Bollinger(vals []float64, n int, width float64) (mid, upper, lower []float6
 	return mid, upper, lower
 }
 
-// VWAP is the cumulative volume-weighted average of the typical price (H+L+C)/3.
+// VWAP averages typical prices weighted by cumulative volume.
 func VWAP(candles []Candle) []float64 {
 	out := indicatorNaN(len(candles))
 	var pv, vol float64
@@ -93,7 +93,7 @@ func VWAP(candles []Candle) []float64 {
 	return out
 }
 
-// MACD returns DIF (fast EMA - slow EMA), DEA (signal EMA of DIF) and the histogram DIF - DEA.
+// MACD returns DIF, signal EMA, and their difference.
 func MACD(vals []float64, fast, slow, signal int) (dif, dea, hist []float64) {
 	if fast >= slow {
 		panic("mujica: MACD fast period must be shorter than slow")
@@ -115,7 +115,7 @@ func MACD(vals []float64, fast, slow, signal int) (dif, dea, hist []float64) {
 	return dif, dea, hist
 }
 
-// RSI is Wilder's relative strength index over n periods, 0 to 100.
+// RSI computes Wilder's relative strength index.
 func RSI(vals []float64, n int) []float64 {
 	indicatorCheck("RSI", n)
 	out := indicatorNaN(len(vals))
@@ -143,7 +143,7 @@ func RSI(vals []float64, n int) []float64 {
 	return out
 }
 
-// KDJ is the stochastic oscillator: RSV over n, K and D smoothed by m1 and m2 from 50, J = 3K - 2D.
+// KDJ computes stochastic K, D, and J from RSV.
 func KDJ(candles []Candle, n, m1, m2 int) (k, d, j []float64) {
 	indicatorCheck("KDJ", n)
 	indicatorCheck("KDJ m1", m1)
@@ -166,7 +166,7 @@ func KDJ(candles []Candle, n, m1, m2 int) (k, d, j []float64) {
 	return k, d, j
 }
 
-// OBV is on-balance volume: volume added on up closes, subtracted on down closes.
+// OBV accumulates signed volume according to close direction.
 func OBV(candles []Candle) []float64 {
 	out := make([]float64, len(candles))
 	for i := 1; i < len(candles); i++ {

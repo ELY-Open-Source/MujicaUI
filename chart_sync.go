@@ -2,6 +2,7 @@ package mujica
 
 import (
 	"log/slog"
+	"sort"
 	"time"
 
 	"github.com/egoist/mygo/ui"
@@ -10,22 +11,26 @@ import (
 	"mujicaui/theme"
 )
 
-// ChartSync links charts by time: the same window, zoom and crosshair. The caller holds it.
+// ChartSync shares time windows and crosshairs across linked charts.
 type ChartSync struct {
-	// Count is the linked zoom in candles; zero is the default 120.
+	// Count is linked zoom; zero defaults to 120.
 	Count int
-	// End is the newest linked time shown; zero follows each chart's newest candle.
+	// End is inclusive; zero follows each chart's latest candle.
 	End time.Time
+	// Start is the inclusive left edge across candle intervals.
+	Start time.Time
 	// Cursor is the crosshair time; zero shows none.
 	Cursor time.Time
 	// Unlinked charts keep their own view and crosshair.
-	Unlinked map[string]bool
-	owner    string
+	Unlinked   map[string]bool
+	owner      string
+	rangeOwner string
+	loaded     map[string]MarketView
 }
 
 func (s *ChartSync) linked(id string) bool { return !s.Unlinked[id] }
 
-// load puts the linked window into view before a chart builds.
+// load applies the shared time window to linked charts.
 func (s *ChartSync) load(id string, candles []Candle, view *MarketView) {
 	if !s.linked(id) {
 		return
@@ -36,17 +41,44 @@ func (s *ChartSync) load(id string, candles []Candle, view *MarketView) {
 			view.End = max(1, i+1)
 		}
 	}
+	if s.rangeOwner == "" {
+		s.rangeOwner = id
+	}
+	if len(candles) > 0 && (s.Start.IsZero() || s.End.IsZero() && s.rangeOwner == id) {
+		from, _ := marketWindow(*view, len(candles), len(candles))
+		s.Start = candles[from].Time
+	}
+	if !s.Start.IsZero() && len(candles) > 0 {
+		from := sort.Search(len(candles), func(i int) bool { return !candles[i].Time.Before(s.Start) })
+		to := len(candles)
+		if view.End > 0 {
+			to = view.End
+		}
+		if from < to {
+			view.Count = to - from
+		}
+	}
+	if s.loaded == nil {
+		s.loaded = map[string]MarketView{}
+	}
+	s.loaded[id] = *view
 }
 
-// store writes a linked chart's window and crosshair back after it builds.
+// store updates the shared window and active crosshair.
 func (s *ChartSync) store(id string, candles []Candle, view *MarketView, active int) {
 	if !s.linked(id) {
 		return
 	}
-	s.Count = view.Count
-	s.End = time.Time{}
-	if view.End > 0 && view.End <= len(candles) {
-		s.End = candles[view.End-1].Time
+	loaded, ok := s.loaded[id]
+	if !ok || *view != loaded {
+		s.Count, s.End, s.rangeOwner = view.Count, time.Time{}, id
+		if view.End > 0 && view.End <= len(candles) {
+			s.End = candles[view.End-1].Time
+		}
+		if len(candles) > 0 {
+			from, _ := marketWindow(*view, len(candles), len(candles))
+			s.Start = candles[from].Time
+		}
 	}
 	switch {
 	case active >= 0:
@@ -64,7 +96,7 @@ func (s *ChartSync) cursorIndex(id string, candles []Candle) int {
 	return marketIndexAt(candles, s.Cursor)
 }
 
-// Link builds a toggle that links or unlinks chart id; Changed reports a switch.
+// Link toggles synchronization for a stable chart ID.
 func (s *ChartSync) Link(c *ui.Context, id string) ChoiceResult {
 	if id == "" {
 		panic("mujica: ChartSync.Link needs an id")

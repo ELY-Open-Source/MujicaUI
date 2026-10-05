@@ -3,6 +3,7 @@ package mujica
 import (
 	"fmt"
 	"math"
+	"sort"
 	"strings"
 
 	"github.com/egoist/mygo/ui"
@@ -16,7 +17,7 @@ type ProfileBin struct {
 	Low, High, Volume float64
 }
 
-// VolumeProfileOf spreads each candle's volume evenly over its low-high range into n equal price bins.
+// VolumeProfileOf spreads candle volumes across equal price bins.
 func VolumeProfileOf(candles []Candle, n int) []ProfileBin {
 	if n < 1 {
 		panic("mujica: VolumeProfileOf needs at least one bin")
@@ -24,6 +25,7 @@ func VolumeProfileOf(candles []Candle, n int) []ProfileBin {
 	if len(candles) == 0 {
 		return nil
 	}
+	marketCheckCandles(candles)
 	lo, hi := math.Inf(1), math.Inf(-1)
 	for _, c := range candles {
 		lo, hi = min(lo, c.Low), max(hi, c.High)
@@ -55,13 +57,16 @@ func VolumeProfileOf(candles []Candle, n int) []ProfileBin {
 	return bins
 }
 
-// ValueArea returns the point of control (the fullest bin) and the bins [lo, hi] around it holding frac of the volume.
+// ValueArea finds POC and its contiguous volume fraction.
 func ValueArea(bins []ProfileBin, frac float64) (poc, lo, hi int) {
 	if len(bins) == 0 || !(frac > 0 && frac <= 1) {
 		panic("mujica: ValueArea needs bins and a fraction in (0, 1]")
 	}
 	var total float64
 	for i, b := range bins {
+		if b.Volume < 0 || math.IsNaN(b.Volume) || math.IsInf(b.Volume, 0) {
+			panic("mujica: profile volumes must be finite and non-negative")
+		}
 		total += b.Volume
 		if b.Volume > bins[poc].Volume {
 			poc = i
@@ -95,16 +100,19 @@ func ValueArea(bins []ProfileBin, frac float64) (poc, lo, hi int) {
 // VolumeProfileOptions configure a VolumeProfile.
 type VolumeProfileOptions struct {
 	Frame ChartFrame
-	// ValueArea is the share of volume in the value area; zero is 0.7.
+	// ValueArea defaults to 0.7.
 	ValueArea float64
 	Decimals  int
 }
 
-// VolumeProfile draws volume by price as horizontal bars, marking the point of control and the value area.
+// VolumeProfile draws volume distribution, value area, and POC.
 func VolumeProfile(c *ui.Context, bins []ProfileBin, opts VolumeProfileOptions) ChartResult {
 	frac := opts.ValueArea
 	if frac == 0 {
 		frac = 0.7
+	}
+	if !(frac > 0 && frac <= 1) {
+		panic("mujica: VolumeProfile ValueArea must be in (0, 1]")
 	}
 	dec := priceDecimals("VolumeProfile", opts.Decimals)
 	ch := newChart(c, opts.Frame)
@@ -112,7 +120,7 @@ func VolumeProfile(c *ui.Context, bins []ProfileBin, opts VolumeProfileOptions) 
 	va := chartMemo(ch, "va", [2]any{chartID(bins), frac}, func() [4]float64 {
 		vmax := 0.0
 		for i, b := range bins {
-			if !(b.High > b.Low) || b.Volume < 0 || i > 0 && b.Low < bins[i-1].High-1e-9 {
+			if math.IsNaN(b.Volume) || math.IsInf(b.Volume, 0) || math.IsInf(b.High, 0) || math.IsInf(b.Low, 0) || !(b.High > b.Low) || b.Volume < 0 || i > 0 && b.Low < bins[i-1].High-1e-9 {
 				panic(fmt.Sprintf("mujica: VolumeProfile bin %d is empty, negative or out of order", i))
 			}
 			vmax = max(vmax, b.Volume)
@@ -126,6 +134,7 @@ func VolumeProfile(c *ui.Context, bins []ProfileBin, opts VolumeProfileOptions) 
 	poc, vlo, vhi, vmax := int(va[0]), int(va[1]), int(va[2]), va[3]
 	inArea, outArea := k.AccentText, k.TextMuted
 	keys := []chartKey{{Name: msg(c, "volume_profile.value_area"), Color: inArea, Shape: 1}, {Name: msg(c, "volume_profile.other"), Color: outArea, Shape: 4}}
+	drawn := ui.Local(ch.res.Element, "mujica.profile.drawn", func() int { return 0 })
 	size := FontSize(c, theme.CaptionSize)
 	geom := func(r ui.Rect) (ui.Rect, internal.Linear, internal.Linear) {
 		plot := chartInset(r, 60, 26)
@@ -145,10 +154,9 @@ func VolumeProfile(c *ui.Context, bins []ProfileBin, opts VolumeProfileOptions) 
 			return -1
 		}
 		v := ys.Invert(y)
-		for i, b := range bins {
-			if v >= b.Low && v <= b.High {
-				return i
-			}
+		i := sort.Search(len(bins), func(i int) bool { return bins[i].High >= v })
+		if i < len(bins) && v >= bins[i].Low {
+			return i
 		}
 		return -1
 	}
@@ -174,12 +182,17 @@ func VolumeProfile(c *ui.Context, bins []ProfileBin, opts VolumeProfileOptions) 
 			tx, tl = append(tx, xs.Map(t)), append(tl, volumeShort(t, xstep))
 		}
 		internal.AxisX(p, plot, tx, tl, size, k)
-		for i, b := range bins {
+		indices := chartMemo(ch, "profile.indices", [3]any{chartID(bins), plot.Y, plot.H}, func() []int {
+			return internal.Columns(len(bins), func(i int) float32 { return ys.Map(bins[i].Low) }, func(i int) float64 { return bins[i].Volume })
+		})
+		*drawn = len(indices)
+		for _, i := range indices {
+			b := bins[i]
 			y0, y1 := ys.Map(b.High), ys.Map(b.Low)
 			bar := ui.Rect{X: plot.X, Y: y0 + 1, W: xs.Map(b.Volume) - plot.X, H: max(1, y1-y0-2)}
 			// Value-area bars are filled, the rest outlined.
 			if i >= vlo && i <= vhi {
-				p.Fill(bar, inArea.Alpha(0.75), 0)
+				p.Fill(bar, inArea, 0)
 			} else {
 				p.Stroke(bar, outArea, 0, 1)
 			}

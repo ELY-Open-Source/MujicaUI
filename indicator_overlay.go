@@ -2,6 +2,8 @@ package mujica
 
 import (
 	"fmt"
+	"log/slog"
+	"math"
 	"strconv"
 	"strings"
 
@@ -24,7 +26,7 @@ const (
 	IndicatorOBV
 )
 
-// indicatorInfo is a kind's name, default parameters and where it draws.
+// indicatorInfo describes names, default parameters, and plotting locations.
 var indicatorInfo = []struct {
 	name    string
 	params  []float64
@@ -47,17 +49,18 @@ func (k IndicatorKind) DefaultParams() []float64 {
 	return append([]float64(nil), indicatorInfo[k].params...)
 }
 
-// IndicatorOverlay is an indicator drawn over the price chart: MA, EMA, BOLL or VWAP.
+// IndicatorOverlay configures MA, EMA, BOLL, or VWAP.
 type IndicatorOverlay struct {
 	Kind IndicatorKind
-	// Params are the periods (and BOLL's width); nil uses the kind's defaults.
+	// Params nil uses the indicator's defaults.
 	Params []float64
-	// Values, when set, are the caller's own series, one per candle, drawn instead of the built-in result.
+	// Values overrides calculation; supply one value per candle.
 	Values []float64
 }
 
 // indicatorParams resolves and checks params for kind.
 func indicatorParams(k IndicatorKind, params []float64) []float64 {
+	_ = k.String()
 	want := indicatorInfo[k].params
 	if params == nil {
 		return want
@@ -66,9 +69,12 @@ func indicatorParams(k IndicatorKind, params []float64) []float64 {
 		panic(fmt.Sprintf("mujica: %v takes %d parameters, not %d", k, len(want), len(params)))
 	}
 	for i, p := range params {
-		if !(p > 0) || (k != IndicatorBOLL || i == 0) && p != float64(int(p)) {
+		if math.IsInf(p, 0) || !(p > 0) || (k != IndicatorBOLL || i == 0) && p != float64(int(p)) {
 			panic(fmt.Sprintf("mujica: %v parameter %v must be a positive whole number", k, p))
 		}
+	}
+	if k == IndicatorMACD && params[0] >= params[1] {
+		panic("mujica: MACD fast period must be below slow period")
 	}
 	return params
 }
@@ -85,7 +91,7 @@ func indicatorName(k IndicatorKind, params []float64) string {
 	return k.String() + "(" + strings.Join(parts, ",") + ")"
 }
 
-// indicatorSeries computes kind over candles: named lines, one value per candle.
+// indicatorSeries computes named indicator lines from candles.
 func indicatorSeries(k IndicatorKind, params []float64, candles []Candle) []ChartSeries {
 	p := indicatorParams(k, params)
 	closes := make([]float64, len(candles))
@@ -115,7 +121,7 @@ func indicatorSeries(k IndicatorKind, params []float64, candles []Candle) []Char
 	return []ChartSeries{{name, OBV(candles)}}
 }
 
-// mktOverlayLines resolves the chart's overlays, computing each only when its candles or settings change.
+// mktOverlayLines caches indicators until data or parameters change.
 func mktOverlayLines(ch *chart, m *mktCore, candles []Candle) []mktLine {
 	pal := internal.Palette(m.k)
 	var out []mktLine
@@ -123,7 +129,7 @@ func mktOverlayLines(ch *chart, m *mktCore, candles []Candle) []mktLine {
 		if _ = o.Kind.String(); !indicatorInfo[o.Kind].overlay {
 			panic(fmt.Sprintf("mujica: %v is not an overlay indicator", o.Kind))
 		}
-		col := pal[(len(pal)-2-i+len(pal))%len(pal)]
+		col := pal[[]int{3, 1, 5, 2, 4}[i%5]]
 		if o.Values != nil {
 			if len(o.Values) != len(candles) {
 				panic("mujica: IndicatorOverlay Values need one value per candle")
@@ -140,16 +146,21 @@ func mktOverlayLines(ch *chart, m *mktCore, candles []Candle) []mktLine {
 	return out
 }
 
-// IndicatorParamsField edits one indicator's parameters in place; Changed reports a valid new value.
+// IndicatorParamsField edits validated indicator parameters in place.
 func IndicatorParamsField(c *ui.Context, kind IndicatorKind, params *[]float64) ChoiceResult {
 	if params == nil {
 		panic("mujica: IndicatorParamsField needs params")
+	}
+	row := ui.Row(c).Gap(Density(c).Unit() * 2).AlignItems(ui.Center).Role(ui.RoleGroup).Label(kind.String())
+	if row.IsDisabled() {
+		copy := append([]float64(nil), (*params)...)
+		params = &copy
 	}
 	if *params == nil {
 		*params = kind.DefaultParams()
 	}
 	changed := false
-	row := ui.Row(c).Gap(Density(c).Unit() * 2).AlignItems(ui.Center).Role(ui.RoleGroup).Label(kind.String())
+	indicatorParams(kind, *params)
 	row.Children(func() {
 		for i := range *params {
 			v := (*params)[i]
@@ -165,5 +176,8 @@ func IndicatorParamsField(c *ui.Context, kind IndicatorKind, params *[]float64) 
 			}
 		}
 	})
+	if changed {
+		slog.Debug("mujica: indicator_overlay params", "kind", kind)
+	}
 	return ChoiceResult{row, changed}
 }

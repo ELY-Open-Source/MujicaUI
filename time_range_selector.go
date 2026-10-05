@@ -8,7 +8,7 @@ import (
 	"github.com/egoist/mygo/ui"
 )
 
-// RangePreset names a quick time range. The zero value is Range1D.
+// RangePreset names a time range; zero selects Range1D.
 type RangePreset int
 
 const (
@@ -24,14 +24,14 @@ const (
 
 var rangePresetNames = []string{"1D", "5D", "1M", "3M", "YTD", "1Y", "5Y"}
 
-// MarketRange is a chosen range: a preset, or Custom with its dates.
+// MarketRange stores a preset or custom date range.
 type MarketRange struct {
 	Preset RangePreset
 	// Custom holds the dates when Preset is RangeCustom.
 	Custom DateRange
 }
 
-// Bounds returns the range's start and end at now, in loc; custom ends include their last day.
+// Bounds returns local boundaries, including the custom end date.
 func (r MarketRange) Bounds(now time.Time, loc *time.Location) (from, to time.Time) {
 	now = now.In(loc)
 	switch r.Preset {
@@ -66,7 +66,7 @@ type TimeRangeSelectorOptions struct {
 	Today Date
 }
 
-// TimeRangeSelector chooses a preset range or a custom one; the presets are one Tab stop moved with the arrows.
+// TimeRangeSelector chooses presets and custom dates through keyboard-accessible controls.
 func TimeRangeSelector(c *ui.Context, value *MarketRange, opts TimeRangeSelectorOptions) ChoiceResult {
 	if value == nil {
 		panic("mujica: TimeRangeSelector needs a value")

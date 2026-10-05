@@ -12,7 +12,7 @@ import (
 	"mujicaui/theme"
 )
 
-// ChartType is how a price chart draws candles. The zero value is ChartCandles.
+// ChartType selects the price chart shape.
 type ChartType int
 
 const (
@@ -31,26 +31,29 @@ type CandlestickOptions struct {
 	Decimals int
 	// Overlays draw indicators over the prices.
 	Overlays []IndicatorOverlay
-	// Compare overlays other symbols in percent; the chart turns to percent while any show.
+	// Compare switches the chart to normalized percent prices.
 	Compare *[]CompareSymbol
-	// Alerts are draggable price lines; OnAlert runs when the last close crosses one.
+	// Alerts provides draggable lines and price-crossing callbacks.
 	Alerts  *[]PriceAlertLine
 	OnAlert func(a PriceAlertLine, last Candle)
 	// Drawings, when set, takes clicks for the current tool.
 	Drawings *DrawingTools
-	// Sync links the view and crosshair to other charts under SyncID.
+	// Sync links the window and crosshair under SyncID.
 	Sync   *ChartSync
 	SyncID string
 }
 
 // mktState is a price chart's own frame-to-frame state.
 type mktState struct {
-	drawn     int     // candles painted last frame
-	dragRest  float32 // pan drag left over, under a candle
-	lastClose float64
-	alertSeen bool
-	grab      int // alert index dragged, -1 none
-	focus     int // keyboard mark last frame, to follow only when it moves
+	drawn      int     // candles painted last frame
+	dragRest   float32 // pan drag left over, under a candle
+	lastClose  float64
+	alertSeen  bool
+	grab       int // alert index dragged, -1 none
+	focus      int // keyboard mark last frame, to follow only when it moves
+	alertFocus int
+	plot       ui.Rect
+	ys         internal.Linear // the price scale as last painted
 }
 
 // mktCore is one price chart being built.
@@ -77,7 +80,7 @@ type mktLine struct {
 	shape  int
 }
 
-// CandlestickChart draws candles of the view's window, building and painting only those; rises and falls use the window's Trend colors and hollow or filled bodies.
+// CandlestickChart paints visible candles with hollow rises and filled falls.
 func CandlestickChart(c *ui.Context, candles []Candle, view *MarketView, opts CandlestickOptions) ChartResult {
 	if view == nil {
 		panic("mujica: CandlestickChart needs a view")
@@ -97,7 +100,14 @@ func CandlestickChart(c *ui.Context, candles []Candle, view *MarketView, opts Ca
 		return candles
 	})
 	m := &mktCore{c: c, k: Tokens(c), ch: ch, candles: shown, view: view, opts: opts, dec: priceDecimals("CandlestickChart", opts.Decimals)}
-	m.st = *ui.Local(ch.res.Element, "mujica.mkt", func() *mktState { return &mktState{grab: -1, focus: -1} })
+	m.st = *ui.Local(ch.res.Element, "mujica.mkt", func() *mktState { return &mktState{grab: -1, focus: -1, alertFocus: -1} })
+	if ch.res.Element.IsDisabled() {
+		copy := *view
+		view = &copy
+		m.view = view
+		m.opts.Sync = nil
+		opts.Sync = nil
+	}
 	if s := opts.Sync; s != nil {
 		s.load(opts.SyncID, shown, view)
 	}
@@ -122,7 +132,7 @@ func OHLCChart(c *ui.Context, candles []Candle, view *MarketView, opts Candlesti
 	return CandlestickChart(c, candles, view, opts)
 }
 
-// HeikinAshiChart is CandlestickChart of Heikin-Ashi candles computed from candles; *raw switches back to them.
+// HeikinAshiChart switches between smoothed candles and raw OHLC.
 func HeikinAshiChart(c *ui.Context, candles []Candle, view *MarketView, raw *bool, opts CandlestickOptions) ChartResult {
 	if raw == nil {
 		panic("mujica: HeikinAshiChart needs raw")
@@ -136,8 +146,8 @@ func HeikinAshiChart(c *ui.Context, candles []Candle, view *MarketView, raw *boo
 	col.Children(func() {
 		ui.Row(c).Children(func() {
 			v := []bool{*raw}
-			if ToggleGroup(c, &v, []ToggleItem[bool]{{Value: false, Label: msg(c, "heikin_ashi.smoothed")}, {Value: true, Label: msg(c, "heikin_ashi.raw")}},
-				ToggleGroupOptions{Label: msg(c, "heikin_ashi.switch")}).Changed() {
+			if ToggleGroup(c, &v, []ToggleItem[bool]{{Value: false, Label: msg(c, "heikin_ashi_chart.smoothed")}, {Value: true, Label: msg(c, "heikin_ashi_chart.raw")}},
+				ToggleGroupOptions{Label: msg(c, "heikin_ashi_chart.switch")}).Changed() {
 				*raw = v[0]
 				slog.Debug("mujica: heikin_ashi switch", "raw", *raw)
 			}
@@ -148,7 +158,7 @@ func HeikinAshiChart(c *ui.Context, candles []Candle, view *MarketView, raw *boo
 	return res
 }
 
-// window resolves the shown candles from the view and last frame's width.
+// window resolves visible candles using the last measured width.
 func (m *mktCore) window() {
 	m.from, m.to = marketWindow(*m.view, len(m.candles), m.room())
 }
@@ -162,7 +172,7 @@ func (m *mktCore) room() int {
 	return max(10, int(w/3))
 }
 
-// yDomain spans the window's lows and highs, overlays and alerts, recomputed only when they change.
+// yDomain caches visible prices, indicators, and alerts.
 func (m *mktCore) yDomain() {
 	if m.to <= m.from {
 		return
@@ -195,7 +205,7 @@ func (m *mktCore) yDomain() {
 	m.lo, m.hi = d[0], d[1]
 }
 
-// val maps a price to what the axis shows: itself, or percent from base.
+// val converts price to the current axis unit.
 func (m *mktCore) val(p float64) float64 {
 	if m.base == 0 {
 		return p
@@ -238,6 +248,12 @@ func (m *mktCore) spec() chartSpec {
 	for _, l := range m.overlays {
 		keys = append(keys, chartKey{Name: l.name, Color: l.color, Shape: l.shape})
 	}
+	if n == 0 && m.opts.Compare != nil {
+		pal := internal.Palette(m.k)
+		for i, s := range *m.opts.Compare {
+			keys = append(keys, chartKey{Name: s.Name, Color: pal[(i+1)%len(pal)], Shape: i + 1})
+		}
+	}
 	spec := chartSpec{n: n, keys: keys}
 	if m.to <= m.from {
 		spec.n = 0
@@ -256,12 +272,19 @@ func (m *mktCore) spec() chartSpec {
 		}
 		return min(i+1, n-1)
 	}
+	if d := m.opts.Drawings; d != nil {
+		spec.keyActivate = func(i int) {
+			if !d.Locked && d.Tool != ToolSelect {
+				d.place(m, DrawingPoint{m.candles[i].Time, m.candles[i].Close})
+			}
+		}
+	}
 	spec.readout = m.readout
 	spec.draw = func(p *ui.Painter, r ui.Rect, active int) { m.paint(p, r, active) }
 	return spec
 }
 
-// readout says the candle's time, prices, change and direction, and the overlays there.
+// readout describes time, OHLC, volume, direction, and indicators.
 func (m *mktCore) readout(i int) string {
 	c := m.candles[i]
 	f := func(v float64) string { return priceUngrouped(v, m.dec) }

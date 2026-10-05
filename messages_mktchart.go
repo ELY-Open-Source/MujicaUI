@@ -2,11 +2,12 @@ package mujica
 
 func init() {
 	addMessages(map[string][2]string{
+		"candlestick_chart.daily_time": {"Jan 2", "1月2日"},
 		"candlestick_chart.ohlc":       {"O %s H %s L %s C %s", "开 %s 高 %s 低 %s 收 %s"},
 		"candlestick_chart.volume":     {"Vol", "量"},
-		"heikin_ashi.smoothed":         {"Heikin-Ashi", "平均 K 线"},
-		"heikin_ashi.raw":              {"Candles", "原 K 线"},
-		"heikin_ashi.switch":           {"Candle style", "K 线样式"},
+		"heikin_ashi_chart.smoothed":   {"Heikin-Ashi", "平均 K 线"},
+		"heikin_ashi_chart.raw":        {"Candles", "原 K 线"},
+		"heikin_ashi_chart.switch":     {"Candle style", "K 线样式"},
 		"compare_symbol.label":         {"Compared symbols", "对比品种"},
 		"compare_symbol.remove":        {"Remove %s", "移除 %s"},
 		"price_alert_line.tag":         {"Alert %s", "预警 %s"},
@@ -69,6 +70,7 @@ func init() {
 		"indicator_selector.add":       {"Add", "添加"},
 		"indicator_selector.add_named": {"Add %s", "添加 %s"},
 		"indicator_selector.none":      {"No indicator matches", "没有匹配的指标"},
+		"drawing_tools.selected":       {"Drawing %d selected", "已选择画线 %d"},
 		"drawing_tools.note":           {"Note", "标注"},
 	})
 }

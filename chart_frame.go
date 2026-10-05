@@ -65,7 +65,8 @@ type chartSpec struct {
 	// move steps from mark i; nil steps in order.
 	move func(i int, key ui.Key) int
 	// activate runs on Enter, Space or a click.
-	activate func(i int)
+	keyActivate func(i int)
+	activate    func(i int)
 }
 
 type chartState struct {
@@ -116,7 +117,7 @@ func (ch *chart) build(spec chartSpec) (ChartResult, *ui.Element) {
 				})
 			})
 			ch.res.Point = -1
-			ui.Box(c).Height(u * 5)
+			ui.Box(c).Height(max(u*5, FontSize(c, theme.CaptionSize)*theme.LineHeight))
 			return
 		}
 		plot = box.Focusable().Label(ch.frame.Label).Role(ui.RoleGroup)
@@ -137,7 +138,7 @@ func (ch *chart) build(spec chartSpec) (ChartResult, *ui.Element) {
 		if active >= 0 {
 			text, col = spec.readout(active), k.Text
 		}
-		ui.Text(c, text).FontSize(FontSize(c, theme.CaptionSize)).TextColor(col).Role(ui.RoleStatus).SingleLine().Height(u * 5)
+		ui.Text(c, text).FontSize(FontSize(c, theme.CaptionSize)).TextColor(col).Role(ui.RoleStatus).SingleLine().Height(max(u*5, FontSize(c, theme.CaptionSize)*theme.LineHeight))
 	})
 	ch.res.changed = ch.res.Point != st.last
 	st.last = ch.res.Point
@@ -183,6 +184,9 @@ func (ch *chart) input(plot *ui.Element, spec chartSpec) {
 		slog.Debug("mujica: chart focus", "label", ch.frame.Label, "mark", to)
 	}
 	act := st.focus >= 0 && (plot.Shortcut(0, ui.KeyEnter) || plot.Shortcut(0, ui.KeySpace))
+	if act && spec.keyActivate != nil {
+		spec.keyActivate(st.focus)
+	}
 	if plot.Clicked() {
 		plot.Focus()
 		x, y, _ := plot.PointerPosition()

@@ -27,7 +27,7 @@ type IntervalSelectorOptions struct {
 	Disabled bool
 }
 
-// IntervalSelector picks a candle period: favorites show as quick buttons, and a grouped list holds all, each with a star.
+// IntervalSelector groups candle periods and preserves caller-owned favorites.
 func IntervalSelector(c *ui.Context, value *Interval, favorites *[]Interval, opts IntervalSelectorOptions) ChoiceResult {
 	if value == nil || favorites == nil {
 		panic("mujica: IntervalSelector needs a value and favorites")
@@ -81,7 +81,7 @@ func IntervalSelector(c *ui.Context, value *Interval, favorites *[]Interval, opt
 	return ChoiceResult{row, changed}
 }
 
-// intervalSelectorRow is one interval with its star; it reports choosing the interval.
+// intervalSelectorRow shows a selectable period and its favorite toggle.
 func intervalSelectorRow(c *ui.Context, k theme.Tokens, u float32, iv Interval, on, fav bool, favorites *[]Interval) bool {
 	chosen := false
 	ui.Row(c).Key(string(iv)).AlignItems(ui.Center).Gap(u).Children(func() {

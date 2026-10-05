@@ -18,7 +18,7 @@ type VolumeChartOptions struct {
 	SyncID string
 }
 
-// VolumeChart draws the volume of the view's window as bars, hollow on rises and filled on falls; give it the price chart's view to share the time axis.
+// VolumeChart paints visible volume bars using the shared MarketView.
 func VolumeChart(c *ui.Context, candles []Candle, view *MarketView, opts VolumeChartOptions) ChartResult {
 	if view == nil {
 		panic("mujica: VolumeChart needs a view")
@@ -31,6 +31,11 @@ func VolumeChart(c *ui.Context, candles []Candle, view *MarketView, opts VolumeC
 	}
 	ch := newChart(c, opts.Frame)
 	chartMemo(ch, "check", chartID(candles), func() bool { marketCheckCandles(candles); return true })
+	if ch.res.Element.IsDisabled() {
+		copy := *view
+		view = &copy
+		opts.Sync = nil
+	}
 	m := &mktCore{c: c, k: Tokens(c), ch: ch, candles: candles, view: view}
 	if s := opts.Sync; s != nil {
 		s.load(opts.SyncID, candles, view)

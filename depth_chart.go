@@ -2,6 +2,8 @@ package mujica
 
 import (
 	"fmt"
+	"math"
+	"sort"
 	"strings"
 
 	"github.com/egoist/mygo/ui"
@@ -21,14 +23,14 @@ type DepthChartOptions struct {
 	Decimals int
 }
 
-// depthData is the book's cumulative sizes, bids then asks, from the mid outward.
+// depthData holds cumulative bids and asks around the midpoint.
 type depthData struct {
 	price, total []float64
 	nBids        int
 	mid, maxSize float64
 }
 
-// DepthChart draws cumulative bid and ask depth as stepped areas around the mid price; arrows walk the levels.
+// DepthChart paints cumulative depth and supports keyboard level readouts.
 func DepthChart(c *ui.Context, bids, asks []DepthLevel, opts DepthChartOptions) ChartResult {
 	dec := priceDecimals("DepthChart", opts.Decimals)
 	ch := newChart(c, opts.Frame)
@@ -36,6 +38,7 @@ func DepthChart(c *ui.Context, bids, asks []DepthLevel, opts DepthChartOptions) 
 	d := chartMemo(ch, "depth", [2]string{chartID(bids), chartID(asks)}, func() depthData { return depthBuild(bids, asks) })
 	bidCol, askCol := trendColor(c, 1), trendColor(c, -1)
 	keys := []chartKey{{Name: msg(c, "depth_chart.bids"), Color: bidCol, Shape: 1}, {Name: msg(c, "depth_chart.asks"), Color: askCol, Shape: 3}}
+	drawn := ui.Local(ch.res.Element, "mujica.depth.drawn", func() int { return 0 })
 	size := FontSize(c, theme.CaptionSize)
 	geom := func(r ui.Rect) (ui.Rect, internal.Linear, internal.Linear) {
 		plot := chartInset(r, 56, 26)
@@ -47,7 +50,7 @@ func DepthChart(c *ui.Context, bids, asks []DepthLevel, opts DepthChartOptions) 
 	if len(bids) == 0 || len(asks) == 0 {
 		spec.n = 0
 	}
-	// Left and Right walk by price: lower bids to the left, higher asks to the right.
+	// Arrows move by ascending price.
 	order := func(i int) int {
 		if i < d.nBids {
 			return d.nBids - 1 - i
@@ -68,7 +71,12 @@ func DepthChart(c *ui.Context, bids, asks []DepthLevel, opts DepthChartOptions) 
 		if !plot.Contains(x, y) {
 			return -1
 		}
-		return internal.Nearest(len(d.price), func(i int) (float32, float32) { return xs.Map(d.price[i]), 0 }, x, 0, plot.W, true)
+		v := xs.Invert(x)
+		pos := sort.Search(len(d.price), func(i int) bool { return d.price[order(i)] >= v })
+		if pos == len(d.price) || pos > 0 && v-d.price[order(pos-1)] < d.price[order(pos)]-v {
+			pos--
+		}
+		return order(pos)
 	}
 	spec.readout = func(i int) string {
 		side := msg(c, "depth_chart.bid")
@@ -90,6 +98,7 @@ func DepthChart(c *ui.Context, bids, asks []DepthLevel, opts DepthChartOptions) 
 		}
 		internal.AxisX(p, plot, tx, tl, size, k)
 		base := plot.Y + plot.H
+		*drawn = 0
 		for side, idx := range [][2]int{{0, d.nBids}, {d.nBids, len(d.price)}} {
 			col := []ui.Color{bidCol, askCol}[side]
 			var area, edge ui.Path
@@ -97,7 +106,12 @@ func DepthChart(c *ui.Context, bids, asks []DepthLevel, opts DepthChartOptions) 
 			area.MoveTo(mx, base)
 			edge.MoveTo(mx, base)
 			prevY := base
-			for i := idx[0]; i < idx[1]; i++ {
+			indices := chartMemo(ch, fmt.Sprint("depth.indices.", side), [3]any{chartID(d.price), plot.X, plot.W}, func() []int {
+				return internal.Columns(idx[1]-idx[0], func(i int) float32 { return xs.Map(d.price[idx[0]+i]) }, func(i int) float64 { return d.total[idx[0]+i] })
+			})
+			*drawn += len(indices)
+			for _, at := range indices {
+				i := idx[0] + at
 				x, y := internal.Snap(p, xs.Map(d.price[i])), internal.Snap(p, ys.Map(d.total[i]))
 				area.LineTo(x, prevY).LineTo(x, y)
 				edge.LineTo(x, prevY).LineTo(x, y)
@@ -133,15 +147,15 @@ func DepthChart(c *ui.Context, bids, asks []DepthLevel, opts DepthChartOptions) 
 	return res
 }
 
-// depthBuild checks the book's order and sums sizes outward from the mid.
+// depthBuild validates price order and computes cumulative volume.
 func depthBuild(bids, asks []DepthLevel) depthData {
 	for i, l := range bids {
-		if !(l.Size > 0) || i > 0 && !(l.Price < bids[i-1].Price) {
+		if math.IsNaN(l.Price) || math.IsInf(l.Price, 0) || math.IsInf(l.Size, 0) || !(l.Size > 0) || i > 0 && !(l.Price < bids[i-1].Price) {
 			panic(fmt.Sprintf("mujica: DepthChart bid %d needs a positive size and a price below the one before", i))
 		}
 	}
 	for i, l := range asks {
-		if !(l.Size > 0) || i > 0 && !(l.Price > asks[i-1].Price) {
+		if math.IsNaN(l.Price) || math.IsInf(l.Price, 0) || math.IsInf(l.Size, 0) || !(l.Size > 0) || i > 0 && !(l.Price > asks[i-1].Price) {
 			panic(fmt.Sprintf("mujica: DepthChart ask %d needs a positive size and a price above the one before", i))
 		}
 	}

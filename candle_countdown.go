@@ -11,17 +11,22 @@ import (
 
 // CandleCountdownOptions configure a CandleCountdown.
 type CandleCountdownOptions struct {
-	// Location aligns days and weeks; nil is UTC, as exchanges count.
+	// Location defaults to UTC.
 	Location *time.Location
+	// Now freezes the clock; zero uses the frame time.
+	Now time.Time
 }
 
-// CandleCountdown shows the time left until the current candle of interval closes; it wakes once a second only while shown.
+// CandleCountdown displays closing time and schedules visible updates.
 func CandleCountdown(c *ui.Context, interval Interval, opts CandleCountdownOptions) *ui.Element {
 	loc := opts.Location
 	if loc == nil {
 		loc = time.UTC
 	}
-	now := c.Now()
+	now := opts.Now
+	if now.IsZero() {
+		now = c.Now()
+	}
 	left := interval.Close(now, loc).Sub(now)
 	k := Tokens(c)
 	text := candleCountdownText(left)
@@ -31,7 +36,9 @@ func CandleCountdown(c *ui.Context, interval Interval, opts CandleCountdownOptio
 		ui.Text(c, text).FontFeatures("tnum").FontWeight(500).TextColor(k.Text).SingleLine()
 	})
 	// The next whole second, so the text never skips one.
-	c.After(left - left.Truncate(time.Second) + time.Millisecond)
+	if opts.Now.IsZero() {
+		e.DrawOver(func(_ *ui.Painter, _ ui.Rect) { c.After(left - left.Truncate(time.Second) + time.Millisecond) })
+	}
 	return e
 }
 

@@ -10,9 +10,10 @@ import (
 	"mujicaui/theme"
 )
 
-// paint draws axes, the window's candles, layers and the crosshair at active.
+// paint draws axes, visible candles, layers, and the crosshair.
 func (m *mktCore) paint(p *ui.Painter, r ui.Rect, active int) {
 	g := m.geom(r)
+	m.st.plot, m.st.ys = g.plot, g.ys
 	k := m.k
 	size := FontSize(m.c, theme.CaptionSize)
 	label := func(v float64) string {
@@ -25,8 +26,8 @@ func (m *mktCore) paint(p *ui.Painter, r ui.Rect, active int) {
 	m.paintTimeAxis(p, g, size)
 	p.Clip(g.plot, 0, func() {
 		m.st.drawn = m.paintCandles(p, g)
-		for i, l := range m.overlays {
-			mktPaintLine(p, g, m, l.values, l.color, i)
+		for _, l := range m.overlays {
+			mktPaintLine(p, g, m, l.values, l.color, l.shape)
 		}
 		m.paintAlerts(p, g, size)
 		if d := m.opts.Drawings; d != nil {
@@ -49,7 +50,7 @@ func (m *mktCore) paint(p *ui.Painter, r ui.Rect, active int) {
 // paintTimeAxis labels candles about 90 DIPs apart.
 func (m *mktCore) paintTimeAxis(p *ui.Painter, g mktGeom, size float32) {
 	every := max(1, int(math.Ceil(float64(90/g.band.Step()))))
-	layout := "Jan 2"
+	layout := msg(m.c, "candlestick_chart.daily_time")
 	if m.to-m.from > 1 && m.candles[m.from+1].Time.Sub(m.candles[m.from].Time) < 24*time.Hour {
 		layout = "15:04"
 	}
@@ -62,18 +63,14 @@ func (m *mktCore) paintTimeAxis(p *ui.Painter, g mktGeom, size float32) {
 	internal.AxisX(p, g.plot, xs, labels, size, m.k)
 }
 
-// paintCandles draws the window as the chart's type and returns how many candles it drew.
+// paintCandles returns the number of visible candles painted.
 func (m *mktCore) paintCandles(p *ui.Painter, g mktGeom) int {
 	k := m.k
 	w := max(1, g.band.Width())
 	if m.opts.Type == ChartLine || m.opts.Type == ChartArea {
-		closes := make([]float64, len(m.candles))
-		for i := m.from; i < m.to; i++ {
-			closes[i] = m.val(m.candles[i].Close)
-		}
 		var line, fill ui.Path
 		for i := m.from; i < m.to; i++ {
-			x, y := internal.Snap(p, g.x(m, i)), internal.Snap(p, g.ys.Map(closes[i]))
+			x, y := internal.Snap(p, g.x(m, i)), internal.Snap(p, g.ys.Map(m.val(m.candles[i].Close)))
 			if i == m.from {
 				line.MoveTo(x, y)
 				fill.MoveTo(x, g.plot.Y+g.plot.H).LineTo(x, y)
@@ -109,7 +106,7 @@ func (m *mktCore) paintCandles(p *ui.Painter, g mktGeom) int {
 		body := ui.Rect{X: x - w/2, Y: top, W: w, H: max(1, bot-top)}
 		p.Line(x, yh, x, top, 1, col)
 		p.Line(x, bot, x, yl, 1, col)
-		// Rises are hollow and falls filled, so direction reads without color.
+		// Rises are hollow; falls are filled.
 		if up && w >= 3 {
 			p.Fill(body, k.Surface, 0)
 			p.Stroke(body, col, 0, 1)
@@ -120,7 +117,7 @@ func (m *mktCore) paintCandles(p *ui.Painter, g mktGeom) int {
 	return m.to - m.from
 }
 
-// mktPaintLine draws values over the window with sparse markers of shape.
+// mktPaintLine draws visible values with distinct series markers.
 func mktPaintLine(p *ui.Painter, g mktGeom, m *mktCore, values []float64, col ui.Color, shape int) {
 	var path ui.Path
 	open := false
@@ -147,7 +144,7 @@ func mktPaintLine(p *ui.Painter, g mktGeom, m *mktCore, values []float64, col ui
 	}
 }
 
-// mktTag draws a price label at the plot's right edge, centered on y.
+// mktTag centers a price label on the right edge.
 func mktTag(p *ui.Painter, right, y float32, s string, size float32, fg, bg ui.Color) {
 	w, h := p.MeasureText(0, ui.Span{Text: s, Size: size})
 	b := ui.Rect{X: right - w - 8, Y: y - h/2 - 2, W: w + 8, H: h + 4}

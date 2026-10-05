@@ -2,6 +2,7 @@ package mujica
 
 import (
 	"fmt"
+	"log/slog"
 
 	"github.com/egoist/mygo/ui"
 )
@@ -11,7 +12,7 @@ type ChartTypeSwitcherOptions struct {
 	Disabled bool
 }
 
-// ChartTypeSwitcher chooses how CandlestickChart draws: candles, OHLC bars, line, area or Heikin-Ashi.
+// ChartTypeSwitcher chooses candles, OHLC, line, area, or Heikin-Ashi.
 func ChartTypeSwitcher(c *ui.Context, value *ChartType, opts ChartTypeSwitcherOptions) ChoiceResult {
 	if value == nil {
 		panic("mujica: ChartTypeSwitcher needs a value")
@@ -30,6 +31,7 @@ func ChartTypeSwitcher(c *ui.Context, value *ChartType, opts ChartTypeSwitcherOp
 	})
 	if r.Changed() {
 		*value = sel[0]
+		slog.Debug("mujica: chart_type_switcher changed", "type", *value)
 	}
 	return r
 }

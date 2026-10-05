@@ -10,18 +10,18 @@ import (
 	"mujicaui/theme"
 )
 
-// ChartCell is one chart of a MultiChartLayout: its symbol, period and view.
+// ChartCell holds one chart's symbol, interval, and window.
 type ChartCell struct {
 	Symbol   string
 	Interval Interval
 	View     MarketView
 }
 
-// MultiChartState is the caller-held grid: how many cells show, all six cells' settings, and the active one.
+// MultiChartState preserves six cells across layout changes.
 type MultiChartState struct {
 	// Count is 1, 2, 4 or 6; zero is 1.
 	Count int
-	// Cells keep their settings while hidden, so changing the layout loses nothing.
+	// Cells preserve their settings while hidden.
 	Cells  [6]ChartCell
 	Active int
 }
@@ -32,10 +32,18 @@ type MultiChartLayoutOptions struct {
 	Height float32
 }
 
-// MultiChartLayout shows 1, 2, 4 or 6 charts in a grid, each built by cell with its own settings.
+// MultiChartLayout builds 1, 2, 4, or 6 independent charts.
 func MultiChartLayout(c *ui.Context, state *MultiChartState, opts MultiChartLayoutOptions, cell func(i int, cell *ChartCell)) ChoiceResult {
 	if state == nil || cell == nil {
 		panic("mujica: MultiChartLayout needs a state and a cell builder")
+	}
+	root := ui.Column(c).Gap(Density(c).Unit() * 2).FillWidth()
+	if root.IsDisabled() {
+		copy := *state
+		state = &copy
+	}
+	if opts.Height < 0 {
+		panic("mujica: MultiChartLayout Height must be non-negative")
 	}
 	if state.Count == 0 {
 		state.Count = 1
@@ -54,7 +62,6 @@ func MultiChartLayout(c *ui.Context, state *MultiChartState, opts MultiChartLayo
 		h = 480
 	}
 	changed := false
-	root := ui.Column(c).Gap(u * 2).FillWidth()
 	root.Children(func() {
 		sel := []int{state.Count}
 		var items []ToggleItem[int]
@@ -68,6 +75,7 @@ func MultiChartLayout(c *ui.Context, state *MultiChartState, opts MultiChartLayo
 				slog.Debug("mujica: multi_chart_layout count", "count", state.Count)
 			}
 		})
+		cols = map[int]int{1: 1, 2: 2, 4: 2, 6: 3}[state.Count]
 		rows := (state.Count + cols - 1) / cols
 		grid := ui.Box(c).Grid().Columns(cols).Gap(u * 2).Height(h).FillWidth()
 		grid.Children(func() {
@@ -81,7 +89,7 @@ func MultiChartLayout(c *ui.Context, state *MultiChartState, opts MultiChartLayo
 				} else {
 					box.Border(theme.BorderWidth, k.Border)
 				}
-				if box.FocusWithin() || box.Clicked() {
+				if !box.IsDisabled() && (box.FocusWithin() || box.Clicked()) {
 					if state.Active != i {
 						state.Active, changed = i, true
 					}

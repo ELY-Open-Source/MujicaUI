@@ -23,7 +23,6 @@ var nan = math.NaN()
 func TestSMAAndEMA(t *testing.T) {
 	v := []float64{1, 2, 3, 4, 5, 6}
 	approx(t, "SMA", SMA(v, 3), []float64{nan, nan, 2, 3, 4, 5})
-	// k = 0.5: seed 2, then 4*0.5+2*0.5 = 3, 5*0.5+3*0.5 = 4, 6*0.5+4*0.5 = 5.
 	approx(t, "EMA", EMA(v, 3), []float64{nan, nan, 2, 3, 4, 5})
 	approx(t, "EMA2", EMA([]float64{10, 20, 10}, 1), []float64{10, 20, 10})
 	approx(t, "EMA3", EMA([]float64{2, 4, 8}, 2), []float64{nan, 3, 3 + (8-3)*2.0/3})
@@ -65,27 +64,23 @@ func TestMACD(t *testing.T) {
 			t.Fatalf("dif[%d]", i)
 		}
 	}
-	// DEA is the EMA(2) of DIF from index 2: seed is the mean of dif[2], dif[3].
 	want := EMA(dif[2:], 2)
 	approx(t, "dea", dea[2:], want)
 	if !math.IsNaN(dea[1]) || math.Abs(hist[6]-(dif[6]-dea[6])) > 1e-12 {
 		t.Fatal("hist or warm-up wrong")
 	}
-	// A straight line: both EMAs trail by a constant, DIF = 0.5, DEA = 0.5, hist = 0.
 	approx(t, "dif line", dif[2:], []float64{0.5, 0.5, 0.5, 0.5, 0.5})
 	approx(t, "hist line", hist[3:], []float64{0, 0, 0, 0})
 }
 
 func TestRSI(t *testing.T) {
-	// Gains 1,1 then a loss of 1: first RSI (n=2) at i=2 is all gains = 100; then Wilder smoothing.
 	r := RSI([]float64{1, 2, 3, 2}, 2)
-	approx(t, "RSI", r, []float64{nan, nan, 100, 100 - 100/(1+0.5/0.5)})
+	approx(t, "RSI", r, []float64{nan, nan, 100, 50})
 }
 
 func TestKDJ(t *testing.T) {
 	cs := candlesOf([5]float64{1, 2, 0, 1, 0}, [5]float64{1, 4, 0, 4, 0}, [5]float64{4, 4, 2, 3, 0})
 	k, d, j := KDJ(cs, 2, 3, 3)
-	// i=1: range 0..4, RSV 100, K = (2*50+100)/3, D = (2*50+K)/3.
 	k1 := 200.0 / 3
 	d1 := (100 + k1) / 3
 	// i=2: range 0..4, RSV 75.

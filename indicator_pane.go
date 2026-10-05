@@ -20,37 +20,53 @@ type IndicatorPaneSpec struct {
 	Params []float64
 }
 
-// IndicatorPanes is the caller-held stack of panes and their height shares.
+// IndicatorPanes holds stacked indicators and their height shares.
 type IndicatorPanes struct {
 	Panes []IndicatorPaneSpec
-	// Sizes are the panes' height shares; they reset to equal when the pane count changes.
+	// Sizes reset to equal shares when pane count changes.
 	Sizes []float32
 }
 
 // IndicatorPaneOptions configure an IndicatorPane.
 type IndicatorPaneOptions struct {
-	// Height is the whole stack's height; zero is 140 per pane.
+	// Height defaults to 140 per pane.
 	Height float32
 	// Label prefixes each pane's accessible name, as the symbol.
 	Label    string
 	Disabled bool
+	Status   DataStatus
+	Error    string
+	Empty    string
 }
 
 // IndicatorPaneResult reports the stack's events.
 type IndicatorPaneResult struct {
 	Element *ui.Element
-	// Removed is the index of the pane closed this frame, -1 for none.
+	// Removed reports the closed pane; -1 means none.
 	Removed int
 	// Resized reports finished height changes, for saving.
-	Resized bool
+	Resized      bool
+	Point        int
+	Pane         int
+	PointChanged bool
 }
 
-// IndicatorPane stacks indicator panes under a price chart, sharing its view; dividers between them resize.
+// IndicatorPane stacks resizable technical indicators using the shared window.
 func IndicatorPane(c *ui.Context, candles []Candle, view *MarketView, panes *IndicatorPanes, opts IndicatorPaneOptions) IndicatorPaneResult {
 	if view == nil || panes == nil {
 		panic("mujica: IndicatorPane needs a view and panes")
 	}
-	res := IndicatorPaneResult{Removed: -1}
+	box := ui.Column(c).FillWidth().Disabled(opts.Disabled)
+	if box.IsDisabled() {
+		copy := *panes
+		copy.Panes = append([]IndicatorPaneSpec(nil), panes.Panes...)
+		copy.Sizes = append([]float32(nil), panes.Sizes...)
+		panes = &copy
+	}
+	if opts.Height < 0 {
+		panic("mujica: IndicatorPane Height must be non-negative")
+	}
+	res := IndicatorPaneResult{Removed: -1, Point: -1, Pane: -1}
 	n := len(panes.Panes)
 	for _, p := range panes.Panes {
 		if _ = p.Kind.String(); indicatorInfo[p.Kind].overlay {
@@ -59,12 +75,16 @@ func IndicatorPane(c *ui.Context, candles []Candle, view *MarketView, panes *Ind
 		indicatorParams(p.Kind, p.Params)
 	}
 	if n == 0 {
-		res.Element = ui.Column(c)
+		res.Element = box
 		return res
 	}
 	if len(panes.Sizes) != n {
 		panes.Sizes = nil
 	}
+	u := Density(c).Unit()
+	lineH := FontSize(c, theme.CaptionSize) * theme.LineHeight
+	chrome := 2*max(theme.MinHitSize, lineH) + max(u*5, lineH) + 4*u
+	minimum := chrome + 40
 	h := opts.Height
 	if h == 0 {
 		h = 140 * float32(n)
@@ -74,17 +94,21 @@ func IndicatorPane(c *ui.Context, candles []Candle, view *MarketView, panes *Ind
 			col := ui.Column(c).Fill().MinHeight(0)
 			b := col.Bounds()
 			internal.Remeasure(c, col, b.W, b.H)
-			u := Density(c).Unit()
-			// The plot takes what the title, legend and readout rows leave.
-			plotH := max(40, b.H-2*theme.MinHitSize-u*12)
+			plotH := max(40, b.H-chrome)
 			col.Children(func() {
-				if indicatorPaneOne(c, candles, view, panes.Panes[i], opts, plotH) {
+				closed, point := indicatorPaneOne(c, candles, view, panes.Panes[i], opts, plotH)
+				if point.Point >= 0 {
+					res.Point = point.Point
+					res.Pane = i
+				}
+				res.PointChanged = res.PointChanged || point.Changed()
+				if closed {
 					res.Removed = i
 				}
 			})
 		}
 	}
-	box := ui.Column(c).Height(h).FillWidth().Disabled(opts.Disabled)
+	box.Height(h).MinHeight(float32(n)*minimum + float32(n-1)*theme.BorderWidth)
 	box.Children(func() {
 		if n == 1 {
 			build(0)()
@@ -92,7 +116,7 @@ func IndicatorPane(c *ui.Context, candles []Candle, view *MarketView, panes *Ind
 		}
 		list := make([]ResizablePanel, n)
 		for i, p := range panes.Panes {
-			list[i] = ResizablePanel{Label: indicatorName(p.Kind, indicatorParams(p.Kind, p.Params)), Min: 60, Build: build(i)}
+			list[i] = ResizablePanel{Label: indicatorName(p.Kind, indicatorParams(p.Kind, p.Params)), Min: minimum, Build: build(i)}
 		}
 		r := ResizablePanelGroup(c, &panes.Sizes, list, ResizablePanelGroupOptions{Vertical: true})
 		r.Element.Fill()
@@ -108,8 +132,8 @@ func IndicatorPane(c *ui.Context, candles []Candle, view *MarketView, panes *Ind
 	return res
 }
 
-// indicatorPaneOne draws one pane's lines over the view's window; it reports the close button.
-func indicatorPaneOne(c *ui.Context, candles []Candle, view *MarketView, spec IndicatorPaneSpec, opts IndicatorPaneOptions, height float32) bool {
+// indicatorPaneOne draws one indicator and reports its events.
+func indicatorPaneOne(c *ui.Context, candles []Candle, view *MarketView, spec IndicatorPaneSpec, opts IndicatorPaneOptions, height float32) (bool, ChartResult) {
 	k := Tokens(c)
 	params := indicatorParams(spec.Kind, spec.Params)
 	name := indicatorName(spec.Kind, params)
@@ -119,7 +143,7 @@ func indicatorPaneOne(c *ui.Context, candles []Candle, view *MarketView, spec In
 		closed = iconAction(c, icons.Must("x"), fmt.Sprintf(msg(c, "indicator_pane.remove"), name)).Clicked()
 	})
 	label := strings.TrimSpace(opts.Label + " " + name)
-	ch := newChart(c, ChartFrame{Label: label, Height: height})
+	ch := newChart(c, ChartFrame{Label: label, Height: height, Status: opts.Status, Error: opts.Error, Empty: opts.Empty})
 	series := chartMemo(ch, "series", fmt.Sprintf("%s|%v|%v", chartID(candles), spec.Kind, params), func() []ChartSeries {
 		marketCheckCandles(candles)
 		return indicatorSeries(spec.Kind, params, candles)
@@ -133,7 +157,7 @@ func indicatorPaneOne(c *ui.Context, candles []Candle, view *MarketView, spec In
 		lines[i] = mktLine{name: s.Name, values: s.Values, color: pal[(i+1)%len(pal)], shape: i}
 		keys[i] = chartKey{Name: s.Name, Color: lines[i].color, Shape: i}
 	}
-	yr := chartMemo(ch, "y", [3]any{chartID(candles), m.from, m.to}, func() [2]float64 {
+	yr := chartMemo(ch, "y", [5]any{chartID(candles), m.from, m.to, spec.Kind, fmt.Sprint(params)}, func() [2]float64 {
 		lo, hi := math.Inf(1), math.Inf(-1)
 		for _, l := range lines {
 			for i := m.from; i < m.to; i++ {
@@ -185,8 +209,16 @@ func indicatorPaneOne(c *ui.Context, candles []Candle, view *MarketView, spec In
 			p.Line(x, g.plot.Y, x, g.plot.Y+g.plot.H, 1, k.TextMuted)
 		}
 	}
-	ch.build(spec2)
-	return closed && !ch.res.Element.IsDisabled()
+	m.st = *ui.Local(ch.res.Element, "mujica.mkt", func() *mktState { return &mktState{grab: -1, focus: -1, alertFocus: -1} })
+	if ch.res.Element.IsDisabled() {
+		copy := *view
+		m.view = &copy
+	}
+	result, plot := ch.build(spec2)
+	if plot != nil {
+		m.input(plot)
+	}
+	return closed && !ch.res.Element.IsDisabled(), result
 }
 
 // paneGeom is geom without the time axis, for lower panes.

@@ -1,12 +1,14 @@
 package mujica
 
 import (
+	"fmt"
 	"log/slog"
+	"math"
 
 	"github.com/egoist/mygo/ui"
 )
 
-// input pans, zooms, drags alerts and drawings, and keeps the focused candle in view.
+// input handles pan, zoom, alerts, drawings, and keyboard following.
 func (m *mktCore) input(plot *ui.Element) {
 	if plot.IsDisabled() {
 		return
@@ -39,7 +41,7 @@ func (m *mktCore) input(plot *ui.Element) {
 		marketZoom(m.view, n, room, 1.25)
 		changed = true
 	}
-	// The keyboard mark may leave the window: the view follows it.
+	// Keep the keyboard mark visible.
 	f := m.ch.st.focus
 	if f >= 0 && f != m.st.focus && !changed && (f < m.from || f >= m.to) {
 		if f < m.from {
@@ -60,6 +62,7 @@ func (m *mktCore) input(plot *ui.Element) {
 		used = d.input(m, plot, g, x, y, over, held, dx, dy)
 	}
 	if !used {
+		m.alertsKeyboard(plot)
 		used = m.alertsInput(g, x, y, held, dy)
 	}
 	if !used && held && dx != 0 && g.band.Step() > 0 {
@@ -75,6 +78,45 @@ func (m *mktCore) input(plot *ui.Element) {
 	}
 	if changed {
 		slog.Debug("mujica: candlestick_chart view", "count", m.view.Count, "end", m.view.End)
+		m.c.Invalidate()
+	}
+}
+
+func (m *mktCore) alertsKeyboard(plot *ui.Element) {
+	if m.opts.Alerts == nil || len(*m.opts.Alerts) == 0 || m.base != 0 {
+		return
+	}
+	a := *m.opts.Alerts
+	m.st.alertFocus = min(m.st.alertFocus, len(a)-1)
+	selected := false
+	if plot.Shortcut(0, ui.KeyPageDown) {
+		m.st.alertFocus = (m.st.alertFocus + 1) % len(a)
+		selected = true
+	}
+	if plot.Shortcut(0, ui.KeyPageUp) {
+		m.st.alertFocus = (max(m.st.alertFocus, 0) - 1 + len(a)) % len(a)
+		selected = true
+	}
+	if selected && m.opts.Drawings != nil {
+		d := m.opts.Drawings
+		d.sel, d.pending, d.Tool = 0, nil, ToolSelect
+	}
+	delta := 0
+	if m.opts.Drawings == nil || m.opts.Drawings.Selected() < 0 {
+		if plot.Shortcut(ui.Alt, ui.KeyUp) {
+			delta = 1
+		}
+		if plot.Shortcut(ui.Alt, ui.KeyDown) {
+			delta = -1
+		}
+	}
+	if i := m.st.alertFocus; i >= 0 && (selected || delta != 0) {
+		spec := numberInputResolve(NumberInputOptions{Step: math.Pow10(-m.dec), Precision: m.dec})
+		if delta != 0 {
+			a[i].Price = spec.stepBy(a[i].Price, delta)
+			slog.Debug("mujica: price_alert_line moved", "id", a[i].ID)
+		}
+		m.c.Announce(fmt.Sprintf(msg(m.c, "price_alert_line.tag"), priceUngrouped(a[i].Price, m.dec)))
 		m.c.Invalidate()
 	}
 }

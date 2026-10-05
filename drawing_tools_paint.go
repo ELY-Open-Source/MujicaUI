@@ -8,7 +8,7 @@ import (
 	"mujicaui/internal"
 )
 
-// paint draws every drawing, the one being placed, and the selected one's handles.
+// paint draws annotations, previews, and selected handles.
 func (d *DrawingTools) paint(p *ui.Painter, g mktGeom, m *mktCore, size float32) {
 	k := m.k
 	items := d.Items
@@ -27,7 +27,7 @@ func (d *DrawingTools) paint(p *ui.Painter, g mktGeom, m *mktCore, size float32)
 		ax, ay, bx, by = internal.Snap(p, ax), internal.Snap(p, ay), internal.Snap(p, bx), internal.Snap(p, by)
 		switch it.Tool {
 		case ToolTrendLine:
-			p.Line(ax, ay, bx, by, width, col)
+			drawingStroke(p, ax, ay, bx, by, width, col)
 		case ToolHorizontal:
 			p.Line(g.plot.X, ay, g.plot.X+g.plot.W, ay, width, col)
 			chartText(p, priceUngrouped(it.A.Price, m.dec), g.plot.X+4, ay-2, size, col, 0, 1)
@@ -42,7 +42,7 @@ func (d *DrawingTools) paint(p *ui.Painter, g mktGeom, m *mktCore, size float32)
 				p.Line(min(ax, bx), y, max(ax, bx), y, 1, col)
 				chartText(p, strconv.FormatFloat(lv, 'f', -1, 64)+" · "+priceUngrouped(price, m.dec), max(ax, bx)+4, y, size, col, 0, 0.5)
 			}
-			p.Line(ax, ay, bx, by, 1, col.Alpha(0.5))
+			drawingStroke(p, ax, ay, bx, by, 1, col.Alpha(0.5))
 		case ToolText:
 			w, h := chartText(p, it.Text, ax, ay, size, k.Text, 0.5, 0.5)
 			p.Stroke(ui.Rect{X: ax - w/2 - 4, Y: ay - h/2 - 2, W: w + 8, H: h + 4}, col, 2, width/1.5)
@@ -54,4 +54,10 @@ func (d *DrawingTools) paint(p *ui.Painter, g mktGeom, m *mktCore, size float32)
 			}
 		}
 	}
+}
+
+func drawingStroke(p *ui.Painter, ax, ay, bx, by, width float32, col ui.Color) {
+	var path ui.Path
+	path.MoveTo(internal.Snap(p, ax), internal.Snap(p, ay)).LineTo(internal.Snap(p, bx), internal.Snap(p, by))
+	p.StrokePath(&path, width, col)
 }

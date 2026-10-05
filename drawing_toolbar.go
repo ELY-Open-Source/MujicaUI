@@ -13,11 +13,11 @@ import (
 
 // DrawingToolbarOptions configure a DrawingToolbar.
 type DrawingToolbarOptions struct {
-	// Horizontal lays the tools in a row; the default is a column beside the chart.
+	// Horizontal uses a row; the default uses a column.
 	Horizontal bool
 }
 
-// DrawingToolbar picks the drawing tool, locks, clears and undoes; Alt+1 to Alt+6 pick tools anywhere in the window.
+// DrawingToolbar selects tools and manages lock, clear, and undo.
 func DrawingToolbar(c *ui.Context, d *DrawingTools, opts DrawingToolbarOptions) ChoiceResult {
 	if d == nil {
 		panic("mujica: DrawingToolbar needs drawings")
@@ -38,6 +38,7 @@ func DrawingToolbar(c *ui.Context, d *DrawingTools, opts DrawingToolbarOptions) 
 	pick := func(t DrawingTool) {
 		if !d.Locked && d.Tool != t && !bar.IsDisabled() {
 			d.Tool, changed = t, true
+			d.pending, d.moving = nil, false
 			slog.Debug("mujica: drawing_toolbar tool", "tool", t)
 		}
 	}
@@ -85,12 +86,12 @@ func DrawingToolbar(c *ui.Context, d *DrawingTools, opts DrawingToolbarOptions) 
 			d.Tool = ToolSelect
 			slog.Debug("mujica: drawing_toolbar lock", "locked", d.Locked)
 		}
-		undo := iconAction(c, icons.Must("rotate-ccw"), msg(c, "drawing_toolbar.undo")).Tooltip(msg(c, "drawing_toolbar.undo")).Disabled(!d.CanUndo())
-		if undo.Clicked() && d.Undo() {
+		undo := iconAction(c, icons.Must("rotate-ccw"), msg(c, "drawing_toolbar.undo")).Tooltip(msg(c, "drawing_toolbar.undo")).Disabled(d.Locked || !d.CanUndo())
+		if undo.Clicked() && !bar.IsDisabled() && d.Undo() {
 			changed = true
 		}
 		clear := iconAction(c, icons.Must("trash-2"), msg(c, "drawing_toolbar.clear")).Tooltip(msg(c, "drawing_toolbar.clear")).Disabled(d.Locked || len(d.Items) == 0)
-		if clear.Clicked() && d.Clear() {
+		if clear.Clicked() && !bar.IsDisabled() && d.Clear() {
 			changed = true
 		}
 	})
@@ -107,7 +108,7 @@ func drawingToolGlyph(p *ui.Painter, r ui.Rect, t DrawingTool, col ui.Color) {
 		path.MoveTo(cx-5, cy-7).LineTo(cx+5, cy+1).LineTo(cx, cy+1).LineTo(cx+3, cy+7).LineTo(cx+1, cy+8).LineTo(cx-2, cy+2).LineTo(cx-5, cy+5).Close()
 		p.FillPath(&path, col)
 	case ToolTrendLine:
-		p.Line(cx-s, cy+s, cx+s, cy-s, 1.5, col)
+		drawingStroke(p, cx-s, cy+s, cx+s, cy-s, 1.5, col)
 		p.FillPath(internal.Diamond(cx-s, cy+s, 5), col)
 		p.FillPath(internal.Diamond(cx+s, cy-s, 5), col)
 	case ToolHorizontal:

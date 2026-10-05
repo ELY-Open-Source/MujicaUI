@@ -17,7 +17,7 @@ type IndicatorSelectorOptions struct {
 	Disabled bool
 }
 
-// IndicatorSelector opens a panel to search, add, remove and tune indicators: overlays go on the price chart, the rest into panes.
+// IndicatorSelector searches, adds, removes, and configures chart indicators.
 func IndicatorSelector(c *ui.Context, overlays *[]IndicatorOverlay, panes *IndicatorPanes, opts IndicatorSelectorOptions) ChoiceResult {
 	if overlays == nil || panes == nil {
 		panic("mujica: IndicatorSelector needs overlays and panes")
@@ -97,7 +97,7 @@ func IndicatorSelector(c *ui.Context, overlays *[]IndicatorOverlay, panes *Indic
 	return ChoiceResult{box, changed}
 }
 
-// indicatorSelectorActive is one added indicator with its parameters and a remove button; it reports removal.
+// indicatorSelectorActive edits parameters and reports removal of an indicator.
 func indicatorSelectorActive(c *ui.Context, u float32, key string, kind IndicatorKind, params *[]float64, changed *bool) bool {
 	removed := false
 	ui.Row(c).Key(key).AlignItems(ui.Center).Gap(u * 2).Wrap().Children(func() {
