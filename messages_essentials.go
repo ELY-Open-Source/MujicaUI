@@ -30,6 +30,12 @@ func init() {
 
 		"resizable_panel_group.divider": {"Resize %s and %s", "调整 %s 与 %s 的大小"},
 
+		"dock_panel.zone0": {"Center dock", "中央停靠区"},
+		"dock_panel.zone1": {"Left dock", "左侧停靠区"},
+		"dock_panel.zone2": {"Right dock", "右侧停靠区"},
+		"dock_panel.zone3": {"Bottom dock", "底部停靠区"},
+		"dock_panel.hint":  {"Drag to an edge, or Shift+Alt+arrow, to dock", "拖到边缘，或按 Shift+Alt+方向键停靠"},
+
 		"qr_code.label":    {"QR code", "二维码"},
 		"qr_code.too_long": {"Text too long for a QR code", "文字过长，无法生成二维码"},
 	})
