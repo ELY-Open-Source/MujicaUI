@@ -63,7 +63,9 @@ func dataAccordionDemo(c *ui.Context, log func(string)) {
 			{ID: "nave", Title: "Nave", Content: func() { ui.Text(c, "Pews of black oak, polished for the feast.") }},
 			{ID: "crypt", Title: "Crypt (disabled)", Disabled: true, Content: func() {}},
 			{ID: "bells", Title: "Bells", Content: func() {
-				mujica.Button(c, "Ring", mujica.ButtonOptions{})
+				if mujica.Button(c, "Ring", mujica.ButtonOptions{}).Clicked() {
+					log("ring the bells")
+				}
 			}},
 		}, mujica.AccordionOptions{Multiple: s.multiple, KeepOne: s.keepOne}).Width(420).Changed() {
 			log(fmt.Sprintf("open %v", s.open))
@@ -84,7 +86,9 @@ func dataCollapsibleDemo(c *ui.Context, log func(string)) {
 		})
 		if mujica.Collapsible(c, &s.open, mujica.CollapsibleOptions{Title: "Rites of the evening", Disabled: s.disabled}, func() {
 			ui.Text(c, "Candles are lit at the seventh bell; the choir enters from the north door.")
-			mujica.Button(c, "Light candles", mujica.ButtonOptions{Variant: mujica.Outline})
+			if mujica.Button(c, "Light candles", mujica.ButtonOptions{Variant: mujica.Outline}).Clicked() {
+				log("light candles")
+			}
 		}).Changed() {
 			log(fmt.Sprintf("open=%v", s.open))
 		}

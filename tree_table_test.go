@@ -182,6 +182,7 @@ func TestTreeTableSnapshot(t *testing.T) {
 			h.st.SetOpen("Vestry", true)
 			h.st.Sort = ui.SortOrder{Column: "name"}
 			h.st.tree.started, h.st.tree.cursor, h.st.tree.asked = true, 2, map[string]bool{}
+			h.st.tree.sel, h.st.tree.has = "Vestry", true
 			return h
 		})
 		(*h).c = c
@@ -189,4 +190,57 @@ func TestTreeTableSnapshot(t *testing.T) {
 			TreeTable(c, &(*h).st, (*h).opts).Size(388, 208)
 		})
 	})
+}
+
+func TestTreeTableSelectionFollowsLargeSort(t *testing.T) {
+	kids := make([]int, 3000)
+	for i := range kids {
+		kids[i] = i + 1
+	}
+	var st TreeTableState[int]
+	view := func(c *ui.Context) {
+		Use(c, Settings{})
+		TreeTable(c, &st, TreeTableOptions[int]{Roots: []int{0}, Label: strconv.Itoa,
+			Children: func(n int) []int {
+				if n == 0 {
+					return kids
+				}
+				return nil
+			},
+			Columns: []TreeColumn[int]{{ID: "n", Title: "N", Cell: func(n int) { ui.Text(c, "#"+strconv.Itoa(n)) }, Compare: cmp.Compare[int]}},
+		}).Size(320, 360)
+	}
+	st.SetOpen(0, true)
+	tt := ui.NewTester(view, 400, 400)
+	if err := tt.Click("#3"); err != nil {
+		t.Fatal(err)
+	}
+	st.Sort = ui.SortOrder{Column: "n", Descending: true}
+	tt.Frame()
+	if k, ok := st.Selected(); !ok || k != 3 || st.tree.outline.Item(st.tree.cursor) != 3 {
+		t.Fatalf("after sort: selected %d %v at row %d", k, ok, st.tree.cursor)
+	}
+}
+
+func TestTreeTableColumnMenuKeyboard(t *testing.T) {
+	h := newTTHarness()
+	tt := ui.NewTester(h.view, 420, 480)
+	tabTo(t, tt, "Columns")
+	tt.Key(0, ui.KeyEnter)
+	tabTo(t, tt, "Sort Size ascending")
+	tt.Key(0, ui.KeyEnter)
+	if h.st.Sort != (ui.SortOrder{Column: "size"}) || h.sorts != 1 {
+		t.Fatalf("sort %+v sorts %d", h.st.Sort, h.sorts)
+	}
+	tabTo(t, tt, "Move Name right")
+	tt.Key(0, ui.KeyEnter)
+	tabTo(t, tt, "Make Name narrower")
+	tt.Key(0, ui.KeyEnter)
+	if fmt.Sprint(h.st.Layout.Order) != "[size name]" || h.st.Layout.Widths["name"] != 104 {
+		t.Fatalf("layout %+v", h.st.Layout)
+	}
+	tt.Key(0, ui.KeyEscape)
+	if got := h.order(tt); got != "[Belfry Organ Vestry]" {
+		t.Fatalf("rows not sorted by size: %s", got)
+	}
 }

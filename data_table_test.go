@@ -3,10 +3,13 @@ package mujica
 import (
 	"cmp"
 	"fmt"
+	"image/color"
 	"strconv"
 	"testing"
 
 	"github.com/egoist/mygo/ui"
+
+	"mujicaui/theme"
 )
 
 type relic struct {
@@ -22,7 +25,6 @@ type tableHarness struct {
 	compares int
 	changes  int
 	sorts    int
-	picker   bool
 	c        *ui.Context
 	seen     map[string]int
 }
@@ -45,9 +47,6 @@ func (h *tableHarness) view(c *ui.Context) {
 	Use(c, Settings{Mode: Light})
 	h.c, h.seen = c, map[string]int{}
 	ui.Column(c).Padding(10).Gap(8).Children(func() {
-		if h.picker {
-			DataTableColumnPicker(c, &h.st, h.opts.Columns)
-		}
 		cols := h.opts
 		for i := range cols.Columns {
 			text := cols.Columns[i].Text
@@ -154,8 +153,11 @@ func TestDataTableMultipleMarks(t *testing.T) {
 		r, _ := tt.Find(name)
 		tt.ClickAt(table.X-28, r.Y+r.H/2) // the mark column sits before Name
 	}
-	if h.st.Selection.Len() != 2 || !h.st.Selection.Has(2) || !h.st.Selection.Has(4) {
-		t.Fatalf("marks chose %d", h.st.Selection.Len())
+	if h.st.Selection.Len() != 2 || !h.st.Selection.Has(2) || !h.st.Selection.Has(4) || h.changes != 2 {
+		t.Fatalf("marks chose %d, changes %d", h.st.Selection.Len(), h.changes)
+	}
+	if _, ok := tt.Find("Select row"); !ok {
+		t.Fatal("row check box has no name")
 	}
 	_ = tt.Click("Age")
 	if h.st.Selection.Len() != 2 || !h.st.Selection.Has(4) {
@@ -168,38 +170,51 @@ func TestDataTableMultipleMarks(t *testing.T) {
 	}
 }
 
-func TestDataTableColumns(t *testing.T) {
-	h := newTableHarness(relics())
-	h.picker = true
-	tt := ui.NewTester(h.view, 400, 400)
-	h.st.Layout.Order = []string{"age", "name"}
-	tt.Frame()
-	age, _ := tt.Find("Age")
-	name, _ := tt.Find("Name")
-	if age.X >= name.X {
-		t.Fatalf("order not applied: age %v name %v", age.X, name.X)
-	}
-	if err := tt.Click("Columns"); err != nil {
-		t.Fatal(err)
-	}
-	ages := 0
-	for _, s := range tt.Texts() {
-		if s == "Age" {
-			ages++
+// tabTo presses Tab until the element labeled label has the focus.
+func tabTo(t *testing.T, tt *ui.Tester, label string) {
+	t.Helper()
+	for range 60 {
+		if tt.Focused(label) {
+			return
 		}
+		tt.Key(0, ui.KeyTab)
 	}
-	if ages != 2 { // header and picker
-		t.Fatalf("picker missing: %q", tt.Texts())
+	t.Fatalf("Tab never reached %q", label)
+}
+
+func TestDataTableColumnMenuKeyboard(t *testing.T) {
+	h := newTableHarness(relics())
+	tt := ui.NewTester(h.view, 420, 480)
+	tabTo(t, tt, "Columns")
+	tt.Key(0, ui.KeyEnter)
+	tabTo(t, tt, "Sort Age descending")
+	tt.Key(0, ui.KeyEnter)
+	if h.st.Sort != (ui.SortOrder{Column: "age", Descending: true}) || h.sorts != 1 {
+		t.Fatalf("sort %+v sorts %d", h.st.Sort, h.sorts)
 	}
-	tt.Key(0, ui.KeyTab)
+	tabTo(t, tt, "Move Age left")
+	tt.Key(0, ui.KeyEnter)
+	if fmt.Sprint(h.st.Layout.Order) != "[age name]" {
+		t.Fatalf("order %v", h.st.Layout.Order)
+	}
+	tabTo(t, tt, "Make Age wider")
+	tt.Key(0, ui.KeyEnter)
+	if h.st.Layout.Widths["age"] != 96 {
+		t.Fatalf("widths %v", h.st.Layout.Widths)
+	}
+	tabTo(t, tt, "Name")
 	tt.Key(0, ui.KeySpace)
-	if !h.st.Hidden["name"] || tt.HasText("Censer") {
-		t.Fatalf("name not hidden: %v %q", h.st.Hidden, tt.Texts())
+	if !h.st.Hidden["name"] {
+		t.Fatalf("name not hidden: %v", h.st.Hidden)
 	}
-	tt.Key(0, ui.KeyTab)
+	tabTo(t, tt, "Age")
 	tt.Key(0, ui.KeySpace)
 	if h.st.Hidden["age"] {
 		t.Fatal("hid the last visible column")
+	}
+	tt.Key(0, ui.KeyEscape)
+	if tt.HasText("Censer") || !tt.HasText("Age") {
+		t.Fatalf("table did not follow the menu: %q", tt.Texts())
 	}
 }
 
@@ -334,4 +349,17 @@ func TestDataTableSnapshot(t *testing.T) {
 			DataTable(c, &(*h).st, (*h).rows, (*h).opts).Size(600, 260)
 		})
 	})
+}
+
+func TestDataTableSelectionColors(t *testing.T) {
+	h := newTableHarness(relics())
+	tt := ui.NewTester(h.view, 400, 360)
+	if err := tt.Click("Bell"); err != nil {
+		t.Fatal(err)
+	}
+	r, _ := tt.Find("Bell")
+	got := color.RGBAModel.Convert(tt.Image().At(int(r.X+r.W-6), int(r.Y+r.H/2))).(color.RGBA)
+	if want := toRGBA(theme.Light().Selection); got != want {
+		t.Fatalf("selected row background %v, want Selection %v", got, want)
+	}
 }

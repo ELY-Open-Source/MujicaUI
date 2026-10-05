@@ -86,7 +86,7 @@ func DescriptionList(c *ui.Context, items []DescriptionItem, opts DescriptionLis
 				cell.ColumnSpan(it.Span)
 			}
 			cell.Children(func() {
-				ui.Text(c, it.Label).FontSize(theme.CaptionSize).TextColor(k.TextMuted)
+				ui.Text(c, it.Label).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.TextMuted)
 				ui.Row(c).Gap(u).MinHeight(theme.MinHitSize).AlignItems(ui.Center).Children(func() {
 					ui.Text(c, it.Value).Shrink(1).MinWidth(0)
 					if !it.Copyable {

@@ -85,7 +85,8 @@ func collapsiblePanel(c *ui.Context, open bool, prog float32, fn func()) *ui.Ele
 	if !open && prog == 0 {
 		return nil
 	}
-	clip := ui.Column(c).Shrink(0)
+	// Closing content takes no input or focus while it shrinks away.
+	clip := ui.Column(c).Shrink(0).Disabled(!open)
 	var inner *ui.Element
 	clip.Children(func() {
 		inner = ui.Column(c).Shrink(0)

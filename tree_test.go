@@ -2,9 +2,13 @@ package mujica
 
 import (
 	"fmt"
+	"image/color"
+	"slices"
 	"testing"
 
 	"github.com/egoist/mygo/ui"
+
+	"mujicaui/theme"
 )
 
 type treeHarness struct {
@@ -185,8 +189,7 @@ func TestTreeLargeIsVirtualized(t *testing.T) {
 		}}).Size(320, 360)
 	}
 	tt := ui.NewTester(view, 400, 400)
-	// Label runs twice per built row (row name and text). A jump builds a
-	// view on each side of its target: 2×10 rows of 36 DIPs, plus 2×2 overscan and 2 edges.
+	// Two Label calls per row; a jump builds 2×(10 rows + 2 overscan) + 2 edges.
 	const bound = 2 * 26
 	if built == 0 || built > bound {
 		t.Fatalf("collapsed: label calls %d, bound %d", built, bound)
@@ -213,10 +216,39 @@ func TestTreeSnapshot(t *testing.T) {
 			h.st.SetOpen("Crypt", true)
 			h.status["Crypt"] = DataLoading
 			h.st.tree.started, h.st.tree.cursor, h.st.tree.asked = true, 1, map[string]bool{}
+			h.st.tree.sel, h.st.tree.has = "Pulpit", true
 			return h
 		})
 		ui.Column(c).Padding(16).Children(func() {
 			Tree(c, &(*h).st, (*h).opts).Size(360, 228)
 		})
 	})
+}
+
+func TestTreeSelectionFollowsLargeReorder(t *testing.T) {
+	roots := make([]int, 3000)
+	for i := range roots {
+		roots[i] = i
+	}
+	var st TreeState[int]
+	view := func(c *ui.Context) {
+		Use(c, Settings{Mode: Light})
+		Tree(c, &st, TreeOptions[int]{Roots: roots, Children: func(int) []int { return nil },
+			Label: func(n int) string { return fmt.Sprintf("Node %d", n) }}).Size(320, 360)
+	}
+	tt := ui.NewTester(view, 400, 400)
+	if err := tt.Click("Node 2"); err != nil {
+		t.Fatal(err)
+	}
+	r, _ := tt.Find("Node 2")
+	got := color.RGBAModel.Convert(tt.Image().At(int(r.X+r.W-6), int(r.Y+r.H/2))).(color.RGBA)
+	if want := toRGBA(theme.Light().Selection); got != want {
+		t.Fatalf("selected row background %v, want Selection %v", got, want)
+	}
+	roots = slices.Clone(roots)
+	slices.Reverse(roots)
+	tt.Frame()
+	if k, ok := st.Selected(); !ok || k != 2 || st.tree.cursor != 2997 {
+		t.Fatalf("after reversing: selected %d %v at row %d", k, ok, st.tree.cursor)
+	}
 }

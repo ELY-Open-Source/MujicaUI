@@ -44,4 +44,4 @@ ui.Render(view, 400, 300, 1)
 ## 限制
 
 - 基于 MyGo `ui.CollapsibleBase`；MyGo 的 `ui.Accordion` 外观固定且用内部状态移动焦点（ui/collapsible.go `accordionKeys`），因此键盘移动在组件内重新实现：向上移动时焦点在下一帧到达。
-- 关闭动画进行的 120 ms 内内容仍在界面树中。
+- 关闭动画进行的 120 ms 内内容仍在界面树中，但已禁用：不接收点击，也不进入 Tab 序列。

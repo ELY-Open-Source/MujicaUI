@@ -124,9 +124,25 @@ func TestCarouselSnapshot(t *testing.T) {
 		ui.Column(c).Padding(16).Size(440, 240).Children(func() {
 			Carousel(c, *i, 4, CarouselOptions{Autoplay: true, Label: "Windows"}, func(n int) {
 				ui.Column(c).Grow(1).Center().Children(func() {
-					ui.Text(c, fmt.Sprintf("Rose window %d", n+1)).FontSize(18)
+					ui.Text(c, fmt.Sprintf("Rose window %d", n+1)).FontSize(FontSize(c, 18))
 				})
 			}).Grow(1)
 		})
 	})
+}
+
+func TestCarouselEmptyAutoplayKeys(t *testing.T) {
+	index := 0
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		Carousel(c, &index, 0, CarouselOptions{Autoplay: true}, func(int) {}).Size(300, 200)
+	}, 320, 240)
+	for range 4 {
+		tt.Key(0, ui.KeyTab)
+		tt.Key(0, ui.KeyRight)
+		tt.Key(0, ui.KeyLeft)
+	}
+	if index != 0 {
+		t.Fatalf("index %d", index)
+	}
 }

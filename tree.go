@@ -76,12 +76,34 @@ func (t *treeCore[K]) begin(label func(K) string, sel *ui.Selection[K], multiple
 	}
 }
 
-// end reads the chosen item after the outline was built.
-func (t *treeCore[K]) end() {
-	t.has = t.cursor >= 0 && t.cursor < t.outline.Rows()
-	if t.has {
-		t.sel = t.outline.Item(t.cursor)
+// end reads a new choice, or finds the chosen item again after rows moved.
+func (t *treeCore[K]) end(c *ui.Context, changed bool) {
+	rows := t.outline.Rows()
+	at := t.cursor >= 0 && t.cursor < rows
+	if changed || !t.has {
+		t.has = at
+		if at {
+			t.sel = t.outline.Item(t.cursor)
+		}
+		return
 	}
+	if at && t.outline.Item(t.cursor) == t.sel {
+		return
+	}
+	t.cursor = -1
+	for i := range rows {
+		if t.outline.Item(i) == t.sel {
+			t.cursor = i
+			break
+		}
+	}
+	if t.cursor < 0 {
+		t.has = false
+		return
+	}
+	// The rows showed the old place: build them again at the new one.
+	c.Invalidate()
+	slog.Debug("mujica: tree selection moved", "row", t.cursor)
 }
 
 // chosen reports whether item shows as chosen.
@@ -89,7 +111,7 @@ func (t *treeCore[K]) chosen(item K, sel *ui.Selection[K], multiple bool) bool {
 	if multiple {
 		return sel.Has(item)
 	}
-	return t.cursor >= 0 && t.cursor < t.outline.Rows() && t.outline.Item(t.cursor) == item
+	return t.has && t.sel == item
 }
 
 // itemStatus asks for unloaded children of an open item and shows loading or failure.
@@ -118,7 +140,7 @@ func (t *treeCore[K]) itemStatus(c *ui.Context, item K, status func(K) DataStatu
 	case DataFailed:
 		ui.Row(c).Gap(u).AlignItems(ui.Center).TextColor(k.Danger).Children(func() {
 			ui.Icon(c, icons.Must("circle-alert")).Size(14, 14)
-			ui.Text(c, msg(c, "list.failed")).FontSize(theme.CaptionSize).SingleLine()
+			ui.Text(c, msg(c, "list.failed")).FontSize(FontSize(c, theme.CaptionSize)).SingleLine()
 		})
 		if Button(c, msg(c, "list.retry"), ButtonOptions{Variant: Ghost}).MinHeight(theme.MinHitSize).Clicked() {
 			slog.Debug("mujica: tree retry", "item", item)
@@ -161,21 +183,23 @@ func Tree[K comparable](c *ui.Context, s *TreeState[K], opts TreeOptions[K]) Tre
 		}
 		// Outline rows pad by one unit above and below.
 		h := d.ControlHeight() - 2*c.Theme().Space(1)
+		restore := dataSelectTheme(c, 0)
 		e := ui.Outline(c, &t.outline, opts.Roots, opts.Children, func(item K) {
 			ui.Row(c).Grow(1).MinWidth(0).MinHeight(h).Gap(u * 2).AlignItems(ui.Center).Children(func() {
 				ui.Text(c, opts.Label(item)).SingleLine().Grow(1).MinWidth(0)
 				t.itemStatus(c, item, opts.ItemStatus, opts.Load)
 				if t.chosen(item, &s.Selection, opts.Multiple) {
-					ui.Icon(c, icons.Must("check")).Size(16, 16).Shrink(0)
+					ui.Icon(c, icons.Must("check")).Size(16, 16).Shrink(0).TextColor(k.AccentText)
 				}
 			})
 		})
+		restore()
 		e.Grow(1).MinHeight(0).Padding(u).Background(k.Surface).Border(theme.BorderWidth, k.Border).Radius(theme.ControlRadius)
 		internal.Ring(e, k.Focus, theme.ControlRadius)
 		v.changed, v.submitted = e.Changed(), e.Submitted()
 		v.retry = dataFooter(c, opts.Status, opts.Error)
 	})
-	t.end()
+	t.end(c, v.changed)
 	if v.changed {
 		slog.Debug("mujica: tree changed", "row", t.cursor, "count", s.Selection.Len())
 	}
