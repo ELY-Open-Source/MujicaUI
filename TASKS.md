@@ -14,6 +14,26 @@ Ordered by PRD sections. Check an item only after its codex review passes. Revie
 - [ ] T10 §4.8 Content and data 069–080 — r1 FAIL 9, r2 FAIL 4, r3 PASS; checks after T09
 - [ ] T11 §4.9 Overlays and menus 081–090 — r1 FAIL 12, r2 FAIL 5, r3 PASS; checks after T10
 - [ ] T12 §4.10 Feedback 091–100 — r1 FAIL 5, r2 FAIL 4, r3 PASS; checks after T11
+- [ ] T12.01 §4.12 Charts I 101–120 (docs/prd)
+- [ ] T12.02 §4.13 Charts II 121–140 (docs/prd)
+- [ ] T12.03 §4.14 Market Charts 141–160 (docs/prd)
+- [ ] T12.04 §4.15 Trading 161–180 (docs/prd)
+- [ ] T12.05 §4.16 Markets 181–200 (docs/prd)
+- [ ] T12.06 §4.17 Chat Messages 201–220 (docs/prd)
+- [ ] T12.07 §4.18 Chat Input 221–240 (docs/prd)
+- [ ] T12.08 §4.19 Chat Sessions 241–260 (docs/prd)
+- [ ] T12.09 §4.20 Agent 261–280 (docs/prd)
+- [ ] T12.10 §4.21 Agent Ops & Motion 281–300 (docs/prd)
+- [ ] T12.11 §4.22 Git 301–320 (docs/prd)
+- [ ] T12.12 §4.23 Terminal & Code 321–340 (docs/prd)
+- [ ] T12.13 §4.24 Media 341–360 (docs/prd)
+- [ ] T12.14 §4.25 Projects 361–380 (docs/prd)
+- [ ] T12.15 §4.26 Files & Collaboration 381–400 (docs/prd)
+- [ ] T12.16 §4.27 Messaging & Mail 401–420 (docs/prd)
+- [ ] T12.17 §4.28 Calendar 421–440 (docs/prd)
+- [ ] T12.18 §4.29 Dashboards & Dev Tools 441–460 (docs/prd)
+- [ ] T12.19 §4.30 Settings & Account 461–480 (docs/prd)
+- [ ] T12.20 §4.31 Essentials 481–500 (docs/prd)
 - [ ] T13 §4.11 Upstream mapping documented
 - [ ] T14 §5 States, keyboard, a11y, input, overlays: cross-cutting tests
 - [ ] T15 §6 API and lifecycle audit; README, LICENSE, THIRD_PARTY_NOTICES
