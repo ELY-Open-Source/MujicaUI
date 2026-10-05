@@ -25,7 +25,7 @@ func (p *formProbe) run(c *ui.Context) {
 
 func (p *formProbe) view(c *ui.Context) {
 	res := Form(c, &p.st, FormOptions{Horizontal: p.horizontal}, func(f *FormScope) {
-		FormItem(f, "name", &p.name, FormItemOptions[string]{Label: "Name", Required: true, Initial: "Sakiko"}, func() *ui.Element {
+		FormItem(c, f, "name", &p.name, FormItemOptions[string]{Label: "Name", Required: true, Initial: "Sakiko"}, func() *ui.Element {
 			return InputGroup(c, &p.name, InputGroupOptions{Invalid: p.st.Error("name") != ""}).Input
 		})
 		opts := FormItemOptions[string]{Label: "Email", Validate: func(v string) string {
@@ -40,10 +40,10 @@ func (p *formProbe) view(c *ui.Context) {
 				p.asyncValues = append(p.asyncValues, v)
 			}
 		}
-		FormItem(f, "email", &p.email, opts, func() *ui.Element {
+		FormItem(c, f, "email", &p.email, opts, func() *ui.Element {
 			return InputGroup(c, &p.email, InputGroupOptions{Invalid: p.st.Error("email") != ""}).Input
 		})
-		FormItem(f, "tags", &p.tags, FormItemOptions[[]string]{Label: "Tags", Required: true, Initial: []string{"rose"}}, func() *ui.Element {
+		FormItem(c, f, "tags", &p.tags, FormItemOptions[[]string]{Label: "Tags", Required: true, Initial: []string{"rose"}}, func() *ui.Element {
 			return TagsInput(c, &p.tags, TagsInputOptions{}).Input
 		})
 	})
@@ -222,7 +222,7 @@ func TestFormResetClearsControlState(t *testing.T) {
 	tt := ui.NewTester(func(c *ui.Context) {
 		Use(c, Settings{})
 		Form(c, &st, FormOptions{}, func(f *FormScope) {
-			FormItem(f, "tags", &tags, FormItemOptions[[]string]{Label: "Tags"}, func() *ui.Element {
+			FormItem(c, f, "tags", &tags, FormItemOptions[[]string]{Label: "Tags"}, func() *ui.Element {
 				return TagsInput(c, &tags, TagsInputOptions{Validate: func(s string) string {
 					seen = s
 					return "Invalid tag"
@@ -289,13 +289,13 @@ func TestFormCrossFieldRuleAtSettle(t *testing.T) {
 	tt := ui.NewTester(func(c *ui.Context) {
 		Use(c, Settings{})
 		res := Form(c, &st, FormOptions{}, func(f *FormScope) {
-			FormItem(f, "user", &user, FormItemOptions[string]{Label: "User", Async: func(_ string, v uint64) { version = v }}, func() *ui.Element {
+			FormItem(c, f, "user", &user, FormItemOptions[string]{Label: "User", Async: func(_ string, v uint64) { version = v }}, func() *ui.Element {
 				return InputGroup(c, &user, InputGroupOptions{}).Input
 			})
-			FormItem(f, "pw", &pw, FormItemOptions[string]{Label: "Password"}, func() *ui.Element {
+			FormItem(c, f, "pw", &pw, FormItemOptions[string]{Label: "Password"}, func() *ui.Element {
 				return InputGroup(c, &pw, InputGroupOptions{}).Input
 			})
-			FormItem(f, "confirm", &confirm, FormItemOptions[string]{Label: "Confirm", Validate: func(v string) string {
+			FormItem(c, f, "confirm", &confirm, FormItemOptions[string]{Label: "Confirm", Validate: func(v string) string {
 				if v != pw {
 					return "Passwords differ."
 				}
