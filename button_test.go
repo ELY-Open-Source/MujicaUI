@@ -1,10 +1,12 @@
 package mujica
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/egoist/mygo/ui"
 
+	"mujicaui/icons"
 	"mujicaui/theme"
 )
 
@@ -80,16 +82,51 @@ func TestButtonMinHeight(t *testing.T) {
 	}
 }
 
-func TestButtonSnapshot(t *testing.T) {
-	snapshot(t, "button", 640, 140, func(c *ui.Context) {
-		ui.Row(c).Padding(24).Gap(12).Wrap().Children(func() {
-			Button(c, "Primary", ButtonOptions{})
-			Button(c, "Secondary", ButtonOptions{Variant: Secondary})
-			Button(c, "Outline", ButtonOptions{Variant: Outline})
-			Button(c, "Ghost", ButtonOptions{Variant: Ghost})
-			Button(c, "Delete", ButtonOptions{Variant: Danger})
-			Button(c, "Saving", ButtonOptions{Loading: true})
-			Button(c, "Disabled", ButtonOptions{Disabled: true})
+func TestButtonIconAndDanger(t *testing.T) {
+	n := 0
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		if Button(c, "", ButtonOptions{Variant: Danger, Icon: icons.Must("trash-2"), Label: "Delete"}).Clicked() {
+			n++
+		}
+	}, 300, 200)
+	if err := tt.Click("Delete"); err != nil {
+		t.Fatal(err)
+	}
+	if n != 1 {
+		t.Fatalf("icon button clicked %d times", n)
+	}
+}
+
+// buttonDensitySnapshots snapshots view at Compact and Comfortable as name-<density>.
+func buttonDensitySnapshots(t *testing.T, name string, w, h int, view func(c *ui.Context)) {
+	t.Helper()
+	for _, d := range []theme.Density{theme.Compact, theme.Comfortable} {
+		snapshot(t, name+"-"+strings.ToLower(d.String()), w, h, func(c *ui.Context) {
+			m := Light
+			if Tokens(c).Dark {
+				m = Dark
+			}
+			Use(c, Settings{Mode: m, Density: d})
+			view(c)
 		})
+	}
+}
+
+func TestButtonSnapshot(t *testing.T) {
+	snapshot(t, "button", 640, 140, buttonSnapshotView)
+	buttonDensitySnapshots(t, "button", 640, 160, buttonSnapshotView)
+}
+
+func buttonSnapshotView(c *ui.Context) {
+	ui.Row(c).Padding(24).Gap(12).Wrap().Children(func() {
+		Button(c, "Primary", ButtonOptions{})
+		Button(c, "Secondary", ButtonOptions{Variant: Secondary})
+		Button(c, "Outline", ButtonOptions{Variant: Outline})
+		Button(c, "Ghost", ButtonOptions{Variant: Ghost})
+		Button(c, "Delete", ButtonOptions{Variant: Danger})
+		Button(c, "Saving", ButtonOptions{Loading: true})
+		Button(c, "Disabled", ButtonOptions{Disabled: true})
+		Button(c, "Add", ButtonOptions{Variant: Secondary, Icon: icons.Must("plus")})
 	})
 }
