@@ -7,13 +7,13 @@ Ordered by PRD sections. Check an item only after its codex review passes. Revie
 - [x] T03 §4.1 Layout 001–010 — r1 FAIL 8, r2 FAIL 2, r3 FAIL 1 (folded focus); fixed b34958b, verified by coordinator red/green after cap
 - [x] T04 §4.2 Display 011–020 — r1 FAIL 5, r2 FAIL 5, r3 FAIL 2 (image sizing, Retry clip); fixed e922651, verified by coordinator tests and snapshot after cap
 - [x] T05 §4.3 Inputs 021–030 — r1 FAIL 10, r2 FAIL 5, r3 FAIL 2 (float grid, password in test output); fixed 07a90f4, verified by coordinator red/green after cap
-- [ ] T06 §4.4 Choices 031–040
-- [ ] T07 §4.5 Forms 041–050 — r1 FAIL 7, r2 FAIL 4, r3 FAIL 1 (disabled cut); fixed 49b3b78, coordinator red/green verified; checks after T06
-- [ ] T08 §4.6 Date and time 051–058 — r1 FAIL 9, r2 FAIL 5, r3 FAIL 2 (popup pick commit, selection mark); fixed e3eaef7, coordinator red/green verified; checks after T07
-- [ ] T09 §4.7 Navigation 059–068 — r1 FAIL 5, r2 FAIL 5, r3 FAIL 1 (Tab out of menubar); fixed 7e4d862, coordinator red/green verified; checks after T08
-- [ ] T10 §4.8 Content and data 069–080 — r1 FAIL 9, r2 FAIL 4, r3 PASS; checks after T09
-- [ ] T11 §4.9 Overlays and menus 081–090 — r1 FAIL 12, r2 FAIL 5, r3 PASS; checks after T10
-- [ ] T12 §4.10 Feedback 091–100 — r1 FAIL 5, r2 FAIL 4, r3 PASS; checks after T11
+- [x] T06 §4.4 Choices 031–040 — r1 FAIL 16, r2 FAIL 5, r3 FAIL 1 (tiny-step direction); fixed 9e78900, verified by coordinator red/green after cap
+- [x] T07 §4.5 Forms 041–050 — r1 FAIL 7, r2 FAIL 4, r3 FAIL 1 (disabled cut); fixed 49b3b78, coordinator red/green verified
+- [x] T08 §4.6 Date and time 051–058 — r1 FAIL 9, r2 FAIL 5, r3 FAIL 2 (popup pick commit, selection mark); fixed e3eaef7, coordinator red/green verified
+- [x] T09 §4.7 Navigation 059–068 — r1 FAIL 5, r2 FAIL 5, r3 FAIL 1 (Tab out of menubar); fixed 7e4d862, coordinator red/green verified
+- [x] T10 §4.8 Content and data 069–080 — r1 FAIL 9, r2 FAIL 4, r3 PASS
+- [x] T11 §4.9 Overlays and menus 081–090 — r1 FAIL 12, r2 FAIL 5, r3 PASS
+- [x] T12 §4.10 Feedback 091–100 — r1 FAIL 5, r2 FAIL 4, r3 PASS
 - [ ] T12.01 §4.12 Charts I 101–120 (docs/prd)
 - [ ] T12.02 §4.13 Charts II 121–140 (docs/prd)
 - [ ] T12.03 §4.14 Market Charts 141–160 (docs/prd)
