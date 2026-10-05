@@ -1,7 +1,8 @@
 # AGENTS.md
 
 MujicaUI: court-gothic components for MyGo native UI. Go library, package `mujica`, module `mujicaui`.
-Progress truth: `TASKS.md`. Requirements: `PRD.md`.
+Progress truth: `TASKS.md`. Requirements: `PRD.md` and `docs/prd/ext-*.md` (101–500).
+Planned: once 001–500 land, the root package splits into category sub-packages (TASKS T22). Until then everything stays in the root package.
 
 ## Stack
 
