@@ -180,9 +180,9 @@ func multiSelectPopup[T comparable](c *ui.Context, k theme.Tokens, values *[]T, 
 func multiSelectCheck(c *ui.Context, k theme.Tokens, on *bool, st internal.CheckState, label string, disabled bool) *ui.Element {
 	d := Density(c)
 	var cb *ui.Element
-	// A disabled wrapper and a copy block the base, which toggles as it is built.
+	// A disabled wrapper blocks the base, which toggles as it is built.
 	ui.Row(c).Grow(1).Disabled(disabled).Children(func() {
-		cb = ui.CheckboxBase(c, choiceTarget(on, disabled)).MinHeight(d.ControlHeight()).Padding(0, d.Unit()*2).
+		cb = ui.CheckboxBase(c, on).MinHeight(d.ControlHeight()).Padding(0, d.Unit()*2).
 			Gap(d.Unit() * 2).AlignItems(ui.Center).Radius(theme.ControlRadius).Grow(1)
 	})
 	if st == internal.Mixed {

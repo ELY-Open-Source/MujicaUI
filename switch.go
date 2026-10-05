@@ -30,9 +30,9 @@ func Switch(c *ui.Context, on *bool, label string, opts SwitchOptions) *ui.Eleme
 	d := Density(c)
 	blocked := opts.Disabled || opts.Loading
 	var sw *ui.Element
-	// Disabled on a wrapper, and a copy, block the base before it takes input.
+	// Disabled on a wrapper blocks the base before it takes input.
 	ui.Row(c).Shrink(0).Disabled(blocked).Children(func() {
-		sw = ui.SwitchBase(c, choiceTarget(on, blocked)).Gap(d.Unit() * 2).AlignItems(ui.Center).
+		sw = ui.SwitchBase(c, on).Gap(d.Unit() * 2).AlignItems(ui.Center).
 			MinHeight(d.ControlHeight()).FocusRing(false)
 	})
 	if opts.Description != "" {
@@ -80,15 +80,6 @@ func Switch(c *ui.Context, on *bool, label string, opts SwitchOptions) *ui.Eleme
 		}
 	})
 	return sw
-}
-
-// choiceTarget is v, or a throwaway copy of it while input is blocked.
-func choiceTarget[T any](v *T, blocked bool) *T {
-	if !blocked {
-		return v
-	}
-	cp := *v
-	return &cp
 }
 
 func switchFloat(b bool) float32 {

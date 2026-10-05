@@ -55,8 +55,14 @@ func Combobox(c *ui.Context, value *string, options []string, opts ComboboxOptio
 	refocus := ui.Local(f, comboboxKey{"refocus"}, func() bool { return false })
 	var p *ui.ComboboxParts
 	f.Children(func() {
+		// A focused ComboboxBase takes typing under a disabled wrapper, so it edits a copy.
+		target := query
+		if opts.Disabled {
+			cp := *query
+			target = &cp
+		}
 		ui.Row(c).Key(*gen).Grow(1).Children(func() {
-			p = ui.ComboboxBase(c, choiceTarget(query, opts.Disabled))
+			p = ui.ComboboxBase(c, target)
 		})
 		if *refocus {
 			p.Input.Focus()

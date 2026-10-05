@@ -56,14 +56,9 @@ func (m *PopupMenu) Item(label string, opts PopupMenuItemOptions) bool {
 
 // Check adds an item toggling *checked and reports whether it changed.
 func (m *PopupMenu) Check(label string, checked *bool, opts PopupMenuItemOptions) bool {
-	// The base toggles as it is built, so a disabled wrapper and a copy come first.
-	value := checked
-	if opts.Disabled {
-		cp := *checked
-		value = &cp
-	}
+	// The base toggles as it is built, so a disabled wrapper comes first.
 	var base *ui.Element
-	ui.Column(m.c).Shrink(0).Disabled(opts.Disabled).Children(func() { base = ui.CheckboxBase(m.c, value) })
+	ui.Column(m.c).Shrink(0).Disabled(opts.Disabled).Children(func() { base = ui.CheckboxBase(m.c, checked) })
 	it := m.row(base, opts.Disabled, false)
 	m.content(it, label, *checked, false)
 	if opts.Disabled || !it.Changed() {
