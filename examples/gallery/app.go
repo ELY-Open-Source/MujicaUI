@@ -33,13 +33,18 @@ type gallery struct {
 	events   []event
 	scrolls  map[string]*ui.ScrollState
 	overture overtureState
+	// Composition state lives here so it survives page switches.
+	cSettings settingsDemo
+	cFiles    filesDemo
+	cForm     formSubmitDemo
 }
 
 // densities maps the density control's segments to theme densities.
 var densities = []theme.Density{theme.Compact, theme.Default, theme.Comfortable}
 
 func newGallery() *gallery {
-	g := &gallery{pages: catalog(), byID: map[string]int{}, selected: overtureID, density: 1, scrolls: map[string]*ui.ScrollState{}}
+	g := &gallery{pages: catalog(), byID: map[string]int{}, selected: overtureID, density: 1, scrolls: map[string]*ui.ScrollState{},
+		cSettings: newSettingsDemo(), cFiles: newFilesDemo(), cForm: newFormSubmitDemo()}
 	for i, p := range g.pages {
 		if _, dup := g.byID[p.ID]; dup {
 			panic("gallery: duplicate page " + p.ID)
@@ -138,6 +143,12 @@ func (g *gallery) content(c *ui.Context) {
 		switch g.selected {
 		case overtureID:
 			g.overturePage(c)
+		case settingsID:
+			g.compositePage(c, settingsID, g.settingsView)
+		case filesID:
+			g.compositePage(c, filesID, g.filesView)
+		case formID:
+			g.compositePage(c, formID, g.formView)
 		default:
 			i, ok := g.byID[g.selected]
 			if !ok {

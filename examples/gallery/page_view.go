@@ -60,3 +60,15 @@ func (g *gallery) eventCard(c *ui.Context, id string) {
 		}
 	})
 }
+
+// compositePage shows one composition demo above its events.
+func (g *gallery) compositePage(c *ui.Context, id string, body func(c *ui.Context, log func(string))) {
+	cp := compositionOf(id)
+	mujica.Container(c, mujica.ContainerOptions{MaxWidth: 1080, Center: true}, func() {
+		ui.Column(c).FillWidth().Gap(24).Children(func() {
+			mujica.Heading(c, g.t(cp.Name, cp.ZhName), mujica.HeadingOptions{Subtitle: g.t(cp.About, cp.ZhAbout), Divider: true})
+			ui.Column(c).FillWidth().Gap(16).Children(func() { body(c, g.logFor(id)) })
+			g.eventCard(c, id)
+		})
+	})
+}
