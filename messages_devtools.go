@@ -66,6 +66,12 @@ func init() {
 		"dashboard_filter_bar.tags":          {"Tags", "标签"},
 		"dashboard_filter_bar.clear":         {"Clear filters", "清除过滤"},
 
+		"log_stream.pause":   {"Pause", "暂停"},
+		"log_stream.resume":  {"Resume", "继续"},
+		"log_stream.level":   {"Minimum level", "最低级别"},
+		"log_stream.waiting": {"%d new lines", "%d 条新日志"},
+		"log_stream.empty":   {"No log lines", "没有日志"},
+
 		"alert_list.empty": {"No alerts", "没有告警"},
 	})
 }
