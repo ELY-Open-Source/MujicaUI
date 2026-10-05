@@ -106,7 +106,10 @@ func TestResizablePanelGroupRejects(t *testing.T) {
 				}
 			}()
 			s := tc.sizes
-			ui.NewTester(func(c *ui.Context) { Use(c, Settings{}); ResizablePanelGroup(c, &s, tc.panels, ResizablePanelGroupOptions{}) }, 300, 200)
+			ui.NewTester(func(c *ui.Context) {
+				Use(c, Settings{})
+				ResizablePanelGroup(c, &s, tc.panels, ResizablePanelGroupOptions{})
+			}, 300, 200)
 		}()
 	}
 }

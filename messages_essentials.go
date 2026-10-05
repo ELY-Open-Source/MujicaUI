@@ -36,6 +36,12 @@ func init() {
 		"dock_panel.zone3": {"Bottom dock", "底部停靠区"},
 		"dock_panel.hint":  {"Drag to an edge, or Shift+Alt+arrow, to dock", "拖到边缘，或按 Shift+Alt+方向键停靠"},
 
+		"activity_feed.label":      {"Activity", "活动"},
+		"activity_feed.today":      {"Today", "今天"},
+		"activity_feed.yesterday":  {"Yesterday", "昨天"},
+		"activity_feed.empty":      {"No activity yet", "暂无活动"},
+		"activity_feed.empty_hint": {"Changes people make will show here.", "成员的操作会显示在这里。"},
+
 		"qr_code.label":    {"QR code", "二维码"},
 		"qr_code.too_long": {"Text too long for a QR code", "文字过长，无法生成二维码"},
 	})
