@@ -29,7 +29,7 @@ var overlayPages = []page{
 	{ID: "088", Name: "ContextMenu", ZhName: "右键菜单", Category: overlayCategory, Demo: contextMenuDemo, Code: contextMenuCode,
 		Keys: "右键在指针处打开；焦点在区域内时按 Menu 键或 Shift+F10 在区域下方打开；其余按键同下拉菜单。"},
 	{ID: "089", Name: "Popconfirm", ZhName: "气泡确认", Category: overlayCategory, Demo: popconfirmDemo, Code: popconfirmCode,
-		Keys: "打开后焦点在确认；Enter 确认；Escape 或外部点击取消。"},
+		Keys: "打开后焦点在确认（Danger 时在取消）；Enter 触发聚焦的按钮；Escape 或外部点击取消。"},
 	{ID: "090", Name: "Overlay", ZhName: "覆盖层", Category: overlayCategory, Demo: overlayDemo, Code: overlayCode,
 		Keys: "Escape 关闭；模态时焦点限制在覆盖层内，点击遮罩关闭。"},
 }

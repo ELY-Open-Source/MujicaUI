@@ -50,10 +50,16 @@ func Dialog(c *ui.Context, open *bool, opts DialogOptions, content func()) *ui.E
 		if opts.Description != "" {
 			panel.Description(opts.Description)
 		}
-		closed = dialogHeader(c, opts.Title, opts.Description, opts.Decorated, !opts.HideClose, "dialog.close")
-		if content != nil {
-			ui.Scroll(c).Shrink(1).Children(content)
-		}
+		closed = dialogHeader(c, opts.Title, opts.Decorated, !opts.HideClose, "dialog.close")
+		// Description and content scroll together so the actions always keep their room.
+		ui.Scroll(c).Shrink(1).Gap(Density(c).Unit() * 3).Children(func() {
+			if opts.Description != "" {
+				ui.Text(c, opts.Description).TextColor(k.TextMuted)
+			}
+			if content != nil {
+				content()
+			}
+		})
 		if opts.Actions != nil {
 			dialogActions(c, opts.Actions)
 		}
@@ -102,8 +108,8 @@ func dialogOrnaments(p *ui.Painter, r ui.Rect, ink, ground ui.Color) {
 	}
 }
 
-// dialogHeader builds the title, description and close button; it reports a close click.
-func dialogHeader(c *ui.Context, title, description string, decorated, closable bool, closeKey string) bool {
+// dialogHeader builds the title and close button; it reports a close click.
+func dialogHeader(c *ui.Context, title string, decorated, closable bool, closeKey string) bool {
 	k := Tokens(c)
 	u := Density(c).Unit()
 	clicked := false
@@ -116,9 +122,6 @@ func dialogHeader(c *ui.Context, title, description string, decorated, closable 
 		})
 		if decorated {
 			dialogRule(c, k.Ornament)
-		}
-		if description != "" {
-			ui.Text(c, description).TextColor(k.TextMuted)
 		}
 	})
 	return clicked

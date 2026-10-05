@@ -56,9 +56,17 @@ func (m *PopupMenu) Item(label string, opts PopupMenuItemOptions) bool {
 
 // Check adds an item toggling *checked and reports whether it changed.
 func (m *PopupMenu) Check(label string, checked *bool, opts PopupMenuItemOptions) bool {
-	it := m.row(ui.CheckboxBase(m.c, checked), opts.Disabled, false)
+	// The base toggles as it is built, so a disabled wrapper and a copy come first.
+	value := checked
+	if opts.Disabled {
+		cp := *checked
+		value = &cp
+	}
+	var base *ui.Element
+	ui.Column(m.c).Shrink(0).Disabled(opts.Disabled).Children(func() { base = ui.CheckboxBase(m.c, value) })
+	it := m.row(base, opts.Disabled, false)
 	m.content(it, label, *checked, false)
-	if !it.Changed() {
+	if opts.Disabled || !it.Changed() {
 		return false
 	}
 	slog.Debug("mujica: popup_menu check", "item", label, "checked", *checked)
@@ -202,14 +210,16 @@ func popupMenuLevelBuild(c *ui.Context, outer *ui.Element, root *popupMenuRoot, 
 func popupMenuSubmenu(c *ui.Context, outer *ui.Element, root *popupMenuRoot, lv *popupMenuLevel, s popupMenuSub) {
 	u := Density(c).Unit()
 	ob, ib := outer.Bounds(), s.item.Bounds()
-	box := ui.Column(c).Absolute().Key(s.seq).MinWidth(180).MaxWidth(360)
-	sb := box.Bounds()
 	ww, wh := c.Size()
+	box := ui.Column(c).Absolute().Key(s.seq).MinWidth(min(180, ww-8)).MaxWidth(min(360, ww-8))
+	sb := box.Bounds()
 	left, top := ib.X+ib.W+u-ob.X, ib.Y-u-ob.Y
 	if ob.X+left+sb.W > ww-4 {
 		left = ib.X - u - sb.W - ob.X
 	}
-	top = min(top, wh-4-sb.H-ob.Y)
+	// Flipped or not, the submenu stays inside the window.
+	left = max(4-ob.X, min(left, ww-4-sb.W-ob.X))
+	top = max(4-ob.Y, min(top, wh-4-sb.H-ob.Y))
 	box.Left(left).Top(top).MaxHeight(wh - 8)
 	p := overlayEnter(c, box)
 	if sb.W == 0 || ob.W == 0 {

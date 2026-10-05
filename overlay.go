@@ -68,8 +68,9 @@ func Overlay(c *ui.Context, open *bool, opts OverlayOptions, content func()) *ui
 				back.Background(overlayScrim(k).Alpha(p))
 			}
 			overlayStyle(c, panel, p)
-			panel.Label(opts.Label).Padding(Density(c).Unit() * 4)
-			content()
+			w, h := c.Size()
+			panel.Label(opts.Label).Padding(Density(c).Unit() * 4).MaxWidth(w - 2*inset).MaxHeight(h - 2*inset)
+			ui.Scroll(c).Shrink(1).Children(content)
 		})
 		focus.shown(panel)
 		if !shown {
@@ -81,7 +82,8 @@ func Overlay(c *ui.Context, open *bool, opts OverlayOptions, content func()) *ui
 	var panel *ui.Element
 	ui.Overlay(c, func() {
 		w, h := c.Size()
-		panel = ui.Column(c).Absolute().Role(ui.RoleDialog).Label(opts.Label).Padding(Density(c).Unit() * 4)
+		panel = ui.Column(c).Absolute().Role(ui.RoleDialog).Label(opts.Label).Padding(Density(c).Unit() * 4).
+			MaxWidth(w - 2*inset).MaxHeight(h - 2*inset)
 		b := panel.Bounds()
 		panel.Left(inset + (w-2*inset-b.W)*fx).Top(inset + (h-2*inset-b.H)*fy)
 		p := overlayEnter(c, panel)
@@ -90,7 +92,7 @@ func Overlay(c *ui.Context, open *bool, opts OverlayOptions, content func()) *ui
 			c.AnimationFrame()
 		}
 		overlayStyle(c, panel, p)
-		panel.Children(content)
+		panel.Children(func() { ui.Scroll(c).Shrink(1).Children(content) })
 	})
 	focus.shown(panel)
 	if overlayEscape(c, open) {
