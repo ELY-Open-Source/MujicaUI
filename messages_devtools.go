@@ -82,6 +82,11 @@ func init() {
 		"json_viewer.copy":    {"Copy path", "复制路径"},
 		"json_viewer.items":   {"%s %d items %s", "%s %d 项 %s"},
 
+		"json_editor.label":  {"JSON", "JSON"},
+		"json_editor.format": {"Format", "格式化"},
+		"json_editor.valid":  {"Valid JSON", "JSON 有效"},
+		"json_editor.at":     {"Error at line %d, column %d", "错误位于第 %d 行第 %d 列"},
+
 		"alert_list.empty": {"No alerts", "没有告警"},
 	})
 }
