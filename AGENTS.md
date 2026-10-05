@@ -31,6 +31,8 @@ testdata/snapshots/  <os>/<name>-<light|dark>.png
 ## Component rules
 
 - Signature: `func Name(c *ui.Context, value *T, opts NameOptions) *ui.Element`. Composites may return a named struct.
+- Result structs expose the element as a named field `Element *ui.Element`, never embedded; element plus changed is `ChoiceResult`.
+- Shared helpers: `iconAction` (borderless icon button), `overlayStyle(c, panel, overlayEnter(c, panel))` (popup surface and entry fade), `internal.RuleDiamond` / `internal.Frame` (ornaments), `colorFade` (state color transition).
 - Zero `Options` gives the default look. No `map[string]any` config.
 - Explicit font sizes: `FontSize(c, theme.CaptionSize)`; it applies the desktop text scale.
 - Colors: `k := mujica.Tokens(c)`. Metrics: `theme.*` consts and `Density(c).Unit()` / `.ControlHeight()`.
