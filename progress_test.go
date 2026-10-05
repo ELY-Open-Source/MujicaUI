@@ -97,7 +97,9 @@ func TestProgressAndMeterPanics(t *testing.T) {
 		"progress NaN":      func(c *ui.Context) { Progress(c, math.NaN(), ProgressOptions{}) },
 		"meter empty range": func(c *ui.Context) { Meter(c, 5, MeterOptions{Min: 10, Max: 10}) },
 		"meter outside":     func(c *ui.Context) { Meter(c, 2, MeterOptions{}) },
-		"meter levels":      func(c *ui.Context) { Meter(c, 5, MeterOptions{Max: 10, Levels: &ui.MeterLevels{Warning: 8, Critical: 12}}) },
+		"meter levels": func(c *ui.Context) {
+			Meter(c, 5, MeterOptions{Max: 10, Levels: &ui.MeterLevels{Warning: 8, Critical: 12}})
+		},
 	} {
 		func() {
 			defer func() {

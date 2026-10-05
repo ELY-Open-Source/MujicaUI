@@ -108,7 +108,7 @@ func TestLoadingOverlaySnapshot(t *testing.T) {
 	snapshot(t, "loading_overlay", 420, 220, func(c *ui.Context) {
 		ui.Column(c).Padding(16).Children(func() {
 			LoadingOverlay(c, true, LoadingOverlayOptions{Cancel: "Cancel"}, func() {
-				ui.Column(c).Padding(16).Gap(8).Background(Tokens(c).Surface).Radius(4).Children(func() {
+				ui.Column(c).Padding(16).Gap(8).AlignItems(ui.Start).Background(Tokens(c).Surface).Radius(4).Children(func() {
 					ui.Text(c, "Quarterly report")
 					ui.Text(c, "Revenue, churn and pipeline for Q3.")
 					Button(c, "Export", ButtonOptions{})
