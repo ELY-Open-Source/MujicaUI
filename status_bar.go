@@ -70,19 +70,25 @@ func StatusBar(c *ui.Context, opts StatusBarOptions) StatusBarResult {
 	hidden := statusBarHide(c, opts, was.W-d.Unit()*4, gap)
 	open := ui.Local(e, "status_bar.open", func() bool { return false })
 	*open = *open && len(hidden) > 0
+	// focused is the bar item that had the focus last frame, for moving it to "+N" when that item folds.
+	focused := ui.Local(e, "status_bar.focused", func() string { return "" })
+	wasFocused := *focused
+	*focused = ""
 	var res StatusBarResult
-	item := func(it StatusItem) {
-		if statusBarItem(c, it) {
+	item := func(it StatusItem) bool {
+		clicked, hasFocus := statusBarItem(c, it)
+		if clicked {
 			res.Clicked = it.ID
 			*open = false
 			slog.Debug("mujica: status_bar clicked", "id", it.ID)
 		}
+		return hasFocus
 	}
 	group := func(key string, items []StatusItem) {
 		ui.Row(c).Key(key).Gap(gap).Shrink(0).Dividers(theme.BorderWidth, k.Border).Children(func() {
 			for _, it := range items {
-				if !hidden[it.ID] {
-					item(it)
+				if !hidden[it.ID] && item(it) {
+					*focused = it.ID
 				}
 			}
 		})
@@ -92,6 +98,10 @@ func StatusBar(c *ui.Context, opts StatusBarOptions) StatusBarResult {
 		ui.Spacer(c).Key("status_bar.spacer")
 		if len(hidden) > 0 {
 			more := statusBarMore(c, len(hidden))
+			if wasFocused != "" && hidden[wasFocused] {
+				more.Focus()
+				slog.Debug("mujica: status_bar focus folded", "id", wasFocused)
+			}
 			if more.Clicked() {
 				*open = !*open
 				slog.Debug("mujica: status_bar hidden items", "open", *open)
@@ -217,8 +227,8 @@ func statusBarWidth(c *ui.Context, it StatusItem) float32 {
 	return w
 }
 
-// statusBarItem builds one item and reports whether its action was clicked.
-func statusBarItem(c *ui.Context, it StatusItem) bool {
+// statusBarItem builds one item and reports whether its action was clicked and whether it has the focus.
+func statusBarItem(c *ui.Context, it StatusItem) (clicked, focused bool) {
 	k := Tokens(c)
 	d := Density(c)
 	fg := k.TextMuted
@@ -265,7 +275,7 @@ func statusBarItem(c *ui.Context, it StatusItem) bool {
 			statusBarProgress(c, it.Progress)
 		}
 	})
-	return it.Action && e.Clicked()
+	return it.Action && e.Clicked(), e.FocusWithin()
 }
 
 func statusBarProgress(c *ui.Context, v float32) {
