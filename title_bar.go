@@ -14,14 +14,13 @@ type TitleBarOptions struct {
 	Trailing func()
 }
 
-// TitleBar is a window's title row. Its empty parts drag the window, and it keeps clear of the system window buttons
-// reported by c.TitleBar() in a window with a hidden title bar. Controls in the slots stay clickable.
+// TitleBar is a window title row that drags the window and clears the system buttons.
 func TitleBar(c *ui.Context, title string, opts TitleBarOptions) *ui.Element {
 	k := Tokens(c)
 	d := Density(c)
 	bar := c.TitleBar()
 	pad := d.Unit() * 3
-	e := ui.Row(c).Height(max(bar.Height, d.ControlHeight()+d.Unit()*2)).Shrink(0).
+	e := ui.Row(c).MinHeight(max(bar.Height, d.ControlHeight()+d.Unit()*2)).Shrink(0).
 		Padding(0, bar.Right+pad, 0, bar.Left+pad).Gap(d.Unit()*2).
 		Background(k.Surface).BorderWidth(0, 0, theme.BorderWidth, 0).BorderColor(k.Border).
 		DragWindow()
@@ -29,7 +28,7 @@ func TitleBar(c *ui.Context, title string, opts TitleBarOptions) *ui.Element {
 		if opts.Leading != nil {
 			ui.Row(c).Gap(d.Unit()).Shrink(0).Children(opts.Leading)
 		}
-		ui.Text(c, title).Font(theme.SerifFont).FontSize(theme.BodySize + 1).FontWeight(600).
+		ui.Text(c, title).Font(theme.SerifFont).FontSize(FontSize(c, theme.BodySize+1)).FontWeight(600).
 			SingleLine().Grow(1).Shrink(1).MinWidth(0)
 		if opts.Trailing != nil {
 			ui.Row(c).Gap(d.Unit()).Shrink(0).Children(opts.Trailing)

@@ -188,3 +188,26 @@ func TestSplitPaneSnapshot(t *testing.T) {
 		})
 	})
 }
+
+func TestSplitPaneSizesInsideBorder(t *testing.T) {
+	st := &SplitPaneState{Size: 150}
+	var second ui.Rect
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		SplitPane(c, st, SplitPaneOptions{MinSecond: 120}, func() { ui.Text(c, "Files") }, func() {
+			second = ui.Box(c).Fill().Absolute().Bounds()
+		}).Fill().Border(1, ui.RGB(0, 0, 0))
+	}, 401, 200)
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeyEnd)
+	// 399 DIPs inside the border: 278 + 1 divider + 120.
+	if st.Size != 278 || second.W != 120 {
+		t.Fatalf("End gave size %v and second pane %v, want 278 and 120", st.Size, second.W)
+	}
+	tt.Press(1+278, 100)
+	tt.Move(1+200, 100)
+	tt.Release(1+200, 100)
+	if st.Size != 200 {
+		t.Fatalf("drag to x=201 gave %v, want 200", st.Size)
+	}
+}

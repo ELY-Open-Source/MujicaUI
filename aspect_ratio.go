@@ -8,8 +8,7 @@ type AspectRatioOptions struct {
 	Ratio float32
 }
 
-// AspectRatio fills its parent's box and centers a frame of Ratio inside, as large as fits.
-// The child is centered in the frame without stretching and clipped to it.
+// AspectRatio centers the largest Ratio frame that fits; the child is centered, not stretched.
 func AspectRatio(c *ui.Context, opts AspectRatioOptions, child func()) *ui.Element {
 	if opts.Ratio < 0 {
 		panic("mujica: AspectRatio Ratio must be positive")

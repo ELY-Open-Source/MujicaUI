@@ -105,3 +105,16 @@ func TestDividerSnapshot(t *testing.T) {
 		})
 	})
 }
+
+func TestDividerLabelTextScale(t *testing.T) {
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Width(300).Children(func() { Divider(c, DividerOptions{Label: "Chapter II"}) })
+	}, 400, 200)
+	plain, _ := tt.Find("Chapter II")
+	tt.SetPreferences(ui.Preferences{TextScale: 2})
+	tt.Frame()
+	if big, _ := tt.Find("Chapter II"); big.H < 1.8*plain.H {
+		t.Fatalf("label height %v at 200%%, was %v", big.H, plain.H)
+	}
+}

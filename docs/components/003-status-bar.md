@@ -32,8 +32,8 @@ if bar.Clicked == "bell" {
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |
 | `ID` | `string` | 必填 | 稳定键，也是 `Clicked` 的值；为空或重复 panic。 |
-| `Text` | `string` | "" | 状态文字（12 DIP）。 |
-| `Icon` | `*ui.SVG` | nil | 前置图标（14 DIP）。 |
+| `Text` | `string` | "" | 状态文字（12 DIP，随系统文本缩放）。 |
+| `Icon` | `*ui.SVG` | nil | 前置图标（16 DIP）。 |
 | `Tone` | `StatusItemTone` | `StatusItemNeutral` | 语义色：Neutral、Success、Warning、Danger、Info。 |
 | `ShowProgress` | `bool` | false | 显示 64 DIP 进度条。 |
 | `Progress` | `float32` | 0 | 进度 0–1，超出 panic。 |
@@ -45,7 +45,8 @@ if bar.Clicked == "bell" {
 
 - 默认：Surface 底色，顶部 Border 线，组内条目以细线分隔。
 - 操作条目：悬停 SurfaceHover，按下 Selection，键盘焦点环。
-- 折叠：按“右组末项 → 左组首项”的顺序隐藏 `Secondary` 条目，直到放得下；显示 `+N`，悬停提示列出被隐藏条目，无障碍名称为“另有 N 项”。主要条目永不隐藏。
+- 折叠：按“右组末项 → 左组首项”的顺序隐藏 `Secondary` 条目，直到放得下（按实际宽度计算，操作条目至少 28 DIP，含条目间距）；显示 `+N` 按钮，无障碍名称为“另有 N 项”，点击或 Enter/Space 打开弹层，列出被隐藏的条目，其中的操作照常可用，执行后弹层关闭。主要条目永不隐藏。
+- 文本放大时状态栏随文字增高。
 - 进度：AccentText 填充，Border 轨道，描述为百分比。
 
 ## 事件
@@ -54,10 +55,9 @@ if bar.Clicked == "bell" {
 
 ## 键盘操作
 
-Tab 到达操作条目，Enter 或 Space 触发。纯文字条目不进入 Tab 序列。
+Tab 到达操作条目和 `+N` 按钮，Enter 或 Space 触发。`+N` 打开的弹层中 Tab 依次到达隐藏的操作，Escape 关闭弹层并把焦点还给 `+N`。纯文字条目不进入 Tab 序列。
 
 ## 限制
 
 - 折叠依据上一帧的宽度和文字测量估算，窗口缩放后下一帧生效。
-- 被隐藏条目只在 `+N` 的提示中列出，提示仅悬停可见，键盘用户通过无障碍名称得知数量。
 - 不提供不确定进度动画；需要时在 `Text` 中说明。

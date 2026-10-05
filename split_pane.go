@@ -33,8 +33,7 @@ type SplitPaneOptions struct {
 	Vertical bool
 	// MinFirst and MinSecond bound the panes in DIPs; zero is 10 spacing units.
 	MinFirst, MinSecond float32
-	// Collapsible lets that pane collapse: Enter on the divider, a double click,
-	// dragging it under half its minimum, or an arrow key past its minimum.
+	// Collapsible names the pane that may collapse.
 	Collapsible SplitPaneSide
 }
 
@@ -65,7 +64,6 @@ func SplitPane(c *ui.Context, state *SplitPaneState, opts SplitPaneOptions, firs
 	if state.Collapsed && opts.Collapsible == SplitPaneNeither {
 		panic("mujica: SplitPane collapsed without a Collapsible pane")
 	}
-	k := Tokens(c)
 	u := Density(c).Unit()
 	lo, minSecond := opts.MinFirst, opts.MinSecond
 	if lo == 0 {
@@ -78,9 +76,29 @@ func SplitPane(c *ui.Context, state *SplitPaneState, opts SplitPaneOptions, firs
 	if opts.Vertical {
 		e.Column()
 	}
-	total := e.Bounds().W
+	var res SplitPaneResult
+	e.Children(func() {
+		// Sizes come from this inner box: the caller's border and padding stay outside it.
+		in := ui.Row(c).Key("in").Grow(1).MinWidth(0).AlignItems(ui.Stretch)
+		if opts.Vertical {
+			in.Column().MinHeight(0)
+		}
+		splitPaneBuild(c, in, state, opts, lo, minSecond, &res, first, second)
+	})
+	if res.Resized || res.Toggled {
+		c.Invalidate()
+	}
+	res.Element = e
+	return res
+}
+
+// splitPaneBuild lays the panes, divider and drag handle out in the inner box in.
+func splitPaneBuild(c *ui.Context, in *ui.Element, state *SplitPaneState, opts SplitPaneOptions, lo, minSecond float32, res *SplitPaneResult, first, second func()) {
+	k := Tokens(c)
+	u := Density(c).Unit()
+	total := in.Bounds().W
 	if opts.Vertical {
-		total = e.Bounds().H
+		total = in.Bounds().H
 	}
 	hi := max(lo, total-theme.BorderWidth-minSecond)
 	clamp := func(v float32) float32 { return max(lo, min(v, hi)) }
@@ -88,12 +106,11 @@ func SplitPane(c *ui.Context, state *SplitPaneState, opts SplitPaneOptions, firs
 		state.Size = clamp((total - theme.BorderWidth) / 2)
 	} else if total > 0 {
 		state.Size = clamp(state.Size)
-	} else if first := ui.Local(e, "split_pane.first", func() bool { return true }); *first {
+	} else if once := ui.Local(in, "split_pane.first", func() bool { return true }); *once {
 		// Not laid out yet: measure, then size in the next frame.
-		*first = false
+		*once = false
 		c.Invalidate()
 	}
-	var res SplitPaneResult
 	resize := func(v float32) {
 		if v = clamp(v); v != state.Size {
 			state.Size = v
@@ -114,7 +131,7 @@ func SplitPane(c *ui.Context, state *SplitPaneState, opts SplitPaneOptions, firs
 			el.Width(v)
 		}
 	}
-	e.Children(func() {
+	in.Children(func() {
 		if firstShown {
 			a := ui.Box(c).Key("first").Shrink(0).Clip()
 			switch {
@@ -202,11 +219,6 @@ func SplitPane(c *ui.Context, state *SplitPaneState, opts SplitPaneOptions, firs
 			}
 		})
 	})
-	if res.Resized || res.Toggled {
-		c.Invalidate()
-	}
-	res.Element = e
-	return res
 }
 
 // splitPaneFollow moves the divider where the pointer wants it; past half its minimum, a collapsible pane closes.

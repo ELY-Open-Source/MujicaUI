@@ -1,6 +1,7 @@
 package mujica
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/egoist/mygo/ui"
@@ -83,18 +84,122 @@ func TestStatusBarCollapsesSecondary(t *testing.T) {
 		t.Fatalf("no hidden count named: %q", tt.Texts())
 	}
 	// Medium width drops only the last secondary items.
-	tt.SetSize(460, 100)
+	tt.SetSize(400, 100)
 	tt.Frame()
 	if !tt.HasText("2 warnings") || tt.HasText("Ln 12, Col 4") {
 		t.Fatalf("medium bar hid the wrong items: %q", tt.Texts())
 	}
-	if _, ok := tt.Find("Notifications"); !ok {
-		t.Fatal("primary action hidden")
+	// At every width the visible items stay inside the bar.
+	for w := 320; w <= 800; w += 10 {
+		tt.SetSize(w, 100)
+		tt.Frame()
+		bell, ok := tt.Find("Notifications")
+		if !ok || bell.X+bell.W > float32(w)-8+0.5 || bell.W < 28 {
+			t.Fatalf("width %d: action at %+v", w, bell)
+		}
 	}
 	tt.SetSize(800, 100)
 	tt.Frame()
 	if !tt.HasText("UTF-8") {
 		t.Fatal("secondary items did not come back when wide")
+	}
+}
+
+func TestStatusBarManyActionsKeepMinimumWidth(t *testing.T) {
+	var o StatusBarOptions
+	for i := range 16 {
+		o.Right = append(o.Right, StatusItem{ID: fmt.Sprint(i), Label: fmt.Sprintf("Action %d", i),
+			Icon: icons.Must("bell"), Action: true, Secondary: i >= 8})
+	}
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		StatusBar(c, o)
+	}, 560, 100)
+	shown := 0
+	for i := range 16 {
+		r, ok := tt.Find(fmt.Sprintf("Action %d", i))
+		if !ok {
+			continue
+		}
+		shown++
+		if r.W < 28 || r.X+r.W > 560-8+0.5 {
+			t.Fatalf("Action %d at %+v: narrower than 28 or past the bar", i, r)
+		}
+	}
+	if shown == 16 {
+		t.Fatal("no secondary action folded")
+	}
+	if _, ok := tt.Find(fmt.Sprintf("%d more items", 16-shown)); !ok {
+		t.Fatalf("no button for the %d hidden actions", 16-shown)
+	}
+}
+
+func TestStatusBarHiddenActionsByKeyboard(t *testing.T) {
+	var clicked []string
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		if id := StatusBar(c, StatusBarOptions{
+			Left:  []StatusItem{{ID: "main", Text: "A long primary status text that fills the bar"}},
+			Right: []StatusItem{{ID: "fmt", Text: "Format", Action: true, Secondary: true}},
+		}).Clicked; id != "" {
+			clicked = append(clicked, id)
+		}
+	}, 300, 300)
+	if tt.HasText("Format") {
+		t.Fatal("secondary action not folded")
+	}
+	tt.Key(0, ui.KeyTab)
+	if !tt.Focused("1 more items") {
+		t.Fatal("Tab did not reach the hidden-items button")
+	}
+	tt.Key(0, ui.KeyEnter)
+	if !tt.HasText("Format") {
+		t.Fatal("Enter did not open the hidden items")
+	}
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeyEnter)
+	if len(clicked) != 1 || clicked[0] != "fmt" {
+		t.Fatalf("clicked %v, want [fmt]", clicked)
+	}
+	if tt.HasText("Format") {
+		t.Fatal("running a hidden action did not close the list")
+	}
+	if !tt.Focused("1 more items") {
+		t.Fatal("focus did not return to the hidden-items button")
+	}
+	tt.Key(0, ui.KeyEnter)
+	tt.Key(0, ui.KeyEscape)
+	if tt.HasText("Format") || !tt.Focused("1 more items") {
+		t.Fatal("Escape did not close the list back to its button")
+	}
+}
+
+func TestStatusBarIconSize(t *testing.T) {
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		StatusBar(c, StatusBarOptions{Left: []StatusItem{{ID: "i", Label: "Online", Icon: icons.Must("wifi-off")}}})
+	}, 400, 100)
+	// Padding of one unit each side around a 16 DIP icon.
+	if r, _ := tt.Find("Online"); r.W != 24 {
+		t.Fatalf("icon item width %v, want 24", r.W)
+	}
+}
+
+func TestStatusBarTextScale(t *testing.T) {
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		StatusBar(c, StatusBarOptions{Left: []StatusItem{{ID: "r", Text: "Ready"}}})
+	}, 400, 200)
+	plain, _ := tt.Find("Ready")
+	tt.SetPreferences(ui.Preferences{TextScale: 2})
+	tt.Frame()
+	big, _ := tt.Find("Ready")
+	bar, _ := tt.Find("Status bar")
+	if big.H < 1.8*plain.H {
+		t.Fatalf("text height %v at 200%%, was %v", big.H, plain.H)
+	}
+	if bar.H < big.H {
+		t.Fatalf("bar %v shorter than its text %v", bar.H, big.H)
 	}
 }
 

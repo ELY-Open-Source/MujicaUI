@@ -30,7 +30,7 @@ mujica.ScrollArea(c, &offset, mujica.ScrollAreaOptions{Label: "Log"}, func() {
 
 ## 状态
 
-- 内容溢出时区域可获得焦点，键盘焦点环画在区域内侧（2 DIP，Focus 色），避免被父级裁剪。
+- 内容溢出时区域可获得焦点，键盘焦点环画在区域内侧：先留 2 DIP 间隔，再画 2 DIP Focus 色环线，避免被父级裁剪。溢出状态在布局后变化时组件立即重建，焦点停靠随之更新。
 - 不溢出时不进入 Tab 序列。
 - 滚动条为 MyGo 叠加式滑块，颜色取主题 Scrollbar（TextMuted 50%），指针悬停时显示，不占布局空间。
 - 切换主题、折叠周围布局都不重置位置。
