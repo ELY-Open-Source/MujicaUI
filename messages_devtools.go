@@ -47,6 +47,13 @@ func init() {
 		"resource_gauge.high":     {"High", "偏高"},
 		"resource_gauge.critical": {"Critical", "危险"},
 
+		"refresh_interval_selector.off":        {"Auto refresh off", "不自动刷新"},
+		"refresh_interval_selector.refresh":    {"Refresh", "刷新"},
+		"refresh_interval_selector.refreshing": {"Refreshing", "正在刷新"},
+		"refresh_interval_selector.seconds":    {"Every %d s", "每 %d 秒"},
+		"refresh_interval_selector.minutes":    {"Every %d min", "每 %d 分钟"},
+		"refresh_interval_selector.label":      {"Refresh interval", "刷新间隔"},
+
 		"alert_list.empty": {"No alerts", "没有告警"},
 	})
 }
