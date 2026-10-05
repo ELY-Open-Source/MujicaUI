@@ -54,6 +54,18 @@ func init() {
 		"refresh_interval_selector.minutes":    {"Every %d min", "每 %d 分钟"},
 		"refresh_interval_selector.label":      {"Refresh interval", "刷新间隔"},
 
+		"dashboard_filter_bar.label":         {"Dashboard filters", "仪表盘过滤"},
+		"dashboard_filter_bar.range":         {"Time range", "时间范围"},
+		"dashboard_filter_bar.default_range": {"Default range", "默认范围"},
+		"dashboard_filter_bar.last":          {"Last %s", "最近 %s"},
+		"dashboard_filter_bar.minutes":       {"%d min", "%d 分钟"},
+		"dashboard_filter_bar.hours":         {"%d h", "%d 小时"},
+		"dashboard_filter_bar.days":          {"%d d", "%d 天"},
+		"dashboard_filter_bar.env":           {"Environment", "环境"},
+		"dashboard_filter_bar.all_envs":      {"All environments", "全部环境"},
+		"dashboard_filter_bar.tags":          {"Tags", "标签"},
+		"dashboard_filter_bar.clear":         {"Clear filters", "清除过滤"},
+
 		"alert_list.empty": {"No alerts", "没有告警"},
 	})
 }

@@ -44,8 +44,8 @@ func RefreshIntervalSelector(c *ui.Context, interval *time.Duration, opts Refres
 	options := []SelectOption[time.Duration]{{Value: 0, Label: msg(c, "refresh_interval_selector.off")}}
 	known := *interval == 0
 	for _, d := range choices {
-		if d < time.Second {
-			panic("mujica: RefreshIntervalSelector intervals must be at least a second")
+		if d < time.Second || d%time.Second != 0 {
+			panic("mujica: RefreshIntervalSelector intervals must be whole seconds")
 		}
 		known = known || d == *interval
 		label := fmt.Sprintf(msg(c, "refresh_interval_selector.seconds"), int(d/time.Second))
