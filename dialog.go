@@ -28,15 +28,17 @@ type DialogOptions struct {
 	HideClose bool
 }
 
-// Dialog shows a modal dialog while *open is true. It traps the focus,
-// makes the window inert and gives the focus back to the opener on close.
+// Dialog shows a modal dialog while *open is true, trapping and then restoring the focus.
 func Dialog(c *ui.Context, open *bool, opts DialogOptions, content func()) *ui.Element {
 	if opts.Title == "" {
 		panic("mujica: Dialog needs a Title")
 	}
+	site, focus := overlaySite(c)
 	if !*open {
+		focus.closed(c, site)
 		return nil
 	}
+	overlayLayer(c, open)
 	k := Tokens(c)
 	shown, backClicked, closed := true, false, false
 	panel := ui.DialogBase(c, &shown, func(back, panel *ui.Element) {
@@ -56,6 +58,7 @@ func Dialog(c *ui.Context, open *bool, opts DialogOptions, content func()) *ui.E
 			dialogActions(c, opts.Actions)
 		}
 	})
+	focus.shown(panel)
 	switch {
 	case closed:
 		slog.Debug("mujica: dialog close", "by", "button")
@@ -106,7 +109,7 @@ func dialogHeader(c *ui.Context, title, description string, decorated, closable 
 	clicked := false
 	ui.Column(c).Gap(u).Shrink(0).Children(func() {
 		ui.Row(c).Gap(u * 3).AlignItems(ui.Start).Children(func() {
-			ui.Text(c, title).Font(theme.SerifFont).FontSize(theme.H3Size).FontWeight(600).Grow(1)
+			ui.Text(c, title).Font(theme.SerifFont).FontSize(FontSize(c, theme.H3Size)).FontWeight(600).Grow(1)
 			if closable {
 				clicked = dialogCloseButton(c, msg(c, closeKey)).Clicked()
 			}

@@ -25,9 +25,7 @@ type PopconfirmResult struct {
 	Cancelled bool
 }
 
-// Popconfirm asks for a light confirmation beside anchor while *open is
-// true. Confirm takes the focus; Cancel, Escape and an outside click cancel.
-// Use AlertDialog for high-risk actions.
+// Popconfirm asks for a light confirmation by anchor; use AlertDialog for high-risk actions.
 func Popconfirm(c *ui.Context, anchor *ui.Element, open *bool, opts PopconfirmOptions) PopconfirmResult {
 	if anchor == nil {
 		panic("mujica: Popconfirm needs an anchor")
@@ -39,7 +37,7 @@ func Popconfirm(c *ui.Context, anchor *ui.Element, open *bool, opts PopconfirmOp
 	if !*open {
 		return res
 	}
-	k := Tokens(c)
+	overlayLayer(c, open)
 	u := Density(c).Unit()
 	confirm, cancel := opts.ConfirmLabel, opts.CancelLabel
 	if confirm == "" {
@@ -56,22 +54,11 @@ func Popconfirm(c *ui.Context, anchor *ui.Element, open *bool, opts PopconfirmOp
 	shown := true
 	ui.PopoverBase(c, anchor, &shown, func(panel *ui.Element) {
 		overlayStyle(c, panel, overlayAnchored(c, panel, b))
-		panel.Margin(6, 0, 0, 0).Padding(u * 3).Gap(u * 3).MaxWidth(320).Role(ui.RoleAlertDialog).
+		panel.Margin(6, 0, 0, 0).Padding(u * 3).Gap(u * 3).MaxWidth(popoverWide(c, 320)).MaxHeight(popoverRoom(c, b)).Role(ui.RoleAlertDialog).
 			Label(opts.Title).Description(opts.Description)
-		ui.Row(c).Gap(u * 2).AlignItems(ui.Start).Children(func() {
-			color := k.Warning
-			if opts.Danger {
-				color = k.Danger
-			}
-			ui.Icon(c, icons.Must("circle-alert")).Size(18, 18).TextColor(color).Shrink(0).Margin(1, 0, 0, 0)
-			ui.Column(c).Gap(u).Shrink(1).Children(func() {
-				ui.Text(c, opts.Title).FontWeight(600)
-				if opts.Description != "" {
-					ui.Text(c, opts.Description).TextColor(k.TextMuted)
-				}
-			})
-		})
-		ui.Row(c).Gap(u * 2).Justify(ui.End).Children(func() {
+		// The text scrolls so the actions stay in the window.
+		ui.Scroll(c).Shrink(1).Children(func() { popconfirmText(c, opts) })
+		ui.Row(c).Gap(u * 2).Justify(ui.End).Shrink(0).Children(func() {
 			if Button(c, cancel, ButtonOptions{Variant: Secondary}).Clicked() {
 				res.Cancelled = true
 			}
@@ -88,4 +75,23 @@ func Popconfirm(c *ui.Context, anchor *ui.Element, open *bool, opts PopconfirmOp
 		*open = false
 	}
 	return res
+}
+
+// popconfirmText is the icon, title and description of a Popconfirm.
+func popconfirmText(c *ui.Context, opts PopconfirmOptions) {
+	k := Tokens(c)
+	u := Density(c).Unit()
+	ui.Row(c).Gap(u * 2).AlignItems(ui.Start).Children(func() {
+		color := k.Warning
+		if opts.Danger {
+			color = k.Danger
+		}
+		ui.Icon(c, icons.Must("circle-alert")).Size(18, 18).TextColor(color).Shrink(0).Margin(1, 0, 0, 0)
+		ui.Column(c).Gap(u).Shrink(1).Children(func() {
+			ui.Text(c, opts.Title).FontWeight(600)
+			if opts.Description != "" {
+				ui.Text(c, opts.Description).TextColor(k.TextMuted)
+			}
+		})
+	})
 }

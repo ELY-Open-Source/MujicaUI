@@ -72,4 +72,5 @@ ui.Render(view, 400, 300, 1)
 ## 限制
 
 - MyGo 没有 menu / menuitem 无障碍角色（`ui/access.go:22` Role 列表），菜单面板报告为 popup，普通项为 button，勾选项为 checkbox，触发按钮为 menu button。
-- 菜单打开期间外部点击只用于关闭（`ui/base.go:373`）。
+- 打开期间外部点击只用于关闭，不传给下方控件：`PopoverBase` 用覆盖整窗的背板接收点击（`ui/base.go:373`）。
+- Escape 只关闭最上层的 MujicaUI 浮层（窗口内按打开顺序记录）。MyGo 自带的 `ui.Popover`、`ui.Select` 弹层不在这份记录中；它们打开在非模态 MujicaUI 浮层之上时，Escape 可能先关闭下面的 MujicaUI 浮层。

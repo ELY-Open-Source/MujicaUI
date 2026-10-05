@@ -1,6 +1,7 @@
 package mujica
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/egoist/mygo/ui"
@@ -56,6 +57,25 @@ func TestPopconfirmCancelPaths(t *testing.T) {
 	tt.ClickAt(390, 290)
 	if a.cancelled != 3 || a.confirmed != 0 || a.open {
 		t.Fatalf("cancelled %d confirmed %d open %v", a.cancelled, a.confirmed, a.open)
+	}
+}
+
+func TestPopconfirmKeepsActionsInWindow(t *testing.T) {
+	long := strings.Repeat("The east gate stays unwatched tonight. ", 60)
+	open := true
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Padding(30).Children(func() {
+			b := Button(c, "Archive", ButtonOptions{})
+			Popconfirm(c, b, &open, PopconfirmOptions{Title: "Archive?", Description: long})
+		})
+	}, 400, 300)
+	tt.Frame()
+	for _, label := range []string{"Confirm", "Cancel"} {
+		r, ok := tt.Find(label)
+		if !ok || r.Y < 0 || r.Y+r.H > 300 || r.X+r.W > 400 {
+			t.Fatalf("%s at %+v outside the 400×300 window", label, r)
+		}
 	}
 }
 

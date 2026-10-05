@@ -23,10 +23,7 @@ type tooltipState struct {
 
 const tooltipMaxWidth = 240
 
-// Tooltip shows text near anchor once the pointer rests on it or it has
-// the keyboard focus. The tip holds no interactive content, passes the
-// pointer through, stays in the window and hides on leave, blur or Escape.
-// It also describes anchor to assistive technology.
+// Tooltip shows a non-interactive tip by anchor after hover or keyboard focus rests on it for Delay.
 func Tooltip(c *ui.Context, anchor *ui.Element, text string, opts TooltipOptions) *ui.Element {
 	if anchor == nil {
 		panic("mujica: Tooltip needs an anchor")
@@ -58,7 +55,7 @@ func Tooltip(c *ui.Context, anchor *ui.Element, text string, opts TooltipOptions
 		c.After(wait)
 		return anchor
 	}
-	if c.Shortcut(0, ui.KeyEscape) {
+	if overlayEscape(c, st) {
 		slog.Debug("mujica: tooltip dismiss")
 		st.dismissed = true
 		return anchor
@@ -71,7 +68,7 @@ func Tooltip(c *ui.Context, anchor *ui.Element, text string, opts TooltipOptions
 func tooltipShow(c *ui.Context, a ui.Rect, text string) {
 	k := Tokens(c)
 	u := Density(c).Unit()
-	size := theme.CaptionSize + 1
+	size := FontSize(c, theme.CaptionSize+1)
 	tw, th := c.MeasureText(tooltipMaxWidth, ui.Span{Text: text, Size: size, Font: c.Theme().Font})
 	padX, padY := u*2.5, u*1.5
 	w, h := tw+2*(padX+theme.BorderWidth)+1, th+2*(padY+theme.BorderWidth)

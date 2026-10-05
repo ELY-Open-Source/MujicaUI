@@ -17,8 +17,7 @@ type PopupMenuItemOptions struct {
 	KeepOpen bool
 }
 
-// PopupMenu builds the items of a DropdownMenu or ContextMenu. Its methods
-// add items in order and report choices in the frame they happen.
+// PopupMenu builds the items of a DropdownMenu or ContextMenu, reporting choices as they happen.
 type PopupMenu struct {
 	c         *ui.Context
 	root      *popupMenuRoot
@@ -43,8 +42,7 @@ type popupMenuSub struct {
 	build func(m *PopupMenu)
 }
 
-// Item adds an item showing label and reports whether it was chosen.
-// Choosing it closes the menu unless KeepOpen is set.
+// Item adds an item and reports its choice, which closes the menu unless KeepOpen.
 func (m *PopupMenu) Item(label string, opts PopupMenuItemOptions) bool {
 	it := m.row(ui.ButtonBase(m.c), opts.Disabled, false)
 	m.content(it, label, false, false)
@@ -68,8 +66,7 @@ func (m *PopupMenu) Check(label string, checked *bool, opts PopupMenuItemOptions
 	return true
 }
 
-// Submenu adds an item opening a nested menu that build fills. Hover,
-// click, Enter, Space or Right opens it; Left or Escape closes it.
+// Submenu adds an item opening a nested menu that build fills.
 func (m *PopupMenu) Submenu(label string, opts PopupMenuItemOptions, build func(m *PopupMenu)) {
 	if build == nil {
 		panic("mujica: PopupMenu Submenu needs a build function")
@@ -95,7 +92,7 @@ func (m *PopupMenu) Group(label string, fn func()) {
 		m.Separator()
 	}
 	if label != "" {
-		ui.Text(m.c, label).FontSize(theme.CaptionSize).TextColor(k.TextMuted).Padding(u, u*3, u/2, u*3+16+u*2).Shrink(0)
+		ui.Text(m.c, label).FontSize(FontSize(m.c, theme.CaptionSize)).TextColor(k.TextMuted).Padding(u, u*3, u/2, u*3+16+u*2).Shrink(0)
 	}
 	fn()
 }
@@ -115,7 +112,8 @@ func (m *PopupMenu) row(it *ui.Element, disabled, sub bool) *ui.Element {
 	m.rows++
 	seq := m.seq
 	it.Justify(ui.Start).MinHeight(max(theme.MinHitSize, d.ControlHeight()-4)).Padding(0, d.Unit()*3).
-		Gap(d.Unit() * 2).Radius(theme.ControlRadius).Disabled(disabled).FocusRing(false).TextColor(k.Text)
+		Gap(d.Unit() * 2).Radius(theme.ControlRadius).Disabled(disabled).TextColor(k.Text)
+	internal.Ring(it, k.Focus, theme.ControlRadius)
 	if disabled {
 		return it
 	}
@@ -135,7 +133,7 @@ func (m *PopupMenu) row(it *ui.Element, disabled, sub bool) *ui.Element {
 	}
 	*was = hovered
 	if hovered || it.FocusVisible() || m.level.open == seq {
-		it.Background(k.Selection).DrawOver(func(p *ui.Painter, r ui.Rect) {
+		it.Background(k.Selection).Draw(func(p *ui.Painter, r ui.Rect) {
 			p.Fill(ui.Rect{X: r.X, Y: r.Y + 4, W: 2, H: r.H - 8}, k.AccentText, 1)
 		})
 	}
@@ -163,13 +161,15 @@ func popupMenuOpen(c *ui.Context, anchor *ui.Element, open *bool, build func(m *
 	if !*open {
 		return nil
 	}
+	overlayLayer(c, open)
 	b := anchor.Bounds()
 	root := &popupMenuRoot{}
 	panel := ui.PopoverBase(c, anchor, open, func(panel *ui.Element) {
 		overlayStyle(c, panel, overlayAnchored(c, panel, b))
-		panel.Margin(4, 0, 0, 0).MinWidth(max(b.W, 200)).MaxWidth(360).MaxHeight(popoverRoom(c, b))
-		items := popupMenuLevelBuild(c, panel, root, build, true)
-		if items.Shortcut(0, ui.KeyTab) || items.Shortcut(ui.Shift, ui.KeyTab) {
+		panel.Margin(4, 0, 0, 0).MinWidth(popoverWide(c, max(b.W, 200))).MaxWidth(popoverWide(c, 360)).MaxHeight(popoverRoom(c, b))
+		popupMenuLevelBuild(c, panel, root, build, true)
+		// The panel holds every level, so Tab in a submenu closes the whole menu too.
+		if panel.Shortcut(0, ui.KeyTab) || panel.Shortcut(ui.Shift, ui.KeyTab) {
 			root.close = true
 		}
 	})
@@ -183,9 +183,10 @@ func popupMenuOpen(c *ui.Context, anchor *ui.Element, open *bool, build func(m *
 }
 
 // popupMenuLevelBuild builds one level's items in outer, then its open submenu.
-func popupMenuLevelBuild(c *ui.Context, outer *ui.Element, root *popupMenuRoot, build func(m *PopupMenu), autofocus bool) *ui.Element {
+func popupMenuLevelBuild(c *ui.Context, outer *ui.Element, root *popupMenuRoot, build func(m *PopupMenu), autofocus bool) {
 	u := Density(c).Unit()
-	items := ui.Scroll(c).Shrink(1).Padding(u).FocusGroup(ui.Vertical)
+	// The padding leaves room for the items' focus rings inside the clipping scroll.
+	items := ui.Scroll(c).Shrink(1).Padding(u + theme.FocusGap + theme.FocusWidth).FocusGroup(ui.Vertical)
 	m := &PopupMenu{c: c, root: root, autofocus: autofocus}
 	m.level = ui.Local(items, "mujica.menu.level", func() popupMenuLevel { return popupMenuLevel{} })
 	outer.Role(ui.RolePopup)
@@ -195,7 +196,6 @@ func popupMenuLevelBuild(c *ui.Context, outer *ui.Element, root *popupMenuRoot, 
 			popupMenuSubmenu(c, outer, root, m.level, s)
 		}
 	}
-	return items
 }
 
 // popupMenuSubmenu builds a submenu beside its item, flipped to stay in the window.

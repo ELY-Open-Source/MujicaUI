@@ -7,30 +7,45 @@ import (
 	"github.com/egoist/mygo/ui"
 )
 
-const hoverCardTestDelay = 20 * time.Millisecond
+const hoverCardTestDelay = 150 * time.Millisecond
 
 type hoverCardApp struct {
 	follows, next int
+	inDialog      bool
+}
+
+func (a *hoverCardApp) card(c *ui.Context) {
+	b := Button(c, "Lady Sakiko", ButtonOptions{Variant: Ghost})
+	HoverCard(c, b, HoverCardOptions{OpenDelay: hoverCardTestDelay, CloseDelay: hoverCardTestDelay}, func() {
+		ui.Text(c, "Keyboardist of the court")
+		if Button(c, "Follow", ButtonOptions{}).Clicked() {
+			a.follows++
+		}
+	})
+	if Button(c, "Next", ButtonOptions{}).Clicked() {
+		a.next++
+	}
 }
 
 func (a *hoverCardApp) view(c *ui.Context) {
 	Use(c, Settings{})
-	ui.Column(c).Padding(40).Gap(80).AlignItems(ui.Start).Children(func() {
-		b := Button(c, "Lady Sakiko", ButtonOptions{Variant: Ghost})
-		HoverCard(c, b, HoverCardOptions{OpenDelay: hoverCardTestDelay, CloseDelay: hoverCardTestDelay}, func() {
-			ui.Text(c, "Keyboardist of the court")
-			if Button(c, "Follow", ButtonOptions{}).Clicked() {
-				a.follows++
-			}
+	if a.inDialog {
+		open := true
+		Dialog(c, &open, DialogOptions{Title: "Court", HideClose: true}, func() {
+			ui.Column(c).Gap(80).AlignItems(ui.Start).Children(func() { a.card(c) })
 		})
-		if Button(c, "Next", ButtonOptions{}).Clicked() {
-			a.next++
-		}
-	})
+		return
+	}
+	ui.Column(c).Padding(40).Gap(80).AlignItems(ui.Start).Children(func() { a.card(c) })
 }
 
-func hoverCardWait(tt *ui.Tester) {
-	time.Sleep(hoverCardTestDelay + 15*time.Millisecond)
+func hoverCardShown(tt *ui.Tester) func() bool {
+	return func() bool { return tt.HasText("Keyboardist of the court") }
+}
+
+// hoverCardSettle waits past both delays so any pending open or close has happened.
+func hoverCardSettle(tt *ui.Tester) {
+	time.Sleep(hoverCardTestDelay + 30*time.Millisecond)
 	tt.Frame()
 }
 
@@ -38,34 +53,54 @@ func TestHoverCardPointerCanEnterCard(t *testing.T) {
 	a := &hoverCardApp{}
 	tt := ui.NewTester(a.view, 500, 400)
 	r, _ := tt.Find("Lady Sakiko")
+	start := time.Now()
 	tt.Move(r.X+5, r.Y+5)
-	if tt.HasText("Keyboardist of the court") {
+	if time.Since(start) < hoverCardTestDelay && tt.HasText("Keyboardist of the court") {
 		t.Fatal("opened before the delay")
 	}
-	hoverCardWait(tt)
-	tt.Frame()
-	f, ok := tt.Find("Follow")
-	if !ok {
+	if !overlayUntil(tt, hoverCardShown(tt)) {
 		t.Fatalf("card did not open: %q", tt.Texts())
 	}
-	// Moving into the card keeps it; its button works.
-	tt.Move(f.X+5, f.Y+5)
-	hoverCardWait(tt)
+	// The pointer inside the card keeps it open past the close delay.
+	k, _ := tt.Find("Keyboardist of the court")
+	tt.Move(k.X+5, k.Y+5)
+	hoverCardSettle(tt)
+	if !tt.HasText("Follow") {
+		t.Fatal("card closed with the pointer inside it")
+	}
 	if err := tt.Click("Follow"); err != nil {
 		t.Fatal(err)
 	}
-	if a.follows != 1 {
-		t.Fatalf("follows %d", a.follows)
+	if a.follows != 1 || !tt.Focused("Follow") {
+		t.Fatalf("follows %d, Follow focused %v", a.follows, tt.Focused("Follow"))
 	}
-	// Leaving both closes it after the delay, and the window stays usable.
+	// With the focus inside, leaving keeps it; a click outside closes it.
 	tt.Move(490, 390)
-	tt.Frame()
+	hoverCardSettle(tt)
 	if !tt.HasText("Follow") {
+		t.Fatal("card closed with the focus inside it")
+	}
+	tt.ClickAt(490, 390)
+	if tt.HasText("Follow") {
+		t.Fatal("outside click did not close the card")
+	}
+}
+
+func TestHoverCardCloseDelay(t *testing.T) {
+	a := &hoverCardApp{}
+	tt := ui.NewTester(a.view, 500, 400)
+	r, _ := tt.Find("Lady Sakiko")
+	tt.Move(r.X+5, r.Y+5)
+	if !overlayUntil(tt, hoverCardShown(tt)) {
+		t.Fatal("card did not open")
+	}
+	start := time.Now()
+	tt.Move(490, 390)
+	if time.Since(start) < hoverCardTestDelay && !tt.HasText("Follow") {
 		t.Fatal("closed without the close delay")
 	}
-	hoverCardWait(tt)
-	if tt.HasText("Follow") {
-		t.Fatal("card stayed open")
+	if !overlayUntil(tt, func() bool { return !tt.HasText("Follow") }) {
+		t.Fatal("card stayed open after the close delay")
 	}
 }
 
@@ -73,8 +108,7 @@ func TestHoverCardKeyboardEntersAndEscapes(t *testing.T) {
 	a := &hoverCardApp{}
 	tt := ui.NewTester(a.view, 500, 400)
 	tt.Key(0, ui.KeyTab)
-	hoverCardWait(tt)
-	if !tt.HasText("Keyboardist of the court") {
+	if !overlayUntil(tt, hoverCardShown(tt)) {
 		t.Fatal("no card on keyboard focus")
 	}
 	tt.Key(0, ui.KeyTab)
@@ -89,7 +123,7 @@ func TestHoverCardKeyboardEntersAndEscapes(t *testing.T) {
 	if tt.HasText("Follow") || !tt.Focused("Lady Sakiko") {
 		t.Fatalf("Escape: card shown %v, anchor focused %v", tt.HasText("Follow"), tt.Focused("Lady Sakiko"))
 	}
-	hoverCardWait(tt)
+	hoverCardSettle(tt)
 	if tt.HasText("Follow") {
 		t.Fatal("dismissed card came back while focused")
 	}
@@ -99,19 +133,43 @@ func TestHoverCardKeyboardEntersAndEscapes(t *testing.T) {
 	}
 }
 
+func TestHoverCardInsideDialog(t *testing.T) {
+	a := &hoverCardApp{inDialog: true}
+	tt := ui.NewTester(a.view, 600, 500)
+	r, _ := tt.Find("Lady Sakiko")
+	tt.Move(r.X+5, r.Y+5)
+	if !overlayUntil(tt, hoverCardShown(tt)) {
+		t.Fatal("card did not open in the dialog")
+	}
+	if err := tt.Click("Follow"); err != nil {
+		t.Fatal(err)
+	}
+	if a.follows != 1 || !tt.Focused("Follow") {
+		t.Fatalf("follows %d, focus kept on Follow %v", a.follows, tt.Focused("Follow"))
+	}
+	tt.Key(ui.Shift, ui.KeyTab)
+	if !tt.Focused("Lady Sakiko") {
+		t.Fatal("Shift+Tab from the card did not reach its anchor in the dialog")
+	}
+}
+
 func TestHoverCardSnapshot(t *testing.T) {
-	snapshot(t, "hover_card", 420, 240, func(c *ui.Context) {
+	overlaySnapshot(t, "hover_card", 420, 240, func(c *ui.Context) {
 		ui.Column(c).Padding(24).AlignItems(ui.Start).Children(func() {
-			Button(c, "Lady Uika", ButtonOptions{Variant: Ghost})
-		})
-		ui.Overlay(c, func() {
-			p := ui.Column(c).Absolute().Left(24).Top(66)
-			overlayStyle(c, p, 1)
-			p.Width(280).Padding(16).Gap(8).AlignItems(ui.Start).Children(func() {
-				ui.Text(c, "Lady Uika").FontWeight(600)
-				ui.Text(c, "Vocalist and guitarist; keeps the ledger of the masquerade.").TextColor(Tokens(c).TextMuted)
-				Button(c, "Follow", ButtonOptions{Variant: Outline})
+			b := Button(c, "Lady Uika", ButtonOptions{Variant: Ghost})
+			HoverCard(c, b, HoverCardOptions{OpenDelay: time.Millisecond}, func() {
+				ui.Column(c).Gap(8).AlignItems(ui.Start).Children(func() {
+					ui.Text(c, "Lady Uika").FontWeight(600)
+					ui.Text(c, "Vocalist and guitarist; keeps the ledger of the masquerade.").TextColor(Tokens(c).TextMuted)
+					Button(c, "Follow", ButtonOptions{Variant: Outline})
+				})
 			})
 		})
+	}, func(tt *ui.Tester) {
+		r, _ := tt.Find("Lady Uika")
+		tt.Move(r.X+5, r.Y+5)
+		if !overlayUntil(tt, func() bool { return tt.HasText("Follow") }) {
+			t.Fatal("card did not open")
+		}
 	})
 }
