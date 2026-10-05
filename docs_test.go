@@ -83,6 +83,9 @@ func TestDocSnippetsAreCompiledExamples(t *testing.T) {
 
 // TestDocsMatchGalleryPages wants exactly one doc and one gallery page per component ID.
 func TestDocsMatchGalleryPages(t *testing.T) {
+	if n := len(readGlob(t, "docs/components/*.md")); n != 318 {
+		t.Fatalf("component docs = %d, want 318", n)
+	}
 	pages := map[string]int{}
 	for _, src := range readGlob(t, "examples/gallery/pages_*.go") {
 		for _, m := range docsPageID.FindAllStringSubmatch(src, -1) {
