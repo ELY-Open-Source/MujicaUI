@@ -53,7 +53,14 @@ func overlayEscape(c *ui.Context, key any) bool {
 	// The root is around every focus, so it takes Escape before MyGo's overlays.
 	byFocus := c.Root().Shortcut(0, ui.KeyEscape)
 	byWindow := c.Shortcut(0, ui.KeyEscape)
-	return byFocus || byWindow
+	if !byFocus && !byWindow {
+		return false
+	}
+	s := ui.Local(c.Root(), overlayLayersKey{}, func() overlayLayers { return overlayLayers{} })
+	last := len(s.keys) - 1
+	s.keys[last] = nil
+	s.keys, s.seen = s.keys[:last], s.seen[:last]
+	return true
 }
 
 // overlaySiteState follows the focus of a layer after it closes.
