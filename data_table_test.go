@@ -26,6 +26,7 @@ type tableHarness struct {
 	changes  int
 	sorts    int
 	c        *ui.Context
+	density  theme.Density
 	seen     map[string]int
 }
 
@@ -44,7 +45,7 @@ func newTableHarness(rows []relic) *tableHarness {
 }
 
 func (h *tableHarness) view(c *ui.Context) {
-	Use(c, Settings{Mode: Light})
+	Use(c, Settings{Mode: Light, Density: h.density})
 	h.c, h.seen = c, map[string]int{}
 	ui.Column(c).Padding(10).Gap(8).Children(func() {
 		cols := h.opts
@@ -361,5 +362,42 @@ func TestDataTableSelectionColors(t *testing.T) {
 	got := color.RGBAModel.Convert(tt.Image().At(int(r.X+r.W-6), int(r.Y+r.H/2))).(color.RGBA)
 	if want := toRGBA(theme.Light().Selection); got != want {
 		t.Fatalf("selected row background %v, want Selection %v", got, want)
+	}
+}
+
+func TestDataTableCompactLargeText(t *testing.T) {
+	h := newTableHarness(relics())
+	h.opts.Multiple = true
+	h.density = theme.Compact
+	tt := ui.NewTester(h.view, 600, 700)
+	tt.SetPreferences(ui.Preferences{TextScale: 2})
+	head, _ := tt.Find("Name")
+	row, _ := tt.Find("Censer") // the first row, labeled by its first column
+	if head.Y+head.H > row.Y-1 {
+		t.Fatalf("header text %v runs past the header into row %v", head, row)
+	}
+	box, ok := tt.Find("Select row")
+	if !ok || box.W < theme.MinHitSize || box.H < theme.MinHitSize || box.X < row.X {
+		t.Fatalf("check box hit area %v in row %v", box, row)
+	}
+	if name, _ := tt.Find("Name"); box.X+box.W > name.X {
+		t.Fatalf("check box %v overlaps the Name column at %v", box, name.X)
+	}
+}
+
+func TestDataTableCheckBoxHitWidth(t *testing.T) {
+	for _, d := range []theme.Density{theme.Compact, theme.Default} {
+		h := newTableHarness(relics())
+		h.opts.Multiple = true
+		h.density = d
+		tt := ui.NewTester(h.view, 400, 360)
+		box, _ := tt.Find("Select row")
+		if box.W < theme.MinHitSize || box.H < theme.MinHitSize {
+			t.Fatalf("%v: check box hit area %v", d, box)
+		}
+		tt.ClickAt(box.X+1, box.Y+box.H/2) // its left edge still toggles
+		if h.st.Selection.Len() != 1 {
+			t.Fatalf("%v: left edge of the hit area missed", d)
+		}
 	}
 }

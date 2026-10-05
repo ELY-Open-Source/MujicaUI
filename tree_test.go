@@ -252,3 +252,21 @@ func TestTreeSelectionFollowsLargeReorder(t *testing.T) {
 		t.Fatalf("after reversing: selected %d %v at row %d", k, ok, st.tree.cursor)
 	}
 }
+
+func TestTreeEmptyClearsSelection(t *testing.T) {
+	h := newTreeHarness()
+	tt := ui.NewTester(h.view, 400, 400)
+	if err := tt.Click("Sacristy"); err != nil {
+		t.Fatal(err)
+	}
+	h.opts.Roots = nil
+	tt.Frame()
+	if k, ok := h.st.Selected(); ok {
+		t.Fatalf("empty tree still selects %q", k)
+	}
+	h.opts.Roots = []string{"Nave", "Crypt", "Sacristy"}
+	tt.Frame()
+	if k, ok := h.st.Selected(); ok {
+		t.Fatalf("selection came back as %q", k)
+	}
+}
