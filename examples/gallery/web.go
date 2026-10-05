@@ -35,6 +35,13 @@ type mirror struct {
 }
 
 func serveWeb(addr string, view func(c *ui.Context)) error {
+	_, h := newMirror(view)
+	slog.Info("gallery: web mirror listening", "addr", "http://"+addr)
+	return http.ListenAndServe(addr, h)
+}
+
+// newMirror starts the frame loop of view and returns its HTTP handler.
+func newMirror(view func(c *ui.Context)) (*mirror, http.Handler) {
 	m := &mirror{
 		tt:   ui.NewTester(view, 1200, 800),
 		seed: maphash.MakeSeed(),
@@ -52,8 +59,7 @@ func serveWeb(addr string, view func(c *ui.Context)) error {
 	mux.HandleFunc("GET /frame.png", m.serveFrame)
 	mux.HandleFunc("GET /events", m.serveEvents)
 	mux.HandleFunc("POST /input", m.serveInput)
-	slog.Info("gallery: web mirror listening", "addr", "http://"+addr)
-	return http.ListenAndServe(addr, mux)
+	return m, mux
 }
 
 // loop draws frames while the picture keeps changing, then sleeps.
