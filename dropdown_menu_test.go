@@ -7,10 +7,9 @@ import (
 )
 
 type menuApp struct {
-	chosen      []string
-	pinned      bool
-	locked      bool
-	panelBounds ui.Rect
+	chosen []string
+	pinned bool
+	locked bool
 }
 
 func (a *menuApp) build(m *PopupMenu) {
