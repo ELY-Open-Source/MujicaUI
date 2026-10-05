@@ -87,8 +87,8 @@ func ScatterChart(c *ui.Context, selected *[]ScatterKey, groups []ScatterGroup, 
 		ch.res.value = true
 		slog.Debug("mujica: scatter_chart select", "count", len(*selected))
 	}
-	spec := chartSpec{n: len(marks), keys: keys, toggle: len(groups) > 1}
-	spec.readout = func(i int) string {
+	spec := ChartSpec{Marks: len(marks), Legend: keys, Hidden: ch.toggles(len(groups) > 1)}
+	spec.Readout = func(i int) string {
 		m, p := marks[i], pt(marks[i])
 		s := fmt.Sprintf("%s · x %s · y %s", groups[m.Group].Name, chartValue(c, p.X, opts.Format), chartValue(c, p.Y, opts.Format))
 		if opts.Bubbles {
@@ -99,14 +99,14 @@ func ScatterChart(c *ui.Context, selected *[]ScatterKey, groups []ScatterGroup, 
 		}
 		return s
 	}
-	spec.pick = func(r ui.Rect, x, y float32) int {
+	spec.Pick = func(r ui.Rect, x, y float32) int {
 		_, sx, sy := geom(r)
 		return internal.Nearest(len(marks), func(i int) (float32, float32) { return sx.Map(pt(marks[i]).X), sy.Map(pt(marks[i]).Y) }, x, y, 14, false)
 	}
-	spec.activate = func(i int) { toggle(marks[i]) }
+	spec.Activate = func(i int) { toggle(marks[i]) }
 	drag := ui.Local(ch.res.Element, "mujica.scatter.drag", func() scatterDrag { return scatterDrag{} })
 	box := *drag
-	spec.draw = func(p *ui.Painter, r ui.Rect, active int) {
+	spec.Draw = func(p *ui.Painter, r ui.Rect, active int) {
 		plot, sx, sy := geom(r)
 		internal.AxisY(p, plot, sy, internal.Ticks(ys[0], ys[1], ys[2]), func(v float64) string { return internal.FormatTick(v, ys[2]) }, size, k)
 		var tx []float32

@@ -53,7 +53,7 @@ func Nice(lo, hi float64, n int) (nlo, nhi, step float64) {
 func Ticks(lo, hi, step float64) []float64 {
 	var out []float64
 	for i := math.Ceil(lo/step - 1e-9); i*step <= hi+step*1e-9; i++ {
-		out = append(out, i*step)
+		out = append(out, i*step+0) // +0 turns -0 into 0
 	}
 	return out
 }
@@ -191,27 +191,53 @@ func Sector(cx, cy, r0, r1 float32, a0, a1 float64) *ui.Path {
 
 // AxisY draws grid lines and tick labels left of plot.
 func AxisY(p *ui.Painter, plot ui.Rect, s Linear, ticks []float64, label func(float64) string, size float32, k theme.Tokens) {
-	for _, t := range ticks {
-		y := s.Map(t)
-		Rule(p, plot.X, plot.X+plot.W, y, k.Border)
-		txt := label(t)
-		w, h := p.MeasureText(0, ui.Span{Text: txt, Size: size})
-		p.Text(plot.X-w-6, y-h/2, txt, size, k.TextMuted)
+	ys := make([]float32, len(ticks))
+	labels := make([]string, len(ticks))
+	for i, t := range ticks {
+		ys[i], labels[i] = s.Map(t), label(t)
+		Rule(p, plot.X, plot.X+plot.W, ys[i], k.Border)
 	}
+	LabelsY(p, plot.X-6, ys, labels, false, size, k)
 }
 
 // AxisX draws a baseline and labels centered at xs.
 func AxisX(p *ui.Painter, plot ui.Rect, xs []float32, labels []string, size float32, k theme.Tokens) {
 	Rule(p, plot.X, plot.X+plot.W, plot.Y+plot.H, k.ControlBorder)
+	LabelsX(p, plot, plot.Y+plot.H+6, xs, labels, false, size, k)
+}
+
+// RuleV draws a pixel-aligned 1 DIP vertical line at x.
+func RuleV(p *ui.Painter, x, y0, y1 float32, c ui.Color) {
+	xx := ruleY(p, x)
+	p.Line(xx, y0, xx, y1, 1, c)
+}
+
+// LabelsY writes labels centered on ys, ending at x, or starting there if after.
+func LabelsY(p *ui.Painter, x float32, ys []float32, labels []string, after bool, size float32, k theme.Tokens) {
+	for i, y := range ys {
+		w, h := p.MeasureText(0, ui.Span{Text: labels[i], Size: size})
+		at := x - w
+		if after {
+			at = x
+		}
+		p.Text(at, y-h/2, labels[i], size, k.TextMuted)
+	}
+}
+
+// LabelsX writes labels centered at xs from y, or ending at y if above; overlaps are skipped.
+func LabelsX(p *ui.Painter, plot ui.Rect, y float32, xs []float32, labels []string, above bool, size float32, k theme.Tokens) {
 	right := float32(math.Inf(-1))
 	for i, x := range xs {
-		w, _ := p.MeasureText(0, ui.Span{Text: labels[i], Size: size})
+		w, h := p.MeasureText(0, ui.Span{Text: labels[i], Size: size})
 		at := min(max(x-w/2, plot.X-12), plot.X+plot.W+12-w)
-		// Labels that would overlap the last one drawn are skipped.
 		if at < right+6 {
 			continue
 		}
-		p.Text(at, plot.Y+plot.H+6, labels[i], size, k.TextMuted)
+		top := y
+		if above {
+			top = y - h
+		}
+		p.Text(at, top, labels[i], size, k.TextMuted)
 		right = at + w
 	}
 }

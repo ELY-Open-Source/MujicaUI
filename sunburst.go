@@ -82,8 +82,8 @@ func Sunburst(c *ui.Context, path *[]string, root ChartNode, opts SunburstOption
 			return r.X + r.W/2, r.Y + r.H/2, hole, (rad - hole) / float32(depth)
 		}
 		ch := newChart(c, opts.Frame)
-		spec := chartSpec{n: len(arcs)}
-		spec.readout = func(i int) string {
+		spec := ChartSpec{Marks: len(arcs)}
+		spec.Readout = func(i int) string {
 			a := arcs[i]
 			s := fmt.Sprintf("%s · %s · %.1f%%", strings.Join(a.path, " › "), chartValue(c, a.node.total(), opts.Format), 100*a.node.total()/sum)
 			if len(a.node.Children) > 0 {
@@ -91,7 +91,7 @@ func Sunburst(c *ui.Context, path *[]string, root ChartNode, opts SunburstOption
 			}
 			return s
 		}
-		spec.pick = func(r ui.Rect, x, y float32) int {
+		spec.Pick = func(r ui.Rect, x, y float32) int {
 			cx, cy, hole, ring := geom(r)
 			d := float32(math.Hypot(float64(x-cx), float64(y-cy)))
 			a := math.Atan2(float64(x-cx), float64(cy-y))
@@ -106,7 +106,7 @@ func Sunburst(c *ui.Context, path *[]string, root ChartNode, opts SunburstOption
 			}
 			return -1
 		}
-		spec.activate = func(i int) {
+		spec.Activate = func(i int) {
 			if len(arcs[i].node.Children) > 0 {
 				*path = append(slices.Clone(*path), arcs[i].path...)
 				res.value = true
@@ -121,7 +121,7 @@ func Sunburst(c *ui.Context, path *[]string, root ChartNode, opts SunburstOption
 			}
 			return col
 		}
-		spec.draw = func(p *ui.Painter, r ui.Rect, active int) {
+		spec.Draw = func(p *ui.Painter, r ui.Rect, active int) {
 			cx, cy, hole, ring := geom(r)
 			for i, a := range arcs {
 				r0 := hole + ring*float32(a.ring)

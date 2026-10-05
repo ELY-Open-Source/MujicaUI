@@ -116,8 +116,8 @@ func Histogram(c *ui.Context, values []float64, opts HistogramOptions) ChartResu
 		ys = internal.Linear{D0: 0, D1: hi, R0: float64(plot.Y + plot.H), R1: float64(plot.Y)}
 		return plot, internal.Band{N: len(b.counts), R0: plot.X, R1: plot.X + plot.W, Pad: 0.06}
 	}
-	spec := chartSpec{n: len(b.counts)}
-	spec.readout = func(i int) string {
+	spec := ChartSpec{Marks: len(b.counts)}
+	spec.Readout = func(i int) string {
 		if opts.Cumulative {
 			return fmt.Sprintf("≤ %s · %d", edge(i+1, 100), b.counts[i])
 		}
@@ -127,14 +127,14 @@ func Histogram(c *ui.Context, values []float64, opts HistogramOptions) ChartResu
 		}
 		return fmt.Sprintf("[%s, %s%s · %d", edge(i, 100), edge(i+1, 100), closer, b.counts[i])
 	}
-	spec.pick = func(r ui.Rect, x, y float32) int {
+	spec.Pick = func(r ui.Rect, x, y float32) int {
 		plot, band := geom(r)
 		if !plot.Contains(x, y) {
 			return -1
 		}
 		return min(len(b.counts)-1, int((x-plot.X)/band.Step()))
 	}
-	spec.draw = func(p *ui.Painter, r ui.Rect, active int) {
+	spec.Draw = func(p *ui.Painter, r ui.Rect, active int) {
 		plot, band := geom(r)
 		internal.AxisY(p, plot, ys, internal.Ticks(0, hi, step), func(v float64) string { return internal.FormatTick(v, step) }, size, k)
 		var xs []float32

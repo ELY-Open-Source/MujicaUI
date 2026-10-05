@@ -49,19 +49,19 @@ func FunnelChart(c *ui.Context, stages []ChartSlice, opts FunnelChartOptions) Ch
 		plot := ui.Rect{X: r.X + 8, Y: r.Y + 4, W: r.W * 0.58, H: r.H - 8}
 		return plot, internal.Band{N: len(stages), R0: plot.Y, R1: plot.Y + plot.H, Pad: 0.08}
 	}
-	spec := chartSpec{n: n}
-	spec.readout = func(i int) string {
+	spec := ChartSpec{Marks: n}
+	spec.Readout = func(i int) string {
 		s := stages[i]
 		return fmt.Sprintf(msg(c, "funnel_chart.readout"), s.Label, chartValue(c, s.Value, opts.Format), rate(i), pct(s.Value, stages[0].Value))
 	}
-	spec.pick = func(r ui.Rect, x, y float32) int {
+	spec.Pick = func(r ui.Rect, x, y float32) int {
 		plot, band := geom(r)
 		if y < plot.Y || y >= plot.Y+plot.H || x < r.X || x > r.X+r.W {
 			return -1
 		}
 		return min(len(stages)-1, int((y-plot.Y)/band.Step()))
 	}
-	spec.draw = func(p *ui.Painter, r ui.Rect, active int) {
+	spec.Draw = func(p *ui.Painter, r ui.Rect, active int) {
 		plot, band := geom(r)
 		cx := plot.X + plot.W/2
 		width := func(i int) float32 { return max(plot.W*float32(stages[min(i, len(stages)-1)].Value/top), 2) }

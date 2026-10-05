@@ -102,22 +102,22 @@ func BoxPlot(c *ui.Context, groups []BoxGroup, opts BoxPlotOptions) ChartResult 
 		return plot, internal.Band{N: len(groups), R0: plot.X, R1: plot.X + plot.W, Pad: 0.45},
 			internal.Linear{D0: lo, D1: hi, R0: float64(plot.Y + plot.H), R1: float64(plot.Y)}
 	}
-	spec := chartSpec{n: len(groups)}
-	spec.readout = func(i int) string {
+	spec := ChartSpec{Marks: len(groups)}
+	spec.Readout = func(i int) string {
 		s := stats[i]
 		if s.n == 0 {
 			return groups[i].Name + " · " + msg(c, "chart.missing")
 		}
 		return fmt.Sprintf(msg(c, "box_plot.readout"), groups[i].Name, val(s.median), val(s.q1), val(s.q3), val(s.lo), val(s.hi), len(s.outliers))
 	}
-	spec.pick = func(r ui.Rect, x, y float32) int {
+	spec.Pick = func(r ui.Rect, x, y float32) int {
 		plot, band, _ := geom(r)
 		if !plot.Contains(x, y) {
 			return -1
 		}
 		return min(len(groups)-1, int((x-plot.X)/band.Step()))
 	}
-	spec.draw = func(p *ui.Painter, r ui.Rect, active int) {
+	spec.Draw = func(p *ui.Painter, r ui.Rect, active int) {
 		plot, band, ys := geom(r)
 		internal.AxisY(p, plot, ys, internal.Ticks(lo, hi, step), func(v float64) string { return internal.FormatTick(v, step) }, size, k)
 		var xs []float32

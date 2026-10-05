@@ -73,8 +73,8 @@ func CalendarHeatmap(c *ui.Context, year *int, values map[Date]float64, opts Cal
 			at := lead + i
 			return ui.Rect{X: x + float32(at/7)*step, Y: y + float32(at%7)*step, W: step - 2, H: step - 2}
 		}
-		spec := chartSpec{n: n}
-		spec.readout = func(i int) string {
+		spec := ChartSpec{Marks: n}
+		spec.Readout = func(i int) string {
 			d := first.AddDays(i)
 			v, ok := values[d]
 			s := d.String() + " · "
@@ -83,11 +83,11 @@ func CalendarHeatmap(c *ui.Context, year *int, values map[Date]float64, opts Cal
 			}
 			return s + chartValue(c, v, opts.Format)
 		}
-		spec.move = func(i int, key ui.Key) int {
+		spec.Move = func(i int, key ui.Key) int {
 			step := map[ui.Key]int{ui.KeyLeft: -7, ui.KeyRight: 7, ui.KeyUp: -1, ui.KeyDown: 1}[key]
 			return max(0, min(n-1, i+step))
 		}
-		spec.pick = func(r ui.Rect, x, y float32) int {
+		spec.Pick = func(r ui.Rect, x, y float32) int {
 			x0, y0, step := geom(r)
 			col, row := int((x-x0)/step), int((y-y0)/step)
 			i := col*7 + row - lead
@@ -96,7 +96,7 @@ func CalendarHeatmap(c *ui.Context, year *int, values map[Date]float64, opts Cal
 			}
 			return i
 		}
-		spec.draw = func(p *ui.Painter, r ui.Rect, active int) {
+		spec.Draw = func(p *ui.Painter, r ui.Rect, active int) {
 			x0, y0, step := geom(r)
 			for i := range n {
 				b := cell(r, i)

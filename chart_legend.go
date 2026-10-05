@@ -53,7 +53,7 @@ func ChartLegend(c *ui.Context, hidden *map[string]bool, items []ChartLegendItem
 	res.Element = ui.Row(c).Gap(u * 3).Wrap()
 	orient := ui.Horizontal
 	if opts.Vertical {
-		res.Element.Column().Gap(u)
+		res.Element.Column().Gap(u).AlignItems(ui.Start)
 		orient = ui.Vertical
 	}
 	open := ui.Local(res.Element, "mujica.legend.open", func() bool { return false })

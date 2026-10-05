@@ -86,15 +86,15 @@ func chartLines(ch *chart, d chartLineData) ChartResult {
 		plot := chartInset(r, 52, 26)
 		return plot, d.ax.scale(plot), internal.Linear{D0: lo, D1: hi, R0: float64(plot.Y + plot.H), R1: float64(plot.Y)}
 	}
-	spec := chartSpec{n: d.n, keys: keys, toggle: true}
-	spec.pick = func(r ui.Rect, x, y float32) int {
+	spec := ChartSpec{Marks: d.n, Legend: keys, Hidden: ch.toggles(true)}
+	spec.Pick = func(r ui.Rect, x, y float32) int {
 		plot, xs, _ := geom(r)
 		if !(ui.Rect{X: plot.X - 6, Y: plot.Y, W: plot.W + 12, H: plot.H}).Contains(x, y) {
 			return -1
 		}
 		return d.ax.nearest(xs.Invert(x))
 	}
-	spec.readout = func(i int) string {
+	spec.Readout = func(i int) string {
 		parts := []string{d.ax.label(i)}
 		for _, s := range d.series {
 			if !ch.hidden(s.Name) {
@@ -103,7 +103,7 @@ func chartLines(ch *chart, d chartLineData) ChartResult {
 		}
 		return strings.Join(parts, " · ")
 	}
-	spec.tip = func(i int) []ChartTooltipLine {
+	spec.Tooltip = func(i int) []ChartTooltipLine {
 		lines := []ChartTooltipLine{{Text: d.ax.label(i)}}
 		for si, s := range d.series {
 			if !ch.hidden(s.Name) {
@@ -112,11 +112,11 @@ func chartLines(ch *chart, d chartLineData) ChartResult {
 		}
 		return lines
 	}
-	spec.anchor = func(r ui.Rect, i int) (float32, float32) {
+	spec.Anchor = func(r ui.Rect, i int) (float32, float32) {
 		plot, xs, _ := geom(r)
 		return xs.Map(d.ax.vals[i]), plot.Y
 	}
-	spec.draw = func(p *ui.Painter, r ui.Rect, active int) {
+	spec.Draw = func(p *ui.Painter, r ui.Rect, active int) {
 		plot, xs, ys := geom(r)
 		internal.AxisY(p, plot, ys, ticks, func(v float64) string { return internal.FormatTick(v, step) }, size, k)
 		tx, tl := d.ax.ticks(plot)

@@ -69,21 +69,21 @@ func WaterfallChart(c *ui.Context, steps []WaterfallStep, opts WaterfallChartOpt
 		return plot, internal.Band{N: len(steps), R0: plot.X, R1: plot.X + plot.W, Pad: 0.3},
 			internal.Linear{D0: lo, D1: hi, R0: float64(plot.Y + plot.H), R1: float64(plot.Y)}
 	}
-	spec := chartSpec{n: len(steps)}
-	spec.readout = func(i int) string {
+	spec := ChartSpec{Marks: len(steps)}
+	spec.Readout = func(i int) string {
 		if steps[i].Kind != WaterfallDelta {
 			return steps[i].Label + " · " + val(to[i])
 		}
 		return steps[i].Label + " · " + signed(steps[i].Value) + " · " + msg(c, "waterfall_chart.running") + " " + val(to[i])
 	}
-	spec.pick = func(r ui.Rect, x, y float32) int {
+	spec.Pick = func(r ui.Rect, x, y float32) int {
 		plot, band, _ := geom(r)
 		if !plot.Contains(x, y) {
 			return -1
 		}
 		return min(len(steps)-1, int((x-plot.X)/band.Step()))
 	}
-	spec.draw = func(p *ui.Painter, r ui.Rect, active int) {
+	spec.Draw = func(p *ui.Painter, r ui.Rect, active int) {
 		plot, band, ys := geom(r)
 		internal.AxisY(p, plot, ys, internal.Ticks(lo, hi, step), func(v float64) string { return internal.FormatTick(v, step) }, size, k)
 		var xs []float32

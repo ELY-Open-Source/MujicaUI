@@ -1,0 +1,81 @@
+package mujica
+
+import (
+	"github.com/egoist/mygo/ui"
+
+	"mujicaui/internal"
+	"mujicaui/theme"
+)
+
+// ChartCrosshairOptions configure a ChartCrosshair.
+type ChartCrosshairOptions struct {
+	// X draws the vertical line and its label on X's side; Y the horizontal one.
+	X, Y *ChartAxisPart
+	// Reach is how far, in DIPs, Snap looks for a point; 0 means 24.
+	Reach float32
+}
+
+// ChartCrosshairPart is a crosshair ready to snap to points and draw.
+type ChartCrosshairPart struct {
+	opts ChartCrosshairOptions
+	k    theme.Tokens
+	size float32
+	pad  float32
+}
+
+// ChartCrosshair crosses lines through a point with value labels on the axes.
+func ChartCrosshair(c *ui.Context, opts ChartCrosshairOptions) ChartCrosshairPart {
+	if opts.X == nil && opts.Y == nil || opts.Reach < 0 {
+		panic("mujica: ChartCrosshair needs an axis and Reach ≥ 0")
+	}
+	if opts.Reach == 0 {
+		opts.Reach = 24
+	}
+	return ChartCrosshairPart{opts: opts, k: Tokens(c), size: FontSize(c, theme.CaptionSize), pad: Density(c).Unit()}
+}
+
+// Snap returns the point nearest (x, y) within Reach, or -1.
+func (h ChartCrosshairPart) Snap(n int, at func(i int) (x, y float32), x, y float32) int {
+	return internal.Nearest(n, at, x, y, h.opts.Reach, false)
+}
+
+// Draw paints the lines through (x, y) inside plot and each axis's value label.
+func (h ChartCrosshairPart) Draw(p *ui.Painter, plot ui.Rect, x, y float32) {
+	k := h.k
+	if a := h.opts.X; a != nil {
+		xx := internal.Snap(p, x)
+		p.Line(xx, plot.Y, xx, plot.Y+plot.H, 1, k.TextMuted)
+		at := plot.Y + plot.H
+		if a.opts.Side == SideTop {
+			at = plot.Y
+		}
+		h.pill(p, a.readout(a.Invert(plot, x)), x, at, true, a.opts.Side == SideTop)
+	}
+	if a := h.opts.Y; a != nil {
+		yy := internal.Snap(p, y)
+		p.Line(plot.X, yy, plot.X+plot.W, yy, 1, k.TextMuted)
+		at := plot.X
+		if a.opts.Side == SideRight {
+			at = plot.X + plot.W
+		}
+		h.pill(p, a.readout(a.Invert(plot, y)), at, y, false, a.opts.Side == SideRight)
+	}
+}
+
+// pill writes s on a Text-colored tag at the axis, outside the plot.
+func (h ChartCrosshairPart) pill(p *ui.Painter, s string, x, y float32, across, far bool) {
+	w, ht := p.MeasureText(0, ui.Span{Text: s, Size: h.size})
+	box := ui.Rect{W: w + 2*h.pad, H: ht + h.pad}
+	switch {
+	case across && far:
+		box.X, box.Y = x-box.W/2, y-box.H-2
+	case across:
+		box.X, box.Y = x-box.W/2, y+2
+	case far:
+		box.X, box.Y = x+2, y-box.H/2
+	default:
+		box.X, box.Y = x-box.W-2, y-box.H/2
+	}
+	p.Fill(box, h.k.Text, theme.ControlRadius)
+	p.Text(box.X+h.pad, box.Y+h.pad/2, s, h.size, h.k.Surface)
+}

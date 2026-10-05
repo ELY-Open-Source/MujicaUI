@@ -54,8 +54,8 @@ func RadarChart(c *ui.Context, axes []string, series []ChartSeries, opts RadarCh
 		return r.X + r.W/2, r.Y + r.H/2 + 4, min(r.W/2-70, r.H/2-24)
 	}
 	angle := func(i int) float64 { return 2 * math.Pi * float64(i) / float64(len(axes)) }
-	spec := chartSpec{n: n, keys: keys, toggle: len(series) > 1}
-	spec.readout = func(i int) string {
+	spec := ChartSpec{Marks: n, Legend: keys, Hidden: ch.toggles(len(series) > 1)}
+	spec.Readout = func(i int) string {
 		parts := []string{axes[i]}
 		for _, s := range series {
 			if !ch.hidden(s.Name) {
@@ -64,14 +64,14 @@ func RadarChart(c *ui.Context, axes []string, series []ChartSeries, opts RadarCh
 		}
 		return strings.Join(parts, " · ")
 	}
-	spec.pick = func(r ui.Rect, x, y float32) int {
+	spec.Pick = func(r ui.Rect, x, y float32) int {
 		cx, cy, rad := geom(r)
 		if math.Hypot(float64(x-cx), float64(y-cy)) > float64(rad)+16 {
 			return -1
 		}
 		return internal.Nearest(len(axes), func(i int) (float32, float32) { return internal.Polar(cx, cy, rad, angle(i)) }, x, y, 2*rad+32, false)
 	}
-	spec.draw = func(p *ui.Painter, r ui.Rect, active int) {
+	spec.Draw = func(p *ui.Painter, r ui.Rect, active int) {
 		cx, cy, rad := geom(r)
 		for _, t := range internal.Ticks(step, top, step) {
 			var ring ui.Path

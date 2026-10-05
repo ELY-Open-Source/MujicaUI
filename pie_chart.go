@@ -66,11 +66,11 @@ func PieChart(c *ui.Context, slices []ChartSlice, opts PieChartOptions) ChartRes
 		return r.X + r.W/2, r.Y + r.H/2, r0, r1
 	}
 	share := func(i int) string { return fmt.Sprintf("%.1f%%", 100*parts[i].Value/total) }
-	spec := chartSpec{n: n, keys: keys}
-	spec.readout = func(i int) string {
+	spec := ChartSpec{Marks: n, Legend: keys}
+	spec.Readout = func(i int) string {
 		return parts[i].Label + " · " + chartValue(c, parts[i].Value, opts.Format) + " · " + share(i)
 	}
-	spec.pick = func(r ui.Rect, x, y float32) int {
+	spec.Pick = func(r ui.Rect, x, y float32) int {
 		cx, cy, r0, r1 := geom(r)
 		d := float32(math.Hypot(float64(x-cx), float64(y-cy)))
 		if d < r0 || d > r1 {
@@ -87,7 +87,7 @@ func PieChart(c *ui.Context, slices []ChartSlice, opts PieChartOptions) ChartRes
 		}
 		return -1
 	}
-	spec.draw = func(p *ui.Painter, r ui.Rect, active int) {
+	spec.Draw = func(p *ui.Painter, r ui.Rect, active int) {
 		cx, cy, r0, r1 := geom(r)
 		for i := range parts {
 			a0, a1 := angle(i)
