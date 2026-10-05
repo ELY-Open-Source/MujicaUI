@@ -14,8 +14,8 @@ import (
 	"mujicaui/theme"
 )
 
-// TraceSpan is one timed operation of a request; Parent is "" for the root.
-type TraceSpan struct {
+// WaterfallSpan is one timed operation of a request; Parent is "" for the root.
+type WaterfallSpan struct {
 	ID, Parent string
 	Name       string
 	Service    string
@@ -45,7 +45,7 @@ type traceState struct {
 }
 
 // TraceWaterfall lays spans out by parent and time; choosing a span shows its detail.
-func TraceWaterfall(c *ui.Context, spans []TraceSpan, opts TraceWaterfallOptions) ChoiceResult {
+func TraceWaterfall(c *ui.Context, spans []WaterfallSpan, opts TraceWaterfallOptions) ChoiceResult {
 	if opts.Height < 0 {
 		panic("mujica: TraceWaterfall Height is negative")
 	}
@@ -89,7 +89,7 @@ func TraceWaterfall(c *ui.Context, spans []TraceSpan, opts TraceWaterfallOptions
 }
 
 // traceLayout orders spans depth-first by start, only when the spans change.
-func traceLayout(st *traceState, spans []TraceSpan) {
+func traceLayout(st *traceState, spans []WaterfallSpan) {
 	key := fmt.Sprintf("%d", len(spans))
 	if len(spans) > 0 {
 		key += fmt.Sprintf("%p", &spans[0])
@@ -135,7 +135,7 @@ func traceLayout(st *traceState, spans []TraceSpan) {
 }
 
 // traceSpanRow shows a span's name indented by depth beside its bar; it reports a choice.
-func traceSpanRow(c *ui.Context, s TraceSpan, depth int, total time.Duration, slot int, selected bool) bool {
+func traceSpanRow(c *ui.Context, s WaterfallSpan, depth int, total time.Duration, slot int, selected bool) bool {
 	k := Tokens(c)
 	d := Density(c)
 	u := d.Unit()

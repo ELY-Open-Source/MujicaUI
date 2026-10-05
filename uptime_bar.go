@@ -60,9 +60,9 @@ func UptimeBar(c *ui.Context, days []UptimeDay, opts UptimeBarOptions) ChartResu
 		return 0
 	}
 	words := [...]string{msg(c, "uptime_bar.ok"), msg(c, "uptime_bar.degraded"), msg(c, "uptime_bar.down"), msg(c, "uptime_bar.nodata")}
-	res, _ := ch.build(chartSpec{
-		n: n,
-		draw: func(p *ui.Painter, r ui.Rect, active int) {
+	res, _ := ch.build(ChartSpec{
+		Marks: n,
+		Draw: func(p *ui.Painter, r ui.Rect, active int) {
 			b := band(r)
 			for i, d := range days {
 				x, w := internal.Snap(p, b.Start(i)), max(b.Width(), 1)
@@ -76,11 +76,11 @@ func UptimeBar(c *ui.Context, days []UptimeDay, opts UptimeBarOptions) ChartResu
 				}
 			}
 		},
-		pick: func(r ui.Rect, x, _ float32) int {
+		Pick: func(r ui.Rect, x, _ float32) int {
 			b := band(r)
 			return max(0, min(n-1, int((x-r.X)/b.Step())))
 		},
-		readout: func(i int) string {
+		Readout: func(i int) string {
 			d := days[i]
 			s := fmt.Sprintf("%s · %s", d.Date.String(), words[level(d.Uptime)])
 			if !math.IsNaN(d.Uptime) {

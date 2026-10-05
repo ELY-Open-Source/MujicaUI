@@ -8,14 +8,14 @@ import (
 	"github.com/egoist/mygo/ui"
 )
 
-var traceSample = []TraceSpan{
+var traceSample = []WaterfallSpan{
 	{ID: "db", Parent: "api", Name: "SELECT guests", Service: "postgres", Start: 40 * time.Millisecond, Duration: 90 * time.Millisecond},
 	{ID: "root", Name: "GET /ball", Service: "gateway", Duration: 320 * time.Millisecond},
 	{ID: "api", Parent: "root", Name: "ListGuests", Service: "api", Start: 20 * time.Millisecond, Duration: 200 * time.Millisecond},
 	{ID: "pay", Parent: "root", Name: "Charge", Service: "payments", Start: 230 * time.Millisecond, Duration: 80 * time.Millisecond, Error: true},
 }
 
-func traceTester(spans []TraceSpan, changes *int) *ui.Tester {
+func traceTester(spans []WaterfallSpan, changes *int) *ui.Tester {
 	return ui.NewTester(func(c *ui.Context) {
 		Use(c, Settings{})
 		if TraceWaterfall(c, spans, TraceWaterfallOptions{}).Changed() {
@@ -54,10 +54,10 @@ func TestTraceWaterfallRulesAndMany(t *testing.T) {
 	if !tt.HasText("No spans") {
 		t.Fatal("empty")
 	}
-	many := make([]TraceSpan, 100000)
-	many[0] = TraceSpan{ID: "0", Name: "root", Duration: time.Second}
+	many := make([]WaterfallSpan, 100000)
+	many[0] = WaterfallSpan{ID: "0", Name: "root", Duration: time.Second}
 	for i := 1; i < len(many); i++ {
-		many[i] = TraceSpan{ID: fmt.Sprint(i), Parent: "0", Name: fmt.Sprint("span ", i), Start: time.Duration(i) * time.Microsecond, Duration: time.Microsecond}
+		many[i] = WaterfallSpan{ID: fmt.Sprint(i), Parent: "0", Name: fmt.Sprint("span ", i), Start: time.Duration(i) * time.Microsecond, Duration: time.Microsecond}
 	}
 	tt = traceTester(many, &n)
 	if got := len(tt.Texts()); got > 400 {
@@ -68,7 +68,7 @@ func TestTraceWaterfallRulesAndMany(t *testing.T) {
 			t.Fatal("cycle did not panic")
 		}
 	}()
-	traceTester([]TraceSpan{{ID: "a", Parent: "b", Name: "a"}, {ID: "b", Parent: "a", Name: "b"}}, &n)
+	traceTester([]WaterfallSpan{{ID: "a", Parent: "b", Name: "a"}, {ID: "b", Parent: "a", Name: "b"}}, &n)
 }
 
 func TestTraceWaterfallSnapshot(t *testing.T) {
