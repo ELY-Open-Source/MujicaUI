@@ -28,6 +28,8 @@ func init() {
 
 		"undo_toast.undo": {"Undo", "撤销"},
 
+		"resizable_panel_group.divider": {"Resize %s and %s", "调整 %s 与 %s 的大小"},
+
 		"qr_code.label":    {"QR code", "二维码"},
 		"qr_code.too_long": {"Text too long for a QR code", "文字过长，无法生成二维码"},
 	})
