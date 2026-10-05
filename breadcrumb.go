@@ -135,6 +135,7 @@ func breadcrumbMore(c *ui.Context, hidden []BreadcrumbItem, choose func(int)) {
 	}
 	b.Children(func() { ui.Icon(c, icons.Must("ellipsis")).Size(16, 16) })
 	ui.PopoverBase(c, b, open, func(panel *ui.Element) {
+		internal.PopIn(c, panel, Motion(c, theme.PopupDuration))
 		panel.Margin(u, 0, 0, 0).Padding(u).Gap(u*0.5).Radius(theme.PopupRadius).Background(k.Surface).
 			Border(theme.BorderWidth, k.Border).Shadow(0, 4, 12, 0, ui.RGBA(0, 0, 0, 0.16)).MinWidth(160).MaxWidth(320)
 		for j, it := range hidden {

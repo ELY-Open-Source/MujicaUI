@@ -55,3 +55,4 @@ if i, ok := mujica.Breadcrumb(c, path, mujica.BreadcrumbOptions{}).Chosen(); ok 
 
 - 完整名称提示对每一项都提供，MyGo 不报告文字是否被截断。
 - 未复用 MyGo `ui.Breadcrumbs`：它不支持折叠与提示，本组件用 `ButtonBase`、`PopoverBase` 组合实现。
+- 弹层打开时在 160 ms 内淡入，减少动画时直接显示。关闭时立即消失：弹层关闭后 MyGo 不再构建其元素，公开接口无法为已移除的浮层做淡出。

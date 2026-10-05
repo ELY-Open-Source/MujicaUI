@@ -64,6 +64,7 @@ func (m *menubarRun) panel(l int, x, y float32, parent ui.Rect) (*ui.Element, *u
 	panel := ui.Scroll(c).Absolute().Padding(u).MinWidth(200).MaxHeight(wh-8).AlignItems(ui.Stretch).Role(ui.RolePopup).
 		Radius(theme.PopupRadius).Background(k.Surface).Border(theme.BorderWidth, k.Border).
 		Shadow(0, 6, 16, 0, ui.RGBA(0, 0, 0, 0.18))
+	internal.PopIn(c, panel, Motion(c, theme.PopupDuration))
 	pb := panel.Bounds()
 	if x+pb.W > ww-4 {
 		x = ww - 4 - pb.W
@@ -75,6 +76,9 @@ func (m *menubarRun) panel(l int, x, y float32, parent ui.Rect) (*ui.Element, *u
 		y = max(4, wh-4-pb.H)
 	}
 	panel.Left(max(4, x)).Top(y)
+	if panel.Clicked() {
+		m.focus(st.open)
+	}
 	var anchor *ui.Element
 	panel.Children(func() {
 		for j, it := range items {
@@ -94,6 +98,10 @@ func (m *menubarRun) panel(l int, x, y float32, parent ui.Rect) (*ui.Element, *u
 				st.hl = append(st.hl[:l], j)
 				m.activate(l, j)
 				return
+			}
+			if row.Pressed() {
+				// A press takes the focus off the title, which drives the keys.
+				m.focus(st.open)
 			}
 			px, py, over := row.PointerPosition()
 			b := row.Bounds()

@@ -51,3 +51,4 @@ if mujica.Pagination(c, &page, &size, mujica.PaginationOptions{Total: 420, PageS
 ## 限制
 
 - 页容量选择基于 MyGo `SelectBase`，弹层由 MujicaUI 绘制。
+- 弹层打开时在 160 ms 内淡入，减少动画时直接显示。关闭时立即消失：弹层关闭后 MyGo 不再构建其元素，公开接口无法为已移除的浮层做淡出。
