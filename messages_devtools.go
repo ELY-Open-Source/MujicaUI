@@ -78,6 +78,10 @@ func init() {
 		"trace_waterfall.detail":  {"%s · starts at %s · takes %s", "%s · 起于 %s · 耗时 %s"},
 		"trace_waterfall.error":   {"Error", "错误"},
 
+		"json_viewer.invalid": {"Invalid JSON: %v", "JSON 无效：%v"},
+		"json_viewer.copy":    {"Copy path", "复制路径"},
+		"json_viewer.items":   {"%s %d items %s", "%s %d 项 %s"},
+
 		"alert_list.empty": {"No alerts", "没有告警"},
 	})
 }
