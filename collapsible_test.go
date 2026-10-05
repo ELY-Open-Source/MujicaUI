@@ -84,3 +84,25 @@ func TestCollapsibleSnapshot(t *testing.T) {
 		})
 	})
 }
+
+func TestCollapsibleClosingContentLeavesTabOrder(t *testing.T) {
+	open := true
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Padding(10).Children(func() {
+			Collapsible(c, &open, CollapsibleOptions{Title: "Details"}, func() {
+				Button(c, "Inner", ButtonOptions{})
+			})
+			Button(c, "After", ButtonOptions{})
+		})
+	}, 300, 300)
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeySpace) // closes; the content shrinks for 120 ms
+	if open || !tt.HasText("Inner") {
+		t.Fatalf("expected a closing animation: open %v", open)
+	}
+	tt.Key(0, ui.KeyTab)
+	if !tt.Focused("After") {
+		t.Fatal("Tab entered closing content")
+	}
+}

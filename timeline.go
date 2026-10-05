@@ -44,10 +44,10 @@ func Timeline(c *ui.Context, items []TimelineItem) *ui.Element {
 				ui.Column(c).Grow(1).MinWidth(0).Gap(u).Padding(0, 0, u*5, 0).Children(func() {
 					ui.Row(c).Gap(u * 2).AlignItems(ui.Center).Wrap().Children(func() {
 						if it.Time != "" {
-							ui.Text(c, it.Time).FontSize(theme.CaptionSize).TextColor(k.TextMuted)
+							ui.Text(c, it.Time).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.TextMuted)
 						}
 						if w := timelineWord(c, it.Status); w != "" {
-							ui.Text(c, w).FontSize(theme.CaptionSize).TextColor(timelineColor(k, it.Status)).FontWeight(600)
+							ui.Text(c, w).FontSize(FontSize(c, theme.CaptionSize)).TextColor(timelineColor(k, it.Status)).FontWeight(600)
 						}
 					})
 					if it.Title != "" {

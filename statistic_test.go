@@ -79,3 +79,18 @@ func TestStatisticSnapshot(t *testing.T) {
 		})
 	})
 }
+
+func TestStatisticTextScale(t *testing.T) {
+	var h float32
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).AlignItems(ui.Start).Children(func() { h = Statistic(c, 7, StatisticOptions{}).Bounds().H })
+	}, 300, 300)
+	tt.Frame()
+	base := h
+	tt.SetPreferences(ui.Preferences{TextScale: 2})
+	tt.Frame()
+	if h < base*1.8 {
+		t.Fatalf("height %v at 200%%, %v at 100%%", h, base)
+	}
+}

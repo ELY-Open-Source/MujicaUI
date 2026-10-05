@@ -39,7 +39,7 @@ var dataPages = []page{
 // dataSection lays out a titled block of a demo.
 func dataSection(c *ui.Context, title string, fn func()) {
 	ui.Column(c).Gap(12).Children(func() {
-		ui.Text(c, title).Font(theme.SerifFont).FontSize(theme.H3Size)
+		ui.Text(c, title).Font(theme.SerifFont).FontSize(mujica.FontSize(c, theme.H3Size))
 		fn()
 	})
 }
@@ -50,7 +50,7 @@ func dataStates(c *ui.Context, fn func(state func(name string, body func()))) {
 	ui.Row(c).Gap(24).Wrap().AlignItems(ui.Start).Children(func() {
 		fn(func(name string, body func()) {
 			ui.Column(c).Gap(6).AlignItems(ui.Start).Children(func() {
-				ui.Text(c, name).FontSize(theme.CaptionSize).TextColor(k.TextMuted)
+				ui.Text(c, name).FontSize(mujica.FontSize(c, theme.CaptionSize)).TextColor(k.TextMuted)
 				body()
 			})
 		})

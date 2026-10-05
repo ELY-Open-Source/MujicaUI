@@ -29,8 +29,7 @@ type TreeColumn[K comparable] struct {
 type TreeTableOptions[K comparable] struct {
 	Columns []TreeColumn[K]
 	Roots   []K
-	// Children returns an item's children: nil for a leaf, empty while unloaded; required.
-	// Return a new slice when they change: sorted copies are cached by slice.
+	// Children returns kids (nil leaf, empty unloaded); required; return a new slice on change.
 	Children func(item K) []K
 	// Label returns an item's text, read out and matched by typing; required.
 	Label func(item K) string
@@ -84,15 +83,15 @@ func TreeTable[K comparable](c *ui.Context, s *TreeTableState[K], opts TreeTable
 	if s.sorted == nil {
 		s.sorted = map[K]treeSorted[K]{}
 	}
-	var cmp func(a, b K) int
 	cols := make([]ui.TableColumn, len(opts.Columns))
+	menu := make([]tableColumn, len(opts.Columns))
 	for i, col := range opts.Columns {
 		cols[i] = ui.TableColumn{ID: col.ID, Title: col.Title, Width: col.Width, MinWidth: col.MinWidth, Align: col.Align, Sortable: col.Compare != nil}
-		if col.ID == s.Sort.Column && col.Compare != nil {
-			cmp = col.Compare
-		}
+		menu[i] = tableColumn{ID: col.ID, Title: col.Title, Width: col.Width, MinWidth: col.MinWidth, Sortable: col.Compare != nil}
 	}
-	order := s.Sort
+	// The sort is read after the column menu, which may change it.
+	var cmp func(a, b K) int
+	var order ui.SortOrder
 	sorted := func(src []K, cache *treeSorted[K]) []K {
 		if cmp == nil || len(src) < 2 {
 			return src
@@ -120,20 +119,25 @@ func TreeTable[K comparable](c *ui.Context, s *TreeTableState[K], opts TreeTable
 		s.sorted[item] = cache
 		return out
 	}
+	before := s.Sort
 	var v DataTableView
-	v.Element = ui.Column(c).MinHeight(0)
+	v.Element = ui.Column(c).MinHeight(0).Gap(d.Unit() * 2)
 	v.Children(func() {
 		if len(opts.Roots) == 0 {
 			v.retry = dataPlaceholder(c, opts.Status, opts.Error, opts.Empty, msg(c, "list.empty"))
 			return
 		}
+		ui.Row(c).Justify(ui.End).Children(func() { tableColumnMenu(c, menu, &s.Sort, &s.Layout, nil) })
+		order = s.Sort
+		for _, col := range opts.Columns {
+			if col.ID == order.Column {
+				cmp = col.Compare
+			}
+		}
 		roots := sorted(opts.Roots, &s.roots)
-		before := s.Sort
+		head := s.Sort
 		t.outline.List.Sort, t.outline.List.Columns = &s.Sort, s.Layout
-		saved := c.Theme()
-		th := *saved
-		th.Spacing = d.ControlHeight() / 8
-		c.SetTheme(&th)
+		restore := dataSelectTheme(c, d.ControlHeight()/8)
 		e := ui.OutlineTable(c, &t.outline, cols, roots, children, func(item K, col int) {
 			if col > 0 {
 				opts.Columns[col].Cell(item)
@@ -143,20 +147,20 @@ func TreeTable[K comparable](c *ui.Context, s *TreeTableState[K], opts TreeTable
 				ui.Row(c).Grow(1).MinWidth(0).AlignItems(ui.Center).Children(func() { opts.Columns[0].Cell(item) })
 				t.itemStatus(c, item, opts.ItemStatus, opts.Load)
 				if t.chosen(item, &s.Selection, opts.Multiple) {
-					ui.Icon(c, icons.Must("check")).Size(16, 16).Shrink(0)
+					ui.Icon(c, icons.Must("check")).Size(16, 16).Shrink(0).TextColor(k.AccentText)
 				}
 			})
 		})
-		c.SetTheme(saved)
+		restore()
 		e.Grow(1).MinHeight(0).Background(k.Surface).Border(theme.BorderWidth, k.Border).Radius(theme.ControlRadius)
 		internal.Ring(e, k.Focus, theme.ControlRadius)
 		s.Layout = t.outline.List.Columns
-		v.sorted = s.Sort != before
-		v.changed = e.Changed() && !v.sorted
+		v.changed = e.Changed() && s.Sort == head
 		v.submitted = e.Submitted()
 		v.retry = dataFooter(c, opts.Status, opts.Error)
 	})
-	t.end()
+	v.sorted = s.Sort != before
+	t.end(c, v.changed)
 	if v.sorted {
 		slog.Debug("mujica: tree_table sort", "column", s.Sort.Column, "descending", s.Sort.Descending)
 	}
