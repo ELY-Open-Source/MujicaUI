@@ -20,18 +20,20 @@ var indexHTML []byte
 
 // mirror runs the gallery view headless and streams its frames.
 type mirror struct {
-	mu    sync.Mutex
-	tt    *ui.Tester
-	frame []byte
-	seq   int
-	hash  uint64
-	seed  maphash.Seed
-	subs  map[chan []byte]struct{}
-	wake  chan struct{}
-	urls  int
-	told  int
-	clip  string
-	enc   png.Encoder
+	mu     sync.Mutex
+	tt     *ui.Tester
+	frame  []byte
+	seq    int
+	hash   uint64
+	seed   maphash.Seed
+	subs   map[chan []byte]struct{}
+	wake   chan struct{}
+	urls   int
+	clip   string
+	copied bool
+	cursor ui.Cursor
+	down   *input
+	enc    png.Encoder
 }
 
 func serveWeb(addr string, view func(c *ui.Context)) error {
@@ -54,7 +56,9 @@ func newMirror(view func(c *ui.Context)) (*mirror, http.Handler) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		w.Write(indexHTML)
+		if _, err := w.Write(indexHTML); err != nil {
+			slog.Warn("gallery: web page write failed", "err", err)
+		}
 	})
 	mux.HandleFunc("GET /frame.png", m.serveFrame)
 	mux.HandleFunc("GET /events", m.serveEvents)
@@ -62,20 +66,27 @@ func newMirror(view func(c *ui.Context)) (*mirror, http.Handler) {
 	return m, mux
 }
 
-// loop draws frames while the picture keeps changing, then sleeps.
+// loop frames at 33 ms while changing, else polls at 200 ms for timers.
 func (m *mirror) loop() {
-	for range m.wake {
-		for still := 0; still < 6; {
-			time.Sleep(33 * time.Millisecond)
-			m.mu.Lock()
-			m.tt.Frame()
-			changed := m.capture()
-			m.mu.Unlock()
-			if changed {
-				still = 0
-			} else {
-				still++
-			}
+	still := 0
+	for {
+		wait := 33 * time.Millisecond
+		if still > 30 {
+			wait = 200 * time.Millisecond
+		}
+		select {
+		case <-m.wake:
+			still = 0
+		case <-time.After(wait):
+		}
+		m.mu.Lock()
+		m.tt.Frame()
+		changed := m.capture()
+		m.mu.Unlock()
+		if changed {
+			still = 0
+		} else {
+			still++
 		}
 	}
 }
@@ -87,12 +98,12 @@ func (m *mirror) kick() {
 	}
 }
 
-// capture encodes the frame and notifies browsers; the caller holds mu.
+// capture encodes a changed frame and notifies browsers; the caller holds mu.
 func (m *mirror) capture() bool {
 	img := m.tt.Image()
 	h := maphash.Bytes(m.seed, img.Pix)
 	notice := m.notices()
-	if h == m.hash && notice == nil {
+	if h == m.hash && len(notice) == 0 {
 		return false
 	}
 	if h != m.hash {
@@ -103,11 +114,8 @@ func (m *mirror) capture() bool {
 		m.frame, m.hash = b.Bytes(), h
 		m.seq++
 	}
-	if notice == nil {
-		notice = map[string]any{}
-	}
 	notice["seq"] = m.seq
-	notice["cursor"] = cursorCSS(m.tt.Cursor())
+	notice["cursor"] = cursorCSS(m.cursor)
 	msg, err := json.Marshal(notice)
 	if err != nil {
 		panic(err)
@@ -122,20 +130,21 @@ func (m *mirror) capture() bool {
 	return true
 }
 
-// notices gathers opened URLs, announcements and clipboard changes.
+// notices gathers opened URLs, announcements, clipboard writes and cursor changes.
 func (m *mirror) notices() map[string]any {
 	n := map[string]any{}
 	if urls := m.tt.OpenedURLs(); len(urls) > m.urls {
 		n["open"], m.urls = urls[m.urls:], len(urls)
 	}
-	if told := m.tt.Announcements(); len(told) > m.told {
-		n["announce"], m.told = told[m.told:], len(told)
+	if told := m.tt.Announcements(); len(told) > 0 {
+		n["announce"] = told
 	}
-	if clip := m.tt.Clipboard(); clip != m.clip {
-		n["clipboard"], m.clip = clip, clip
+	if clip := m.tt.Clipboard(); clip != m.clip || m.copied {
+		n["clipboard"], m.clip, m.copied = clip, clip, false
 	}
-	if len(n) == 0 {
-		return nil
+	if c := m.tt.Cursor(); c != m.cursor {
+		m.cursor = c
+		n["cursorChanged"] = true
 	}
 	return n
 }
@@ -146,7 +155,9 @@ func (m *mirror) serveFrame(w http.ResponseWriter, r *http.Request) {
 	m.mu.Unlock()
 	w.Header().Set("Content-Type", "image/png")
 	w.Header().Set("Cache-Control", "no-store")
-	w.Write(frame)
+	if _, err := w.Write(frame); err != nil {
+		slog.Warn("gallery: web frame write failed", "err", err)
+	}
 }
 
 func (m *mirror) serveEvents(w http.ResponseWriter, r *http.Request) {
@@ -169,122 +180,21 @@ func (m *mirror) serveEvents(w http.ResponseWriter, r *http.Request) {
 	}()
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-store")
-	fmt.Fprintf(w, "data: %s\n\n", first)
+	if _, err := fmt.Fprintf(w, "data: %s\n\n", first); err != nil {
+		slog.Warn("gallery: web events write failed", "remote", r.RemoteAddr, "err", err)
+		return
+	}
 	flusher.Flush()
 	for {
 		select {
 		case msg := <-ch:
-			fmt.Fprintf(w, "data: %s\n\n", msg)
+			if _, err := fmt.Fprintf(w, "data: %s\n\n", msg); err != nil {
+				slog.Warn("gallery: web events write failed", "remote", r.RemoteAddr, "err", err)
+				return
+			}
 			flusher.Flush()
 		case <-r.Context().Done():
 			return
 		}
 	}
-}
-
-// input is one browser event.
-type input struct {
-	Type   string  `json:"type"`
-	X      float32 `json:"x"`
-	Y      float32 `json:"y"`
-	DX     float32 `json:"dx"`
-	DY     float32 `json:"dy"`
-	Button int     `json:"button"`
-	Code   string  `json:"code"`
-	Text   string  `json:"text"`
-	Caret  int     `json:"caret"`
-	Mods   []bool  `json:"mods"`
-	W      int     `json:"w"`
-	H      int     `json:"h"`
-	Scale  float32 `json:"scale"`
-	Dark   bool    `json:"dark"`
-	Motion bool    `json:"reduceMotion"`
-	More   bool    `json:"moreContrast"`
-}
-
-func (m *mirror) serveInput(w http.ResponseWriter, r *http.Request) {
-	var in input
-	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	m.mu.Lock()
-	err := m.apply(in)
-	if err == nil {
-		m.capture()
-	}
-	m.mu.Unlock()
-	if err != nil {
-		slog.Warn("gallery: web input rejected", "type", in.Type, "err", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	m.kick()
-	w.WriteHeader(http.StatusNoContent)
-}
-
-// apply sends one event to the tester; the caller holds mu.
-func (m *mirror) apply(in input) error {
-	mods := modifiers(in.Mods)
-	switch in.Type {
-	case "down":
-		if in.Button == 2 {
-			m.tt.RightClickAt(in.X, in.Y)
-		} else if mods != 0 {
-			m.tt.ClickAtWith(mods, in.X, in.Y)
-		} else {
-			m.tt.Press(in.X, in.Y)
-		}
-	case "up":
-		if in.Button == 0 && mods == 0 {
-			m.tt.Release(in.X, in.Y)
-		}
-	case "move":
-		m.tt.Move(in.X, in.Y)
-	case "wheel":
-		m.tt.Scroll(in.X, in.Y, in.DX, in.DY)
-	case "key":
-		k, ok := keyCodes[in.Code]
-		if !ok {
-			return fmt.Errorf("unmapped key code %q", in.Code)
-		}
-		if in.Text != "" && mods&^ui.Shift == 0 {
-			m.tt.TypeKey(mods, k, in.Text)
-		} else {
-			m.tt.Key(mods, k)
-		}
-	case "text":
-		m.tt.Type(in.Text)
-	case "compose":
-		m.tt.Compose(in.Text, in.Caret)
-	case "paste":
-		m.tt.SetClipboard(in.Text)
-		m.clip = in.Text
-		m.tt.Command("paste")
-	case "command":
-		m.tt.Command(in.Text)
-	case "resize":
-		if in.W < 320 || in.H < 240 || in.Scale <= 0 {
-			return fmt.Errorf("bad size %dx%d@%v", in.W, in.H, in.Scale)
-		}
-		m.tt.SetSize(in.W, in.H)
-		m.tt.SetScale(in.Scale)
-		m.tt.SetDark(in.Dark)
-		m.tt.SetPreferences(ui.Preferences{ReduceMotion: in.Motion, HighContrast: in.More, TextScale: 1})
-	case "focus":
-		m.tt.SetFocused(in.Text == "in")
-	default:
-		return fmt.Errorf("unknown input type %q", in.Type)
-	}
-	return nil
-}
-
-func modifiers(m []bool) ui.Modifiers {
-	var out ui.Modifiers
-	for i, mod := range []ui.Modifiers{ui.Shift, ui.Ctrl, ui.Alt, ui.Super} {
-		if i < len(m) && m[i] {
-			out |= mod
-		}
-	}
-	return out
 }

@@ -1,7 +1,4 @@
-// Gallery tours every MujicaUI component in a native MyGo window.
-//
-//	go run ./examples/gallery            native window
-//	go run ./examples/gallery -web :8080 browser mirror
+// Gallery tours MujicaUI natively, or mirrored to a browser with -web.
 package main
 
 import (
