@@ -31,7 +31,7 @@ func Heading(c *ui.Context, title string, opts HeadingOptions) *ui.Element {
 		}
 		if opts.Divider {
 			ui.Box(c).FillWidth().Height(9).Margin(u, 0, 0, 0).Draw(func(p *ui.Painter, r ui.Rect) {
-				headingOrnament(p, r, k.Ornament)
+				internal.RuleDiamond(p, r, 6, 7, k.Ornament)
 			})
 		}
 	})
@@ -48,13 +48,4 @@ func headingSize(level int) float32 {
 		return theme.H3Size
 	}
 	panic("mujica: Heading Level must be 1, 2 or 3")
-}
-
-// headingOrnament draws symmetric rules around a center diamond.
-func headingOrnament(p *ui.Painter, r ui.Rect, c ui.Color) {
-	cx, cy := r.X+r.W/2, r.Y+r.H/2
-	const d, gap = 7, 6
-	internal.Rule(p, r.X, cx-gap, cy, c)
-	internal.Rule(p, cx+gap, r.X+r.W, cy, c)
-	p.FillPath(internal.Diamond(cx, cy, d), c)
 }

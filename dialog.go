@@ -91,20 +91,8 @@ func dialogPanel(c *ui.Context, panel *ui.Element, width float32, decorated bool
 	panel.Width(width).MaxWidth(w-32).MaxHeight(h-32).Padding(u*6).Gap(u*3).Margin(8*(1-p), 0, 0, 0)
 	if decorated {
 		panel.Border(theme.BorderWidth, k.Ornament).Padding(u*6 + 6).DrawOver(func(pt *ui.Painter, r ui.Rect) {
-			dialogOrnaments(pt, r, k.Ornament, k.Surface)
+			internal.Frame(pt, r, 5, 7, k.Ornament)
 		})
-	}
-}
-
-// dialogOrnaments draws the inner frame and the four corner diamonds.
-func dialogOrnaments(p *ui.Painter, r ui.Rect, ink, ground ui.Color) {
-	const in = 5
-	f := ui.Rect{X: r.X + in, Y: r.Y + in, W: r.W - 2*in, H: r.H - 2*in}
-	p.Stroke(f, ink, 1, 1)
-	for _, pt := range [4][2]float32{{f.X, f.Y}, {f.X + f.W, f.Y}, {f.X, f.Y + f.H}, {f.X + f.W, f.Y + f.H}} {
-		x, y := internal.Snap(p, pt[0]), internal.Snap(p, pt[1])
-		p.FillPath(internal.Diamond(x, y, 11), ground)
-		p.FillPath(internal.Diamond(x, y, 7), ink)
 	}
 }
 
@@ -130,10 +118,7 @@ func dialogHeader(c *ui.Context, title string, decorated, closable bool, closeKe
 // dialogRule is the ornament line under a decorated title.
 func dialogRule(c *ui.Context, ink ui.Color) {
 	ui.Box(c).FillWidth().Height(9).Margin(2, 0, 2, 0).Draw(func(p *ui.Painter, r ui.Rect) {
-		y, cx := r.Y+r.H/2, r.X+r.W/2
-		p.Line(r.X, y, cx-10, y, 1, ink)
-		p.Line(cx+10, y, r.X+r.W, y, 1, ink)
-		p.FillPath(internal.Diamond(internal.Snap(p, cx), internal.Snap(p, y), 7), ink)
+		internal.RuleDiamond(p, r, 10, 7, ink)
 	})
 }
 

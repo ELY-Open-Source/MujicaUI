@@ -87,10 +87,6 @@ func Result(c *ui.Context, opts ResultOptions) ResultResult {
 // resultOrnament draws two hairlines meeting a diamond, in ornament gold.
 func resultOrnament(c *ui.Context, k theme.Tokens) {
 	ui.Box(c).Size(160, 12).Role(ui.RoleNone).Draw(func(p *ui.Painter, r ui.Rect) {
-		cy := float32(int(r.Y+r.H/2)) + 0.5
-		cx := r.X + r.W/2
-		p.Line(r.X, cy, cx-9, cy, 1, k.Ornament)
-		p.Line(cx+9, cy, r.X+r.W, cy, 1, k.Ornament)
-		p.FillPath(internal.Diamond(cx, cy, 8), k.Ornament)
+		internal.RuleDiamond(p, r, 9, 8, k.Ornament)
 	})
 }

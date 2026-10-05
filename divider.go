@@ -37,6 +37,12 @@ func Divider(c *ui.Context, opts DividerOptions) *ui.Element {
 		}
 		return e.Height(theme.BorderWidth)
 	}
+	if opts.Label == "" && !opts.Vertical {
+		gap := Density(c).Unit()*2 + dividerDiamond/2
+		return ui.Box(c).Height(dividerDiamond).Shrink(0).AlignSelf(ui.Stretch).Draw(func(p *ui.Painter, r ui.Rect) {
+			internal.RuleDiamond(p, r, gap, dividerDiamond, line)
+		})
+	}
 	e := ui.Row(c).Gap(Density(c).Unit() * 2).Shrink(0).AlignSelf(ui.Stretch)
 	if opts.Vertical {
 		e.Column().AlignItems(ui.Center)
