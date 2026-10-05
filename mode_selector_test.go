@@ -1,0 +1,62 @@
+package mujica
+
+import (
+	"testing"
+
+	"github.com/egoist/mygo/ui"
+)
+
+func TestModeSelectorClickAndArrows(t *testing.T) {
+	mode, n, off := ModeChat, 0, false
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		if ModeSelector(c, &mode, ModeSelectorOptions{Disabled: off}).Changed() {
+			n++
+		}
+	}, 600, 100)
+	_ = tt.Click("Deep research")
+	if mode != ModeResearch || n != 1 {
+		t.Fatalf("click: mode %d changes %d", mode, n)
+	}
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeyRight)
+	if mode != ModeAgent {
+		t.Fatalf("Right: mode %d", mode)
+	}
+	off = true
+	_ = tt.Click("Chat")
+	if mode != ModeAgent {
+		t.Fatal("disabled selector changed")
+	}
+}
+
+func TestModeSelectorIconsOnlyAndBadMode(t *testing.T) {
+	mode := ModeSearch
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ModeSelector(c, &mode, ModeSelectorOptions{IconsOnly: true})
+	}, 300, 100)
+	if _, ok := tt.Find("Search"); !ok {
+		t.Fatal("icon segments unnamed")
+	}
+	defer func() {
+		if recover() == nil {
+			t.Fatal("no panic for an unknown mode")
+		}
+	}()
+	bad := ChatMode(9)
+	ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ModeSelector(c, &bad, ModeSelectorOptions{})
+	}, 100, 100)
+}
+
+func TestModeSelectorSnapshot(t *testing.T) {
+	mode := ModeResearch
+	snapshot(t, "mode_selector", 520, 120, func(c *ui.Context) {
+		ui.Column(c).Padding(16).Gap(12).AlignItems(ui.Start).Children(func() {
+			ModeSelector(c, &mode, ModeSelectorOptions{})
+			ModeSelector(c, &mode, ModeSelectorOptions{IconsOnly: true})
+		})
+	})
+}
