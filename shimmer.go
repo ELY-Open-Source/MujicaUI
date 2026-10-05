@@ -45,23 +45,26 @@ func Shimmer(c *ui.Context, loading bool, opts ShimmerOptions, content func()) *
 		fill = k.Border
 	}
 	still := c.Preferences().ReduceMotion
-	e := ui.Box(c).Key(still).Height(h).Role(ui.RoleProgress).Label(label)
+	e := ui.Column(c).Height(h).AlignItems(ui.Stretch).Role(ui.RoleProgress).Label(label)
 	if opts.Width > 0 {
 		e.Width(opts.Width)
 	} else {
 		e.FillWidth()
 	}
-	e.Draw(func(p *ui.Painter, r ui.Rect) {
-		p.Fill(r, fill, theme.CardRadius)
-		if still {
-			return
-		}
-		p.AnimationFrame()
-		t := float32(p.Now().UnixMilli()%1600) / 1600
-		band := max(r.W*0.25, 24)
-		x := internal.Snap(p, r.X-band+(r.W+band)*t)
-		p.Clip(r, theme.CardRadius, func() {
-			p.Fill(ui.Rect{X: x, Y: r.Y, W: band, H: r.H}, k.Surface.Alpha(0.55), 0)
+	// Keyed by motion so a flip repaints.
+	e.Children(func() {
+		ui.Box(c).Key(still).Grow(1).Role(ui.RoleNone).Draw(func(p *ui.Painter, r ui.Rect) {
+			p.Fill(r, fill, theme.CardRadius)
+			if still {
+				return
+			}
+			p.AnimationFrame()
+			t := float32(p.Now().UnixMilli()%1600) / 1600
+			band := max(r.W*0.25, 24)
+			x := internal.Snap(p, r.X-band+(r.W+band)*t)
+			p.Clip(r, theme.CardRadius, func() {
+				p.Fill(ui.Rect{X: x, Y: r.Y, W: band, H: r.H}, k.Surface.Alpha(0.55), 0)
+			})
 		})
 	})
 	return e

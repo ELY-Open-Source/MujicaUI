@@ -91,8 +91,8 @@ func CostBreakdown(c *ui.Context, s *CostBreakdownState, items []CostItem, opts 
 	cols := []DataColumn[costRow]{
 		{ID: "name", Title: groupTitle, Sortable: true, Compare: func(a, b costRow) int { return cmp.Compare(a.name, b.name) }, Text: func(r costRow) string { return r.name }},
 		{ID: "calls", Title: msg(c, "cost_breakdown.calls"), Width: 80, Align: ui.End, Sortable: true, Compare: func(a, b costRow) int { return cmp.Compare(a.calls, b.calls) }, Text: func(r costRow) string { return count(r.calls) }},
-		{ID: "input", Title: msg(c, "cost_breakdown.input"), Width: 110, Align: ui.End, Sortable: true, Compare: func(a, b costRow) int { return cmp.Compare(a.input, b.input) }, Text: func(r costRow) string { return count(r.input) }},
-		{ID: "output", Title: msg(c, "cost_breakdown.output"), Width: 110, Align: ui.End, Sortable: true, Compare: func(a, b costRow) int { return cmp.Compare(a.output, b.output) }, Text: func(r costRow) string { return count(r.output) }},
+		{ID: "input", Title: msg(c, "cost_breakdown.input"), Width: 120, Align: ui.End, Sortable: true, Compare: func(a, b costRow) int { return cmp.Compare(a.input, b.input) }, Text: func(r costRow) string { return count(r.input) }},
+		{ID: "output", Title: msg(c, "cost_breakdown.output"), Width: 130, Align: ui.End, Sortable: true, Compare: func(a, b costRow) int { return cmp.Compare(a.output, b.output) }, Text: func(r costRow) string { return count(r.output) }},
 		{ID: "cost", Title: msg(c, "cost_breakdown.cost"), Width: 160, Sortable: true, Compare: func(a, b costRow) int { return cmp.Compare(a.cost, b.cost) },
 			Text: func(r costRow) string { return money(r.cost) },
 			Cell: func(r costRow) {

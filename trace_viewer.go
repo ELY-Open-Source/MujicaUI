@@ -8,6 +8,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
+	"mujicaui/icons"
 	"mujicaui/internal"
 	"mujicaui/theme"
 )
@@ -70,6 +71,9 @@ func TraceViewer(c *ui.Context, s *TraceViewerState, spans []TraceSpan, opts Tra
 		{ID: "name", Title: msg(c, "trace_viewer.span"), Compare: func(a, b string) int { return cmp.Compare(span(a).Name, span(b).Name) },
 			Cell: func(id string) {
 				sp := span(id)
+				if sp.Failed {
+					ui.Icon(c, icons.Must("circle-x")).Size(14, 14).TextColor(k.Danger).Shrink(0).Margin(0, u, 0, 0)
+				}
 				t := ui.Text(c, sp.Name).SingleLine()
 				if sp.Failed {
 					t.TextColor(k.Danger).Label(sp.Name + ", " + msg(c, "trace_viewer.failed"))
@@ -95,7 +99,14 @@ func TraceViewer(c *ui.Context, s *TraceViewerState, spans []TraceSpan, opts Tra
 					}
 					x0 := r.X + r.W*float32(float64(sp.Start)/float64(ix.end))
 					w := max(2, r.W*float32(float64(sp.End-sp.Start)/float64(ix.end)))
-					p.Fill(ui.Rect{X: internal.Snap(p, x0), Y: r.Y, W: internal.Snap(p, w), H: r.H}, col, 2)
+					bar := ui.Rect{X: internal.Snap(p, x0), Y: r.Y, W: internal.Snap(p, w), H: r.H}
+					if sp.Failed {
+						// Failed spans are hollow, not told apart by color alone.
+						p.Fill(bar, k.Surface, 2)
+						p.Stroke(bar, col, 2, 1.5)
+						return
+					}
+					p.Fill(bar, col, 2)
 				})
 			}},
 	}

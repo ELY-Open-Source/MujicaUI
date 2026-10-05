@@ -42,7 +42,7 @@ func Typewriter(c *ui.Context, text string, opts TypewriterOptions) TypewriterRe
 	if speed < 0 {
 		panic("mujica: Typewriter Speed is negative")
 	}
-	col := ui.Column(c).AlignItems(ui.Start).Gap(Density(c).Unit() * 2)
+	col := ui.Column(c).AlignItems(ui.Start).Gap(Density(c).Unit() * 2).Role(ui.RoleGroup).Label(text)
 	res := TypewriterResult{Element: col}
 	st := ui.Local(col, "typing", func() *typewriterState { return &typewriterState{last: c.Now()} })
 	s := *st
@@ -51,8 +51,9 @@ func Typewriter(c *ui.Context, text string, opts TypewriterOptions) TypewriterRe
 		s.shown, s.skipped, s.done = 0, false, false
 		slog.Debug("mujica: typewriter restart")
 	}
-	if len(runes) > len(s.text) {
-		s.done = false
+	if len(runes) > len(s.text) && s.done {
+		// New text continues from where it stood, at the typing speed.
+		s.done, s.skipped, s.last = false, false, c.Now()
 	}
 	s.text = runes
 	now := c.Now()
@@ -71,7 +72,7 @@ func Typewriter(c *ui.Context, text string, opts TypewriterOptions) TypewriterRe
 		s.last = now
 	}
 	col.Children(func() {
-		ui.Text(c, string(runes[:s.shown])).Label(text)
+		ui.Text(c, string(runes[:s.shown]))
 		if opts.Skippable && s.shown < len(runes) {
 			if Button(c, msg(c, "typewriter.skip"), ButtonOptions{Variant: Ghost}).Clicked() {
 				s.skipped, s.shown = true, len(runes)

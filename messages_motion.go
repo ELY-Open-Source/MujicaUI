@@ -45,6 +45,7 @@ func init() {
 		"tool_registry_panel.empty":     {"No tools", "没有工具"},
 		"tool_registry_panel.choose":    {"Choose a tool to see its parameters", "选择工具查看参数"},
 		"tool_registry_panel.no_params": {"No parameters", "无参数"},
+		"tool_registry_panel.enable":    {"Enable %s", "启用 %s"},
 		"tool_registry_panel.required":  {"required", "必填"},
 
 		"typewriter.skip": {"Skip", "跳过"},

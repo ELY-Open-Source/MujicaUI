@@ -1,6 +1,7 @@
 package mujica
 
 import (
+	"fmt"
 	"log/slog"
 
 	"github.com/egoist/mygo/ui"
@@ -66,7 +67,7 @@ func ToolRegistryPanel(c *ui.Context, s *ListState[string], tools []AgentTool, o
 					ui.Text(c, t.Description).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.TextMuted).SingleLine()
 				})
 				on := t.Enabled
-				Switch(c, &on, "", SwitchOptions{Description: t.Name}).Label(t.Name)
+				Switch(c, &on, "", SwitchOptions{}).Label(fmt.Sprintf(msg(c, "tool_registry_panel.enable"), t.Name))
 				if on != t.Enabled && !row.IsDisabled() {
 					res.toggled, res.on = t.Name, on
 					slog.Debug("mujica: tool registry toggle", "tool", t.Name, "on", on)
