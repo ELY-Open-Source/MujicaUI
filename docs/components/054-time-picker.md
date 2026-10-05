@@ -57,5 +57,4 @@ ui.Render(view, 400, 300, 1)
 - 段顺序固定为“时:分:秒 上午/下午”，zh-CN 下上午/下午也位于末尾。
 - MyGo 的 `ui.TimeInput` 只有时分且无 12 小时制、步长和范围（ui/timeinput.go:18），因此本组件自绘分段。
 - 日期与时间值不带时区：`Date`、`YearMonth`、`TimeOfDay` 只保存日历字段，组件内部计算不做 UTC 转换。
-- `Today` 为零值时读取 `c.Now()`（系统本地时区）；需要固定“今天”（测试、跨时区应用）时显式传入。
 - 无障碍：MyGo v0.2.10 没有公开设置弹出按钮展开状态（`expanded`）、数值范围（`hasRange`/`accRange`）与值（`accValue`）的接口，这些字段只在 MyGo 内部组件中赋值（ui/element.go:286-295，例如 ui/base.go:297、ui/indicators.go:61）。因此触发器只能声明为 `RolePopUpButton` 而无法报告展开状态；时间段以 `Description` 读出当前值与范围，错误通过 `Error()` 关联。

@@ -139,7 +139,7 @@ canvas.addEventListener("pointermove", (e) => {
 });
 canvas.addEventListener("wheel", (e) => {
   const k = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? canvas.clientHeight : 1;
-  send({ type: "wheel", dx: -e.deltaX * k, dy: -e.deltaY * k, ...at(e) }); e.preventDefault();
+  send({ type: "wheel", dx: e.deltaX * k, dy: e.deltaY * k, ...at(e) }); e.preventDefault();
 }, { passive: false });
 canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 canvas.addEventListener("focus", () => keys.focus({ preventScroll: true }));

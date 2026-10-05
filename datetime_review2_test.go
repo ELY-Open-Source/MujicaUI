@@ -169,7 +169,7 @@ func TestFormFocusesDatePickerInput(t *testing.T) {
 	tt := ui.NewTester(func(c *ui.Context) {
 		Use(c, Settings{})
 		Form(c, &st, FormOptions{}, func(f *FormScope) {
-			FormItem(f, "debut", &day, FormItemOptions[Date]{Label: "Debut date", Required: true}, func() *ui.Element {
+			FormItem(c, f, "debut", &day, FormItemOptions[Date]{Label: "Debut date", Required: true}, func() *ui.Element {
 				r := DatePicker(c, &day, DatePickerOptions{Today: calendarToday})
 				input = r.Input
 				return r.Input
