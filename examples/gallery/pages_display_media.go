@@ -59,7 +59,6 @@ func imageDemo(c *ui.Context, log func(string)) {
 			}
 		})
 	})
-	displayCode(c, imageCode, log)
 }
 
 const imageCode = `img := mujica.Image(c, photo, mujica.ImageOptions{
@@ -111,7 +110,6 @@ func avatarDemo(c *ui.Context, log func(string)) {
 			mujica.Avatar(c, "", mujica.AvatarOptions{Size: 40})
 		})
 	})
-	displayCode(c, avatarCode, log)
 }
 
 const avatarCode = `ui.Row(c).Gap(8).Children(func() {
