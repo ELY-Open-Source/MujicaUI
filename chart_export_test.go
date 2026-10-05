@@ -71,3 +71,24 @@ func TestChartExportSnapshot(t *testing.T) {
 		ui.Column(c).Padding(20).Children(func() { ui.Image(c, bmp).Size(300, 260) })
 	})
 }
+
+func TestChartExportPreservesPreferences(t *testing.T) {
+	var data []byte
+	var got ui.Preferences
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{Mode: Dark, Locale: ZhCN})
+		if data != nil {
+			return
+		}
+		var err error
+		data, err = ChartExport(c, func(c *ui.Context) { got = c.Preferences(); ui.Text(c, "Scale") }, ChartExportOptions{Width: 100, Height: 80, Scale: 1})
+		if err != nil {
+			t.Fatal(err)
+		}
+	}, 100, 80)
+	data = nil
+	tt.SetPreferences(ui.Preferences{TextScale: 2, ReduceMotion: true, HighContrast: true})
+	if got.TextScale != 2 || !got.ReduceMotion || !got.HighContrast {
+		t.Fatalf("export preferences %+v", got)
+	}
+}

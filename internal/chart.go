@@ -159,10 +159,13 @@ func Marker(p *ui.Painter, i int, cx, cy, size float32, col ui.Color) {
 }
 
 // Arc appends a polyline from a0 to a1, clockwise radians.
-func Arc(path *ui.Path, cx, cy, r float32, a0, a1 float64, move bool) {
+func Arc(path *ui.Path, cx, cy, r float32, a0, a1 float64, move bool, painters ...*ui.Painter) {
 	n := max(2, int(math.Ceil(math.Abs(a1-a0)/(math.Pi/48))))
 	for i := 0; i <= n; i++ {
 		x, y := Polar(cx, cy, r, a0+(a1-a0)*float64(i)/float64(n))
+		if len(painters) > 0 {
+			x, y = Snap(painters[0], x), Snap(painters[0], y)
+		}
 		if i == 0 && move {
 			path.MoveTo(x, y)
 		} else {
@@ -177,11 +180,11 @@ func Polar(cx, cy, r float32, a float64) (float32, float32) {
 }
 
 // Sector returns a ring slice; zero r0 makes a wedge.
-func Sector(cx, cy, r0, r1 float32, a0, a1 float64) *ui.Path {
+func Sector(cx, cy, r0, r1 float32, a0, a1 float64, painters ...*ui.Painter) *ui.Path {
 	var path ui.Path
-	Arc(&path, cx, cy, r1, a0, a1, true)
+	Arc(&path, cx, cy, r1, a0, a1, true, painters...)
 	if r0 > 0 {
-		Arc(&path, cx, cy, r0, a1, a0, false)
+		Arc(&path, cx, cy, r0, a1, a0, false, painters...)
 	} else {
 		path.LineTo(cx, cy)
 	}

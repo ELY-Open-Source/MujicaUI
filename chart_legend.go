@@ -15,27 +15,31 @@ import (
 type ChartLegendItem struct {
 	Name  string
 	Color ui.Color
-	// Shape picks the marker: 0 circle, 1 square, 2 diamond, 3 triangle, 4 inverted.
+	// Shape selects circle, square, diamond, triangle, or inverted triangle.
 	Shape int
 }
 
 // ChartLegendOptions configure a ChartLegend.
 type ChartLegendOptions struct {
 	Vertical bool
-	// MaxItems folds the rest behind a "+N more" button; 0 shows all.
+	// MaxItems folds overflow; zero shows all items.
 	MaxItems int
 }
 
-// ChartLegendResult is a built legend and the series switched this frame.
+// ChartLegendResult exposes the element and legend events.
 type ChartLegendResult struct {
-	Element *ui.Element
-	toggled string
+	Element          *ui.Element
+	toggled          string
+	expanded, folded bool
 }
 
 // Toggled returns the series switched in this frame.
 func (r ChartLegendResult) Toggled() (string, bool) { return r.toggled, r.toggled != "" }
 
-// ChartLegend lists series keys; with hidden set, each is a check box hiding its series.
+// Expanded reports the new state when expansion changes.
+func (r ChartLegendResult) Expanded() (bool, bool) { return r.expanded, r.folded }
+
+// ChartLegend lists series; hidden enables visibility toggles.
 func ChartLegend(c *ui.Context, hidden *map[string]bool, items []ChartLegendItem, opts ChartLegendOptions) ChartLegendResult {
 	if opts.MaxItems < 0 {
 		panic("mujica: ChartLegend MaxItems must be ≥ 0")
@@ -82,6 +86,7 @@ func ChartLegend(c *ui.Context, hidden *map[string]bool, items []ChartLegendItem
 			b.Children(func() { ui.Text(c, label).FontSize(FontSize(c, theme.CaptionSize)).SingleLine() })
 			if b.Clicked() && !b.IsDisabled() {
 				*open = !*open
+				res.expanded, res.folded = *open, true
 				slog.Debug("mujica: chart_legend fold", "open", *open)
 			}
 		}
@@ -89,7 +94,7 @@ func ChartLegend(c *ui.Context, hidden *map[string]bool, items []ChartLegendItem
 	return res
 }
 
-// chartLegendEntry builds one key; a check box when hidden is set. It reports a switch.
+// chartLegendEntry builds a series visibility control.
 func chartLegendEntry(c *ui.Context, hidden *map[string]bool, it ChartLegendItem, disabled bool) (string, bool) {
 	k := Tokens(c)
 	u := Density(c).Unit()
@@ -114,7 +119,7 @@ func chartLegendEntry(c *ui.Context, hidden *map[string]bool, it ChartLegendItem
 	} else {
 		e = ui.Row(c)
 	}
-	e.MinHeight(theme.MinHitSize).Gap(u*2).AlignItems(ui.Center).Padding(0, u).Radius(theme.ControlRadius)
+	e.MinWidth(theme.MinHitSize).MinHeight(Density(c).ControlHeight()).Gap(u*2).AlignItems(ui.Center).Padding(0, u).Radius(theme.ControlRadius)
 	col := it.Color
 	if !on {
 		col = k.TextMuted

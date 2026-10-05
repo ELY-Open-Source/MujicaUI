@@ -2,6 +2,7 @@ package mujica
 
 import (
 	"math"
+	"strings"
 	"testing"
 
 	"github.com/egoist/mygo/ui"
@@ -20,7 +21,7 @@ func TestChartAnnotationDrag(t *testing.T) {
 	plot := chartInset(ui.Rect{X: b.X, Y: b.Y, W: b.W, H: 240}, 52, 26)
 	yAt := func(v float32) float32 { return plot.Y + plot.H*(1-v/100) }
 	xAt := func(v float32) float32 { return plot.X + plot.W*v/10 }
-	// Drag the Goal line up by a fifth of the plot: 50 becomes 70.
+	// Drag Goal from 50 to 70.
 	tt.Press(xAt(4), yAt(50))
 	tt.Move(xAt(4), yAt(60))
 	tt.Move(xAt(4), yAt(70))
@@ -77,4 +78,44 @@ func TestChartAnnotationSnapshot(t *testing.T) {
 		}
 		ui.Column(c).Padding(16).Children(func() { partsChart(c, notes, false) })
 	})
+}
+
+func TestChartAnnotationKeyboardEditsEveryKind(t *testing.T) {
+	notes := []ChartNote{
+		{Kind: NoteHLine, Value: 50, Draggable: true},
+		{Kind: NoteVLine, Value: 3, Draggable: true},
+		{Kind: NoteBand, Value: 6, End: 8, Draggable: true},
+		{Kind: NoteText, Value: 1, End: 90, Text: "Feast", Draggable: true},
+	}
+	h := &chartHarness{build: func(c *ui.Context) ChartResult { return partsChart(c, notes, false) }}
+	tt := ui.NewTester(h.view, 520, 420)
+	tabTo(t, tt, "Parts")
+	tt.Key(ui.Alt, ui.KeyUp)
+	if notes[0].Value != 51 {
+		t.Fatalf("horizontal line %v", notes[0].Value)
+	}
+	if said := tt.Announcements(); len(said) == 0 || !strings.Contains(said[len(said)-1], "y 51") {
+		t.Fatalf("horizontal readout %q", said)
+	}
+	tt.Key(ui.Alt, ui.KeyPageDown)
+	tt.Key(ui.Alt, ui.KeyRight)
+	if notes[1].Value != 3.1 {
+		t.Fatalf("vertical line %v", notes[1].Value)
+	}
+	tt.Key(ui.Alt, ui.KeyPageDown)
+	tt.Key(ui.Alt, ui.KeyRight)
+	if math.Abs(notes[2].Value-6.1) > 1e-9 || notes[2].End-notes[2].Value != 2 {
+		t.Fatalf("band %+v", notes[2])
+	}
+	tt.Key(ui.Alt, ui.KeyPageDown)
+	tt.Key(ui.Alt, ui.KeyUp)
+	if notes[3].End != 91 {
+		t.Fatalf("text %+v", notes[3])
+	}
+	h.disabled = true
+	tt.Frame()
+	tt.Key(ui.Alt, ui.KeyUp)
+	if notes[3].End != 91 {
+		t.Fatalf("disabled text %+v", notes[3])
+	}
 }

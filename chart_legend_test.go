@@ -93,3 +93,33 @@ func TestChartLegendSnapshot(t *testing.T) {
 		})
 	})
 }
+
+func TestChartLegendDisabledAndExpansionEvents(t *testing.T) {
+	hidden := map[string]bool{}
+	disabled := false
+	events := 0
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Disabled(disabled).Children(func() {
+			r := ChartLegend(c, &hidden, legendItems(), ChartLegendOptions{MaxItems: 2})
+			if _, ok := r.Expanded(); ok {
+				events++
+			}
+		})
+	}, 500, 200)
+	if err := tt.Click("+3 more"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Frame()
+	if events != 1 || !tt.HasText("Sext") {
+		t.Fatalf("expansion events %d", events)
+	}
+	disabled = true
+	tt.Frame()
+	_ = tt.Click("Matins")
+	_ = tt.Click("Show fewer")
+	tt.Key(0, ui.KeySpace)
+	if hidden["Matins"] || events != 1 || !tt.HasText("Sext") {
+		t.Fatalf("disabled legend %v events %d", hidden, events)
+	}
+}

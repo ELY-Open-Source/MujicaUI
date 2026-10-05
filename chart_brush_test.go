@@ -2,6 +2,7 @@ package mujica
 
 import (
 	"fmt"
+	"math"
 	"testing"
 
 	"github.com/egoist/mygo/ui"
@@ -120,4 +121,46 @@ func TestChartBrushSnapshot(t *testing.T) {
 			ChartBrush(c, &v, ChartBrushOptions{Label: "Months", Min: 0, Max: 59, Step: 1, Values: vals, Format: func(f float64) string { return fmt.Sprintf("week %.0f", f) }})
 		})
 	})
+}
+
+func TestChartBrushWindowDragPreservesSpanAtEdges(t *testing.T) {
+	h := &brushHarness{value: [2]float64{20, 60}}
+	tt := ui.NewTester(h.view, 460, 200)
+	b := h.el.Bounds()
+	tt.Press(b.X+160, b.Y+24)
+	tt.Move(b.X+380, b.Y+24)
+	tt.Release(b.X+380, b.Y+24)
+	if h.value != [2]float64{60, 100} {
+		t.Fatalf("right edge shrank window: %v", h.value)
+	}
+	tt.Press(b.X+320, b.Y+24)
+	tt.Move(b.X-50, b.Y+24)
+	tt.Release(b.X-50, b.Y+24)
+	if h.value != [2]float64{0, 40} {
+		t.Fatalf("left edge shrank window: %v", h.value)
+	}
+}
+
+func TestChartBrushInvalidMetrics(t *testing.T) {
+	for _, o := range []ChartBrushOptions{
+		{Label: "Range", Max: 100, Step: math.Inf(1)},
+		{Label: "Range", Max: math.Inf(1)},
+		{Label: "Range", Max: 100, Height: 10},
+	} {
+		charts2MustPanic(t, func(c *ui.Context) { v := [2]float64{20, 40}; ChartBrush(c, &v, o) })
+	}
+}
+
+func TestChartBrushNarrowRangeHitAndAnnouncement(t *testing.T) {
+	h := &brushHarness{value: [2]float64{40, 41}}
+	tt := ui.NewTester(h.view, 460, 200)
+	b, ok := tt.Find("Months: 40 to 41")
+	if !ok || b.W < 28 || b.H < 28 {
+		t.Fatalf("window hit area %v", b)
+	}
+	tabTo(t, tt, "Months: 40 to 41")
+	tt.Key(0, ui.KeyRight)
+	if said := tt.Announcements(); len(said) == 0 || said[len(said)-1] != "Months: 41 to 42" {
+		t.Fatalf("window announcement %q", said)
+	}
 }

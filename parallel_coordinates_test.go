@@ -58,7 +58,7 @@ func TestParallelCoordinatesHoverAndBad(t *testing.T) {
 	tt := ui.NewTester(h.view, 520, 420)
 	b := h.res.Element.Bounds()
 	plot := ui.Rect{X: b.X + 36, Y: b.Y + 24, W: b.W - 72, H: 240 - 32}
-	// A quarter into the first gap, row 2 (Age 50 of 20..80, Hymns 5 of 0..8) is 0.53 up.
+	// Row 2 crosses this point between the first axes.
 	tt.Move(plot.X+plot.W/8, plot.Y+plot.H*(1-0.53125))
 	if h.res.Point != 2 {
 		t.Fatalf("hover picked %d", h.res.Point)
@@ -81,4 +81,52 @@ func TestParallelCoordinatesSnapshot(t *testing.T) {
 			ParallelCoordinates(c, &filters, pcAxes, pcRows, ParallelCoordinatesOptions{Frame: ChartFrame{Label: "Monks"}, Names: pcNames})
 		})
 	})
+}
+
+func TestParallelCoordinatesKeyboardBrushAndDisabled(t *testing.T) {
+	filters := map[string][2]float64{}
+	h := &chartHarness{build: func(c *ui.Context) ChartResult {
+		return ParallelCoordinates(c, &filters, pcAxes, pcRows, ParallelCoordinatesOptions{Frame: ChartFrame{Label: "Monks"}})
+	}}
+	tt := ui.NewTester(h.view, 520, 420)
+	tabTo(t, tt, "Monks")
+	tt.Key(ui.Alt, ui.KeyUp)
+	f, ok := filters["Age"]
+	if !ok || math.Abs(f[0]-20.6) > 1e-9 || f[1] != 80 {
+		t.Fatalf("keyboard brush %v", filters)
+	}
+	h.disabled = true
+	tt.Frame()
+	tt.Key(ui.Alt, ui.KeyUp)
+	if filters["Age"] != f {
+		t.Fatal("disabled keyboard brush")
+	}
+	h.disabled = false
+	tt.Frame()
+	tabTo(t, tt, "Monks")
+	tt.Key(ui.Alt, ui.KeyDelete)
+	if len(filters) != 0 {
+		t.Fatalf("clear brush %v", filters)
+	}
+}
+
+func TestParallelCoordinatesLargeDataBounded(t *testing.T) {
+	rows := make([][]float64, 100_000)
+	for i := range rows {
+		rows[i] = []float64{float64(i % 70), float64(i % 11), float64(i % 17)}
+	}
+	filters := map[string][2]float64{}
+	h := &chartHarness{build: func(c *ui.Context) ChartResult {
+		return ParallelCoordinates(c, &filters, pcAxes, rows, ParallelCoordinatesOptions{Frame: ChartFrame{Label: "Large parallel"}})
+	}}
+	tt := ui.NewTester(h.view, 520, 420)
+	shown := ui.Local(h.res.Element, "mujica.pc.visible", func() []int { return nil })
+	if len(*shown) == 0 || len(*shown) > 480 {
+		t.Fatalf("built %d rows", len(*shown))
+	}
+	tabTo(t, tt, "Large parallel")
+	tt.Key(0, ui.KeyEnd)
+	if h.res.Point != 99_999 || len(*shown) > 481 {
+		t.Fatalf("last row %d, built %d", h.res.Point, len(*shown))
+	}
 }

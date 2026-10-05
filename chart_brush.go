@@ -17,7 +17,7 @@ type ChartBrushOptions struct {
 	Label string
 	// Min and Max span the track; Min < Max.
 	Min, Max float64
-	// Step is the grid both ends snap to; 0 means a hundredth of the span.
+	// Step defaults to one hundredth of the span.
 	Step float64
 	// Values draws a preview line across the track.
 	Values []float64
@@ -33,10 +33,10 @@ type brushDrag struct {
 	start float64
 }
 
-// ChartBrush selects the range *value on a track: drag the window or its ends, or use the keys.
+// ChartBrush selects a range with dragging and keyboard controls.
 func ChartBrush(c *ui.Context, value *[2]float64, opts ChartBrushOptions) ChoiceResult {
-	if opts.Label == "" || !(opts.Max > opts.Min) || opts.Step < 0 || opts.Height < 0 {
-		panic("mujica: ChartBrush needs a Label, Min < Max, Step ≥ 0 and Height ≥ 0")
+	if opts.Label == "" || !(opts.Max > opts.Min) || math.IsInf(opts.Min, 0) || math.IsInf(opts.Max, 0) || math.IsNaN(opts.Step) || math.IsInf(opts.Step, 0) || opts.Step < 0 || math.IsNaN(float64(opts.Height)) || math.IsInf(float64(opts.Height), 0) || opts.Height != 0 && opts.Height < theme.MinHitSize {
+		panic("mujica: ChartBrush needs a Label, finite domain and step, and Height ≥ 28")
 	}
 	step := opts.Step
 	if step == 0 {
@@ -63,7 +63,7 @@ func ChartBrush(c *ui.Context, value *[2]float64, opts ChartBrushOptions) Choice
 		track := ui.Box(c).Height(h).FillWidth().MinWidth(0).Radius(theme.ControlRadius).Background(k.SurfaceHover)
 		b := track.Bounds()
 		internal.Remeasure(c, track, b.W, b.H)
-		at := func(v float64) float32 { return float32((v - opts.Min) / (opts.Max - opts.Min)) * b.W }
+		at := func(v float64) float32 { return float32((v-opts.Min)/(opts.Max-opts.Min)) * b.W }
 		from := func(px float32) float64 { return opts.Min + float64(px/max(b.W, 1))*(opts.Max-opts.Min) }
 		drag := ui.Local(track, "mujica.brush.drag", func() brushDrag { return brushDrag{part: -1} })
 		set := func(lo, hi float64) {
@@ -72,11 +72,28 @@ func ChartBrush(c *ui.Context, value *[2]float64, opts ChartBrushOptions) Choice
 				*value = [2]float64{lo, hi}
 			}
 		}
-		track.Draw(func(p *ui.Painter, r ui.Rect) { brushPaint(p, r, *value, opts, k) })
+		move := func(lo, hi float64) {
+			w := hi - lo
+			lo = max(spec.lo, min(lo, spec.hi-w))
+			set(lo, lo+w)
+		}
+		preview := ui.Local(track, "mujica.brush.preview", func() brushPreview { return brushPreview{} })
+		if id := chartID(opts.Values); preview.id != id {
+			*preview = brushPreview{id: id, lo: math.Inf(1), hi: math.Inf(-1)}
+			for _, v := range opts.Values {
+				if math.IsInf(v, 0) {
+					panic("mujica: ChartBrush preview values must be finite or NaN")
+				}
+				if !math.IsNaN(v) {
+					preview.lo, preview.hi = min(preview.lo, v), max(preview.hi, v)
+				}
+			}
+		}
+		track.Draw(func(p *ui.Painter, r ui.Rect) { brushPaint(p, r, *value, opts, k, preview) })
 		track.Children(func() {
 			x0, x1 := at(value[0]), at(value[1])
 			end := func(i int, x float32) *ui.Element {
-				e := ui.Box(c).Absolute().Left(x - theme.MinHitSize/2).Top(0).Size(theme.MinHitSize, h).Focusable().
+				e := ui.Box(c).Absolute().Left(x-theme.MinHitSize/2).Top(0).Size(theme.MinHitSize, h).Focusable().
 					Role(ui.RoleSlider).Label(fmt.Sprintf(msg(c, []string{"chart_brush.start", "chart_brush.end"}[i]), val(value[i])))
 				internal.Ring(e, k.Focus, theme.ControlRadius)
 				return e.Draw(func(p *ui.Painter, r ui.Rect) {
@@ -86,11 +103,12 @@ func ChartBrush(c *ui.Context, value *[2]float64, opts ChartBrushOptions) Choice
 			}
 			// Tab order runs start, window, end.
 			ends := [2]*ui.Element{end(0, x0)}
-			window := ui.Box(c).Absolute().Left(x0 + theme.MinHitSize/2).Top(0).Width(max(x1-x0-theme.MinHitSize, 1)).Height(h).Focusable().
+			window := ui.Box(c).Absolute().Left(x0 + theme.MinHitSize/2).Top(0).Width(max(x1-x0-theme.MinHitSize, theme.MinHitSize)).Height(h).Focusable().
 				Role(ui.RoleGroup).Label(fmt.Sprintf(msg(c, "chart_brush.window"), opts.Label, val(value[0]), val(value[1])))
 			internal.Ring(window, k.Focus, theme.ControlRadius)
 			ends[1] = end(1, x1)
 			if res.Element.IsDisabled() {
+				drag.part = -1
 				return
 			}
 			for i, end := range ends {
@@ -116,19 +134,23 @@ func ChartBrush(c *ui.Context, value *[2]float64, opts ChartBrushOptions) Choice
 			case window.Shortcut(0, ui.KeyEnd):
 				set(spec.hi-w, spec.hi)
 			}
-			brushPointer(track, window, ends, drag, value, from, set)
+			brushPointer(track, window, ends, drag, value, from, set, move)
 		})
 		ui.Text(c, val(value[0])+" – "+val(value[1])).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.TextMuted).Role(ui.RoleStatus)
 	})
 	res.changed = *value != before
 	if res.changed {
+		c.Announce(fmt.Sprintf(msg(c, "chart_brush.window"), opts.Label, val(value[0]), val(value[1])))
 		slog.Debug("mujica: chart_brush range", "from", value[0], "to", value[1])
 	}
 	return res
 }
 
-// brushKey steps an end for the arrow, Page, Home and End keys.
+// brushKey handles arrow, Page, Home and End keys.
 func brushKey(e *ui.Element, v float64, spec numberInputSpec) (float64, bool) {
+	if e.IsDisabled() {
+		return v, false
+	}
 	switch {
 	case e.Shortcut(0, ui.KeyLeft), e.Shortcut(0, ui.KeyDown):
 		return spec.stepBy(v, -1), true
@@ -146,8 +168,8 @@ func brushKey(e *ui.Element, v float64, spec numberInputSpec) (float64, bool) {
 	return v, false
 }
 
-// brushPointer drags an end, the window, or a new range across the track.
-func brushPointer(track, window *ui.Element, ends [2]*ui.Element, drag *brushDrag, value *[2]float64, from func(float32) float64, set func(lo, hi float64)) {
+// brushPointer drags handles, the window, or a new range.
+func brushPointer(track, window *ui.Element, ends [2]*ui.Element, drag *brushDrag, value *[2]float64, from func(float32) float64, set, move func(lo, hi float64)) {
 	px, _, _ := track.PointerPosition()
 	at := from(px)
 	parts := []*ui.Element{ends[0], ends[1], window, track}
@@ -171,34 +193,43 @@ func brushPointer(track, window *ui.Element, ends [2]*ui.Element, drag *brushDra
 	case 1:
 		set(value[0], max(at, value[0]))
 	case 2:
-		set(at-drag.grab, at-drag.grab+w)
+		lo := at - drag.grab
+		// Shift both ends together at a boundary.
+		move(lo, lo+w)
 	default:
 		set(min(drag.start, at), max(drag.start, at))
 	}
 }
 
-// brushPaint draws the preview line, dims outside the range and frames the window.
-func brushPaint(p *ui.Painter, r ui.Rect, value [2]float64, opts ChartBrushOptions, k theme.Tokens) {
-	lo, hi := math.Inf(1), math.Inf(-1)
-	for _, v := range opts.Values {
-		if !math.IsNaN(v) {
-			lo, hi = min(lo, v), max(hi, v)
-		}
-	}
+// brushPaint draws the preview and frames the selected range.
+type brushPreview struct {
+	id     string
+	lo, hi float64
+	width  float32
+	runs   [][]int
+}
+
+func brushPaint(p *ui.Painter, r ui.Rect, value [2]float64, opts ChartBrushOptions, k theme.Tokens, preview *brushPreview) {
+	lo, hi := preview.lo, preview.hi
 	if n := len(opts.Values); n > 1 && hi > lo {
-		x := func(i int) float32 { return r.X + r.W*float32(i)/float32(n-1) }
-		chartRuns(opts.Values, x, func(idx []int) {
+		x := func(i int) float32 { return r.W * float32(i) / float32(n-1) }
+		if preview.width != r.W || preview.runs == nil {
+			preview.width, preview.runs = r.W, nil
+			chartRuns(opts.Values, x, func(idx []int) { preview.runs = append(preview.runs, idx) })
+		}
+		for _, idx := range preview.runs {
 			var line ui.Path
 			for j, i := range idx {
-				y := r.Y + 4 + (r.H-8)*float32(1-(opts.Values[i]-lo)/(hi-lo))
+				px := internal.Snap(p, r.X+x(i))
+				py := internal.Snap(p, r.Y+4+(r.H-8)*float32(1-(opts.Values[i]-lo)/(hi-lo)))
 				if j == 0 {
-					line.MoveTo(x(i), y)
+					line.MoveTo(px, py)
 				} else {
-					line.LineTo(x(i), y)
+					line.LineTo(px, py)
 				}
 			}
 			p.StrokePath(&line, 1.25, k.TextMuted)
-		})
+		}
 	}
 	x0 := r.X + r.W*float32((value[0]-opts.Min)/(opts.Max-opts.Min))
 	x1 := r.X + r.W*float32((value[1]-opts.Min)/(opts.Max-opts.Min))

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"image/png"
 	"log/slog"
+	"math"
 
 	"github.com/egoist/mygo/ui"
 )
@@ -16,9 +17,9 @@ type ChartExportOptions struct {
 	Scale float32
 }
 
-// ChartExport renders chart off screen in this window's theme and returns PNG bytes; it writes no file.
+// ChartExport returns a PNG rendered in the current theme.
 func ChartExport(c *ui.Context, chart func(c *ui.Context), opts ChartExportOptions) ([]byte, error) {
-	if chart == nil || opts.Width <= 0 || opts.Height <= 0 || opts.Scale < 0 {
+	if chart == nil || opts.Width <= 0 || opts.Height <= 0 || opts.Scale < 0 || math.IsNaN(float64(opts.Scale)) || math.IsInf(float64(opts.Scale), 0) {
 		panic("mujica: ChartExport needs a chart, a positive size and Scale ≥ 0")
 	}
 	scale := opts.Scale
@@ -31,7 +32,11 @@ func ChartExport(c *ui.Context, chart func(c *ui.Context), opts ChartExportOptio
 		settings.Mode = Dark
 	}
 	tokens := w.tokens
-	img := ui.Render(func(c *ui.Context) {
+	ready := false
+	tester := ui.NewTester(func(c *ui.Context) {
+		if !ready {
+			return
+		}
 		if settings.Mode == Dark {
 			settings.Dark = &tokens
 		} else {
@@ -39,7 +44,12 @@ func ChartExport(c *ui.Context, chart func(c *ui.Context), opts ChartExportOptio
 		}
 		Use(c, settings)
 		ui.Column(c).Fill().Background(tokens.Surface).Padding(Density(c).Unit() * 4).Children(func() { chart(c) })
-	}, opts.Width, opts.Height, scale)
+	}, opts.Width, opts.Height)
+	tester.SetScale(scale)
+	tester.SetPreferences(c.Preferences())
+	ready = true
+	tester.Frame()
+	img := tester.Image()
 	var buf bytes.Buffer
 	if err := png.Encode(&buf, img); err != nil {
 		return nil, err

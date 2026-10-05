@@ -10,9 +10,9 @@ import (
 
 // ChartGridOptions configure a ChartGrid.
 type ChartGridOptions struct {
-	// X and Y draw lines at their ticks; either may be nil.
+	// X and Y provide grid ticks; either may be nil.
 	X, Y *ChartAxisPart
-	// Minor splits each major interval into this many parts with fainter lines.
+	// Minor subdivides major intervals with fainter lines.
 	Minor int
 }
 
@@ -22,7 +22,7 @@ type ChartGridPart struct {
 	major, minor ui.Color
 }
 
-// ChartGrid draws pixel-aligned lines at the axes' ticks, and minor lines between them.
+// ChartGrid draws pixel-aligned major and minor lines.
 func ChartGrid(c *ui.Context, opts ChartGridOptions) ChartGridPart {
 	if opts.Minor < 0 || opts.X == nil && opts.Y == nil {
 		panic("mujica: ChartGrid needs an axis and Minor ≥ 0")
@@ -50,7 +50,7 @@ func (g ChartGridPart) Draw(p *ui.Painter, plot ui.Rect) {
 				internal.Rule(p, plot.X, plot.X+plot.W, at, col)
 			}
 		}
-		ticks := a.Ticks()
+		ticks := a.drawTicks(plot, 4)
 		for i := 1; i < len(ticks) && g.opts.Minor > 0; i++ {
 			for j := 1; j < g.opts.Minor; j++ {
 				f := float64(j) / float64(g.opts.Minor)

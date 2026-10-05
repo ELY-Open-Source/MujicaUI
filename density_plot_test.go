@@ -87,3 +87,35 @@ func TestDensityPlotSnapshot(t *testing.T) {
 		})
 	})
 }
+
+func TestDensityPlotFiniteBandwidthAndNames(t *testing.T) {
+	charts2MustPanic(t, func(c *ui.Context) {
+		DensityPlot(c, densityGroups(), DensityPlotOptions{Frame: ChartFrame{Label: "Density"}, Bandwidth: math.Inf(1)})
+	})
+	charts2MustPanic(t, func(c *ui.Context) {
+		DensityPlot(c, []BoxGroup{{Name: "A"}, {Name: "A"}}, DensityPlotOptions{Frame: ChartFrame{Label: "Density"}})
+	})
+}
+
+func TestDensityPlotLargeDataBoundedAndDisabled(t *testing.T) {
+	values := make([]float64, 100_000)
+	for i := range values {
+		values[i] = float64(i % 100)
+	}
+	groups := []BoxGroup{{Name: "Sample", Values: values}}
+	h := &chartHarness{build: func(c *ui.Context) ChartResult {
+		return DensityPlot(c, groups, DensityPlotOptions{Frame: ChartFrame{Label: "Large density"}})
+	}}
+	tt := ui.NewTester(h.view, 520, 420)
+	tabTo(t, tt, "Large density")
+	tt.Key(0, ui.KeyEnd)
+	if h.res.Point != 127 {
+		t.Fatalf("built sample index %d", h.res.Point)
+	}
+	h.disabled = true
+	tt.Frame()
+	tt.Key(0, ui.KeyLeft)
+	if h.res.Point != -1 {
+		t.Fatalf("disabled density %d", h.res.Point)
+	}
+}

@@ -151,7 +151,7 @@ func (ch *chart) build(spec ChartSpec) (ChartResult, *ui.Element) {
 		if over && !plot.IsDisabled() {
 			active = spec.Pick(local, x, y)
 		}
-		if active < 0 && plot.Focused() && st.focus >= 0 {
+		if active < 0 && plot.Focused() && st.focus >= 0 && !plot.IsDisabled() {
 			active = st.focus
 			x, y = local.W/2, 0
 			if spec.Anchor != nil {

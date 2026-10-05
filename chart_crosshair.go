@@ -2,6 +2,7 @@ package mujica
 
 import (
 	"github.com/egoist/mygo/ui"
+	"math"
 
 	"mujicaui/internal"
 	"mujicaui/theme"
@@ -9,13 +10,13 @@ import (
 
 // ChartCrosshairOptions configure a ChartCrosshair.
 type ChartCrosshairOptions struct {
-	// X draws the vertical line and its label on X's side; Y the horizontal one.
+	// X draws vertical lines; Y draws horizontal lines.
 	X, Y *ChartAxisPart
-	// Reach is how far, in DIPs, Snap looks for a point; 0 means 24.
+	// Reach defaults to 24 DIPs for point snapping.
 	Reach float32
 }
 
-// ChartCrosshairPart is a crosshair ready to snap to points and draw.
+// ChartCrosshairPart draws and snaps the crosshair.
 type ChartCrosshairPart struct {
 	opts ChartCrosshairOptions
 	k    theme.Tokens
@@ -23,9 +24,9 @@ type ChartCrosshairPart struct {
 	pad  float32
 }
 
-// ChartCrosshair crosses lines through a point with value labels on the axes.
+// ChartCrosshair draws crossed lines and axis readouts.
 func ChartCrosshair(c *ui.Context, opts ChartCrosshairOptions) ChartCrosshairPart {
-	if opts.X == nil && opts.Y == nil || opts.Reach < 0 {
+	if opts.X == nil && opts.Y == nil || opts.Reach < 0 || math.IsNaN(float64(opts.Reach)) || math.IsInf(float64(opts.Reach), 0) {
 		panic("mujica: ChartCrosshair needs an axis and Reach ≥ 0")
 	}
 	if opts.Reach == 0 {
@@ -34,12 +35,12 @@ func ChartCrosshair(c *ui.Context, opts ChartCrosshairOptions) ChartCrosshairPar
 	return ChartCrosshairPart{opts: opts, k: Tokens(c), size: FontSize(c, theme.CaptionSize), pad: Density(c).Unit()}
 }
 
-// Snap returns the point nearest (x, y) within Reach, or -1.
+// Snap returns the nearest point within Reach, or -1.
 func (h ChartCrosshairPart) Snap(n int, at func(i int) (x, y float32), x, y float32) int {
 	return internal.Nearest(n, at, x, y, h.opts.Reach, false)
 }
 
-// Draw paints the lines through (x, y) inside plot and each axis's value label.
+// Draw paints crossed lines and value labels.
 func (h ChartCrosshairPart) Draw(p *ui.Painter, plot ui.Rect, x, y float32) {
 	k := h.k
 	if a := h.opts.X; a != nil {
@@ -62,7 +63,7 @@ func (h ChartCrosshairPart) Draw(p *ui.Painter, plot ui.Rect, x, y float32) {
 	}
 }
 
-// pill writes s on a Text-colored tag at the axis, outside the plot.
+// pill paints a value tag outside the plot.
 func (h ChartCrosshairPart) pill(p *ui.Painter, s string, x, y float32, across, far bool) {
 	w, ht := p.MeasureText(0, ui.Span{Text: s, Size: h.size})
 	box := ui.Rect{W: w + 2*h.pad, H: ht + h.pad}

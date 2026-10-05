@@ -13,12 +13,12 @@ import (
 // ViolinPlotOptions configure a ViolinPlot.
 type ViolinPlotOptions struct {
 	Frame ChartFrame
-	// Bandwidth is the kernel width; 0 uses Silverman's rule per group.
+	// Bandwidth defaults to the per-group estimate.
 	Bandwidth float64
 	Format    func(v float64) string
 }
 
-// violinShape is one group's density outline over its value range, and its quartiles.
+// violinShape stores density samples and quartiles.
 type violinShape struct {
 	ys, dens []float64
 	stats    boxStats
@@ -27,9 +27,9 @@ type violinShape struct {
 // violinPoints is how many values each outline is sampled at.
 const violinPoints = 64
 
-// ViolinPlot mirrors each group's density around its middle, with the median and quartiles marked.
+// ViolinPlot compares density outlines, medians, and quartiles.
 func ViolinPlot(c *ui.Context, groups []BoxGroup, opts ViolinPlotOptions) ChartResult {
-	if opts.Bandwidth < 0 {
+	if opts.Bandwidth < 0 || math.IsNaN(opts.Bandwidth) || math.IsInf(opts.Bandwidth, 0) {
 		panic("mujica: ViolinPlot Bandwidth must be ≥ 0")
 	}
 	ch := newChart(c, opts.Frame)
@@ -37,10 +37,12 @@ func ViolinPlot(c *ui.Context, groups []BoxGroup, opts ViolinPlotOptions) ChartR
 	pal := internal.Palette(k)
 	size := FontSize(c, theme.CaptionSize)
 	ids := ""
+	seen := map[string]bool{}
 	for _, g := range groups {
-		if g.Name == "" {
+		if g.Name == "" || seen[g.Name] {
 			panic("mujica: ViolinPlot groups need names")
 		}
+		seen[g.Name] = true
 		ids += chartID(g.Values) + ";"
 	}
 	shapes := chartMemo(ch, "violins", fmt.Sprint(ids, opts.Bandwidth), func() []violinShape {
@@ -58,6 +60,9 @@ func ViolinPlot(c *ui.Context, groups []BoxGroup, opts ViolinPlotOptions) ChartR
 			lo, hi := s.lo, s.hi
 			for _, o := range s.outliers {
 				lo, hi = min(lo, o), max(hi, o)
+			}
+			if lo == hi {
+				lo, hi = lo-3*h, hi+3*h
 			}
 			ys := make([]float64, violinPoints)
 			for j := range ys {
@@ -86,6 +91,7 @@ func ViolinPlot(c *ui.Context, groups []BoxGroup, opts ViolinPlotOptions) ChartR
 		return plot, internal.Band{N: len(groups), R0: plot.X, R1: plot.X + plot.W, Pad: 0.15},
 			internal.Linear{D0: lo, D1: hi, R0: float64(plot.Y + plot.H), R1: float64(plot.Y)}
 	}
+	visible := ui.Local(ch.res.Element, "mujica.violin.visible", func() []int { return nil })
 	spec := ChartSpec{Marks: n}
 	spec.Readout = func(i int) string {
 		s := shapes[i].stats
@@ -106,11 +112,13 @@ func ViolinPlot(c *ui.Context, groups []BoxGroup, opts ViolinPlotOptions) ChartR
 		internal.AxisY(p, plot, ys, internal.Ticks(lo, hi, step), func(v float64) string { return internal.FormatTick(v, step) }, size, k)
 		var xs []float32
 		var names []string
-		for i, g := range groups {
-			xs, names = append(xs, band.Center(i)), append(names, g.Name)
+		*visible = chartVisibleIndices(len(groups), max(1, int(plot.W)), active)
+		for _, i := range *visible {
+			xs, names = append(xs, band.Center(i)), append(names, groups[i].Name)
 		}
 		internal.AxisX(p, plot, xs, names, size, k)
-		for i, s := range shapes {
+		for _, i := range *visible {
+			s := shapes[i]
 			if s.stats.n == 0 {
 				continue
 			}
@@ -121,15 +129,16 @@ func ViolinPlot(c *ui.Context, groups []BoxGroup, opts ViolinPlotOptions) ChartR
 			}
 			var outline ui.Path
 			for j, y := range s.ys {
-				x := cx + half*float32(s.dens[j]/top)
+				x := internal.Snap(p, cx+half*float32(s.dens[j]/top))
+				py := internal.Snap(p, ys.Map(y))
 				if j == 0 {
-					outline.MoveTo(x, ys.Map(y))
+					outline.MoveTo(x, py)
 				} else {
-					outline.LineTo(x, ys.Map(y))
+					outline.LineTo(x, py)
 				}
 			}
 			for j := len(s.ys) - 1; j >= 0; j-- {
-				outline.LineTo(cx-half*float32(s.dens[j]/top), ys.Map(s.ys[j]))
+				outline.LineTo(internal.Snap(p, cx-half*float32(s.dens[j]/top)), internal.Snap(p, ys.Map(s.ys[j])))
 			}
 			outline.Close()
 			col := pal[i%len(pal)]
@@ -139,7 +148,7 @@ func ViolinPlot(c *ui.Context, groups []BoxGroup, opts ViolinPlotOptions) ChartR
 				w = 3
 			}
 			p.StrokePath(&outline, w, col)
-			// The quartile bar and a diamond at the median read without color.
+			// Quartile bars and median diamonds distinguish values.
 			p.Fill(ui.Rect{X: cx - 3, Y: ys.Map(s.stats.q3), W: 6, H: max(ys.Map(s.stats.q1)-ys.Map(s.stats.q3), 1)}, k.Text, 1)
 			p.FillPath(internal.Diamond(internal.Snap(p, cx), internal.Snap(p, ys.Map(s.stats.median)), 10), k.Surface)
 			p.FillPath(internal.Diamond(internal.Snap(p, cx), internal.Snap(p, ys.Map(s.stats.median)), 7), k.Text)

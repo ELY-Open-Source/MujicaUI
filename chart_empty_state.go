@@ -14,7 +14,7 @@ type ChartEmptyStateOptions struct {
 	Empty string
 }
 
-// ChartEmptyState holds a chart's place while it loads, fails or has no data; Changed reports Retry.
+// ChartEmptyState preserves plot size and reports retry clicks.
 func ChartEmptyState(c *ui.Context, status DataStatus, opts ChartEmptyStateOptions) ChoiceResult {
 	if opts.Height < 0 {
 		panic("mujica: ChartEmptyState Height must be ≥ 0")
@@ -26,7 +26,7 @@ func ChartEmptyState(c *ui.Context, status DataStatus, opts ChartEmptyStateOptio
 	var res ChoiceResult
 	res.Element = ui.Column(c).Height(h).FillWidth().MinWidth(0)
 	res.Element.Children(func() {
-		res.changed = dataPlaceholder(c, status, opts.Error, opts.Empty, msg(c, "chart.empty")) && !res.Element.IsDisabled()
+		res.changed = dataPlaceholder(c, status, opts.Error, opts.Empty, msg(c, "chart_empty_state.empty")) && !res.Element.IsDisabled()
 	})
 	return res
 }

@@ -10,9 +10,9 @@ import (
 // DensityPlotOptions configure a DensityPlot.
 type DensityPlotOptions struct {
 	Frame ChartFrame
-	// Bandwidth is the Gaussian kernel's width; 0 uses Silverman's rule per group.
+	// Bandwidth defaults to the per-group Gaussian estimate.
 	Bandwidth float64
-	// Points is how many x values the curves are sampled at; 0 means 128.
+	// Points defaults to 128 samples per curve.
 	Points int
 	Format func(v float64) string
 }
@@ -21,14 +21,17 @@ type DensityPlotOptions struct {
 func densitySample(values []float64) []float64 {
 	var out []float64
 	for _, v := range values {
-		if !math.IsNaN(v) && !math.IsInf(v, 0) {
+		if math.IsInf(v, 0) {
+			panic("mujica: density values must be finite or NaN")
+		}
+		if !math.IsNaN(v) {
 			out = append(out, v)
 		}
 	}
 	return out
 }
 
-// densityBandwidth is Silverman's rule of thumb, or 1 for flat samples.
+// densityBandwidth estimates spread, using 1 for flat samples.
 func densityBandwidth(v []float64) float64 {
 	n := float64(len(v))
 	mean := 0.0
@@ -47,7 +50,7 @@ func densityBandwidth(v []float64) float64 {
 	return 1.06 * sd * math.Pow(n, -0.2)
 }
 
-// densityKDE estimates the density of v at each x with a Gaussian kernel of width h.
+// densityKDE estimates Gaussian density at xs.
 func densityKDE(v []float64, h float64, xs []float64) []float64 {
 	out := make([]float64, len(xs))
 	norm := 1 / (float64(len(v)) * h * math.Sqrt(2*math.Pi))
@@ -62,7 +65,7 @@ func densityKDE(v []float64, h float64, xs []float64) []float64 {
 	return out
 }
 
-// densityCurves samples every group's density on one x grid, three bandwidths past the data.
+// densityCurves samples groups on a shared padded grid.
 func densityCurves(groups []BoxGroup, bandwidth float64, points int) (xs []float64, series []ChartSeries) {
 	lo, hi := math.Inf(1), math.Inf(-1)
 	samples := make([][]float64, len(groups))
@@ -97,9 +100,9 @@ func densityCurves(groups []BoxGroup, bandwidth float64, points int) (xs []float
 	return xs, series
 }
 
-// DensityPlot draws each group's kernel density curve over one shared axis.
+// DensityPlot overlays groups on a shared density axis.
 func DensityPlot(c *ui.Context, groups []BoxGroup, opts DensityPlotOptions) ChartResult {
-	if opts.Bandwidth < 0 || opts.Points < 0 || opts.Points == 1 {
+	if opts.Bandwidth < 0 || math.IsNaN(opts.Bandwidth) || math.IsInf(opts.Bandwidth, 0) || opts.Points < 0 || opts.Points == 1 {
 		panic("mujica: DensityPlot needs Bandwidth ≥ 0 and Points of 0 or 2 or more")
 	}
 	points := opts.Points
@@ -108,7 +111,12 @@ func DensityPlot(c *ui.Context, groups []BoxGroup, opts DensityPlotOptions) Char
 	}
 	ch := newChart(c, opts.Frame)
 	ids := ""
+	seen := map[string]bool{}
 	for _, g := range groups {
+		if g.Name == "" || seen[g.Name] {
+			panic("mujica: DensityPlot groups need unique names")
+		}
+		seen[g.Name] = true
 		ids += g.Name + chartID(g.Values) + ";"
 	}
 	type curves struct {

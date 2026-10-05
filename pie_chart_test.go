@@ -69,7 +69,7 @@ func TestPieChartBad(t *testing.T) {
 }
 
 func TestPieChartSnapshot(t *testing.T) {
-	snapshot(t, "pie_chart", 640, 320, func(c *ui.Context) {
+	snapshot(t, "pie_chart", 640, 360, func(c *ui.Context) {
 		ui.Row(c).Padding(16).Gap(16).Children(func() {
 			ui.Column(c).Width(296).Children(func() {
 				PieChart(c, pieSlices, PieChartOptions{Frame: ChartFrame{Label: "Pie", Height: 220}})

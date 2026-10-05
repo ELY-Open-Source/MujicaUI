@@ -1,6 +1,7 @@
 package mujica
 
 import (
+	"fmt"
 	"log/slog"
 	"maps"
 	"math"
@@ -15,7 +16,7 @@ import (
 // ParallelCoordinatesOptions configure a ParallelCoordinates chart.
 type ParallelCoordinatesOptions struct {
 	Frame ChartFrame
-	// Names labels each row in the readout; nil uses the row number.
+	// Names labels rows; nil uses row numbers.
 	Names  []string
 	Format func(v float64) string
 }
@@ -31,9 +32,16 @@ func ParallelCoordinates(c *ui.Context, filters *map[string][2]float64, axes []s
 	if filters == nil || len(axes) < 2 || opts.Names != nil && len(opts.Names) != len(rows) {
 		panic("mujica: ParallelCoordinates needs filters, two or more axes and a name per row")
 	}
-	for _, r := range rows {
-		if len(r) != len(axes) {
-			panic("mujica: ParallelCoordinates rows need one value per axis")
+	seen := map[string]bool{}
+	for _, name := range axes {
+		if name == "" || seen[name] {
+			panic("mujica: ParallelCoordinates axes need unique names")
+		}
+		seen[name] = true
+	}
+	for name, f := range *filters {
+		if !seen[name] || math.IsNaN(f[0]) || math.IsNaN(f[1]) || math.IsInf(f[0], 0) || math.IsInf(f[1], 0) || f[0] > f[1] {
+			panic("mujica: ParallelCoordinates filters need known axes and finite ascending ranges")
 		}
 	}
 	ch := newChart(c, opts.Frame)
@@ -41,7 +49,17 @@ func ParallelCoordinates(c *ui.Context, filters *map[string][2]float64, axes []s
 	size := FontSize(c, theme.CaptionSize)
 	ink := internal.Palette(k)[0]
 	type scales struct{ lo, hi []float64 }
-	sc := chartMemo(ch, "scales", chartID(rows), func() scales {
+	sc := chartMemo(ch, "scales", [2]string{chartID(rows), chartID(axes)}, func() scales {
+		for _, r := range rows {
+			if len(r) != len(axes) {
+				panic("mujica: ParallelCoordinates rows need one value per axis")
+			}
+			for _, v := range r {
+				if math.IsInf(v, 0) {
+					panic("mujica: ParallelCoordinates values must be finite or NaN")
+				}
+			}
+		}
 		s := scales{lo: make([]float64, len(axes)), hi: make([]float64, len(axes))}
 		for a := range axes {
 			lo, hi := math.Inf(1), math.Inf(-1)
@@ -65,6 +83,14 @@ func ParallelCoordinates(c *ui.Context, filters *map[string][2]float64, axes []s
 		}
 		return true
 	}
+	passing := chartMemo(ch, "pc_filter", [2]string{chartID(rows), fmt.Sprint(*filters)}, func() []bool {
+		out := make([]bool, len(rows))
+		for i, row := range rows {
+			out[i] = keep(row)
+		}
+		return out
+	})
+	visible := ui.Local(ch.res.Element, "mujica.pc.visible", func() []int { return nil })
 	geom := func(r ui.Rect) (ui.Rect, func(a int) float32, func(a int, v float64) float32) {
 		plot := ui.Rect{X: r.X + 36, Y: r.Y + 24, W: r.W - 72, H: r.H - 32}
 		ax := func(a int) float32 { return plot.X + plot.W*float32(a)/float32(len(axes)-1) }
@@ -85,7 +111,7 @@ func ParallelCoordinates(c *ui.Context, filters *map[string][2]float64, axes []s
 		for a, n := range axes {
 			parts = append(parts, n+" "+chartValue(c, rows[i][a], opts.Format))
 		}
-		if !keep(rows[i]) {
+		if !passing[i] {
 			parts = append(parts, msg(c, "parallel_coordinates.filtered"))
 		}
 		return strings.Join(parts, " · ")
@@ -93,7 +119,8 @@ func ParallelCoordinates(c *ui.Context, filters *map[string][2]float64, axes []s
 	spec.Pick = func(r ui.Rect, x, y float32) int {
 		_, ax, ys := geom(r)
 		best, dist := -1, float32(8)
-		for i, row := range rows {
+		for _, i := range *visible {
+			row := rows[i]
 			for a := 0; a+1 < len(axes); a++ {
 				x0, x1 := ax(a), ax(a+1)
 				if x < x0 || x > x1 || math.IsNaN(row[a]) || math.IsNaN(row[a+1]) {
@@ -108,7 +135,54 @@ func ParallelCoordinates(c *ui.Context, filters *map[string][2]float64, axes []s
 		return best
 	}
 	drag := ui.Local(ch.res.Element, "mujica.pc.drag", func() pcDrag { return pcDrag{axis: -1} })
+	keyAxis := ui.Local(ch.res.Element, "mujica.pc.axis", func() int { return 0 })
 	spec.Input = func(plot *ui.Element, r ui.Rect) {
+		if plot.IsDisabled() {
+			*drag = pcDrag{axis: -1}
+			return
+		}
+		if plot.Shortcut(ui.Alt, ui.KeyPageDown) {
+			*keyAxis = (*keyAxis + 1) % len(axes)
+		}
+		if plot.Shortcut(ui.Alt, ui.KeyPageUp) {
+			*keyAxis = (*keyAxis + len(axes) - 1) % len(axes)
+		}
+		*keyAxis = min(*keyAxis, len(axes)-1)
+		a := *keyAxis
+		f, ok := (*filters)[axes[a]]
+		if !ok {
+			f = [2]float64{sc.lo[a], sc.hi[a]}
+		}
+		before := f
+		step := (sc.hi[a] - sc.lo[a]) / 100
+		if plot.Shortcut(ui.Alt, ui.KeyUp) {
+			f[0] = min(f[1], f[0]+step)
+		}
+		if plot.Shortcut(ui.Alt, ui.KeyDown) {
+			f[0] = max(sc.lo[a], f[0]-step)
+		}
+		if plot.Shortcut(ui.Alt|ui.Shift, ui.KeyUp) {
+			f[1] = min(sc.hi[a], f[1]+step)
+		}
+		if plot.Shortcut(ui.Alt|ui.Shift, ui.KeyDown) {
+			f[1] = max(f[0], f[1]-step)
+		}
+		clear := plot.Shortcut(ui.Alt, ui.KeyDelete)
+		if f != before || clear && ok {
+			m := maps.Clone(*filters)
+			if m == nil {
+				m = map[string][2]float64{}
+			}
+			if clear {
+				delete(m, axes[a])
+			} else {
+				m[axes[a]] = f
+			}
+			*filters, ch.res.value = m, true
+			c.Invalidate()
+			c.Announce(fmt.Sprintf(msg(c, "parallel_coordinates.brush"), axes[a], chartValue(c, f[0], opts.Format), chartValue(c, f[1], opts.Format)))
+			slog.Debug("mujica: parallel_coordinates keyboard", "axis", axes[a])
+		}
 		box, ax, _ := geom(r)
 		px, py, _ := plot.PointerPosition()
 		_, _, held := plot.Dragged()
@@ -136,6 +210,7 @@ func ParallelCoordinates(c *ui.Context, filters *map[string][2]float64, axes []s
 				m[axes[a]] = [2]float64{min(v(drag.y0), v(drag.y1)), max(v(drag.y0), v(drag.y1))}
 			}
 			*filters, ch.res.value = m, true
+			c.Invalidate()
 			*drag = pcDrag{axis: -1}
 			slog.Debug("mujica: parallel_coordinates brush", "axis", axes[a], "filters", len(m))
 		}
@@ -143,6 +218,7 @@ func ParallelCoordinates(c *ui.Context, filters *map[string][2]float64, axes []s
 	shownDrag := *drag
 	spec.Draw = func(p *ui.Painter, r ui.Rect, active int) {
 		plot, ax, ys := geom(r)
+		*visible = chartVisibleIndices(len(rows), max(1, int(plot.H*2)), active)
 		line := func(row []float64, w float32, col ui.Color) {
 			var path ui.Path
 			started := false
@@ -151,7 +227,7 @@ func ParallelCoordinates(c *ui.Context, filters *map[string][2]float64, axes []s
 					started = false
 					continue
 				}
-				x, y := ax(a), ys(a, row[a])
+				x, y := internal.Snap(p, ax(a)), internal.Snap(p, ys(a, row[a]))
 				if started {
 					path.LineTo(x, y)
 				} else {
@@ -161,14 +237,14 @@ func ParallelCoordinates(c *ui.Context, filters *map[string][2]float64, axes []s
 			}
 			p.StrokePath(&path, w, col)
 		}
-		for _, row := range rows {
-			if !keep(row) {
-				line(row, 1, k.Border)
+		for _, i := range *visible {
+			if !passing[i] {
+				line(rows[i], 1, k.Border)
 			}
 		}
-		for _, row := range rows {
-			if keep(row) {
-				line(row, 1.25, ink.Alpha(0.6))
+		for _, i := range *visible {
+			if passing[i] {
+				line(rows[i], 1.25, ink)
 			}
 		}
 		if active >= 0 {
@@ -192,5 +268,8 @@ func ParallelCoordinates(c *ui.Context, filters *map[string][2]float64, axes []s
 		}
 	}
 	res, _ := ch.build(spec)
+	if res.Element.IsDisabled() {
+		*drag = pcDrag{axis: -1}
+	}
 	return res
 }

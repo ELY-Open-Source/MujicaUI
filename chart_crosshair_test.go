@@ -2,6 +2,7 @@ package mujica
 
 import (
 	"image/color"
+	"math"
 	"testing"
 
 	"github.com/egoist/mygo/ui"
@@ -14,7 +15,7 @@ func TestChartCrosshairSnapsAndFollowsKeys(t *testing.T) {
 	tt := ui.NewTester(h.view, 520, 420)
 	b := h.res.Element.Bounds()
 	plot := chartInset(ui.Rect{X: b.X, Y: b.Y, W: b.W, H: 240}, 52, 26)
-	// Point 1 is (5, 80); the pointer rests 10 DIPs off it.
+	// Point 1 is ten DIPs from the pointer.
 	px, py := plot.X+plot.W/2, plot.Y+plot.H*0.2
 	tt.Move(px+10, py-6)
 	if h.res.Point != 1 || chartReadout(tt) != "x 5 · y 80" {
@@ -34,7 +35,7 @@ func TestChartCrosshairSnapsAndFollowsKeys(t *testing.T) {
 	}
 }
 
-// crosshairAt reports a TextMuted pixel at (x, y), where the crosshair runs.
+// crosshairAt checks a crosshair pixel.
 func crosshairAt(tt *ui.Tester, x, y int) bool {
 	want := toRGBA(theme.Light().TextMuted)
 	for dx := -1; dx <= 1; dx++ {
@@ -65,5 +66,24 @@ func TestChartCrosshairSnapshot(t *testing.T) {
 			y.Draw(p, plot)
 			hair.Draw(p, plot, x.Map(plot, 6.5), y.Map(plot, 42))
 		})
+	})
+}
+
+func TestChartCrosshairDisablesFocusedReadout(t *testing.T) {
+	h := &chartHarness{build: func(c *ui.Context) ChartResult { return partsChart(c, nil, true) }}
+	tt := ui.NewTester(h.view, 520, 420)
+	tabTo(t, tt, "Parts")
+	tt.Key(0, ui.KeyRight)
+	h.disabled = true
+	tt.Frame()
+	if h.res.Point != -1 {
+		t.Fatalf("disabled readout %d", h.res.Point)
+	}
+}
+
+func TestChartCrosshairFiniteReach(t *testing.T) {
+	charts2MustPanic(t, func(c *ui.Context) {
+		a := ChartAxis(c, ChartAxisOptions{Max: 1})
+		ChartCrosshair(c, ChartCrosshairOptions{X: &a, Reach: float32(math.NaN())})
 	})
 }

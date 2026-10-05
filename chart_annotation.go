@@ -1,7 +1,9 @@
 package mujica
 
 import (
+	"fmt"
 	"log/slog"
+	"math"
 
 	"github.com/egoist/mygo/ui"
 
@@ -38,23 +40,24 @@ type ChartAnnotationOptions struct {
 
 // ChartAnnotationPart is notes ready to draw, and to drag.
 type ChartAnnotationPart struct {
+	c     *ui.Context
 	notes []ChartNote
 	opts  ChartAnnotationOptions
 	k     theme.Tokens
 	size  float32
 }
 
-// ChartAnnotation marks lines, bands and text on a plot; dragging writes into notes.
+// ChartAnnotation draws notes and enables optional movement.
 func ChartAnnotation(c *ui.Context, notes []ChartNote, opts ChartAnnotationOptions) ChartAnnotationPart {
 	if opts.X == nil || opts.Y == nil {
 		panic("mujica: ChartAnnotation needs X and Y axes")
 	}
 	for _, n := range notes {
-		if n.Kind > NoteText || n.Kind == NoteBand && n.End <= n.Value || n.Kind == NoteText && n.Text == "" {
+		if n.Kind < NoteHLine || n.Kind > NoteText || math.IsNaN(n.Value) || math.IsInf(n.Value, 0) || math.IsNaN(n.End) || math.IsInf(n.End, 0) || n.Kind == NoteBand && n.End <= n.Value || n.Kind == NoteText && n.Text == "" {
 			panic("mujica: ChartAnnotation note needs a known kind, a band End above Value, and text")
 		}
 	}
-	return ChartAnnotationPart{notes: notes, opts: opts, k: Tokens(c), size: FontSize(c, theme.CaptionSize)}
+	return ChartAnnotationPart{c: c, notes: notes, opts: opts, k: Tokens(c), size: FontSize(c, theme.CaptionSize)}
 }
 
 // Draw paints bands first, then lines and text, inside plot.
@@ -105,7 +108,7 @@ func chartDash(p *ui.Painter, x0, y0, x1, y1 float32, col ui.Color) {
 	}
 }
 
-// chartNoteLabel is a line's text, or its value when it has none.
+// chartNoteLabel formats a line's label and value.
 func chartNoteLabel(n ChartNote, a *ChartAxisPart) string {
 	if n.Text != "" {
 		return n.Text + " " + a.Label(n.Value)
@@ -118,8 +121,14 @@ type noteDrag struct {
 	note int
 }
 
-// Drag moves the draggable note under the pointer while plot is dragged; r is plot's box.
+// Drag handles movement; plot uses element coordinates.
 func (a ChartAnnotationPart) Drag(plotElement *ui.Element, plot ui.Rect) bool {
+	if plotElement.IsDisabled() {
+		return false
+	}
+	if a.keyboard(plotElement) {
+		return true
+	}
 	st := ui.Local(plotElement, "mujica.notes.drag", func() noteDrag { return noteDrag{} })
 	dx, dy, held := plotElement.Dragged()
 	if !held || plotElement.IsDisabled() {
@@ -173,4 +182,69 @@ func (a ChartAnnotationPart) Drag(plotElement *ui.Element, plot ui.Rect) bool {
 	}
 	slog.Debug("mujica: chart_annotation drag", "note", st.note, "value", n.Value)
 	return true
+}
+
+func (a ChartAnnotationPart) keyboard(e *ui.Element) bool {
+	index := ui.Local(e, "mujica.notes.key", func() int { return 0 })
+	dir := 0
+	if e.Shortcut(ui.Alt, ui.KeyPageDown) {
+		dir = 1
+	}
+	if e.Shortcut(ui.Alt, ui.KeyPageUp) {
+		dir = -1
+	}
+	var editable []int
+	for i, n := range a.notes {
+		if n.Draggable {
+			editable = append(editable, i)
+		}
+	}
+	if len(editable) == 0 {
+		return false
+	}
+	*index = (*index + dir + len(editable)) % len(editable)
+	n := &a.notes[editable[*index]]
+	dx, dy := 0.0, 0.0
+	if e.Shortcut(ui.Alt, ui.KeyRight) {
+		dx = 1
+	}
+	if e.Shortcut(ui.Alt, ui.KeyLeft) {
+		dx = -1
+	}
+	if e.Shortcut(ui.Alt, ui.KeyUp) {
+		dy = 1
+	}
+	if e.Shortcut(ui.Alt, ui.KeyDown) {
+		dy = -1
+	}
+	xstep := (a.opts.X.hi - a.opts.X.lo) / 100
+	ystep := (a.opts.Y.hi - a.opts.Y.lo) / 100
+	before := *n
+	switch n.Kind {
+	case NoteHLine:
+		n.Value += dy * ystep
+	case NoteVLine:
+		n.Value += dx * xstep
+	case NoteBand:
+		n.Value, n.End = n.Value+dx*xstep, n.End+dx*xstep
+	case NoteText:
+		n.Value, n.End = n.Value+dx*xstep, n.End+dy*ystep
+	}
+	if dir != 0 || before != *n {
+		key := "chart_annotation.x"
+		value := a.opts.X.Label(n.Value)
+		switch n.Kind {
+		case NoteHLine:
+			key, value = "chart_annotation.y", a.opts.Y.Label(n.Value)
+		case NoteBand:
+			value += "–" + a.opts.X.Label(n.End)
+		case NoteText:
+			value += " · " + fmt.Sprintf(msg(a.c, "chart_annotation.y"), a.opts.Y.Label(n.End))
+		}
+		text := fmt.Sprintf(msg(a.c, "chart_annotation.readout"), editable[*index]+1, fmt.Sprintf(msg(a.c, key), value))
+		e.Description(text)
+		a.c.Announce(text)
+		slog.Debug("mujica: chart_annotation keyboard", "note", editable[*index], "value", n.Value)
+	}
+	return before != *n
 }

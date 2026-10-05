@@ -53,11 +53,15 @@ func TestChartAxisTimeAndCategory(t *testing.T) {
 
 func TestChartAxisBad(t *testing.T) {
 	for name, o := range map[string]ChartAxisOptions{
-		"empty":    {},
-		"log zero": {Kind: AxisLog, Min: 0, Max: 10},
-		"time":     {Kind: AxisTime},
-		"category": {Kind: AxisCategory},
-		"side":     {Min: 0, Max: 1, Side: 9},
+		"empty":           {},
+		"log zero":        {Kind: AxisLog, Min: 0, Max: 10},
+		"time":            {Kind: AxisTime},
+		"category":        {Kind: AxisCategory},
+		"side":            {Min: 0, Max: 1, Side: 9},
+		"negative side":   {Min: 0, Max: 1, Side: -1},
+		"infinite domain": {Min: 0, Max: math.Inf(1)},
+		"outside tick":    {Min: 0, Max: 1, Ticks: []float64{2}},
+		"infinite tick":   {Min: 0, Max: 1, Ticks: []float64{math.Inf(1)}},
 	} {
 		func() {
 			defer func() {
@@ -70,7 +74,7 @@ func TestChartAxisBad(t *testing.T) {
 	}
 }
 
-// partsChart composes the public parts into a custom chart over three points.
+// partsChart composes public parts over three points.
 func partsChart(c *ui.Context, notes []ChartNote, crosshair bool) ChartResult {
 	pts := [][2]float64{{2, 30}, {5, 80}, {8, 55}}
 	x := ChartAxis(c, ChartAxisOptions{Min: 0, Max: 10})
@@ -126,4 +130,28 @@ func TestChartAxisSnapshot(t *testing.T) {
 			}
 		})
 	})
+}
+
+func TestChartAxisLargeCategoriesBounded(t *testing.T) {
+	categories := make([]string, 100_000)
+	for i := range categories {
+		categories[i] = fmt.Sprint(i)
+	}
+	a := axisIn(ChartAxisOptions{Kind: AxisCategory, Categories: categories})
+	if n := len(a.Ticks()); n > 65 || n == 0 {
+		t.Fatalf("built %d category ticks", n)
+	}
+	if a.Label(99999) != "99999" || a.Map(ui.Rect{W: 1000}, 99999) < 999 {
+		t.Fatal("last category mapping")
+	}
+}
+
+func charts2MustPanic(t *testing.T, view func(*ui.Context)) {
+	t.Helper()
+	defer func() {
+		if recover() == nil {
+			t.Error("invalid options accepted")
+		}
+	}()
+	ui.NewTester(func(c *ui.Context) { Use(c, Settings{}); view(c) }, 320, 240)
 }

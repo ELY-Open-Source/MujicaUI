@@ -42,6 +42,7 @@ func TestChartTooltipFollowsFocusAndPointer(t *testing.T) {
 		return LineChart(c, lineSeries(), LineChartOptions{Frame: ChartFrame{Label: "Chapel"}})
 	}}
 	tt := ui.NewTester(h.view, 520, 420)
+	tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})
 	tabTo(t, tt, "Chapel")
 	tt.Key(0, ui.KeyEnd)
 	if !tooltipShown(tt) {
@@ -58,7 +59,7 @@ func TestChartTooltipFollowsFocusAndPointer(t *testing.T) {
 	}
 }
 
-// tooltipShown looks for a run of Surface pixels too long for a marker ring.
+// tooltipShown finds Surface runs longer than marker rings.
 func tooltipShown(tt *ui.Tester) bool {
 	img := tt.Image()
 	want := toRGBA(theme.Light().Surface)
@@ -83,4 +84,20 @@ func TestChartTooltipSnapshot(t *testing.T) {
 		pal := internal.Palette(Tokens(c))
 		ChartTooltip(c, 20, 20, []ChartTooltipLine{{Text: "Lauds"}, {Text: "Pews 5", Color: pal[0]}, {Text: "Candles 2", Color: pal[1], Shape: 1}})
 	})
+}
+
+func TestChartTooltipFitsLongContent(t *testing.T) {
+	var b ui.Rect
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		lines := make([]ChartTooltipLine, 40)
+		for i := range lines {
+			lines[i].Text = "A very long series name that wraps across the tooltip panel"
+		}
+		b = ChartTooltip(c, 159, 99, lines).Bounds()
+	}, 160, 100)
+	tt.Frame()
+	if b.X < 4 || b.Y < 4 || b.X+b.W > 156 || b.Y+b.H > 96 {
+		t.Fatalf("tooltip outside window: %v", b)
+	}
 }

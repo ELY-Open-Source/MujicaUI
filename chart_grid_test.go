@@ -25,7 +25,7 @@ func TestChartGridPixelAlignedWithMinor(t *testing.T) {
 			c := color.RGBAModel.Convert(img.At(100, py)).(color.RGBA)
 			count[c]++
 		}
-		// Three major and two minor lines, each exactly one device pixel per DIP, no blur.
+		// Three major and two minor lines stay pixel-aligned.
 		if count[major] != 3*int(scale) || count[minor] != 2*int(scale) {
 			t.Fatalf("scale %v: %d major and %d minor pixel rows", scale, count[major], count[minor])
 		}

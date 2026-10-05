@@ -16,7 +16,7 @@ type ChartAxisKind int
 
 const (
 	AxisLinear ChartAxisKind = iota
-	// AxisLog maps powers of ten evenly; Min must be above zero.
+	// AxisLog maps powers of ten; Min must be positive.
 	AxisLog
 	// AxisTime maps From..To; values are Unix seconds.
 	AxisTime
@@ -45,11 +45,11 @@ type ChartAxisOptions struct {
 	Categories []string
 	// Ticks fixes the tick values; nil picks them.
 	Ticks []float64
-	// Format writes tick and readout labels; nil picks one per kind.
+	// Format overrides tick and readout labels.
 	Format func(v float64) string
 }
 
-// ChartAxisPart is an axis ready to map values and draw itself in a plot.
+// ChartAxisPart maps values and draws an axis.
 type ChartAxisPart struct {
 	opts   ChartAxisOptions
 	lo, hi float64
@@ -66,7 +66,7 @@ func ChartAxis(c *ui.Context, opts ChartAxisOptions) ChartAxisPart {
 	switch opts.Kind {
 	case AxisLinear, AxisLog:
 		a.lo, a.hi = opts.Min, opts.Max
-		if !(a.hi > a.lo) || opts.Kind == AxisLog && a.lo <= 0 {
+		if !(a.hi > a.lo) || math.IsInf(a.lo, 0) || math.IsInf(a.hi, 0) || opts.Kind == AxisLog && a.lo <= 0 {
 			panic("mujica: ChartAxis needs Min < Max, and Min > 0 for a log axis")
 		}
 	case AxisTime:
@@ -82,10 +82,15 @@ func ChartAxis(c *ui.Context, opts ChartAxisOptions) ChartAxisPart {
 	default:
 		panic("mujica: unknown ChartAxisKind")
 	}
-	if opts.Side > SideTop {
+	if opts.Side < SideBottom || opts.Side > SideTop {
 		panic("mujica: unknown ChartSide")
 	}
 	a.ticks = opts.Ticks
+	for i, v := range a.ticks {
+		if math.IsNaN(v) || math.IsInf(v, 0) || v < a.lo || v > a.hi || i > 0 && v <= a.ticks[i-1] {
+			panic("mujica: ChartAxis ticks must ascend inside the domain")
+		}
+	}
 	if a.ticks == nil {
 		a.ticks = a.autoTicks()
 	}
@@ -99,7 +104,7 @@ func (a *ChartAxisPart) autoTicks() []float64 {
 	var out []float64
 	switch a.opts.Kind {
 	case AxisLog:
-		// Powers of ten, with 2 and 5 between them on short spans.
+		// Short spans include powers of two and five.
 		mants := []float64{1}
 		if a.hi/a.lo < 1000 {
 			mants = []float64{1, 2, 5}
@@ -118,8 +123,13 @@ func (a *ChartAxisPart) autoTicks() []float64 {
 			out = append(out, chartSeconds(t))
 		}
 	case AxisCategory:
-		for i := range a.opts.Categories {
+		n := len(a.opts.Categories)
+		step := max(1, (n+63)/64)
+		for i := 0; i < n; i += step {
 			out = append(out, float64(i))
+		}
+		if out[len(out)-1] != float64(n-1) {
+			out = append(out, float64(n-1))
 		}
 	default:
 		lo, hi, step := internal.Nice(a.lo, a.hi, 5)
@@ -138,7 +148,7 @@ func (a ChartAxisPart) horizontal() bool {
 	return a.opts.Side == SideBottom || a.opts.Side == SideTop
 }
 
-// fraction is how far along the axis v lies, 0 to 1.
+// fraction returns the normalized position along the axis.
 func (a ChartAxisPart) fraction(v float64) float64 {
 	if a.opts.Kind == AxisLog {
 		return (math.Log10(v) - math.Log10(a.lo)) / (math.Log10(a.hi) - math.Log10(a.lo))
@@ -146,7 +156,7 @@ func (a ChartAxisPart) fraction(v float64) float64 {
 	return (v - a.lo) / (a.hi - a.lo)
 }
 
-// Map returns the pixel of v along the axis inside plot.
+// Map returns the pixel position of v.
 func (a ChartAxisPart) Map(plot ui.Rect, v float64) float32 {
 	f := float32(a.fraction(v))
 	if a.horizontal() {
@@ -155,7 +165,7 @@ func (a ChartAxisPart) Map(plot ui.Rect, v float64) float32 {
 	return plot.Y + plot.H - f*plot.H
 }
 
-// Invert returns the value at pixel px along the axis inside plot.
+// Invert returns the value at a pixel position.
 func (a ChartAxisPart) Invert(plot ui.Rect, px float32) float64 {
 	f := float64((px - plot.X) / plot.W)
 	if !a.horizontal() {
@@ -191,7 +201,7 @@ func (a ChartAxisPart) Label(v float64) string {
 	return strconv.FormatFloat(v, 'g', 6, 64)
 }
 
-// readout writes v one decimal finer than ticks, for crosshair labels.
+// readout uses finer precision than ticks.
 func (a ChartAxisPart) readout(v float64) string {
 	switch {
 	case a.opts.Format != nil, a.opts.Kind == AxisCategory, a.opts.Kind == AxisTime:
@@ -204,11 +214,16 @@ func (a ChartAxisPart) readout(v float64) string {
 	return strconv.FormatFloat(v, 'g', 6, 64)
 }
 
-// Draw paints the axis line and tick labels on its side of plot.
+// Draw paints the axis line and tick labels.
 func (a ChartAxisPart) Draw(p *ui.Painter, plot ui.Rect) {
-	pos := make([]float32, len(a.ticks))
-	labels := make([]string, len(a.ticks))
-	for i, t := range a.ticks {
+	spacing := a.size * 2
+	if a.horizontal() {
+		spacing = a.size * 4
+	}
+	ticks := a.drawTicks(plot, spacing)
+	pos := make([]float32, len(ticks))
+	labels := make([]string, len(ticks))
+	for i, t := range ticks {
 		pos[i], labels[i] = a.Map(plot, t), a.Label(t)
 	}
 	k := a.k
@@ -226,4 +241,24 @@ func (a ChartAxisPart) Draw(p *ui.Painter, plot ui.Rect) {
 		internal.RuleV(p, plot.X+plot.W, plot.Y, plot.Y+plot.H, k.ControlBorder)
 		internal.LabelsY(p, plot.X+plot.W+6, pos, labels, true, a.size, k)
 	}
+}
+
+func (a ChartAxisPart) drawTicks(plot ui.Rect, spacing float32) []float64 {
+	length := plot.H
+	if a.horizontal() {
+		length = plot.W
+	}
+	limit := max(2, int(length/max(spacing, 1)))
+	if len(a.ticks) <= limit {
+		return a.ticks
+	}
+	step := (len(a.ticks) + limit - 1) / limit
+	out := make([]float64, 0, limit+1)
+	for i := 0; i < len(a.ticks); i += step {
+		out = append(out, a.ticks[i])
+	}
+	if out[len(out)-1] != a.ticks[len(a.ticks)-1] {
+		out = append(out, a.ticks[len(a.ticks)-1])
+	}
+	return out
 }
