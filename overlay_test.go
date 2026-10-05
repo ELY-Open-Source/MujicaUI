@@ -261,13 +261,25 @@ func TestOverlayLifecycle(t *testing.T) {
 		if got := len(tt.Texts()); got != texts {
 			t.Errorf("%s: texts %d -> %d", oc.name, texts, got)
 		}
-		if g := runtime.NumGoroutine(); g > goroutines {
+		// A fired c.After timer (ui/runtime.go:596) runs briefly in its own goroutine; only lasting growth counts.
+		if g := overlayGoroutines(goroutines); g > goroutines {
 			t.Errorf("%s: goroutines %d -> %d", oc.name, goroutines, g)
 		}
 		if after := heapObjects(); after > before+2000 {
 			t.Errorf("%s: heap objects %d -> %d", oc.name, before, after)
 		}
 	}
+}
+
+// overlayGoroutines waits up to 2 s for the goroutine count to fall to want, and returns it.
+func overlayGoroutines(want int) int {
+	end := time.Now().Add(2 * time.Second)
+	g := runtime.NumGoroutine()
+	for g > want && time.Now().Before(end) {
+		time.Sleep(10 * time.Millisecond)
+		g = runtime.NumGoroutine()
+	}
+	return g
 }
 
 func heapObjects() uint64 {
