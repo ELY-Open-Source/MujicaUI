@@ -102,3 +102,23 @@ func TestPinInputSnapshot(t *testing.T) {
 		})
 	})
 }
+
+func TestPinInputDisabledAfterFocus(t *testing.T) {
+	p := &pinInputProbe{value: "12"}
+	opts := PinInputOptions{Label: "Code"}
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		r := PinInput(c, &p.value, opts)
+		if r.Changed() {
+			p.changes++
+		}
+	}, 480, 120)
+	tt.Key(0, ui.KeyTab)
+	opts.Disabled = true
+	tt.Type("3")
+	tt.Key(0, ui.KeyBackspace)
+	tt.Frame()
+	if p.value != "12" || p.changes != 0 {
+		t.Fatalf("value %q changes %d", p.value, p.changes)
+	}
+}

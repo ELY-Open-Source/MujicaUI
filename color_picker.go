@@ -91,13 +91,13 @@ func ColorPicker(c *ui.Context, color *ui.Color, opts ColorPickerOptions) ColorP
 			st.sync(*color)
 		}
 	}
-	if opts.Disabled {
+	if trigger.IsDisabled() {
 		st.open = false
 	} else if trigger.Clicked() {
 		st.open = !st.open
 	}
 	border := k.ControlBorder
-	if trigger.Hovered() && !opts.Disabled {
+	if trigger.Hovered() {
 		border = k.ControlBorder.Mix(k.Text, 0.25)
 		trigger.Background(k.SurfaceHover)
 	}
@@ -160,7 +160,7 @@ func ColorPicker(c *ui.Context, color *ui.Color, opts ColorPickerOptions) ColorP
 			}
 		})
 	})
-	if st.wasOpen && !st.open && !opts.Disabled {
+	if st.wasOpen && !st.open && !trigger.IsDisabled() {
 		trigger.Focus()
 	}
 	st.wasOpen = st.open
@@ -212,10 +212,12 @@ func colorPickerSquare(c *ui.Context, st *colorPickerState, set func(colorPicker
 // colorPickerSlider is a channel slider from 0 to hi over the track track paints.
 func colorPickerSlider(c *ui.Context, v *float64, hi float64, name string, track func(p *ui.Painter, r ui.Rect)) *ui.Element {
 	k := Tokens(c)
-	const knob = 10
-	s := ui.SliderBase(c, v, 0, hi).Height(18).PaddingX(knob / 2).FocusRing(false).Label(name)
+	const knob, look = 10, 18
+	s := ui.SliderBase(c, v, 0, hi).Height(theme.MinHitSize).PaddingX(knob / 2).FocusRing(false).Label(name)
 	frac := float32(*v / hi)
 	s.Draw(func(p *ui.Painter, r ui.Rect) {
+		// The hit area is taller than the drawn slider, which sits in its middle.
+		r = ui.Rect{X: r.X, Y: r.Y + (r.H-look)/2, W: r.W, H: look}
 		bar := ui.Rect{X: r.X, Y: r.Y + 3, W: r.W, H: r.H - 6}
 		p.Clip(bar, theme.ControlRadius, func() { track(p, bar) })
 		p.Stroke(bar, k.Border, theme.ControlRadius, theme.BorderWidth)

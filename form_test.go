@@ -262,3 +262,59 @@ func TestFormSnapshot(t *testing.T) {
 		})
 	})
 }
+
+// Text typed in the frame the check passes gets its own check before submitting.
+func TestFormInputAfterAsyncPassIsRechecked(t *testing.T) {
+	p := &formProbe{name: "Uika", tags: []string{"x"}, email: "good@x", useAsync: true}
+	tt := ui.NewTester(p.run, 600, 500)
+	_ = tt.Click("Email")
+	p.st.Submit()
+	tt.Frame()
+	if len(p.asyncCalls) != 1 {
+		t.Fatalf("calls %v", p.asyncCalls)
+	}
+	p.st.Resolve("email", p.asyncCalls[0], "")
+	tt.Type("bad")
+	if p.submits != 0 || len(p.asyncValues) != 2 || p.asyncValues[1] != "good@xbad" {
+		t.Fatalf("submits %d checked %q", p.submits, p.asyncValues)
+	}
+}
+
+// A cross-field rule sees the other field's latest value when the submit settles.
+func TestFormCrossFieldRuleAtSettle(t *testing.T) {
+	var st FormState
+	user, pw, confirm := "uika", "a", "a"
+	var version uint64
+	submits := 0
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		res := Form(c, &st, FormOptions{}, func(f *FormScope) {
+			FormItem(f, "user", &user, FormItemOptions[string]{Label: "User", Async: func(_ string, v uint64) { version = v }}, func() *ui.Element {
+				return InputGroup(c, &user, InputGroupOptions{}).Input
+			})
+			FormItem(f, "pw", &pw, FormItemOptions[string]{Label: "Password"}, func() *ui.Element {
+				return InputGroup(c, &pw, InputGroupOptions{}).Input
+			})
+			FormItem(f, "confirm", &confirm, FormItemOptions[string]{Label: "Confirm", Validate: func(v string) string {
+				if v != pw {
+					return "Passwords differ."
+				}
+				return ""
+			}}, func() *ui.Element {
+				return InputGroup(c, &confirm, InputGroupOptions{}).Input
+			})
+		})
+		if res.Submitted() {
+			submits++
+		}
+	}, 600, 500)
+	_ = tt.Click("Submit")
+	pw = "b"
+	tt.Frame()
+	st.Resolve("user", version, "")
+	tt.Frame()
+	tt.Frame()
+	if submits != 0 || !tt.HasText("Passwords differ.") {
+		t.Fatalf("mismatched pair submitted: %d", submits)
+	}
+}

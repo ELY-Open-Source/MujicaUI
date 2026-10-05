@@ -152,11 +152,12 @@ func FileDropZone(c *ui.Context, files *[]DroppedFile, opts FileDropZoneOptions)
 	col.Children(func() {
 		zone := ui.Column(c).AlignItems(ui.Center).Justify(ui.Center).Gap(d.Unit() * 2).MinHeight(140).Padding(d.Unit() * 5).
 			Radius(theme.CardRadius).Disabled(opts.Disabled)
-		if dropped := zone.DroppedFiles(); dropped != nil && !opts.Disabled {
+		disabled := zone.IsDisabled()
+		if dropped := zone.DroppedFiles(); dropped != nil && !disabled {
 			slog.Debug("mujica: file drop zone dropped", "count", len(dropped))
 			take(dropped)
 		}
-		over := zone.FileDragOver() && !opts.Disabled
+		over := zone.FileDragOver() && !disabled
 		bg, border := k.Surface, k.ControlBorder
 		if over {
 			bg, border = k.Selection, k.AccentText

@@ -151,11 +151,11 @@ func transferPanel(c *ui.Context, st *transferState, side int, title string, ite
 	}
 	checked := transferCount(st, shown)
 	ui.Column(c).Width(240).Radius(theme.CardRadius).Background(k.Surface).Border(theme.BorderWidth, k.Border).Children(func() {
-		head := ui.Row(c).Gap(d.Unit()*2).AlignItems(ui.Center).MinHeight(d.ControlHeight()).Padding(0, d.Unit()*3).
+		head := ui.Row(c).Gap(d.Unit()*2).AlignItems(ui.Center).MinHeight(d.ControlHeight()).Padding(0, d.Unit()*3, 0, d.Unit()*3-(theme.MinHitSize-16)/2).
 			BorderWidth(0, 0, theme.BorderWidth, 0).BorderColor(k.Border)
 		head.Children(func() {
 			all := checked > 0 && checked == enabled
-			box := ui.CheckboxBase(c, &all).Label(fmt.Sprintf(msg(c, "transfer.all"), title)).Disabled(enabled == 0)
+			box := ui.CheckboxBase(c, &all).Size(theme.MinHitSize, theme.MinHitSize).Justify(ui.Center).Label(fmt.Sprintf(msg(c, "transfer.all"), title)).Disabled(enabled == 0)
 			transferMark(c, box, all, checked > 0 && !all)
 			box.Description(transferPartial(c, checked, enabled))
 			if box.Changed() {
@@ -184,7 +184,7 @@ func transferPanel(c *ui.Context, st *transferState, side int, title string, ite
 			for _, it := range shown {
 				on := st.checked[it.ID]
 				ui.Box(c).Key(it.ID).Children(func() {
-					cb := ui.CheckboxBase(c, &on).Gap(d.Unit()*2).MinHeight(d.ControlHeight()-d.Unit()).Padding(0, d.Unit()*2).
+					cb := ui.CheckboxBase(c, &on).Gap(d.Unit()*2).MinHeight(max(d.ControlHeight()-d.Unit(), theme.MinHitSize)).Padding(0, d.Unit()*2).
 						Radius(theme.ControlRadius).FillWidth().Disabled(it.Disabled)
 					if cb.Changed() {
 						st.checked[it.ID] = on

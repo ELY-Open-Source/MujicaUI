@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	"github.com/egoist/mygo/ui"
+
+	"mujicaui/theme"
 )
 
 var transferCast = []TransferItem{
@@ -114,5 +116,16 @@ func TestTransferPartialDescription(t *testing.T) {
 	}, 100, 100, 1)
 	if got != [3]string{"2 of 3 selected", "", ""} {
 		t.Fatalf("descriptions %q", got)
+	}
+}
+
+func TestTransferSelectAllHitAreaCompact(t *testing.T) {
+	target := []string{}
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{Density: theme.Compact})
+		Transfer(c, &target, transferCast, TransferOptions{})
+	}, 640, 420)
+	if r, ok := tt.Find("Select all in Available"); !ok || r.W < 28 || r.H < 28 {
+		t.Fatalf("select all %v", r)
 	}
 }

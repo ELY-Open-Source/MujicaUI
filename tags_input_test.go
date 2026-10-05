@@ -124,3 +124,23 @@ func TestTagsInputRemoveHitArea(t *testing.T) {
 		t.Fatalf("remove button %v", r)
 	}
 }
+
+func TestTagsInputDisabledAfterFocus(t *testing.T) {
+	tags, n := []string{"rose"}, 0
+	opts := TagsInputOptions{Label: "Tags"}
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		if TagsInput(c, &tags, opts).Changed() {
+			n++
+		}
+	}, 520, 200)
+	_ = tt.Click("Tags")
+	opts.Disabled = true
+	tt.Key(0, ui.KeyBackspace)
+	tt.Type("ivy,")
+	tt.Key(0, ui.KeyEnter)
+	tt.Frame()
+	if !slices.Equal(tags, []string{"rose"}) || n != 0 {
+		t.Fatalf("tags %q changes %d", tags, n)
+	}
+}
