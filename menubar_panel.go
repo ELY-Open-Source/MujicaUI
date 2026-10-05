@@ -53,18 +53,18 @@ func (m *menubarRun) overlay(titles []ui.Rect) {
 	})
 }
 
-// panel builds level l at (x, y), flipping left of parent when it does not fit.
-// It returns the panel and the row of its highlighted item.
+// panel builds level l at (x, y) and returns it with its highlighted row.
 func (m *menubarRun) panel(l int, x, y float32, parent ui.Rect) (*ui.Element, *ui.Element) {
 	c, st := m.c, m.st
 	k := Tokens(c)
 	u := Density(c).Unit()
 	items := m.items(l)
-	panel := ui.Column(c).Absolute().Padding(u).MinWidth(200).AlignItems(ui.Stretch).Role(ui.RolePopup).
+	ww, wh := c.Size()
+	// Long menus scroll within the window instead of running off it.
+	panel := ui.Scroll(c).Absolute().Padding(u).MinWidth(200).MaxHeight(wh-8).AlignItems(ui.Stretch).Role(ui.RolePopup).
 		Radius(theme.PopupRadius).Background(k.Surface).Border(theme.BorderWidth, k.Border).
 		Shadow(0, 6, 16, 0, ui.RGBA(0, 0, 0, 0.18))
 	pb := panel.Bounds()
-	ww, wh := c.Size()
 	if x+pb.W > ww-4 {
 		x = ww - 4 - pb.W
 		if l > 0 {
@@ -85,6 +85,10 @@ func (m *menubarRun) panel(l int, x, y float32, parent ui.Rect) (*ui.Element, *u
 			row := m.item(it, st.hl[l] == j)
 			if st.hl[l] == j {
 				anchor = row
+				if st.reveal && l == len(st.hl)-1 {
+					row.ScrollIntoView()
+					st.reveal = false
+				}
 			}
 			if row.Clicked() {
 				st.hl = append(st.hl[:l], j)
@@ -114,15 +118,13 @@ func (m *menubarRun) item(it MenubarItem, hl bool) *ui.Element {
 	k := Tokens(c)
 	d := Density(c)
 	u := d.Unit()
-	name := it.Label
-	if (it.Kind == MenubarCheck || it.Kind == MenubarRadio) && it.Checked {
-		name += ", " + msg(c, "menubar.checked")
-	}
+	name := menubarName(c, it)
 	row := ui.Row(c).AlignItems(ui.Center).Gap(u*2).MinHeight(d.ControlHeight()-4).Padding(0, u*2).
 		Radius(theme.ControlRadius).Label(name).TextColor(k.Text).Disabled(it.Disabled).Role(ui.RoleButton)
 	if hl {
 		row.Background(k.Selection)
 	}
+	internal.Ease(row, Motion(c, theme.StateDuration), k.Text)
 	row.Children(func() {
 		mark := ui.Box(c).Size(16, 16).Shrink(0).Center().Role(ui.RoleNone)
 		if it.Checked && it.Kind == MenubarCheck {
@@ -136,13 +138,21 @@ func (m *menubarRun) item(it MenubarItem, hl bool) *ui.Element {
 		ui.Text(c, it.Label).SingleLine()
 		ui.Box(c).Grow(1).MinWidth(u * 6)
 		if it.Shortcut.Key != 0 {
-			ui.Text(c, menubarShortcutText(it.Shortcut)).FontSize(theme.CaptionSize).TextColor(k.TextMuted).SingleLine()
+			ui.Text(c, menubarShortcutText(it.Shortcut)).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.TextMuted).SingleLine()
 		}
 		if it.Items != nil {
 			ui.Icon(c, icons.Must("chevron-right")).Size(14, 14).TextColor(k.TextMuted)
 		}
 	})
 	return row
+}
+
+// menubarName is an item's label, with its checked state for assistive technology.
+func menubarName(c *ui.Context, it MenubarItem) string {
+	if (it.Kind == MenubarCheck || it.Kind == MenubarRadio) && it.Checked {
+		return it.Label + ", " + msg(c, "menubar.checked")
+	}
+	return it.Label
 }
 
 var menubarKeyNames = map[ui.Key]string{

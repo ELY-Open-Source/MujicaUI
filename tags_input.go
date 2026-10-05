@@ -47,7 +47,6 @@ type tagsInputState struct {
 }
 
 // TagsInput edits a list of unique tags shown as chips before a text input.
-// Enter or a separator adds the text; Backspace in the empty input removes the last tag.
 func TagsInput(c *ui.Context, tags *[]string, opts TagsInputOptions) TagsInputParts {
 	if opts.Max < 0 {
 		panic("mujica: TagsInput Max must not be negative")
@@ -102,11 +101,10 @@ func TagsInput(c *ui.Context, tags *[]string, opts TagsInputOptions) TagsInputPa
 			Padding(d.Unit(), d.Unit()*2).Radius(theme.ControlRadius).Background(k.Surface).Disabled(opts.Disabled)
 		box.Children(func() {
 			for i, tag := range *tags {
-				chip := ui.Row(c).Key(tag).AlignItems(ui.Center).Gap(d.Unit()).Padding(0, d.Unit(), 0, d.Unit()*2).
-					MinHeight(d.ControlHeight() - d.Unit()*3).Radius(theme.ControlRadius).Background(k.Selection).Shrink(0)
+				chip := ui.Row(c).Key(tag).AlignItems(ui.Center).Padding(0, 0, 0, d.Unit()*2).Radius(theme.ControlRadius).Background(k.Selection).Shrink(0)
 				chip.Children(func() {
 					ui.Text(c, tag).SingleLine()
-					x := ui.ButtonBase(c).Size(20, 20).Radius(theme.ControlRadius).TextColor(k.TextMuted).
+					x := ui.ButtonBase(c).Size(theme.MinHitSize, theme.MinHitSize).Radius(theme.ControlRadius).TextColor(k.TextMuted).
 						Label(fmt.Sprintf(msg(c, "tags_input.remove"), tag))
 					internal.Ring(x, k.Focus, theme.ControlRadius)
 					if x.Hovered() {
@@ -135,7 +133,7 @@ func TagsInput(c *ui.Context, tags *[]string, opts TagsInputOptions) TagsInputPa
 			})
 		})
 		if st.err != "" {
-			ui.Text(c, st.err).TextColor(k.Danger).FontSize(theme.CaptionSize).Role(ui.RoleStatus)
+			ui.Text(c, st.err).TextColor(k.Danger).FontSize(FontSize(c, theme.CaptionSize)).Role(ui.RoleStatus)
 		}
 	})
 	in := parts.Input

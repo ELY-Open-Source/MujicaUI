@@ -33,6 +33,11 @@ jobs:
       - name: Format
         if: runner.os == 'Linux'
         run: test -z "$(gofmt -l .)" || { gofmt -l .; exit 1; }
+      - name: File size limit
+        if: runner.os == 'Linux'
+        run: |
+          big=$(git ls-files '*.go' '*.html' | xargs wc -l | awk '$2!="total" && $1>500')
+          test -z "$big" || { echo "$big"; exit 1; }
       - name: Build and vet every platform
         if: runner.os == 'Linux'
         run: |

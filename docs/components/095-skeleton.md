@@ -26,7 +26,7 @@ ui.Row(c).Gap(12).Children(func() {
 | `Height` | `float32` | 当前密度控件高度 | 矩形高度；文字形状由行数决定（每行 21 DIP）。 |
 | `Lines` | `int` | 1 | 文字行数，多行时最后一行为 60% 宽。 |
 
-负值 panic。
+负值、NaN、无穷或未知形状 panic。文字行高随系统文本缩放。
 
 ## 状态
 

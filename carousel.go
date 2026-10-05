@@ -58,10 +58,13 @@ func Carousel(c *ui.Context, index *int, n int, opts CarouselOptions, slide func
 	}
 	wrap := opts.Loop || opts.Autoplay
 	goTo := func(i int) {
+		if n == 0 {
+			return
+		}
 		if wrap {
 			i = (i%n + n) % n
 		}
-		if n == 0 || i < 0 || i >= n || i == *index {
+		if i < 0 || i >= n || i == *index {
 			return
 		}
 		*index = i

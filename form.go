@@ -9,8 +9,7 @@ import (
 	"github.com/egoist/mygo/ui"
 )
 
-// FormState is a form's validation and submit state; keep it beside the form's values.
-// Its methods run on the UI thread: deliver async results through Window.Update.
+// FormState is a form's check and submit state; use it on the UI thread only.
 type FormState struct {
 	fields     map[string]*formFieldState
 	order      []string
@@ -22,6 +21,7 @@ type FormState struct {
 	requested  bool
 	focus      string
 	formError  string
+	generation int
 }
 
 type formFieldState struct {
@@ -33,6 +33,7 @@ type formFieldState struct {
 	asyncFor   uint64
 	asyncErr   string
 	pending    bool
+	hasAsync   bool
 	check      func() string
 	startAsync func()
 }
@@ -45,8 +46,7 @@ func (s *FormState) Version(name string) uint64 {
 	return 0
 }
 
-// Resolve delivers the async check of name's value at version; "" means valid.
-// It reports false and drops the result when the value has changed since.
+// Resolve delivers name's async result for version, "" if valid; stale versions return false.
 func (s *FormState) Resolve(name string, version uint64, err string) bool {
 	f := s.fields[name]
 	if f == nil || f.version != version {
@@ -98,8 +98,9 @@ type FormOptions struct {
 
 // FormScope registers a Form's fields with FormItem.
 type FormScope struct {
-	c  *ui.Context
-	st *FormState
+	c          *ui.Context
+	st         *FormState
+	horizontal bool
 }
 
 // FormParts are the parts of a Form.
@@ -127,8 +128,7 @@ type FormItemOptions[T any] struct {
 	Async func(v T, version uint64)
 }
 
-// Form lays out the fields that fields registers, validates them on blur and submit,
-// and shows submit and reset buttons. It never stores or sends the values itself.
+// Form lays out and checks its fields and shows submit and reset buttons.
 func Form(c *ui.Context, st *FormState, opts FormOptions, fields func(f *FormScope)) FormParts {
 	if st.fields == nil {
 		st.fields = map[string]*formFieldState{}
@@ -139,13 +139,16 @@ func Form(c *ui.Context, st *FormState, opts FormOptions, fields func(f *FormSco
 	parts := FormParts{}
 	col := ui.Column(c).Gap(d.Unit() * 5)
 	parts.Element = col
-	scope := &FormScope{c: c, st: st}
+	scope := &FormScope{c: c, st: st, horizontal: opts.Horizontal}
 	col.Children(func() {
-		if opts.Horizontal {
-			ui.Form(c, func() { fields(scope) })
-		} else {
-			ui.Column(c).Gap(d.Unit() * 4).Children(func() { fields(scope) })
-		}
+		// A new key after Reset drops the controls' drafts and errors.
+		ui.Box(c).Key(st.generation).Children(func() {
+			if opts.Horizontal {
+				formFieldGrid(c, func() { fields(scope) })
+			} else {
+				ui.Column(c).Gap(d.Unit() * 4).Children(func() { fields(scope) })
+			}
+		})
 		if st.formError != "" {
 			ui.Text(c, st.formError).TextColor(k.Danger).Role(ui.RoleStatus)
 		}
@@ -198,7 +201,12 @@ func formSettle(c *ui.Context, st *FormState) bool {
 		if st.Error(name) != "" && first == "" {
 			first = name
 		}
-		pending = pending || st.fields[name].pending
+		f := st.fields[name]
+		// A value edited since its check owes a new one.
+		if f.hasAsync && f.err == "" && f.asyncFor != f.version {
+			f.startAsync()
+			pending = true
+		}
 	}
 	switch {
 	case first != "":
@@ -221,12 +229,12 @@ func formReset(st *FormState) {
 		r()
 	}
 	st.fields = map[string]*formFieldState{}
+	st.generation++
 	st.tried, st.awaiting, st.requested, st.focus, st.formError = false, false, false, "", ""
 	slog.Debug("mujica: form reset")
 }
 
-// FormItem registers field name, labels the control that control returns, and shows its error.
-// control must return the element to focus when the field has the first error.
+// FormItem registers field name around the focusable element control returns.
 func FormItem[T any](f *FormScope, name string, value *T, opts FormItemOptions[T], control func() *ui.Element) *ui.Element {
 	c, st := f.c, f.st
 	if name == "" || opts.Label == "" {
@@ -243,6 +251,7 @@ func FormItem[T any](f *FormScope, name string, value *T, opts FormItemOptions[T
 		fs = &formFieldState{snapshot: snap, version: st.seq}
 		st.fields[name] = fs
 	}
+	fs.hasAsync = opts.Async != nil
 	fs.check = func() string {
 		if opts.Required && formEmpty(*value) {
 			return msg(c, "form.required")
@@ -273,12 +282,10 @@ func FormItem[T any](f *FormScope, name string, value *T, opts FormItemOptions[T
 		desc = msg(c, "form.checking")
 	}
 	var ctrl *ui.Element
-	field := formFieldBuild(c, opts.Label, FormFieldOptions{Required: opts.Required, Description: desc, Error: st.Error(name)}, func() {
+	field := formFieldBuild(c, opts.Label, FormFieldOptions{Required: opts.Required, Description: desc, Error: st.Error(name)}, f.horizontal, func() *ui.Element {
 		ctrl = control()
+		return ctrl
 	})
-	if ctrl == nil {
-		panic("mujica: FormItem " + name + ": control returned nil")
-	}
 	focused := ctrl.FocusWithin()
 	if fs.focused && !focused {
 		fs.touched = true

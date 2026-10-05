@@ -134,7 +134,6 @@ func dataTableDemo(c *ui.Context, log func(string)) {
 			ui.Checkbox(c, &s.multiple, "Multiple")
 			ui.Select(c, &s.status, dataStatuses)
 			ui.TextInput(c, &s.table.Filter).Width(180).Placeholder("Filter")
-			mujica.DataTableColumnPicker(c, &s.table, cols)
 		})
 		v := mujica.DataTable(c, &s.table, rows, mujica.DataTableOptions[dataRelic, int]{
 			Columns: cols, Key: func(r dataRelic) int { return r.ID }, Multiple: s.multiple, Status: st,

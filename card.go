@@ -41,7 +41,7 @@ func Card(c *ui.Context, opts CardOptions, body func()) *ui.Element {
 	}
 	card.Children(func() {
 		if opts.Title != "" {
-			ui.Text(c, opts.Title).Font(theme.SerifFont).FontSize(theme.H3Size).FontWeight(600).LineHeight(1.3)
+			ui.Text(c, opts.Title).Font(theme.SerifFont).FontSize(FontSize(c, theme.H3Size)).FontWeight(600).LineHeight(1.3)
 			if opts.Decorated {
 				ui.Box(c).Height(7).FillWidth().Shrink(0).Draw(func(p *ui.Painter, r ui.Rect) {
 					cy := r.Y + r.H/2

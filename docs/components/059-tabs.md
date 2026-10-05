@@ -41,7 +41,7 @@ mujica.Tabs(c, &tab, []mujica.Tab{
 ## 状态
 
 - 选中：Selection 背景、2 DIP AccentText 边线（横向在底边，纵向在右边）、600 字重，三者同时标记。
-- 悬停：SurfaceHover 背景；按下：Selection 背景。
+- 悬停：SurfaceHover 背景；按下：Selection 背景。背景与文字颜色在 120 ms 内过渡，减少动画时直接切换。
 - 焦点：2 DIP Focus 焦点环，外留 2 DIP。
 - 禁用：MyGo 统一降低不透明度，不响应指针与键盘。
 - 溢出：标签条横向（纵向时竖向）滚动；键盘或点击切换后，选中标签滚入视野。

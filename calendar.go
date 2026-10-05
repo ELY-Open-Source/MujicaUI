@@ -12,8 +12,7 @@ import (
 	"mujicaui/theme"
 )
 
-// WeekStart is the first column of a month. The zero value follows the locale:
-// Monday for zh-CN, Sunday for en-US.
+// WeekStart is a month's first column; zero follows the locale.
 type WeekStart int
 
 const (
@@ -25,7 +24,7 @@ const (
 
 // CalendarOptions configure a Calendar.
 type CalendarOptions struct {
-	// Min and Max bound the days that can be chosen; zero leaves a side open.
+	// Min and Max bound choosable days; zero is open.
 	Min, Max Date
 	// DisableDate marks single days that cannot be chosen.
 	DisableDate func(Date) bool
@@ -38,7 +37,6 @@ type CalendarOptions struct {
 }
 
 // Calendar shows one month and chooses a day into *value.
-// Arrows move by day and week, PageUp/PageDown by month, Shift with them by year.
 func Calendar(c *ui.Context, value *Date, opts CalendarOptions) DateTimeResult {
 	datetimeCheckDate("Calendar value", *value)
 	datetimeCheckBounds("Calendar", opts.Min, opts.Max)
@@ -115,7 +113,7 @@ func calendarSeek(d Date, dir int, enabled func(Date) bool) Date {
 	return d
 }
 
-// calendarMonth draws the month of *cursor and returns the day picked and the day hovered.
+// calendarMonth draws *cursor's month; returns picked and hovered days.
 func calendarMonth(c *ui.Context, cursor *Date, cfg calendarConfig) (picked, hovered Date) {
 	k := Tokens(c)
 	d := Density(c)
@@ -140,7 +138,7 @@ func calendarMonth(c *ui.Context, cursor *Date, cfg calendarConfig) (picked, hov
 			if datetimeIconButton(c, "chevron-left", msg(c, "calendar.prev_month")).Clicked() {
 				move(cur.AddMonths(-1), -1, false)
 			}
-			ui.Text(c, title).Font(theme.SerifFont).FontSize(theme.BodySize + 2).Bold().
+			ui.Text(c, title).Font(theme.SerifFont).FontSize(FontSize(c, theme.BodySize+2)).Bold().
 				TextColor(k.Text).Grow(1).TextAlign(ui.Center).SingleLine()
 			if datetimeIconButton(c, "chevron-right", msg(c, "calendar.next_month")).Clicked() {
 				move(cur.AddMonths(1), 1, false)
@@ -154,7 +152,7 @@ func calendarMonth(c *ui.Context, cursor *Date, cfg calendarConfig) (picked, hov
 			for i := range 7 {
 				wd := (int(first) + i) % 7
 				ui.Text(c, msg(c, "calendar.weekday_"+strconv.Itoa(wd))).Width(cell).TextAlign(ui.Center).
-					FontSize(theme.CaptionSize).TextColor(k.TextMuted).Role(ui.RoleColumnHeader).
+					FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.TextMuted).Role(ui.RoleColumnHeader).
 					Label(msg(c, "calendar.weekday_long_"+strconv.Itoa(wd)))
 			}
 		})

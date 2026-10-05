@@ -34,7 +34,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func DataTable[R any, K comparable](c *ui.Context, s *DataTableState[K], rows []R, opts DataTableOptions[R, K]) DataTableView`。另有 `DataTableColumnPicker(c, s, cols)`（“列”按钮与勾选弹层，控制显隐）和纯函数 `DataTableRows(rows, cols, sort, filter) []int`（本地排序筛选辅助，返回行下标）。
+`func DataTable[R any, K comparable](c *ui.Context, s *DataTableState[K], rows []R, opts DataTableOptions[R, K]) DataTableView`。表格上方有“列”按钮，弹层中每列提供显隐勾选框、升序/降序排序、左移/右移与减小/增大列宽（每次 16 DIP），这是排序、列顺序与列宽的键盘入口。另有纯函数 `DataTableRows(rows, cols, sort, filter) []int`（本地排序筛选辅助，返回行下标）。
 
 `DataTableState` 字段：`Sort ui.SortOrder`、`Filter string`（不区分大小写包含匹配全部列的 `Text`）、`Hidden map[string]bool`（按列 ID 隐藏）、`Layout ui.TableLayout`（用户拖动得到的列顺序与列宽，可保存恢复）、`Selection ui.Selection[K]`（多选）。方法：`Selected()`、`Rows()`（筛选后行数）。
 
@@ -51,23 +51,25 @@ ui.Render(view, 400, 300, 1)
 
 ## 状态
 
-默认、表头悬停、排序箭头（升/降）、行悬停、选中行（Accent 填充 + OnAccent 文字；单选首列菱形，多选首列勾选框）、聚焦（表格外焦点环）、加载、追加加载、失败、空、无匹配。数据行高度不低于当前密度的数据行高（28/36/44 DIP）。
+默认、表头悬停、排序箭头（升/降）、行悬停、选中行（Selection 背景 + Text 文字；单选首列 AccentText 菱形，多选首列勾选框）、聚焦（表格外焦点环）、加载、追加加载、失败、空、无匹配。数据行高度不低于当前密度的数据行高（28/36/44 DIP）。
 
 ## 事件
 
-`Changed()`：选择变化；`Submitted()`：Enter 或双击；`SortChanged()`：点击表头改变了 `State.Sort`；`Retried()`：点击“重试”。
+`Changed()`：选择变化（含勾选框）；`Submitted()`：Enter 或双击；`SortChanged()`：点击表头或列菜单改变了 `State.Sort`；`Retried()`：点击“重试”。
 
 ## 键盘操作
 
 - ↑/↓、Home/End：移动选择；Enter：提交；输入字母按首个可见列定位。
 - 多选：Shift/Cmd(Ctrl) 配合点击或方向键；Cmd/Ctrl+A 全选。
 - 表头：点击排序、再次点击反向；拖动表头边缘调整列宽，双击适配内容；拖动表头移动列。
-- 列选择器：Tab 进入勾选项，Space 切换；Escape 关闭。
+- 列菜单：Tab 到“列”按钮，Enter 打开；Tab 在各列的勾选框与排序、移动、列宽按钮间移动，Enter/Space 执行；Escape 关闭。
+- 多选勾选框可用 Tab 到达，Space 切换。
 
 ## 限制
 
 - MyGo `ui.Table` 只按调用方给出的顺序显示（docs/ui/table.md “Sorting”），因此本组件在本地完成排序，或在受控模式下交给调用方。
-- 表头内容只能是 `Title` 文字（ui/table.go `table` 构建表头），无法放置全选勾选框；全选使用 Cmd/Ctrl+A。
+- 表头内容只能是 `Title` 文字且只响应指针（ui/table.go `tableHeader`），因此全选使用 Cmd/Ctrl+A，键盘排序与调整列通过列菜单。
+- 共享列宽的列在列菜单中从 max(MinWidth, 120) DIP 开始调整。
 - 单选的跟随由组件按键重新定位，跨越任意距离都有效；多选的键盘锚点在大规模重排后由 MyGo 重置（ui/list.go:30）。
 - 删除的数据行对应的选择会在数据变化时清除；被筛选隐藏的行保留选择。
 - 10 万行 × 10 列：测试统计“最后一帧构建过单元格的行数”不超过 16，并断言重复帧不再调用比较函数（data_table_test.go）。

@@ -27,18 +27,18 @@ mujica.Meter(c, 93, mujica.MeterOptions{
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |
 | `value` | `float64` | 必填 | 0 到 1；超出或 NaN 时 panic（不确定模式忽略）。 |
-| `Shape` | `ProgressShape` | `ProgressLinear` | `ProgressLinear` 或 `ProgressRing`。 |
+| `Shape` | `ProgressShape` | `ProgressLinear` | `ProgressLinear` 或 `ProgressRing`；其他值 panic。 |
 | `Indeterminate` | `bool` | `false` | 未知长度的进度。 |
 | `Label` | `string` | `""` | 显示在旁边并作为无障碍名称；为空时名称为“Loading”。 |
 | `ShowValue` | `bool` | `false` | 显示百分比。 |
-| `Size` | `float32` | 环形 48、线形填满 | 环形直径或线形宽度；负数 panic。 |
+| `Size` | `float32` | 环形 48、线形填满 | 环形直径或线形宽度；负数、NaN 或无穷 panic。 |
 
 `MeterOptions`：
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |
 | `value` | `float64` | 必填 | 须在范围内，否则 panic。 |
-| `Min`, `Max` | `float64` | 0, 1（两者都为 0 时） | 范围；`Max <= Min` panic。 |
+| `Min`, `Max` | `float64` | 0, 1（两者都为 0 时） | 范围；非有限值或 `Max <= Min` panic。 |
 | `Levels` | `*ui.MeterLevels` | `nil` | 阈值：达到 `Warning` 为偏高、达到 `Critical` 为严重；`Critical < Warning` 时低值为坏（如电量）。须在范围内。 |
 | `Label` | `string` | `""` | 名称。 |
 | `ShowValue` | `bool` | `false` | 显示“值 / 最大值”。 |
@@ -47,7 +47,7 @@ mujica.Meter(c, 93, mujica.MeterOptions{
 ## 状态
 
 - 确定进度变化时以 120 ms 过渡，减少动画时直接跳到新值。
-- 不确定进度只在绘制时移动（只重绘、不重建视图）；减少动画时显示静态填充和“In progress”文字。
+- 不确定进度只在绘制时移动（只重绘、不重建视图）；减少动画时显示满格静态填充（对比度不低于 3:1）和“In progress”文字；切换到减少动画时进行中的过渡直接跳到目标值。
 - 计量条按级别使用 Success / Warning / Danger 颜色，同时显示“Normal / High / Critical / Low”文字与阈值刻度，并把级别写入无障碍名称。
 
 ## 事件

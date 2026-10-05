@@ -89,6 +89,7 @@ func List[K comparable](c *ui.Context, s *ListState[K], n int, opts ListOptions[
 	if !s.started {
 		s.started, s.cursor = true, -1
 	}
+	listLocate(s, n, opts.Key)
 	k := Tokens(c)
 	var v ListView
 	v.Element = ui.Column(c).MinHeight(0)
@@ -118,6 +119,21 @@ func List[K comparable](c *ui.Context, s *ListState[K], n int, opts ListOptions[
 	return v
 }
 
+// listLocate finds the chosen key again when items moved or came and went.
+func listLocate[K comparable](s *ListState[K], n int, key func(int) K) {
+	if !s.has || s.cursor >= 0 && s.cursor < n && key(s.cursor) == s.key {
+		return
+	}
+	s.cursor = -1
+	for i := range n {
+		if key(i) == s.key {
+			s.cursor = i
+			break
+		}
+	}
+	slog.Debug("mujica: list selection moved", "row", s.cursor)
+}
+
 func listRows[K comparable](c *ui.Context, s *ListState[K], n int, opts ListOptions[K], item func(i int)) *ui.Element {
 	d := Density(c)
 	s.rows.Key = func(i int) any { return opts.Key(i) }
@@ -128,11 +144,14 @@ func listRows[K comparable](c *ui.Context, s *ListState[K], n int, opts ListOpti
 	} else {
 		s.rows.Selection = nil
 	}
+	k := Tokens(c)
+	restore := dataSelectTheme(c, 0)
+	defer restore()
 	return ui.List(c, &s.rows, n, func(i int) {
 		ui.Row(c).MinHeight(d.ControlHeight()).Padding(0, d.Unit()*3).Gap(d.Unit() * 2).AlignItems(ui.Center).Children(func() {
 			ui.Row(c).Grow(1).MinWidth(0).AlignItems(ui.Center).Gap(d.Unit() * 2).Children(func() { item(i) })
 			if listChosen(s, opts, i) {
-				ui.Icon(c, icons.Must("check")).Size(16, 16).Shrink(0)
+				ui.Icon(c, icons.Must("check")).Size(16, 16).Shrink(0).TextColor(k.AccentText)
 			}
 		})
 	}).Padding(d.Unit())
@@ -155,21 +174,40 @@ func listGrid[K comparable](c *ui.Context, s *ListState[K], n int, opts ListOpti
 	} else {
 		s.grid.Selection = nil
 	}
-	// Chosen items take AccentText borders, legible on both surfaces.
+	// Chosen items take an AccentText ring over a Selection face.
+	k := Tokens(c)
 	saved := c.Theme()
 	t := *saved
-	t.Accent = Tokens(c).AccentText
+	t.Accent = k.AccentText
 	c.SetTheme(&t)
 	e := ui.GridView(c, &s.grid, n, w, h, func(i int) {
-		ui.Column(c).Grow(1).Padding(d.Unit() * 2).Gap(d.Unit()).Children(func() {
+		chosen := listChosen(s, opts, i)
+		face := ui.Column(c).Grow(1).Padding(d.Unit() * 2).Gap(d.Unit()).Radius(theme.ControlRadius)
+		if chosen {
+			face.Background(k.Selection)
+		}
+		face.Children(func() {
 			item(i)
-			if listChosen(s, opts, i) {
-				ui.Icon(c, icons.Must("check")).Size(16, 16).Absolute().Top(d.Unit()).Right(d.Unit())
+			if chosen {
+				ui.Icon(c, icons.Must("check")).Size(16, 16).Absolute().Top(d.Unit()).Right(d.Unit()).TextColor(k.AccentText)
 			}
 		})
 	}).Padding(d.Unit() * 2)
 	c.SetTheme(saved)
 	return e
+}
+
+// dataSelectTheme shows MyGo's chosen rows as Selection with Text; spacing > 0 sets the unit.
+func dataSelectTheme(c *ui.Context, spacing float32) func() {
+	k := Tokens(c)
+	saved := c.Theme()
+	t := *saved
+	t.Accent, t.AccentText = k.Selection, k.Text
+	if spacing > 0 {
+		t.Spacing = spacing
+	}
+	c.SetTheme(&t)
+	return func() { c.SetTheme(saved) }
 }
 
 func listChosen[K comparable](s *ListState[K], opts ListOptions[K], i int) bool {

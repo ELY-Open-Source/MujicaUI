@@ -1,6 +1,7 @@
 package mujica
 
 import (
+	"fmt"
 	"runtime"
 	"testing"
 
@@ -146,6 +147,38 @@ func TestMenubarKeyboard(t *testing.T) {
 	tt.Key(0, ui.KeyEscape)
 	if tt.HasText("Word wrap") {
 		t.Fatal("Escape did not close")
+	}
+}
+
+func TestMenubarLongMenuScrolls(t *testing.T) {
+	var items []MenubarItem
+	for i := range 30 {
+		items = append(items, MenubarItem{ID: fmt.Sprint(i), Label: fmt.Sprintf("Entry %02d", i)})
+	}
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		Menubar(c, []MenubarMenu{{Label: "Long", Items: items}}, MenubarOptions{})
+	}, 400, 300)
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeyDown)
+	tt.Key(0, ui.KeyEnd)
+	tt.Frame()
+	r, ok := tt.Find("Entry 29")
+	if !ok || r.H == 0 || r.Y+r.H > 300 {
+		t.Fatalf("last item outside the window: %+v", r)
+	}
+}
+
+func TestMenubarAnnouncesHighlight(t *testing.T) {
+	a := &menubarApp{wrap: true}
+	tt := ui.NewTester(a.view, 700, 500)
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeyRight)
+	tt.Key(0, ui.KeyDown) // View opens on Word wrap
+	tt.Key(0, ui.KeyDown) // Fit
+	got := tt.Announcements()
+	if len(got) < 2 || got[len(got)-2] != "Word wrap, checked" || got[len(got)-1] != "Fit" {
+		t.Fatalf("announcements %q", got)
 	}
 }
 

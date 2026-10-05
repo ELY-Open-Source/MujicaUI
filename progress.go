@@ -31,14 +31,16 @@ type ProgressOptions struct {
 	Size float32
 }
 
-// Progress shows value, from 0 to 1, of work done. It panics outside that range.
-// Indeterminate indicators move only while painted and hold still under reduced motion.
+// Progress shows work done, value 0 to 1; indeterminate ones hold still under reduced motion.
 func Progress(c *ui.Context, value float64, opts ProgressOptions) *ui.Element {
+	if opts.Shape != ProgressLinear && opts.Shape != ProgressRing {
+		panic(fmt.Sprintf("mujica: unknown ProgressShape %d", int(opts.Shape)))
+	}
 	if !opts.Indeterminate && (math.IsNaN(value) || value < 0 || value > 1) {
 		panic(fmt.Sprintf("mujica: Progress value %v outside 0..1", value))
 	}
-	if opts.Size < 0 {
-		panic("mujica: negative Progress Size")
+	if !(opts.Size >= 0) || math.IsInf(float64(opts.Size), 1) {
+		panic(fmt.Sprintf("mujica: Progress Size %v invalid", opts.Size))
 	}
 	k := Tokens(c)
 	u := Density(c).Unit()
@@ -71,12 +73,12 @@ func Progress(c *ui.Context, value float64, opts ProgressOptions) *ui.Element {
 		if opts.Label != "" || caption != "" {
 			ui.Row(c).Gap(u * 2).Children(func() {
 				ui.Text(c, opts.Label).TextColor(k.Text).Grow(1).Shrink(1)
-				ui.Text(c, caption).TextColor(k.TextMuted).FontSize(theme.CaptionSize).FontFeatures("tnum").SingleLine()
+				ui.Text(c, caption).TextColor(k.TextMuted).FontSize(FontSize(c, theme.CaptionSize)).FontFeatures("tnum").SingleLine()
 			})
 		}
 		bar := ui.Progress(c, acc).Label(name).FillWidth().Height(u * 1.5).Radius(theme.ControlRadius).Background(k.Border)
 		shown := float32(value)
-		if !opts.Indeterminate {
+		if !opts.Indeterminate && !still {
 			shown = bar.Animate("progress.value", shown, theme.StateDuration)
 		}
 		bar.Draw(func(p *ui.Painter, r ui.Rect) {
@@ -84,7 +86,7 @@ func Progress(c *ui.Context, value float64, opts ProgressOptions) *ui.Element {
 			case !opts.Indeterminate:
 				p.Fill(ui.Rect{X: r.X, Y: r.Y, W: r.W * shown, H: r.H}, k.AccentText, theme.ControlRadius)
 			case still:
-				p.Fill(r, k.AccentText.Alpha(0.4), theme.ControlRadius)
+				p.Fill(r, k.AccentText, theme.ControlRadius)
 			default:
 				p.AnimationFrame()
 				phase := float32(p.Now().UnixMilli()%1400) / 1400
@@ -108,7 +110,7 @@ func progressRing(c *ui.Context, k theme.Tokens, u float32, acc float64, name, c
 	row.Children(func() {
 		ring := ui.Progress(c, acc).Label(name).Size(d, d).Radius(0).Background(ui.Transparent)
 		shown := float32(acc)
-		if !opts.Indeterminate {
+		if !opts.Indeterminate && !still {
 			shown = ring.Animate("progress.value", shown, theme.StateDuration)
 		}
 		stroke := max(3, d/10)
@@ -123,7 +125,7 @@ func progressRing(c *ui.Context, k theme.Tokens, u float32, acc float64, name, c
 					p.StrokePath(progressArc(p, cx, cy, rad, 0, shown), stroke, k.AccentText)
 				}
 			case still:
-				p.StrokePath(&track, stroke, k.AccentText.Alpha(0.4))
+				p.StrokePath(&track, stroke, k.AccentText)
 			default:
 				p.AnimationFrame()
 				start := float32(p.Now().UnixMilli()%1200) / 1200
@@ -132,7 +134,7 @@ func progressRing(c *ui.Context, k theme.Tokens, u float32, acc float64, name, c
 		})
 		if caption != "" && d >= 44 && !opts.Indeterminate {
 			ring.Children(func() {
-				ui.Text(c, caption).FontSize(theme.CaptionSize).FontFeatures("tnum").TextColor(k.Text)
+				ui.Text(c, caption).FontSize(FontSize(c, theme.CaptionSize)).FontFeatures("tnum").TextColor(k.Text)
 			})
 			ring.Center()
 		}
@@ -142,7 +144,7 @@ func progressRing(c *ui.Context, k theme.Tokens, u float32, acc float64, name, c
 					ui.Text(c, opts.Label).TextColor(k.Text)
 				}
 				if caption != "" && (d < 44 || opts.Indeterminate) {
-					ui.Text(c, caption).TextColor(k.TextMuted).FontSize(theme.CaptionSize)
+					ui.Text(c, caption).TextColor(k.TextMuted).FontSize(FontSize(c, theme.CaptionSize))
 				}
 			})
 		}
@@ -171,8 +173,7 @@ func progressArc(pt *ui.Painter, cx, cy, r float32, a, b float32) *ui.Path {
 type MeterOptions struct {
 	// Min and Max bound the value; both zero mean 0 to 1.
 	Min, Max float64
-	// Levels mark the value High from Warning and Critical from Critical;
-	// Critical below Warning flags low values instead. Nil marks none.
+	// Levels are the High and Critical thresholds; Critical below Warning flags low values.
 	Levels    *ui.MeterLevels
 	Label     string
 	ShowValue bool
@@ -195,21 +196,20 @@ func meterLevel(v float64, l *ui.MeterLevels) int {
 	return 0
 }
 
-// Meter shows a level within a range, as disk use. Thresholds show as
-// ticks and the level as a word as well as a color. It panics on a value outside the range.
+// Meter shows a level within a range with threshold ticks and a level word, not color alone.
 func Meter(c *ui.Context, value float64, opts MeterOptions) *ui.Element {
 	lo, hi := opts.Min, opts.Max
 	if lo == 0 && hi == 0 {
 		hi = 1
 	}
-	if !(hi > lo) {
+	if !finite(lo) || !finite(hi) || !(hi > lo) {
 		panic(fmt.Sprintf("mujica: Meter range %v..%v is empty", lo, hi))
 	}
 	if math.IsNaN(value) || value < lo || value > hi {
 		panic(fmt.Sprintf("mujica: Meter value %v outside %v..%v", value, lo, hi))
 	}
-	if l := opts.Levels; l != nil && (l.Warning < lo || l.Warning > hi || l.Critical < lo || l.Critical > hi) {
-		panic("mujica: Meter levels outside the range")
+	if l := opts.Levels; l != nil && !(l.Warning >= lo && l.Warning <= hi && l.Critical >= lo && l.Critical <= hi) {
+		panic(fmt.Sprintf("mujica: Meter levels %+v outside %v..%v", *l, lo, hi))
 	}
 	k := Tokens(c)
 	u := Density(c).Unit()
@@ -246,7 +246,7 @@ func Meter(c *ui.Context, value float64, opts MeterOptions) *ui.Element {
 		if opts.Label != "" || caption != "" {
 			ui.Row(c).Gap(u * 2).Children(func() {
 				ui.Text(c, opts.Label).TextColor(k.Text).Grow(1).Shrink(1)
-				ui.Text(c, caption).TextColor(k.TextMuted).FontSize(theme.CaptionSize).FontFeatures("tnum").SingleLine()
+				ui.Text(c, caption).TextColor(k.TextMuted).FontSize(FontSize(c, theme.CaptionSize)).FontFeatures("tnum").SingleLine()
 			})
 		}
 		name := opts.Label
@@ -270,3 +270,5 @@ func Meter(c *ui.Context, value float64, opts MeterOptions) *ui.Element {
 	})
 	return col
 }
+
+func finite(v float64) bool { return !math.IsNaN(v) && !math.IsInf(v, 0) }

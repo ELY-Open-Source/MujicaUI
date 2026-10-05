@@ -28,7 +28,8 @@ func TestToastQueueLimitsVisible(t *testing.T) {
 		t.Fatalf("visible %v waiting %v", v, w)
 	}
 	// d starts its 5 s only when it shows.
-	if next := q.expire(t0.Add(ToastDuration)); next != ToastDuration {
+	q.expire(t0.Add(ToastDuration))
+	if next := q.settle(t0.Add(ToastDuration), nil); next != ToastDuration {
 		t.Fatalf("next wake %v", next)
 	}
 	if v := toastIDs(&q, true); !slices.Equal(v, []string{"d", "e"}) {
@@ -66,15 +67,16 @@ func TestToastQueueErrorsStayAndPauseHolds(t *testing.T) {
 	t0 := time.Unix(0, 0)
 	q.push(ToastMessage{ID: "e", Severity: SeverityError, Message: "Failed"}, t0)
 	q.push(ToastMessage{ID: "w", Severity: SeverityWarning, Message: "Slow", Action: "Details"}, t0)
-	q.pause("w", true, t0.Add(4*time.Second))
-	if next := q.expire(t0.Add(time.Hour)); next != 0 {
+	q.settle(t0.Add(4*time.Second), map[string]bool{"w": true})
+	q.expire(t0.Add(time.Hour))
+	if next := q.settle(t0.Add(time.Hour), map[string]bool{"w": true}); next != 0 {
 		t.Fatalf("paused toast still counts down: %v", next)
 	}
 	if !slices.Equal(toastIDs(&q, true), []string{"e", "w"}) {
 		t.Fatalf("visible %v", toastIDs(&q, true))
 	}
-	q.pause("w", false, t0.Add(time.Hour))
-	if next := q.expire(t0.Add(time.Hour)); next != time.Second {
+	// Released: the wake-up is computed after resuming, in the same call.
+	if next := q.settle(t0.Add(time.Hour), nil); next != time.Second {
 		t.Fatalf("resumed toast left %v, want 1s", next)
 	}
 	q.expire(t0.Add(time.Hour + time.Second))
@@ -84,7 +86,7 @@ func TestToastQueueErrorsStayAndPauseHolds(t *testing.T) {
 }
 
 func TestToastQueuePanics(t *testing.T) {
-	for _, m := range []ToastMessage{{}, {Message: "x", Duration: -1}} {
+	for _, m := range []ToastMessage{{}, {Message: "x", Duration: -1}, {Message: "x", Severity: 9}} {
 		func() {
 			defer func() {
 				if recover() == nil {
@@ -156,27 +158,41 @@ func TestToastKeepsFocusAndEscapeCloses(t *testing.T) {
 }
 
 func TestToastExpiresAndHoverPauses(t *testing.T) {
-	var res ToasterResult
-	tt := toastTester(ToastMessage{Message: "Copied", Duration: 40 * time.Millisecond}, &res)
+	var q *toastQueue
+	const life = 40 * time.Millisecond
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		if Button(c, "Notify", ButtonOptions{}).Clicked() {
+			ShowToast(c, ToastMessage{Message: "Copied", Duration: life})
+		}
+		q = toasts(c)
+		Toaster(c)
+	}, 600, 400)
 	_ = tt.Click("Notify")
-	time.Sleep(60 * time.Millisecond)
-	tt.Frame()
-	if tt.HasText("Copied") {
-		t.Fatal("toast outlived its duration")
+	if q.wake.IsZero() {
+		t.Fatal("no wake-up scheduled for a running toast")
 	}
-	_ = tt.Click("Notify")
 	r, _ := tt.Find("Copied")
 	tt.Move(r.X+r.W/2, r.Y+r.H/2)
-	time.Sleep(60 * time.Millisecond)
-	tt.Frame()
+	if !q.wake.IsZero() {
+		t.Fatal("hovered toast still schedules its expiry")
+	}
+	time.Sleep(2 * life)
+	released := time.Now()
+	tt.Move(5, 395)
+	done := time.Now()
+	// The frame that ends the hover must schedule the expiry itself.
+	if q.wake.IsZero() || q.wake.Before(released) || q.wake.After(done.Add(life)) {
+		t.Fatalf("release scheduled wake %v, released %v", q.wake, released)
+	}
 	if !tt.HasText("Copied") {
 		t.Fatal("hovered toast expired")
 	}
-	tt.Move(5, 395)
-	time.Sleep(60 * time.Millisecond)
+	// Stands in for the frame MyGo's timer runs at q.wake.
+	time.Sleep(time.Until(q.wake) + 5*time.Millisecond)
 	tt.Frame()
 	if tt.HasText("Copied") {
-		t.Fatal("toast stayed after the pointer left")
+		t.Fatal("toast stayed after its wake-up")
 	}
 }
 

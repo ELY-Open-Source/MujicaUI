@@ -1,8 +1,14 @@
 package mujica
 
 import (
+	"bytes"
+	"image/color"
+	"os"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/egoist/mygo/ui"
 
@@ -152,6 +158,77 @@ func TestTabsSnapshot(t *testing.T) {
 		})
 	}
 }
+
+// tabsStateSnapshot compares tabsView after act in both themes with <name>-<mode>.png.
+func tabsStateSnapshot(t *testing.T, name string, act func(tt *ui.Tester)) {
+	t.Helper()
+	for _, m := range []Mode{Light, Dark} {
+		tt := ui.NewTester(func(c *ui.Context) {
+			Use(c, Settings{Mode: m})
+			tabsView(c)
+		}, 520, 300)
+		tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})
+		act(tt)
+		tt.Frame()
+		got := encode(t, tt.Image())
+		path := filepath.Join("testdata", "snapshots", runtime.GOOS, name+"-"+strings.ToLower(m.String())+".png")
+		if *update {
+			if err := os.WriteFile(path, got, 0o644); err != nil {
+				t.Fatal(err)
+			}
+			continue
+		}
+		want, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatalf("%v (run go test -update)", err)
+		}
+		if !bytes.Equal(got, want) {
+			if err := os.WriteFile(path+".got.png", got, 0o644); err != nil {
+				t.Fatal(err)
+			}
+			t.Errorf("%s differs; see %s.got.png", path, path)
+		}
+	}
+}
+
+func TestTabsStateSnapshots(t *testing.T) {
+	center := func(tt *ui.Tester, s string) (float32, float32) {
+		r, ok := tt.Find(s)
+		if !ok {
+			t.Fatalf("no %q", s)
+		}
+		return r.X + r.W/2, r.Y + r.H/2
+	}
+	tabsStateSnapshot(t, "tabs-hover", func(tt *ui.Tester) { tt.Move(center(tt, "Members")) })
+	tabsStateSnapshot(t, "tabs-pressed", func(tt *ui.Tester) { tt.Press(center(tt, "Settings")) })
+	tabsStateSnapshot(t, "tabs-focus", func(tt *ui.Tester) {
+		tt.Key(0, ui.KeyTab)
+		tt.Key(0, ui.KeyRight)
+	})
+}
+
+// TestTabsStateColorsEase checks hover fades in over StateDuration, not at once.
+func TestTabsStateColorsEase(t *testing.T) {
+	sel := 0
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{Mode: Light})
+		Tabs(c, &sel, []Tab{{Label: "One"}, {Label: "Two"}}, TabsOptions{})
+	}, 300, 120)
+	r, _ := tt.Find("Two")
+	x, y := int(r.X-8), int(r.Y+r.H/2)
+	hover := tabsRGBA(theme.Light().SurfaceHover)
+	tt.Move(r.X+r.W/2, r.Y+r.H/2)
+	if got := tt.Image().RGBAAt(x, y); got == hover {
+		t.Fatal("hover color applied at once")
+	}
+	time.Sleep(theme.StateDuration + 40*time.Millisecond)
+	tt.Frame()
+	if got := tt.Image().RGBAAt(x, y); got != hover {
+		t.Fatalf("hover color %v after the transition, want %v", got, hover)
+	}
+}
+
+func tabsRGBA(c ui.Color) color.RGBA { return color.RGBA{c.R, c.G, c.B, c.A} }
 
 // tabsMode recovers the mode snapshot applied, to add a density.
 func tabsMode(c *ui.Context) Mode {

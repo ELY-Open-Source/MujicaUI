@@ -143,7 +143,7 @@ func TestTimePickerRejectsBadOptions(t *testing.T) {
 
 func TestTimePickerSnapshot(t *testing.T) {
 	a, b := TimeOfDay{9, 30, 0}, TimeOfDay{21, 5, 40}
-	snapshot(t, "time_picker", 480, 80, func(c *ui.Context) {
+	snapshot(t, "time_picker", 520, 80, func(c *ui.Context) {
 		ui.Row(c).Padding(16).Gap(16).Children(func() {
 			TimePicker(c, &a, TimePickerOptions{})
 			TimePicker(c, &b, TimePickerOptions{Hour12: true, Seconds: true})

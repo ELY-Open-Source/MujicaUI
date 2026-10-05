@@ -2,6 +2,7 @@ package mujica
 
 import (
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/egoist/mygo/ui"
@@ -11,8 +12,7 @@ import (
 	"mujicaui/theme"
 )
 
-// Date is a calendar day with no time of day and no location.
-// The zero value means no date.
+// Date is a calendar day without clock or location; zero means none.
 type Date struct {
 	Year  int
 	Month time.Month
@@ -136,28 +136,33 @@ func datetimeIconButton(c *ui.Context, icon, label string) *ui.Element {
 }
 
 // datetimeField styles row as a single-line field: solid fill and fine border.
-func datetimeField(c *ui.Context, row *ui.Element, invalid bool) *ui.Element {
+func datetimeField(c *ui.Context, row *ui.Element, invalid, readOnly bool) *ui.Element {
 	k := Tokens(c)
 	d := Density(c)
-	border := k.ControlBorder
+	bg, border := k.Surface, k.ControlBorder
 	switch {
 	case invalid:
 		border = k.Danger
+	case readOnly:
+		bg, border = k.Background, k.Border
 	case row.FocusWithin():
 		border = k.Focus
 	case row.Hovered():
 		border = k.Text
 	}
 	return row.MinHeight(d.ControlHeight()).Padding(0, d.Unit()).PaddingX(d.Unit()*3).Gap(d.Unit()).
-		AlignItems(ui.Center).Radius(theme.ControlRadius).Background(k.Surface).Border(theme.BorderWidth, border)
+		AlignItems(ui.Center).Radius(theme.ControlRadius).Background(bg).Border(theme.BorderWidth, border)
 }
 
-// datetimeTrigger is the button inside a field that shows text and opens a popup.
+// datetimeTrigger is the popup button inside a field; Cmd+C copies its text.
 func datetimeTrigger(c *ui.Context, text, placeholder, icon string) *ui.Element {
 	k := Tokens(c)
 	b := ui.ButtonBase(c).Grow(1).Shrink(1).Justify(ui.Start).Gap(Density(c).Unit() * 2).
-		MinHeight(theme.MinHitSize).Radius(theme.ControlRadius)
+		MinHeight(theme.MinHitSize).Radius(theme.ControlRadius).Role(ui.RolePopUpButton)
 	internal.Ring(b, k.Focus, theme.ControlRadius)
+	if b.Shortcut(ui.Cmd, ui.KeyC) && text != "" {
+		c.WriteClipboard(text)
+	}
 	b.Children(func() {
 		ui.Icon(c, icons.Must(icon)).Size(16, 16).TextColor(k.TextMuted)
 		if text == "" {
@@ -169,10 +174,14 @@ func datetimeTrigger(c *ui.Context, text, placeholder, icon string) *ui.Element 
 	return b
 }
 
-// datetimePopup shows fn in a popup panel below anchor while *open is set.
-func datetimePopup(c *ui.Context, anchor *ui.Element, open *bool, fn func()) *ui.Element {
+// datetimePopup shows fn below anchor while *open; a disabled or read-only anchor closes it.
+func datetimePopup(c *ui.Context, anchor *ui.Element, open *bool, readOnly bool, fn func()) *ui.Element {
 	k := Tokens(c)
 	d := Density(c)
+	if *open && (readOnly || anchor.IsDisabled()) {
+		slog.Debug("mujica: datetime popup closed by state", "readOnly", readOnly)
+		*open = false
+	}
 	return ui.PopoverBase(c, anchor, open, func(panel *ui.Element) {
 		born := ui.Local(panel, "datetime-born", func() bool { return true })
 		if *born {
@@ -192,7 +201,7 @@ func datetimeError(c *ui.Context, text string) {
 	if text == "" {
 		return
 	}
-	ui.Text(c, text).FontSize(theme.CaptionSize).TextColor(Tokens(c).Danger).Role(ui.RoleStatus)
+	ui.Text(c, text).FontSize(FontSize(c, theme.CaptionSize)).TextColor(Tokens(c).Danger).Role(ui.RoleStatus)
 }
 
 // datetimeFooter lays out popup actions at the end of a row.

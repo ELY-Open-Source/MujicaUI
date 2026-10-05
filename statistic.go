@@ -43,10 +43,10 @@ func Statistic(c *ui.Context, value float64, opts StatisticOptions) *ui.Element 
 	e := ui.Column(c).Gap(u).Role(ui.RoleGroup)
 	e.Children(func() {
 		if opts.Title != "" {
-			ui.Text(c, opts.Title).FontSize(theme.CaptionSize).TextColor(k.TextMuted)
+			ui.Text(c, opts.Title).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.TextMuted)
 		}
 		ui.Row(c).Gap(u).AlignItems(ui.End).Children(func() {
-			ui.Text(c, num).Font(theme.SerifFont).FontSize(theme.H1Size).FontWeight(600).LineHeight(1.2).SingleLine()
+			ui.Text(c, num).Font(theme.SerifFont).FontSize(FontSize(c, theme.H1Size)).FontWeight(600).LineHeight(1.2).SingleLine()
 			if opts.Unit != "" {
 				ui.Text(c, opts.Unit).TextColor(k.TextMuted).Padding(0, 0, u, 0)
 			}
@@ -70,7 +70,7 @@ func Statistic(c *ui.Context, value float64, opts StatisticOptions) *ui.Element 
 				ui.Text(c, text).FontWeight(600).SingleLine()
 			})
 			if opts.ChangeNote != "" {
-				ui.Text(c, opts.ChangeNote).FontSize(theme.CaptionSize).TextColor(k.TextMuted)
+				ui.Text(c, opts.ChangeNote).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.TextMuted)
 			}
 		})
 	})

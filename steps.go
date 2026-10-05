@@ -101,6 +101,7 @@ func stepsItem(c *ui.Context, i, n int, s Step, st stepsState, vertical, tail, d
 		if e.Hovered() {
 			e.Background(k.SurfaceHover)
 		}
+		internal.Ease(e, Motion(c, theme.StateDuration), k.Text)
 	} else {
 		e = ui.Row(c).Shrink(0).Role(ui.RoleListItem)
 	}
@@ -130,7 +131,7 @@ func stepsItem(c *ui.Context, i, n int, s Step, st stepsState, vertical, tail, d
 				title.TextColor(k.TextMuted)
 			}
 			if s.Description != "" {
-				ui.Text(c, s.Description).FontSize(theme.CaptionSize).TextColor(k.TextMuted).MaxWidth(240)
+				ui.Text(c, s.Description).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.TextMuted).MaxWidth(240)
 			}
 		})
 	})
@@ -161,7 +162,7 @@ func stepsMarker(c *ui.Context, i int, st stepsState) {
 		if icon != "" {
 			ui.Icon(c, icons.Must(icon)).Size(14, 14)
 		} else {
-			ui.Text(c, strconv.Itoa(i+1)).FontSize(theme.CaptionSize).SingleLine()
+			ui.Text(c, strconv.Itoa(i+1)).FontSize(FontSize(c, theme.CaptionSize)).SingleLine()
 		}
 	})
 }

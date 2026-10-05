@@ -51,8 +51,7 @@ type colorPickerState struct {
 	bad           string
 }
 
-// ColorPicker is a swatch button opening a panel to pick *color: a saturation and
-// brightness square, hue and opacity sliders, HEX, RGB and opacity fields, and presets.
+// ColorPicker is a swatch button opening a panel that picks *color.
 func ColorPicker(c *ui.Context, color *ui.Color, opts ColorPickerOptions) ColorPickerParts {
 	k := Tokens(c)
 	d := Density(c)
@@ -92,7 +91,9 @@ func ColorPicker(c *ui.Context, color *ui.Color, opts ColorPickerOptions) ColorP
 			st.sync(*color)
 		}
 	}
-	if trigger.Clicked() {
+	if opts.Disabled {
+		st.open = false
+	} else if trigger.Clicked() {
 		st.open = !st.open
 	}
 	border := k.ControlBorder
@@ -139,7 +140,7 @@ func ColorPicker(c *ui.Context, color *ui.Color, opts ColorPickerOptions) ColorP
 		ui.Grid(c).ColumnTracks(ui.Fr(1), ui.Fr(1), ui.Fr(1), ui.Fr(1), ui.Fr(1), ui.Fr(1)).Gap(d.Unit() * 1.5).Children(func() {
 			for _, sw := range presets {
 				hex := strings.ToUpper(colorPickerHex(sw))
-				b := ui.ButtonBase(c).Height(d.Unit()*6).Radius(theme.ControlRadius).Border(theme.BorderWidth, k.Border).Label(hex).Clip()
+				b := ui.ButtonBase(c).Height(theme.MinHitSize).Radius(theme.ControlRadius).Border(theme.BorderWidth, k.Border).Label(hex).Clip()
 				internal.Ring(b, k.Focus, theme.ControlRadius)
 				chosen := *color == sw
 				b.Selected(chosen).Draw(func(p *ui.Painter, r ui.Rect) {
@@ -159,7 +160,7 @@ func ColorPicker(c *ui.Context, color *ui.Color, opts ColorPickerOptions) ColorP
 			}
 		})
 	})
-	if st.wasOpen && !st.open {
+	if st.wasOpen && !st.open && !opts.Disabled {
 		trigger.Focus()
 	}
 	st.wasOpen = st.open
@@ -269,7 +270,7 @@ func colorPickerFields(c *ui.Context, st *colorPickerState, color *ui.Color, set
 			}{{"R", msg(c, "color_picker.red"), &st.r}, {"G", msg(c, "color_picker.green"), &st.g},
 				{"B", msg(c, "color_picker.blue"), &st.b}, {"A %", msg(c, "color_picker.percent"), &st.alpha}} {
 				ui.Column(c).Gap(d.Unit()).Children(func() {
-					ui.Text(c, f.name).FontSize(theme.CaptionSize).TextColor(k.TextMuted)
+					ui.Text(c, f.name).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.TextMuted)
 					in := InputGroup(c, f.text, InputGroupOptions{Label: f.label, Invalid: st.bad == f.name})
 					editing = editing || in.Input.Focused()
 					if !in.Changed() {
@@ -296,7 +297,7 @@ func colorPickerFields(c *ui.Context, st *colorPickerState, color *ui.Color, set
 			st.sync(*color)
 		}
 		if st.bad != "" {
-			ui.Text(c, msg(c, "color_picker.invalid")).FontSize(theme.CaptionSize).TextColor(k.Danger).Role(ui.RoleStatus)
+			ui.Text(c, msg(c, "color_picker.invalid")).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.Danger).Role(ui.RoleStatus)
 		}
 	})
 }

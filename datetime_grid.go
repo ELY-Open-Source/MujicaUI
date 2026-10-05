@@ -39,7 +39,7 @@ func datetimeGrid(c *ui.Context, cursor *int, cfg datetimeGridConfig) (picked in
 			if datetimeIconButton(c, "chevron-left", cfg.prev).Clicked() {
 				*cursor, *keyed = *cursor-cfg.page, false
 			}
-			ui.Text(c, cfg.title(start)).Font(theme.SerifFont).FontSize(theme.BodySize + 2).Bold().
+			ui.Text(c, cfg.title(start)).Font(theme.SerifFont).FontSize(FontSize(c, theme.BodySize+2)).Bold().
 				TextColor(k.Text).Grow(1).TextAlign(ui.Center).SingleLine()
 			if datetimeIconButton(c, "chevron-right", cfg.next).Clicked() {
 				*cursor, *keyed = *cursor+cfg.page, false
@@ -61,10 +61,9 @@ func datetimeGrid(c *ui.Context, cursor *int, cfg datetimeGridConfig) (picked in
 		case cells.Shortcut(0, ui.KeyPageDown):
 			*cursor += cfg.page
 		case cells.Shortcut(0, ui.KeyHome):
-			*cursor, _ = cfg.pageOf(*cursor)
+			*cursor, _ = datetimeGridBounds(*cursor, cfg)
 		case cells.Shortcut(0, ui.KeyEnd):
-			s, n := cfg.pageOf(*cursor)
-			*cursor = s + n - 1
+			_, *cursor = datetimeGridBounds(*cursor, cfg)
 		default:
 			moved = false
 		}
@@ -145,33 +144,46 @@ func datetimeGridCell(c *ui.Context, o, start, cursor int, cfg datetimeGridConfi
 	return cell.Clicked() && enabled
 }
 
+// datetimeGridBounds returns the page's own first and last ordinals.
+func datetimeGridBounds(o int, cfg datetimeGridConfig) (first, last int) {
+	start, n := cfg.pageOf(o)
+	first, last = start, start+n-1
+	for first < last && cfg.muted(first, start) {
+		first++
+	}
+	for last > first && cfg.muted(last, start) {
+		last--
+	}
+	return first, last
+}
+
 // datetimeGridField is the field and popup shared by MonthPicker and YearPicker.
 type datetimeGridField struct {
 	text, placeholder, label string
 	clearable, hasValue      bool
-	disabled                 bool
+	disabled, readOnly       bool
 	// home is the ordinal the popup opens on.
 	home int
 }
 
-// datetimeGridPicker draws f and its popup grid; it returns the column, a picked ordinal and whether Clear was pressed.
+// datetimeGridPicker draws f and its popup; reports a pick or clear.
 func datetimeGridPicker(c *ui.Context, f datetimeGridField, cfg datetimeGridConfig) (col *ui.Element, picked int, ok, cleared bool) {
 	d := Density(c)
 	col = ui.Column(c).Width(d.ControlHeight() * 6).Gap(d.Unit()).AlignItems(ui.Stretch).Disabled(f.disabled)
 	open := ui.Local(col, "datetime-grid-open", func() bool { return false })
 	cursor := ui.Local(col, "datetime-grid-cursor", func() int { return 0 })
 	col.Children(func() {
-		field := datetimeField(c, ui.Row(c), false)
+		field := datetimeField(c, ui.Row(c), false, f.readOnly)
 		field.Children(func() {
 			t := datetimeTrigger(c, f.text, f.placeholder, "calendar").Label(f.label).Description(f.text)
-			if t.Clicked() || !*open && t.Shortcut(0, ui.KeyDown) {
+			if !f.readOnly && (t.Clicked() || !*open && t.Shortcut(0, ui.KeyDown)) {
 				*open, *cursor = !*open, f.home
 			}
-			if f.clearable && f.hasValue && datetimeIconButton(c, "x", msg(c, "calendar.clear")).Clicked() {
+			if f.clearable && f.hasValue && !f.readOnly && datetimeIconButton(c, "x", msg(c, "calendar.clear")).Clicked() {
 				cleared = true
 			}
 		})
-		datetimePopup(c, field, open, func() {
+		datetimePopup(c, field, open, f.readOnly, func() {
 			cfg.autoFocus = true
 			if picked, ok = datetimeGrid(c, cursor, cfg); ok {
 				*open = false

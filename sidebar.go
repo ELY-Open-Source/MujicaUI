@@ -6,6 +6,8 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
+	"mujicaui/icons"
+	"mujicaui/internal"
 	"mujicaui/theme"
 )
 
@@ -76,8 +78,9 @@ func Sidebar(c *ui.Context, selected *string, sections []SidebarSection, opts Si
 				if s.Title == "" {
 					panic("mujica: SidebarSection needs a Title")
 				}
-				ui.SidebarSection(c, s.Title, sidebarOpen(*closed, "s:"+s.Title), func() {
-					sidebarItems(c, *selected, s.Items, *closed, 0)
+				path := s.Title
+				sidebarGroup(c, s.Title, sidebarOpen(*closed, path), true, 0, func() {
+					sidebarItems(c, *selected, s.Items, *closed, path, 0)
 				})
 			}
 		}).FillHeight().FillWidth()
@@ -104,17 +107,17 @@ func sidebarOpen(closed map[string]*bool, key string) *bool {
 	return o
 }
 
-func sidebarItems(c *ui.Context, selected string, items []SidebarItem, closed map[string]*bool, depth int) {
+func sidebarItems(c *ui.Context, selected string, items []SidebarItem, closed map[string]*bool, parent string, depth int) {
 	u := Density(c).Unit()
 	for _, it := range items {
 		if it.Label == "" {
 			panic("mujica: SidebarItem needs a Label")
 		}
 		if it.Items != nil {
-			ui.Column(c).Padding(0, 0, 0, float32(depth)*u*4).Children(func() {
-				ui.SidebarSection(c, it.Label, sidebarOpen(closed, fmt.Sprintf("g%d:%s", depth, it.Label)), func() {
-					sidebarItems(c, selected, it.Items, closed, depth+1)
-				})
+			// The key holds the whole path, so same-named groups stay apart.
+			path := parent + "\x00" + it.Label
+			sidebarGroup(c, it.Label, sidebarOpen(closed, path), false, depth, func() {
+				sidebarItems(c, selected, it.Items, closed, path, depth+1)
 			})
 			continue
 		}
@@ -122,6 +125,50 @@ func sidebarItems(c *ui.Context, selected string, items []SidebarItem, closed ma
 			sidebarItem(c, selected, it, false)
 		})
 	}
+}
+
+// sidebarGroup is a section title or nested group that Enter, Space or a click opens and closes.
+func sidebarGroup(c *ui.Context, title string, open *bool, section bool, depth int, fn func()) {
+	k := Tokens(c)
+	d := Density(c)
+	u := d.Unit()
+	ui.Column(c).Gap(u*0.5).Shrink(0).Padding(0, 0, 0, float32(depth)*u*4).Children(func() {
+		was := *open
+		tr := ui.CollapsibleBase(c, open).Trigger
+		if *open != was {
+			slog.Debug("mujica: sidebar group toggle", "group", title, "open", *open)
+		}
+		tr.AlignItems(ui.Center).Gap(u*2).Padding(u, u*2).Radius(theme.ControlRadius).Label(title).Cursor(ui.CursorPointer)
+		if section {
+			tr.Margin(u*2, 0, 0, 0).FontWeight(600).FontSize(FontSize(c, theme.CaptionSize))
+		} else {
+			tr.MinHeight(d.ControlHeight())
+		}
+		internal.Ring(tr, k.Focus, theme.ControlRadius)
+		if tr.Hovered() {
+			tr.Background(k.SurfaceHover)
+		}
+		fg := k.Text
+		if section {
+			fg = k.TextMuted
+		}
+		internal.Ease(tr, Motion(c, theme.StateDuration), fg)
+		turn := tr.Animate("mujica.turn", sidebarTurn(*open), Motion(c, theme.StateDuration))
+		tr.Children(func() {
+			ui.Icon(c, icons.Must("chevron-right")).Size(12, 12).Shrink(0).Rotate(turn).TextColor(k.TextMuted)
+			ui.Text(c, title).SingleLine().Grow(1)
+		})
+		if *open {
+			fn()
+		}
+	})
+}
+
+func sidebarTurn(open bool) float32 {
+	if open {
+		return 90
+	}
+	return 0
 }
 
 // sidebarFlat lists every leaf for the compact rail.
@@ -158,12 +205,13 @@ func sidebarItem(c *ui.Context, selected string, it SidebarItem, compact bool) {
 		e.Tooltip(name).Label(name)
 	} else if it.Count > 0 {
 		e.Label(name).Children(func() {
-			ui.Text(c, sidebarCount(it.Count)).FontSize(theme.CaptionSize).FontFeatures("tnum").
+			ui.Text(c, sidebarCount(it.Count)).FontSize(FontSize(c, theme.CaptionSize)).FontFeatures("tnum").
 				TextColor(k.TextMuted).Padding(0, d.Unit()*1.5).Radius(theme.ControlRadius).Background(k.Background)
 		})
 	}
+	internal.Ease(e, Motion(c, theme.StateDuration), k.Text)
 	if on {
-		e.Background(k.Selection).TextColor(k.Text).FontWeight(600)
+		e.Background(k.Selection).FontWeight(600)
 		e.Draw(func(p *ui.Painter, r ui.Rect) {
 			p.Fill(ui.Rect{X: r.X, Y: r.Y + 4, W: 3, H: r.H - 8}, k.AccentText, 1.5)
 		})

@@ -20,8 +20,7 @@ type ViewerImage struct {
 	Alt string
 }
 
-// ImageViewerView is a built ImageViewer and what happened to it in this frame.
-// Element is nil while the viewer is closed.
+// ImageViewerView is a built ImageViewer; Element is nil while closed.
 type ImageViewerView struct {
 	*ui.Element
 	changed bool

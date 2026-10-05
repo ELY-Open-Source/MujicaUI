@@ -35,7 +35,7 @@ var datetimePages = []page{
 func dtSection(c *ui.Context, title string, fn func()) {
 	k := mujica.Tokens(c)
 	ui.Column(c).Gap(8).Children(func() {
-		ui.Text(c, title).Font(theme.SerifFont).FontSize(theme.H3Size).TextColor(k.Text)
+		ui.Text(c, title).Font(theme.SerifFont).FontSize(mujica.FontSize(c, theme.H3Size)).TextColor(k.Text)
 		fn()
 	})
 }
@@ -46,7 +46,7 @@ func dtStates(c *ui.Context, fn func(state func(name string, body func()))) {
 	ui.Row(c).Gap(24).Wrap().AlignItems(ui.Start).Children(func() {
 		fn(func(name string, body func()) {
 			ui.Column(c).Gap(6).AlignItems(ui.Start).Children(func() {
-				ui.Text(c, name).FontSize(theme.CaptionSize).TextColor(k.TextMuted)
+				ui.Text(c, name).FontSize(mujica.FontSize(c, theme.CaptionSize)).TextColor(k.TextMuted)
 				body()
 			})
 		})
@@ -128,6 +128,9 @@ func dtDatePickerDemo(c *ui.Context, log func(string)) {
 					log("DatePicker (bounded) changed: " + s.b.String())
 				}
 			})
+			state("Read-only", func() {
+				mujica.DatePicker(c, &s.d, mujica.DatePickerOptions{Label: "Signed on", Layout: layout, ReadOnly: true})
+			})
 			state("Disabled", func() {
 				mujica.DatePicker(c, &s.d, mujica.DatePickerOptions{Label: "Locked", Layout: layout, Disabled: true})
 			})
@@ -202,6 +205,11 @@ func dtTimePickerDemo(c *ui.Context, log func(string)) {
 					log("TimePicker (bounded) changed: " + s.b.String())
 				}
 			})
+			state("Read-only", func() {
+				o := base
+				o.Label, o.ReadOnly = "Logged at", true
+				mujica.TimePicker(c, &s.a, o)
+			})
 			state("Disabled", func() {
 				o := base
 				o.Label, o.Disabled = "Locked", true
@@ -261,7 +269,7 @@ func dtDateTimeDemo(c *ui.Context, log func(string)) {
 		}
 		k := mujica.Tokens(c)
 		ui.Text(c, "Try 2026-03-08 02:30 in America/New_York: the picker reports the DST gap.").
-			FontSize(theme.CaptionSize).TextColor(k.TextMuted)
+			FontSize(mujica.FontSize(c, theme.CaptionSize)).TextColor(k.TextMuted)
 	})
 }
 
@@ -288,6 +296,9 @@ func dtMonthDemo(c *ui.Context, log func(string)) {
 					log("MonthPicker changed: " + s.v.String())
 				}
 			})
+			state("Read-only", func() {
+				mujica.MonthPicker(c, &s.v, mujica.MonthPickerOptions{Label: "Closed month", ReadOnly: true})
+			})
 			state("Disabled", func() {
 				mujica.MonthPicker(c, &s.v, mujica.MonthPickerOptions{Label: "Locked", Disabled: true})
 			})
@@ -310,6 +321,9 @@ func dtYearDemo(c *ui.Context, log func(string)) {
 				if mujica.YearPicker(c, &s.v, opts).Changed() {
 					log(fmt.Sprintf("YearPicker changed: %d", s.v))
 				}
+			})
+			state("Read-only", func() {
+				mujica.YearPicker(c, &s.v, mujica.YearPickerOptions{Label: "Founded", ReadOnly: true})
 			})
 			state("Disabled", func() {
 				mujica.YearPicker(c, &s.v, mujica.YearPickerOptions{Label: "Locked", Disabled: true})

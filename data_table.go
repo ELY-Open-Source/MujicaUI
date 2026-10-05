@@ -7,7 +7,6 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"mujicaui/icons"
 	"mujicaui/internal"
 	"mujicaui/theme"
 )
@@ -62,6 +61,7 @@ type DataTableState[K comparable] struct {
 	started   bool
 	sel       K
 	has       bool
+	toggled   bool
 	cache     dataTableCache[K]
 }
 
@@ -95,7 +95,7 @@ func (v DataTableView) Changed() bool { return v.changed }
 // Submitted reports Enter or a double click on a row.
 func (v DataTableView) Submitted() bool { return v.submitted }
 
-// SortChanged reports a header click that changed State.Sort.
+// SortChanged reports a header click or menu choice that changed State.Sort.
 func (v DataTableView) SortChanged() bool { return v.sorted }
 
 // Retried reports a click on the retry action of a failed load.
@@ -109,19 +109,25 @@ func DataTable[R any, K comparable](c *ui.Context, s *DataTableState[K], rows []
 	if !s.started {
 		s.started, s.cursor = true, -1
 	}
-	dataTableRefresh(s, rows, opts)
-	if s.has {
-		if i, ok := s.cache.at[s.sel]; ok {
-			s.cursor = i
-		} else {
-			s.cursor = -1
-		}
-	}
 	k := Tokens(c)
 	d := Density(c)
+	before := s.Sort
 	var v DataTableView
-	v.Element = ui.Column(c).MinHeight(0)
+	v.Element = ui.Column(c).MinHeight(0).Gap(d.Unit() * 2)
 	v.Children(func() {
+		if len(rows) > 0 {
+			ui.Row(c).Justify(ui.End).Children(func() {
+				tableColumnMenu(c, dataTableMenu(opts), &s.Sort, &s.Layout, &s.Hidden)
+			})
+		}
+		dataTableRefresh(s, rows, opts)
+		if s.has {
+			if i, ok := s.cache.at[s.sel]; ok {
+				s.cursor = i
+			} else {
+				s.cursor = -1
+			}
+		}
 		view := s.cache.view
 		if len(view) == 0 {
 			empty := opts.Empty
@@ -139,12 +145,9 @@ func DataTable[R any, K comparable](c *ui.Context, s *DataTableState[K], rows []
 		if opts.Multiple {
 			s.rows.Selection = &s.Selection
 		}
-		before := s.Sort
 		// Rows reach the data-row height of the density.
-		saved := c.Theme()
-		t := *saved
-		t.Spacing = d.ControlHeight() / 8
-		c.SetTheme(&t)
+		restore := dataSelectTheme(c, d.ControlHeight()/8)
+		head := s.Sort
 		e := ui.Table(c, &s.rows, cols, len(view), func(row, col int) {
 			r := rows[view[row]]
 			if col == 0 {
@@ -158,18 +161,19 @@ func DataTable[R any, K comparable](c *ui.Context, s *DataTableState[K], rows []
 				ui.Text(c, dc.Text(r)).SingleLine()
 			}
 		})
-		c.SetTheme(saved)
+		restore()
 		e.Grow(1).MinHeight(0).Background(k.Surface).Border(theme.BorderWidth, k.Border).Radius(theme.ControlRadius)
 		internal.Ring(e, k.Focus, theme.ControlRadius)
 		s.Layout = s.rows.Columns
-		v.sorted = s.Sort != before
-		v.changed = e.Changed() && !v.sorted
+		v.changed = e.Changed() && s.Sort == head || s.toggled
+		s.toggled = false
 		v.submitted = e.Submitted()
 		v.retry = dataFooter(c, opts.Status, opts.Error)
 		if s.cursor >= 0 && s.cursor < len(view) {
 			s.sel, s.has = opts.Key(rows[view[s.cursor]]), true
 		}
 	})
+	v.sorted = s.Sort != before
 	if v.sorted {
 		slog.Debug("mujica: data_table sort", "column", s.Sort.Column, "descending", s.Sort.Descending)
 	}
@@ -252,6 +256,15 @@ func dataTablePrune[R any, K comparable](s *DataTableState[K], rows []R, opts Da
 	}
 }
 
+// dataTableMenu lists the columns for the column menu.
+func dataTableMenu[R any, K comparable](opts DataTableOptions[R, K]) []tableColumn {
+	cols := make([]tableColumn, len(opts.Columns))
+	for i, col := range opts.Columns {
+		cols[i] = tableColumn{ID: col.ID, Title: col.Title, Width: col.Width, MinWidth: col.MinWidth, Sortable: col.Sortable}
+	}
+	return cols
+}
+
 func dataTableColumns[R any, K comparable](c *ui.Context, s *DataTableState[K], opts DataTableOptions[R, K]) ([]int, []ui.TableColumn) {
 	w := Density(c).ControlHeight()
 	cols := []ui.TableColumn{{ID: dataTableMarkID, Width: w, Fixed: true, Align: ui.Center}}
@@ -275,27 +288,24 @@ func dataTableMark[R any, K comparable](c *ui.Context, s *DataTableState[K], opt
 	if !opts.Multiple {
 		if row == s.cursor {
 			ui.Box(c).Size(8, 8).Shrink(0).Draw(func(p *ui.Painter, r ui.Rect) {
-				p.FillPath(internal.Diamond(internal.Snap(p, r.X+r.W/2), internal.Snap(p, r.Y+r.H/2), r.W), k.OnAccent)
+				p.FillPath(internal.Diamond(internal.Snap(p, r.X+r.W/2), internal.Snap(p, r.Y+r.H/2), r.W), k.AccentText)
 			})
 		}
 		return
 	}
 	on := s.Selection.Has(key)
-	box := ui.Box(c).Size(16, 16).Shrink(0).Radius(theme.ControlRadius).Role(ui.RoleCheckBox).Label(msg(c, "data_table.selectRow"))
-	if on {
-		box.Border(theme.BorderWidth, k.OnAccent).TextColor(k.OnAccent).Children(func() {
-			ui.Icon(c, icons.Must("check")).Size(14, 14)
-		}).Center()
-	} else {
-		box.Border(theme.BorderWidth, k.ControlBorder)
-	}
-	if box.Clicked() {
+	cb := ui.CheckboxBase(c, &on).Label(msg(c, "data_table.selectRow")).Size(theme.MinHitSize, theme.MinHitSize).
+		Justify(ui.Center).AlignItems(ui.Center).Radius(theme.ControlRadius)
+	internal.Ring(cb, k.Focus, theme.ControlRadius)
+	cb.Children(func() { dataTableCheckBox(c, on) })
+	if cb.Changed() {
 		if on {
-			s.Selection.Remove(key)
-		} else {
 			s.Selection.Add(key)
+		} else {
+			s.Selection.Remove(key)
 		}
-		slog.Debug("mujica: data_table toggle", "on", !on)
+		s.toggled = true
+		slog.Debug("mujica: data_table toggle", "on", on)
 	}
 }
 

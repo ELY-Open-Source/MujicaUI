@@ -8,6 +8,7 @@ import (
 	"github.com/egoist/mygo/ui"
 
 	"mujicaui/icons"
+	"mujicaui/internal"
 	"mujicaui/theme"
 )
 
@@ -102,6 +103,15 @@ func CommandPalette(c *ui.Context, open *bool, commands []Command, opts CommandP
 			st.hl, st.reveal = (st.hl-1+n)%n, true
 		}
 		st.hl = max(0, min(st.hl, n-1))
+		// Focus stays in the search box, so the highlighted command is read out.
+		if n > 0 {
+			in.Description(found[st.hl].Label)
+			if st.reveal {
+				c.Announce(found[st.hl].Label)
+			}
+		} else {
+			in.Description(msg(c, "command_palette.empty"))
+		}
 		run := -1
 		if in.Submitted() && n > 0 {
 			run = st.hl
@@ -118,7 +128,7 @@ func CommandPalette(c *ui.Context, open *bool, commands []Command, opts CommandP
 				if cmd.Group != group {
 					group = cmd.Group
 					if group != "" {
-						ui.Text(c, group).Font(theme.SerifFont).FontSize(theme.CaptionSize).
+						ui.Text(c, group).Font(theme.SerifFont).FontSize(FontSize(c, theme.CaptionSize)).
 							TextColor(k.Ornament.Mix(k.Text, 0.35)).Padding(u*2, u*2, u, u*2).SingleLine()
 					}
 				}
@@ -129,7 +139,7 @@ func CommandPalette(c *ui.Context, open *bool, commands []Command, opts CommandP
 		})
 		ui.Row(c).Gap(u*4).Padding(u*2, u*4).Background(k.Background).Children(func() {
 			for _, hint := range []string{"command_palette.hint_move", "command_palette.hint_run", "command_palette.hint_close"} {
-				ui.Text(c, msg(c, hint)).FontSize(theme.CaptionSize).TextColor(k.TextMuted).SingleLine()
+				ui.Text(c, msg(c, hint)).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.TextMuted).SingleLine()
 			}
 		})
 		if run >= 0 {
@@ -162,6 +172,7 @@ func commandPaletteRow(c *ui.Context, cmd Command, i int, st *commandPaletteStat
 			st.reveal = false
 		}
 	}
+	internal.Ease(row, Motion(c, theme.StateDuration), k.Text)
 	px, py, over := row.PointerPosition()
 	b := row.Bounds()
 	if at := [2]float32{b.X + px, b.Y + py}; over && at != st.ptr {

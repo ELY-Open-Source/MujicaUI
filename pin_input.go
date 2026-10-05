@@ -45,8 +45,7 @@ type pinInputState struct {
 	compose string
 }
 
-// PinInput edits a fixed-length code of digits, one per cell, keeping leading zeros.
-// Typing fills the next cell, Backspace clears the last, and paste fills them all.
+// PinInput edits a fixed-length digit code, one cell per digit, keeping leading zeros.
 func PinInput(c *ui.Context, value *string, opts PinInputOptions) PinInputParts {
 	n := opts.Length
 	if n == 0 {
@@ -144,9 +143,9 @@ func PinInput(c *ui.Context, value *string, opts PinInputOptions) PinInputParts 
 			cell.Children(func() {
 				switch {
 				case showCompose:
-					ui.Text(c, compose).FontSize(theme.H3Size).Underline().SingleLine()
+					ui.Text(c, compose).FontSize(FontSize(c, theme.H3Size)).Underline().SingleLine()
 				case ch != "":
-					ui.Text(c, ch).FontSize(theme.H3Size).FontFeatures("tnum").SingleLine()
+					ui.Text(c, ch).FontSize(FontSize(c, theme.H3Size)).FontFeatures("tnum").SingleLine()
 				}
 			})
 			caret := focused && i == active && len(*value) < n && !showCompose

@@ -41,7 +41,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 状态
 
-默认、悬停（SurfaceHover）、选中（Accent 填充 + OnAccent 文字 + 勾选标记）、聚焦（列表外 2 DIP 焦点环）、网格选中（AccentText 边框 + 勾选）、加载、追加加载、失败、空。
+默认、悬停（SurfaceHover）、选中（Selection 背景 + Text 文字 + AccentText 勾选标记）、聚焦（列表外 2 DIP 焦点环）、网格选中（Selection 背景 + AccentText 边框与勾选）、加载、追加加载、失败、空。
 
 ## 事件
 
@@ -57,6 +57,6 @@ ui.Render(view, 400, 300, 1)
 ## 限制
 
 - 虚拟化由 MyGo `ui.List`/`ui.GridView` 提供：每帧构建的元素数由可见区域和预取范围决定；程序跳转（`ScrollTo`）时目标两侧各构建一屏。测试以 10 万条记录统计“最后一帧调用条目构建函数的次数”验证上限（list_test.go）。
-- MyGo 单选跟随键时只在原位置附近 1000 行内查找（ui/list.go:30 `listSearch`）；插入或删除大量上方行后，单选可能被清除。
+- 单选按键保存：每帧先检查原位置的键，不符时扫描全部条目重新定位（MyGo 自身只在附近 1000 行内查找，ui/list.go:30），所以反转、排序或在网格前端插入后选择仍指向同一条目；条目被删除时选择清除。
 - Shift 连选的锚点由 MyGo 决定（ui/list.go `extend`），与平台习惯一致。
 - 网格模式没有 `ListState.Visible` 等滚动位置读取接口。

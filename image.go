@@ -5,6 +5,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
+	"mujicaui/internal"
 	"mujicaui/theme"
 )
 
@@ -54,28 +55,64 @@ func Image(c *ui.Context, src ui.ImageSource, opts ImageOptions) ImageView {
 	u := Density(c).Unit()
 	w, h := imageBox(src, opts.Width, opts.Height)
 	var v ImageView
-	frame := ui.Column(c).Size(w, h).Shrink(0).Center().Gap(u*2).Padding(u*2).Clip().
+	// Same size rules as the loaded image.
+	frame := ui.Row(c).AspectRatio(w/h).Center().Gap(u*2).Padding(0, u).Clip().
 		Radius(theme.ControlRadius).Background(k.SurfaceHover).Border(theme.BorderWidth, k.Border)
+	if opts.Width > 0 || opts.Height == 0 {
+		frame.Width(w)
+	}
+	if opts.Height > 0 {
+		frame.Height(h)
+	}
 	v.Element = frame
+	room := frame.Bounds()
+	// Build again when the box changed, settling the error text.
+	if last := ui.Local(frame, imageRoomKey{}, func() ui.Rect { return ui.Rect{W: -1} }); *last != room {
+		*last = room
+		c.AnimationFrame()
+	}
 	frame.Children(func() {
 		switch {
 		case opts.Err != nil:
 			frame.Role(ui.RoleGroup).Label(msg(c, "image.error")).Description(opts.Alt).Error(opts.Err.Error())
-			Icon(c, "circle-alert", IconOptions{Size: 20, Tone: IconDanger})
-			ui.Text(c, msg(c, "image.error")).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.Danger).TextAlign(ui.Center)
-			if Button(c, msg(c, "image.retry"), ButtonOptions{Variant: Secondary}).Clicked() {
+			if imageRetry(c, k, opts.Err.Error()).Clicked() {
 				v.Retry = true
 				slog.Debug("mujica: image retry", "alt", opts.Alt)
 			}
+			if room.W >= theme.MinHitSize+u*4+imageErrorTextWidth {
+				ui.Text(c, msg(c, "image.error")).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.Danger).SingleLine()
+			}
 		case opts.Loading:
 			frame.Role(ui.RoleImage).Label(msg(c, "image.loading")).Description(opts.Alt)
-			Spinner(c, SpinnerOptions{Size: 20, Label: msg(c, "image.loading")})
+			Spinner(c, SpinnerOptions{Size: min(20, room.H), Label: msg(c, "image.loading")})
 		default:
 			frame.Role(ui.RoleImage).Label(msg(c, "image.placeholder")).Description(opts.Alt)
 			Icon(c, "image", IconOptions{Size: 24, Tone: IconMuted})
 		}
 	})
 	return v
+}
+
+type imageRoomKey struct{}
+
+// imageErrorTextWidth is the room the error text needs.
+const imageErrorTextWidth = 120
+
+// imageRetry is the 28 DIP icon-only retry button.
+func imageRetry(c *ui.Context, k theme.Tokens, problem string) *ui.Element {
+	b := ui.ButtonBase(c).Size(theme.MinHitSize, theme.MinHitSize).Radius(theme.ControlRadius).
+		Label(msg(c, "image.retry")).Description(problem).Tooltip(problem)
+	bg := k.Surface
+	if b.Pressed() {
+		bg = k.Selection
+	} else if b.Hovered() {
+		bg = k.SurfaceHover
+	}
+	b.Background(bg).Border(theme.BorderWidth, k.ControlBorder).TextColor(k.Danger)
+	internal.Ring(b, k.Focus, theme.ControlRadius)
+	internal.Fade(b, Motion(c, theme.StateDuration))
+	b.Children(func() { Icon(c, "refresh-cw", IconOptions{Size: 16}) })
+	return b
 }
 
 // imageBox fills unset sides from src's aspect, else 160×120.

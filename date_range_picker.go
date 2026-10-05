@@ -37,12 +37,13 @@ type DateRangePickerOptions struct {
 	// Today is marked in the calendar; zero uses the system clock.
 	Today    Date
 	Disabled bool
+	// ReadOnly keeps the field focusable and copyable but blocks the popup.
+	ReadOnly bool
 	// Label names the field for assistive technology.
 	Label string
 }
 
-// DateRangePicker edits *value in a popup: pick a start, preview the span, pick an end, then confirm.
-// Clear empties the value; Escape, Cancel or a click outside discards the draft.
+// DateRangePicker picks start and end; Confirm writes *value.
 func DateRangePicker(c *ui.Context, value *DateRange, opts DateRangePickerOptions) DateTimeResult {
 	datetimeCheckDate("DateRangePicker Start", value.Start)
 	datetimeCheckDate("DateRangePicker End", value.End)
@@ -84,10 +85,10 @@ func DateRangePicker(c *ui.Context, value *DateRange, opts DateRangePickerOption
 	}
 	var field *ui.Element
 	col.Children(func() {
-		field = datetimeField(c, ui.Row(c), false)
+		field = datetimeField(c, ui.Row(c), *problem != "", opts.ReadOnly)
 		field.Children(func() {
-			t := datetimeTrigger(c, text, msg(c, "date_range_picker.placeholder"), "calendar").Label(label).Description(text)
-			if t.Clicked() || !*open && t.Shortcut(0, ui.KeyDown) {
+			t := datetimeTrigger(c, text, msg(c, "date_range_picker.placeholder"), "calendar").Label(label).Description(text).Error(*problem)
+			if !opts.ReadOnly && (t.Clicked() || !*open && t.Shortcut(0, ui.KeyDown)) {
 				*open = !*open
 				if *open {
 					*draft, *problem, *hover = *value, "", Date{}
@@ -99,9 +100,9 @@ func DateRangePicker(c *ui.Context, value *DateRange, opts DateRangePickerOption
 				}
 			}
 		})
-		datetimePopup(c, field, open, func() {
+		datetimePopup(c, field, open, opts.ReadOnly, func() {
 			ui.Text(c, dateRangeSummary(c, *draft, layout)).TextColor(k.TextMuted).
-				FontSize(theme.CaptionSize).FontFeatures("tnum").Role(ui.RoleStatus)
+				FontSize(FontSize(c, theme.CaptionSize)).FontFeatures("tnum").Role(ui.RoleStatus)
 			end := draft.End
 			if end.IsZero() && !draft.Start.IsZero() {
 				end = *hover
@@ -144,6 +145,9 @@ func DateRangePicker(c *ui.Context, value *DateRange, opts DateRangePickerOption
 		cancelled = true
 	}
 	*wasOpen = *open
+	if !*open {
+		*problem = ""
+	}
 	return DateTimeResult{Element: col, changed: changed, cancelled: cancelled}
 }
 

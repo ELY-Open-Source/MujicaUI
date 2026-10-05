@@ -44,7 +44,10 @@ type toastItem struct {
 }
 
 // toastQueue holds a window's toasts, visible ones first in order shown.
-type toastQueue struct{ items []toastItem }
+type toastQueue struct {
+	items []toastItem
+	wake  time.Time // when Toaster last asked for a frame; zero for none
+}
 
 type toastKey struct{}
 
@@ -64,6 +67,7 @@ func (q *toastQueue) push(m ToastMessage, now time.Time) {
 	if m.Message == "" {
 		panic("mujica: toast needs a Message")
 	}
+	_ = m.Severity.String() // panics on an unknown Severity
 	if m.ID == "" {
 		m.ID = m.Message
 	}
@@ -106,8 +110,8 @@ func (it *toastItem) elapsed(now time.Time) time.Duration {
 	return it.spent + now.Sub(it.runFrom)
 }
 
-// expire drops toasts whose time ran out and returns the wait until the next does.
-func (q *toastQueue) expire(now time.Time) (next time.Duration) {
+// expire drops toasts whose time ran out and shows queued ones.
+func (q *toastQueue) expire(now time.Time) {
 	live := q.items[:0]
 	for _, it := range q.items {
 		if it.visible && it.life > 0 && it.elapsed(now) >= it.life {
@@ -118,6 +122,15 @@ func (q *toastQueue) expire(now time.Time) (next time.Duration) {
 	}
 	q.items = live
 	q.promote(now)
+}
+
+// settle pauses the toasts held, resumes the rest, and returns the wait until one expires.
+func (q *toastQueue) settle(now time.Time, held map[string]bool) (next time.Duration) {
+	for _, it := range q.items {
+		if it.visible {
+			q.pause(it.msg.ID, held[it.msg.ID], now)
+		}
+	}
 	for _, it := range q.items {
 		if it.visible && it.life > 0 && !it.runFrom.IsZero() {
 			left := it.life - it.elapsed(now)
@@ -172,15 +185,12 @@ func DismissToast(c *ui.Context, id string) {
 	c.Invalidate()
 }
 
-// Toaster draws the window's toasts at its bottom right. Call it once per
-// frame, last in the view. Toasts never take the focus; Tab reaches their
-// buttons. Hover or focus inside a toast pauses its time.
+// Toaster draws the window's toasts, never taking the focus; call it last in the view each frame.
 func Toaster(c *ui.Context) ToasterResult {
 	q := toasts(c)
 	now := c.Now()
-	if next := q.expire(now); next > 0 {
-		c.After(next)
-	}
+	q.expire(now)
+	held := map[string]bool{}
 	var res ToasterResult
 	if len(q.items) == 0 {
 		return res
@@ -201,8 +211,8 @@ func Toaster(c *ui.Context) ToasterResult {
 					q.items[i].announced = true
 					c.Announce(it.msg.Message)
 				}
-				action, closed, held := toastCard(c, k, u, min(360, w-u*8), it.msg)
-				q.pause(it.msg.ID, held, now)
+				action, closed, hold := toastCard(c, k, u, min(360, w-u*8), it.msg)
+				held[it.msg.ID] = hold
 				switch {
 				case action:
 					res.Action = it.msg.ID
@@ -219,6 +229,12 @@ func Toaster(c *ui.Context) ToasterResult {
 			q.remove(id, now)
 			c.Invalidate()
 		}
+	}
+	// Scheduled after resuming, so a toast released this frame still expires.
+	q.wake = time.Time{}
+	if next := q.settle(now, held); next > 0 {
+		q.wake = now.Add(next)
+		c.After(next)
 	}
 	return res
 }

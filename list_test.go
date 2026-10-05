@@ -2,9 +2,13 @@ package mujica
 
 import (
 	"fmt"
+	"image/color"
+	"slices"
 	"testing"
 
 	"github.com/egoist/mygo/ui"
+
+	"mujicaui/theme"
 )
 
 type listHarness struct {
@@ -212,4 +216,46 @@ func TestListSnapshot(t *testing.T) {
 			}).Size(360, 228)
 		})
 	})
+}
+
+func TestListKeyFollowsLargeReorder(t *testing.T) {
+	h := newListHarness(5000)
+	tt := ui.NewTester(h.view, 400, 400)
+	if err := tt.Click("Item 3"); err != nil {
+		t.Fatal(err)
+	}
+	slices.Reverse(h.ids)
+	tt.Frame()
+	if k, ok := h.st.Selected(); !ok || k != 3 || h.st.cursor != 4996 {
+		t.Fatalf("after reversing: selected %d %v at row %d", k, ok, h.st.cursor)
+	}
+}
+
+func TestListGridKeyFollowsInsert(t *testing.T) {
+	h := newListHarness(12)
+	h.opts.Grid = true
+	h.opts.ItemWidth, h.opts.ItemHeight = 80, 60
+	h.listSize = [2]float32{380, 300}
+	tt := ui.NewTester(h.view, 420, 340)
+	if err := tt.Click("Item 2"); err != nil {
+		t.Fatal(err)
+	}
+	h.ids = append([]int{100}, h.ids...)
+	tt.Frame()
+	if k, _ := h.st.Selected(); k != 2 || h.st.cursor != 3 {
+		t.Fatalf("after insert: selected %d at %d", k, h.st.cursor)
+	}
+}
+
+func TestListSelectionColors(t *testing.T) {
+	h := newListHarness(5)
+	tt := ui.NewTester(h.view, 400, 400)
+	if err := tt.Click("Item 1"); err != nil {
+		t.Fatal(err)
+	}
+	r, _ := tt.Find("Item 1")
+	got := color.RGBAModel.Convert(tt.Image().At(int(r.X+r.W-6), int(r.Y+r.H/2))).(color.RGBA)
+	if want := toRGBA(theme.Light().Selection); got != want {
+		t.Fatalf("selected row background %v, want Selection %v", got, want)
+	}
 }

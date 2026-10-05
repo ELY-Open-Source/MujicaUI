@@ -29,7 +29,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func TreeTable[K comparable](c *ui.Context, s *TreeTableState[K], opts TreeTableOptions[K]) DataTableView`。`TreeTableState` 字段：`Sort`、`Layout`、`Selection`；方法：`Selected()`、`SetOpen`、`IsOpen`。
+`func TreeTable[K comparable](c *ui.Context, s *TreeTableState[K], opts TreeTableOptions[K]) DataTableView`。`TreeTableState` 字段：`Sort`、`Layout`、`Selection`；方法：`Selected()`、`SetOpen`、`IsOpen`。表格上方的“列”按钮弹层提供每列的排序、左移/右移与列宽调整，是这些操作的键盘入口。
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |
@@ -45,7 +45,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 状态
 
-默认、悬停、选中（Accent 填充 + 勾选标记）、聚焦、展开/折叠、排序箭头、子项加载中/失败、空。
+默认、悬停、选中（Selection 背景 + AccentText 勾选标记）、聚焦、展开/折叠、排序箭头、子项加载中/失败、空。
 
 ## 事件
 
@@ -54,6 +54,7 @@ ui.Render(view, 400, 300, 1)
 ## 键盘操作
 
 - 与 Tree 相同的方向键与展开键；点击表头排序同级节点，再次点击反向；拖动表头边缘或表头调整列宽与顺序。
+- 列菜单：Tab 到“列”按钮，Enter 打开，Tab 到排序、移动与列宽按钮，Enter 执行，Escape 关闭。
 
 ## 限制
 
