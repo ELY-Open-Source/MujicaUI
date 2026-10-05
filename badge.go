@@ -21,7 +21,7 @@ const (
 	BadgeInfo
 )
 
-// BadgePosition places a badge. The zero value lays it out inline.
+// BadgePosition places a badge; zero is inline.
 type BadgePosition int
 
 const (
@@ -36,18 +36,17 @@ const (
 type BadgeOptions struct {
 	// Text shows as is; when empty, Count shows instead.
 	Text string
-	// Count must not be negative; zero with no Text hides the badge.
+	// Count must not be negative; zero without Text hides it.
 	Count int
 	// Max caps the shown count as "Max+"; zero means 99.
 	Max      int
 	Tone     BadgeTone
 	Position BadgePosition
-	// Label says what the badge counts; it is read before the full value.
+	// Label says what is counted; read before the full value.
 	Label string
 }
 
-// Badge shows a short text or count. Inline badges take no content; corner
-// positions pin the badge on content's corner.
+// Badge shows text or a count, inline or cornered.
 func Badge(c *ui.Context, opts BadgeOptions, content func()) *ui.Element {
 	if opts.Count < 0 || opts.Max < 0 {
 		panic("mujica: Badge Count and Max must not be negative")
@@ -99,13 +98,13 @@ func badgePill(c *ui.Context, opts BadgeOptions, shown, full string) *ui.Element
 	if opts.Label != "" {
 		label = opts.Label + " " + full
 	}
-	p := ui.Box(c).Row().Center().MinWidth(18).Height(18).Padding(0, 5).Radius(theme.CardRadius).
+	p := ui.Box(c).Row().Center().MinWidth(FontSize(c, 18)).MinHeight(FontSize(c, 18)).Padding(0, 5).Radius(theme.CardRadius).
 		Background(bg).Shrink(0).Role(ui.RoleStatus).Label(label)
 	if border.A > 0 {
 		p.Border(theme.BorderWidth, border)
 	}
 	p.Children(func() {
-		ui.Text(c, shown).FontSize(theme.CaptionSize - 1).FontWeight(600).TextColor(fg).
+		ui.Text(c, shown).FontSize(FontSize(c, theme.CaptionSize-1)).FontWeight(600).TextColor(fg).
 			FontFeatures("tnum").SingleLine()
 	})
 	return p

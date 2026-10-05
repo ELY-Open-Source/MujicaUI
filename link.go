@@ -11,16 +11,15 @@ import (
 	"mujicaui/theme"
 )
 
-// LinkOptions configure a Link. An empty URL makes an in-app action link.
+// LinkOptions configure a Link; empty URL means in-app action.
 type LinkOptions struct {
-	// URL opens in the browser, or goes there in a MyGo router for a path.
+	// URL opens in the browser; paths go to the router.
 	URL string
 	// Error is the caller's open failure, shown below the link.
 	Error string
 }
 
-// Link is underlined text activated by a click or Enter. Clicked reports
-// every activation. A malformed URL is not opened and shows an error.
+// Link is underlined text; malformed URLs show an error instead.
 func Link(c *ui.Context, label string, opts LinkOptions) *ui.Element {
 	if label == "" {
 		panic("mujica: Link needs a label")
@@ -56,7 +55,7 @@ func Link(c *ui.Context, label string, opts LinkOptions) *ui.Element {
 		})
 		if problem != "" {
 			l.Error(problem)
-			ui.Text(c, problem).TextColor(k.Danger).FontSize(theme.CaptionSize)
+			ui.Text(c, problem).TextColor(k.Danger).FontSize(FontSize(c, theme.CaptionSize))
 		}
 	})
 	if l.Clicked() {
@@ -65,7 +64,7 @@ func Link(c *ui.Context, label string, opts LinkOptions) *ui.Element {
 	return l
 }
 
-// linkCheck reports whether raw has a scheme, and whether it can be opened.
+// linkCheck reports whether raw has a scheme and is openable.
 func linkCheck(raw string) (external, ok bool) {
 	p, err := url.Parse(raw)
 	if err != nil {

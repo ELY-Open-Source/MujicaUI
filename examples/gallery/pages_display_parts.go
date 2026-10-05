@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/egoist/mygo/ui"
 
 	mujica "mujicaui"
@@ -29,4 +31,11 @@ func displayCode(c *ui.Context, code string, log func(string)) {
 		}
 		mujica.Text(c, code, mujica.TextOptions{Selectable: true}).Font(theme.MonoFont).FontSize(12)
 	})
+}
+
+// displayLog logs a control's new value when it changed.
+func displayLog[T any](log func(string), e *ui.Element, name string, v *T) {
+	if e.Changed() {
+		log(fmt.Sprintf("%s = %v", name, *v))
+	}
 }

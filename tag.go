@@ -10,9 +10,9 @@ import (
 	"mujicaui/theme"
 )
 
-// TagOptions configure a Tag. The zero value is a plain label.
+// TagOptions configure a Tag; zero is a plain label.
 type TagOptions struct {
-	// Icon names an icon of the icons package shown before the label.
+	// Icon names an icon shown before the label.
 	Icon string
 	// Clickable makes the label a button reported by TagView.Clicked.
 	Clickable bool
@@ -21,17 +21,16 @@ type TagOptions struct {
 	Disabled bool
 }
 
-// TagView is a shown Tag and what the user did to it this frame.
+// TagView is a shown Tag and this frame's events.
 type TagView struct {
 	Element *ui.Element
-	// Clicked reports the label was activated; never set by the remove button.
+	// Clicked reports the label was activated, not the remove button.
 	Clicked bool
-	// Closed reports the remove button, or Delete or Backspace on the label.
+	// Closed reports the remove button, Delete or Backspace.
 	Closed bool
 }
 
-// Tag shows a short label. Clicking the label and removing the tag are
-// separate actions with separate focus stops.
+// Tag shows a label; click and remove are separate stops.
 func Tag(c *ui.Context, label string, opts TagOptions) TagView {
 	if label == "" {
 		panic("mujica: Tag needs a label")
@@ -66,13 +65,13 @@ func Tag(c *ui.Context, label string, opts TagOptions) TagView {
 			if opts.Icon != "" {
 				Icon(c, opts.Icon, IconOptions{Size: 14})
 			}
-			ui.Text(c, label).FontSize(theme.BodySize - 1).SingleLine()
+			ui.Text(c, label).FontSize(FontSize(c, theme.BodySize-1)).SingleLine()
 		})
 		if opts.Clickable && main.Clicked() {
 			v.Clicked = true
 		}
 		if opts.Closable {
-			if opts.Clickable && !opts.Disabled && (main.Shortcut(0, ui.KeyDelete) || main.Shortcut(0, ui.KeyBackspace)) {
+			if opts.Clickable && !main.IsDisabled() && (main.Shortcut(0, ui.KeyDelete) || main.Shortcut(0, ui.KeyBackspace)) {
 				v.Closed = true
 			}
 			if tagClose(c, k, label).Clicked() {

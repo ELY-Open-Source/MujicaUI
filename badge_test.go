@@ -112,3 +112,20 @@ func TestBadgeSnapshot(t *testing.T) {
 		})
 	})
 }
+
+func TestBadgeTextScale(t *testing.T) {
+	var w [2]float32
+	for i, s := range []float32{1, 2} {
+		tt := ui.NewTester(func(c *ui.Context) {
+			Use(c, Settings{})
+			ui.Row(c).AlignItems(ui.Start).Children(func() {
+				w[i] = Badge(c, BadgeOptions{Text: "Draft"}, nil).Bounds().W
+			})
+		}, 400, 200)
+		tt.SetPreferences(ui.Preferences{TextScale: s})
+		tt.Frame()
+	}
+	if w[1] < w[0]*1.5 {
+		t.Fatalf("width %v at 2x, %v at 1x", w[1], w[0])
+	}
+}

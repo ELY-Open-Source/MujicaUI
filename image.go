@@ -10,10 +10,9 @@ import (
 
 // ImageOptions configure an Image.
 type ImageOptions struct {
-	// Width and Height size the box in DIPs; zero keeps the picture's size,
-	// or 160×120 for the placeholder, loading and error states.
+	// Width, Height in DIPs; zero uses src size or 160×120.
 	Width, Height float32
-	// Crop covers the box and crops the rest; false fits the picture inside.
+	// Crop covers and crops the box; false fits inside.
 	Crop bool
 	// Alt describes the picture for assistive technology.
 	Alt string
@@ -23,14 +22,14 @@ type ImageOptions struct {
 	Err error
 }
 
-// ImageView is a shown Image and what the user did to it this frame.
+// ImageView is a shown Image and this frame's events.
 type ImageView struct {
 	Element *ui.Element
-	// Retry reports a click on the retry button of the error state.
+	// Retry reports the error state's retry button was pressed.
 	Retry bool
 }
 
-// Image shows a *ui.Bitmap or *ui.SVG. A nil src shows a placeholder.
+// Image shows a bitmap or SVG; nil shows a placeholder.
 func Image(c *ui.Context, src ui.ImageSource, opts ImageOptions) ImageView {
 	if opts.Width < 0 || opts.Height < 0 {
 		panic("mujica: Image Width and Height must not be negative")
@@ -53,13 +52,7 @@ func Image(c *ui.Context, src ui.ImageSource, opts ImageOptions) ImageView {
 	}
 	k := Tokens(c)
 	u := Density(c).Unit()
-	w, h := opts.Width, opts.Height
-	if w == 0 {
-		w = 160
-	}
-	if h == 0 {
-		h = 120
-	}
+	w, h := imageBox(src, opts.Width, opts.Height)
 	var v ImageView
 	frame := ui.Column(c).Size(w, h).Shrink(0).Center().Gap(u*2).Padding(u*2).Clip().
 		Radius(theme.ControlRadius).Background(k.SurfaceHover).Border(theme.BorderWidth, k.Border)
@@ -69,7 +62,7 @@ func Image(c *ui.Context, src ui.ImageSource, opts ImageOptions) ImageView {
 		case opts.Err != nil:
 			frame.Role(ui.RoleGroup).Label(msg(c, "image.error")).Description(opts.Alt).Error(opts.Err.Error())
 			Icon(c, "circle-alert", IconOptions{Size: 20, Tone: IconDanger})
-			ui.Text(c, msg(c, "image.error")).FontSize(theme.CaptionSize).TextColor(k.Danger).TextAlign(ui.Center)
+			ui.Text(c, msg(c, "image.error")).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.Danger).TextAlign(ui.Center)
 			if Button(c, msg(c, "image.retry"), ButtonOptions{Variant: Secondary}).Clicked() {
 				v.Retry = true
 				slog.Debug("mujica: image retry", "alt", opts.Alt)
@@ -83,4 +76,28 @@ func Image(c *ui.Context, src ui.ImageSource, opts ImageOptions) ImageView {
 		}
 	})
 	return v
+}
+
+// imageBox fills unset sides from src's aspect, else 160×120.
+func imageBox(src ui.ImageSource, w, h float32) (float32, float32) {
+	var sw, sh float32
+	switch s := src.(type) {
+	case *ui.Bitmap:
+		iw, ih := s.Size()
+		sw, sh = float32(iw), float32(ih)
+	case *ui.SVG:
+		sw, sh = s.Size()
+	}
+	if sw <= 0 || sh <= 0 {
+		sw, sh = 160, 120
+	}
+	switch {
+	case w == 0 && h == 0:
+		return sw, sh
+	case w == 0:
+		return h * sw / sh, h
+	case h == 0:
+		return w, w * sh / sw
+	}
+	return w, h
 }

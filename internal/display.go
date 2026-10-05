@@ -7,7 +7,7 @@ import (
 	"github.com/egoist/mygo/ui"
 )
 
-// Fade animates e's background and border colors over d; zero skips it.
+// Fade animates e's colors over d; zero skips it.
 func Fade(e *ui.Element, d time.Duration) *ui.Element {
 	if d > 0 {
 		e.Transition(ui.ElementTransition{Colors: true, Duration: d})
@@ -15,7 +15,7 @@ func Fade(e *ui.Element, d time.Duration) *ui.Element {
 	return e
 }
 
-// Rule draws a 1 DIP horizontal line from x0 to x1 at y, on device pixels.
+// Rule draws a pixel-aligned 1 DIP horizontal line at y.
 func Rule(p *ui.Painter, x0, x1, y float32, c ui.Color) {
 	s := float64(p.Scale())
 	px := math.Floor(float64(y) * s)

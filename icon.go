@@ -10,7 +10,7 @@ import (
 	"mujicaui/theme"
 )
 
-// IconTone is an icon's semantic color. The zero value takes the text color.
+// IconTone is an icon's semantic color; zero inherits text color.
 type IconTone int
 
 const (
@@ -25,17 +25,16 @@ const (
 
 // IconOptions configure an Icon.
 type IconOptions struct {
-	// Size is the icon's width and height in DIPs; zero means 16.
+	// Size is width and height in DIPs; zero means 16.
 	Size float32
 	Tone IconTone
-	// Label names a meaningful icon for assistive technology; empty hides it.
+	// Label names the icon for assistive technology; empty hides it.
 	Label string
 }
 
 type iconMissingKey struct{}
 
-// Icon shows the named icon of the icons package. A missing name shows a
-// dashed fallback box in the Danger color and logs a warning.
+// Icon shows a named icon; missing ones show a fallback.
 func Icon(c *ui.Context, name string, opts IconOptions) *ui.Element {
 	if name == "" {
 		panic("mujica: Icon needs a name")

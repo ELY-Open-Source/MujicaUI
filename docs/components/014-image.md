@@ -29,7 +29,7 @@ view := func(c *ui.Context) {
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |
-| `Width`, `Height` | `float32` | `0` | 盒子尺寸（DIP）。为 0 时图片使用自身尺寸；占位、加载、错误状态为 160×120。负数 panic。 |
+| `Width`, `Height` | `float32` | `0` | 盒子尺寸（DIP）。为 0 时使用 `src` 的尺寸（只给一边时按比例补齐），在占位、加载、错误状态下也保持这个尺寸；`src` 为 nil 时为 160×120。负数 panic。 |
 | `Crop` | `bool` | `false` | `true` 覆盖并裁切（`ui.Cover`）；`false` 完整放入（`ui.Contain`）。 |
 | `Alt` | `string` | `""` | 替代说明，供辅助技术读取；在其他状态下作为描述。 |
 | `Loading` | `bool` | `false` | 调用方正在加载。 |

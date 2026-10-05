@@ -48,10 +48,10 @@ func textDemo(c *ui.Context, log func(string)) {
 	displaySection(c, "Parameters", func() {
 		displayControls(c, func() {
 			ui.Text(c, fmt.Sprintf("MaxLines %d", int(s.maxLines)))
-			ui.StepSlider(c, &s.maxLines, 0, 4, 1).Width(160)
-			ui.Checkbox(c, &s.selectable, "Selectable")
-			ui.Checkbox(c, &s.saving, "Saving")
-			ui.Checkbox(c, &s.failNext, "Next save fails")
+			displayLog(log, ui.StepSlider(c, &s.maxLines, 0, 4, 1).Width(160), "maxLines", &s.maxLines)
+			displayLog(log, ui.Checkbox(c, &s.selectable, "Selectable"), "selectable", &s.selectable)
+			displayLog(log, ui.Checkbox(c, &s.saving, "Saving"), "saving", &s.saving)
+			displayLog(log, ui.Checkbox(c, &s.failNext, "Next save fails"), "failNext", &s.failNext)
 		})
 	})
 	displaySection(c, "Display", func() {
@@ -62,7 +62,7 @@ func textDemo(c *ui.Context, log func(string)) {
 	})
 	displaySection(c, "Editable", func() {
 		e := mujica.EditableText(c, &s.name, mujica.EditableTextOptions{Saving: s.saving, Error: s.saveErr, Label: "File name"})
-		if e.Changed() {
+		if e.Changed {
 			if s.failNext {
 				s.saveErr = "Save failed: the name is already taken."
 				log("save failed: " + s.name)
@@ -71,13 +71,16 @@ func textDemo(c *ui.Context, log func(string)) {
 				log("saved: " + s.name)
 			}
 		}
+		if e.Canceled {
+			log("edit canceled")
+		}
 	})
 	displayCode(c, textCode, log)
 }
 
 const textCode = `mujica.Text(c, "Order ID: 4821-AX", mujica.TextOptions{Selectable: true})
 mujica.Text(c, "A long note that stops after two lines.", mujica.TextOptions{MaxLines: 2})
-if mujica.EditableText(c, &name, mujica.EditableTextOptions{Error: saveErr}).Changed() {
+if mujica.EditableText(c, &name, mujica.EditableTextOptions{Error: saveErr}).Changed {
 	saveErr = "" // save name here; set saveErr on failure
 }`
 
@@ -95,8 +98,8 @@ func headingDemo(c *ui.Context, log func(string)) {
 			if ui.StepSlider(c, &s.level, 1, 3, 1).Width(120).Changed() {
 				log(fmt.Sprintf("level %d", int(s.level)))
 			}
-			ui.Checkbox(c, &s.subtitle, "Subtitle")
-			ui.Checkbox(c, &s.divide, "Divider")
+			displayLog(log, ui.Checkbox(c, &s.subtitle, "Subtitle"), "subtitle", &s.subtitle)
+			displayLog(log, ui.Checkbox(c, &s.divide, "Divider"), "divide", &s.divide)
 		})
 	})
 	displaySection(c, "Preview", func() {
@@ -141,7 +144,7 @@ func iconDemo(c *ui.Context, log func(string)) {
 			if ui.Select(c, &s.tone, []string{"Inherit", "Muted", "Accent", "Success", "Warning", "Danger", "Info"}).Changed() {
 				log("tone " + s.tone)
 			}
-			ui.Checkbox(c, &s.label, "Label")
+			displayLog(log, ui.Checkbox(c, &s.label, "Label"), "label", &s.label)
 		})
 	})
 	displaySection(c, "Preview", func() {
@@ -185,10 +188,11 @@ func imageDemo(c *ui.Context, log func(string)) {
 	mujica.Heading(c, "Image", mujica.HeadingOptions{Subtitle: "位图与 SVG；包含或裁切；占位、加载、错误；替代说明", Divider: true})
 	displaySection(c, "Parameters", func() {
 		displayControls(c, func() {
-			ui.Checkbox(c, &s.crop, "Crop")
-			ui.Checkbox(c, &s.empty, "No source")
-			ui.Checkbox(c, &s.loading, "Loading")
+			displayLog(log, ui.Checkbox(c, &s.crop, "Crop"), "crop", &s.crop)
+			displayLog(log, ui.Checkbox(c, &s.empty, "No source"), "empty", &s.empty)
+			displayLog(log, ui.Checkbox(c, &s.loading, "Loading"), "loading", &s.loading)
 			if ui.Checkbox(c, &s.fail, "Error").Changed() {
+				log(fmt.Sprintf("fail = %v", s.fail))
 				s.err = nil
 				if s.fail {
 					s.err = errors.New("connection reset")
@@ -251,8 +255,8 @@ func avatarDemo(c *ui.Context, log func(string)) {
 				log("name " + s.name)
 			}
 			ui.Text(c, fmt.Sprintf("Size %d", int(s.size)))
-			ui.StepSlider(c, &s.size, 24, 80, 4).Width(160)
-			ui.Checkbox(c, &s.img, "Image")
+			displayLog(log, ui.StepSlider(c, &s.size, 24, 80, 4).Width(160), "size", &s.size)
+			displayLog(log, ui.Checkbox(c, &s.img, "Image"), "img", &s.img)
 		})
 	})
 	displaySection(c, "Preview", func() {
@@ -332,10 +336,10 @@ func badgeDemo(c *ui.Context, log func(string)) {
 	displaySection(c, "Parameters", func() {
 		displayControls(c, func() {
 			ui.Text(c, fmt.Sprintf("Count %d", int(s.count)))
-			ui.StepSlider(c, &s.count, 0, 200, 1).Width(160)
+			displayLog(log, ui.StepSlider(c, &s.count, 0, 200, 1).Width(160), "count", &s.count)
 			ui.Text(c, fmt.Sprintf("Max %d", int(s.max)))
-			ui.StepSlider(c, &s.max, 9, 999, 10).Width(120)
-			ui.TextInput(c, &s.text).Placeholder("Text overrides count").Width(180)
+			displayLog(log, ui.StepSlider(c, &s.max, 9, 999, 10).Width(120), "max", &s.max)
+			displayLog(log, ui.TextInput(c, &s.text).Placeholder("Text overrides count").Width(180), "text", &s.text)
 			if ui.Select(c, &s.tone, []string{"Accent", "Neutral", "Success", "Warning", "Danger", "Info"}).Changed() {
 				log("tone " + s.tone)
 			}
@@ -377,10 +381,10 @@ func tagDemo(c *ui.Context, log func(string)) {
 	mujica.Heading(c, "Tag", mujica.HeadingOptions{Subtitle: "标签文字、图标；点击与关闭分离", Divider: true})
 	displaySection(c, "Parameters", func() {
 		displayControls(c, func() {
-			ui.Checkbox(c, &s.icon, "Icon")
-			ui.Checkbox(c, &s.clickable, "Clickable")
-			ui.Checkbox(c, &s.closable, "Closable")
-			ui.Checkbox(c, &s.dis, "Disabled")
+			displayLog(log, ui.Checkbox(c, &s.icon, "Icon"), "icon", &s.icon)
+			displayLog(log, ui.Checkbox(c, &s.clickable, "Clickable"), "clickable", &s.clickable)
+			displayLog(log, ui.Checkbox(c, &s.closable, "Closable"), "closable", &s.closable)
+			displayLog(log, ui.Checkbox(c, &s.dis, "Disabled"), "dis", &s.dis)
 			if mujica.Button(c, "Reset tags", mujica.ButtonOptions{Variant: mujica.Ghost}).Clicked() {
 				s.tags = []string{"Baroque", "Gothic", "Rococo", "Court"}
 				log("reset")
@@ -395,8 +399,10 @@ func tagDemo(c *ui.Context, log func(string)) {
 		ui.Row(c).Gap(8).Wrap().Children(func() {
 			for i := 0; i < len(s.tags); i++ {
 				t := s.tags[i]
-				v := mujica.Tag(c, t, mujica.TagOptions{Icon: icon, Clickable: s.clickable, Closable: s.closable, Disabled: s.dis})
-				v.Element.Key(t)
+				var v mujica.TagView
+				ui.Box(c).Key(t).Children(func() {
+					v = mujica.Tag(c, t, mujica.TagOptions{Icon: icon, Clickable: s.clickable, Closable: s.closable, Disabled: s.dis})
+				})
 				if v.Clicked {
 					log("clicked " + t)
 				}
@@ -412,8 +418,10 @@ func tagDemo(c *ui.Context, log func(string)) {
 }
 
 const tagCode = `for i, t := range tags {
-	v := mujica.Tag(c, t, mujica.TagOptions{Icon: "star", Clickable: true, Closable: true})
-	v.Element.Key(t)
+	var v mujica.TagView
+	ui.Box(c).Key(t).Children(func() {
+		v = mujica.Tag(c, t, mujica.TagOptions{Icon: "star", Clickable: true, Closable: true})
+	})
 	if v.Closed {
 		tags = append(tags[:i:i], tags[i+1:]...)
 	}
@@ -429,7 +437,7 @@ func linkDemo(c *ui.Context, log func(string)) {
 	mujica.Heading(c, "Link", mujica.HeadingOptions{Subtitle: "外部地址或应用内动作；键盘激活；打开失败反馈", Divider: true})
 	displaySection(c, "Parameters", func() {
 		displayControls(c, func() {
-			ui.TextInput(c, &s.url).Placeholder("URL (empty = in-app action)").Width(320)
+			displayLog(log, ui.TextInput(c, &s.url).Placeholder("URL (empty = in-app action)").Width(320), "url", &s.url)
 			if mujica.Button(c, "Simulate open failure", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
 				s.external = "No application can open this link."
 				log("open failure set")

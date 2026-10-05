@@ -21,6 +21,43 @@ func TestTextSelectAndCopy(t *testing.T) {
 	}
 }
 
+func TestTextSelectableTakesTab(t *testing.T) {
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		Text(c, "ID-4821", TextOptions{Selectable: true})
+	}, 300, 100)
+	tt.Key(0, ui.KeyTab)
+	if !tt.Focused("ID-4821") {
+		t.Fatal("selectable text not in Tab order")
+	}
+	tt.Command("selectAll")
+	tt.Command("copy")
+	if got := tt.Clipboard(); got != "ID-4821" {
+		t.Fatalf("clipboard %q", got)
+	}
+}
+
+func TestEditableTextBlurConfirms(t *testing.T) {
+	name := "a"
+	changed := 0
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		if EditableText(c, &name, EditableTextOptions{}).Changed {
+			changed++
+		}
+		Button(c, "Other", ButtonOptions{})
+	}, 300, 120)
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeyEnter)
+	tt.Type("b")
+	if err := tt.Click("Other"); err != nil {
+		t.Fatal(err)
+	}
+	if name != "ab" || changed != 1 {
+		t.Fatalf("name %q, changed %d", name, changed)
+	}
+}
+
 func TestTextNotSelectableByDefault(t *testing.T) {
 	tt := ui.NewTester(func(c *ui.Context) {
 		Use(c, Settings{})
@@ -68,34 +105,45 @@ func TestEditableTextConfirm(t *testing.T) {
 	changed := 0
 	tt := ui.NewTester(func(c *ui.Context) {
 		Use(c, Settings{})
-		if EditableText(c, &name, EditableTextOptions{Label: "File name"}).Changed() {
+		if EditableText(c, &name, EditableTextOptions{Label: "File name"}).Changed {
 			changed++
 		}
 	}, 300, 120)
 	tt.Key(0, ui.KeyTab)
 	tt.Key(0, ui.KeyEnter)
-	tt.Type("summary")
+	if !tt.Focused("File name") {
+		t.Fatal("editing input not named File name")
+	}
+	tt.Command("selectAll")
+	tt.Type("summary.pdf")
 	tt.Key(0, ui.KeyEnter)
 	if name != "summary.pdf" || changed != 1 {
 		t.Fatalf("name %q, changed %d", name, changed)
+	}
+	if !tt.Focused("File name") {
+		t.Fatal("focus not back on the text after confirm")
 	}
 }
 
 func TestEditableTextCancel(t *testing.T) {
 	name := "report.pdf"
-	changed := 0
+	changed, canceled := 0, 0
 	tt := ui.NewTester(func(c *ui.Context) {
 		Use(c, Settings{})
-		if EditableText(c, &name, EditableTextOptions{}).Changed() {
+		v := EditableText(c, &name, EditableTextOptions{})
+		if v.Changed {
 			changed++
+		}
+		if v.Canceled {
+			canceled++
 		}
 	}, 300, 120)
 	tt.Key(0, ui.KeyTab)
 	tt.Key(0, ui.KeyEnter)
 	tt.Type("draft")
 	tt.Key(0, ui.KeyEscape)
-	if name != "report.pdf" || changed != 0 {
-		t.Fatalf("name %q, changed %d", name, changed)
+	if name != "report.pdf" || changed != 0 || canceled != 1 {
+		t.Fatalf("name %q, changed %d, canceled %d", name, changed, canceled)
 	}
 	if !tt.HasText("report.pdf") {
 		t.Fatal("text not shown after cancel")

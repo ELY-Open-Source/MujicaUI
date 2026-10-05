@@ -11,13 +11,13 @@ import (
 
 // TextOptions configure a Text. The zero value wraps every line.
 type TextOptions struct {
-	// MaxLines cuts the text with an ellipsis after that many lines; zero never cuts.
+	// MaxLines cuts with an ellipsis after n lines; zero never.
 	MaxLines int
 	// Selectable lets the user select and copy the text.
 	Selectable bool
 }
 
-// Text shows body text that wraps at the width it gets.
+// Text shows body text wrapping at its width.
 func Text(c *ui.Context, s string, opts TextOptions) *ui.Element {
 	if opts.MaxLines < 0 {
 		panic("mujica: Text MaxLines must not be negative")
@@ -30,7 +30,8 @@ func Text(c *ui.Context, s string, opts TextOptions) *ui.Element {
 		e.MaxLines(opts.MaxLines)
 	}
 	if opts.Selectable {
-		e.Selectable()
+		e.Selectable().Focusable()
+		internal.Ring(e, Tokens(c).Focus, theme.ControlRadius)
 	}
 	return e
 }
@@ -45,41 +46,100 @@ type EditableTextOptions struct {
 	Label string
 }
 
-// EditableText is Text's editable mode. Double click or Enter edits; Enter
-// or leaving confirms, Escape cancels. Changed reports a confirmed new value.
-func EditableText(c *ui.Context, value *string, opts EditableTextOptions) *ui.Element {
+// EditableTextView is a shown EditableText and this frame's outcome.
+type EditableTextView struct {
+	Element *ui.Element
+	// Changed reports a confirmed new value, already in *value.
+	Changed bool
+	// Canceled reports Escape discarded an edit.
+	Canceled bool
+}
+
+type editableTextState struct {
+	editing, fresh bool
+	draft          string
+}
+
+type editableTextKey struct{}
+
+// EditableText is Text's editable mode with confirm and cancel.
+func EditableText(c *ui.Context, value *string, opts EditableTextOptions) EditableTextView {
 	k := Tokens(c)
 	u := Density(c).Unit()
 	line := k.ControlBorder
 	if opts.Error != "" {
 		line = k.Danger
 	}
-	var box *ui.Element
+	var v EditableTextView
 	ui.Column(c).Gap(u).AlignItems(ui.Start).Children(func() {
-		ui.Row(c).Gap(u * 2).AlignItems(ui.Center).Disabled(opts.Saving).Children(func() {
-			box = ui.EditableText(c, value)
-			pad := u / 2
-			box.Padding(pad+1, pad*2+1).MinWidth(theme.MinHitSize*2).MinHeight(theme.MinHitSize).Radius(theme.ControlRadius).
-				BorderWidth(0, 0, 1, 0).BorderColor(line).BorderStyle(ui.BorderDashed)
-			internal.Ring(box, k.Focus, theme.ControlRadius)
-			if box.Hovered() {
-				box.Background(k.SurfaceHover)
-			}
-			internal.Fade(box, Motion(c, theme.StateDuration))
-			if opts.Label != "" {
-				box.Label(opts.Label)
-			}
+		ui.Row(c).Gap(u * 2).AlignItems(ui.Center).Children(func() {
+			v = editableTextField(c, k, value, opts, line)
 			if opts.Saving {
 				Spinner(c, SpinnerOptions{Size: 12, Label: msg(c, "editable_text.saving")})
 			}
 		})
 		if opts.Error != "" {
-			box.Error(opts.Error)
-			ui.Text(c, opts.Error).TextColor(k.Danger).FontSize(theme.CaptionSize)
+			ui.Text(c, opts.Error).TextColor(k.Danger).FontSize(FontSize(c, theme.CaptionSize))
 		}
 	})
-	if box.Changed() {
+	switch {
+	case v.Changed:
 		slog.Debug("mujica: editabletext changed", "len", len(*value))
+	case v.Canceled:
+		slog.Debug("mujica: editabletext canceled")
 	}
-	return box
+	return v
+}
+
+func editableTextField(c *ui.Context, k theme.Tokens, value *string, opts EditableTextOptions, line ui.Color) EditableTextView {
+	pad := Density(c).Unit() / 2
+	box := ui.Row(c).AlignItems(ui.Center).MinWidth(theme.MinHitSize * 2).MinHeight(theme.MinHitSize).
+		Radius(theme.ControlRadius).Disabled(opts.Saving)
+	v := EditableTextView{Element: box}
+	st := ui.Local(box, editableTextKey{}, func() editableTextState { return editableTextState{} })
+	if opts.Saving {
+		st.editing = false
+	}
+	if !st.editing {
+		box.Focusable().Padding(pad+1, pad*2+1).BorderWidth(0, 0, 1, 0).BorderColor(line).BorderStyle(ui.BorderDashed).
+			Label(opts.Label).Error(opts.Error)
+		internal.Ring(box, k.Focus, theme.ControlRadius)
+		if box.Hovered() {
+			box.Background(k.SurfaceHover)
+		}
+		internal.Fade(box, Motion(c, theme.StateDuration))
+		if !box.IsDisabled() && (box.DoubleClicked() || box.Shortcut(0, ui.KeyEnter)) {
+			st.editing, st.fresh, st.draft = true, true, *value
+		} else {
+			box.Children(func() { ui.Text(c, *value).SingleLine() })
+			return v
+		}
+	}
+	var in *ui.Element
+	box.Children(func() {
+		in = ui.TextInputBase(c, &st.draft).Grow(1).MinWidth(theme.MinHitSize*3).Padding(pad, pad*2).
+			Radius(theme.ControlRadius).Background(k.Surface).Border(theme.BorderWidth, k.Accent).TextColor(k.Text).
+			Label(opts.Label).Error(opts.Error)
+	})
+	done := func() {
+		st.editing = false
+		box.Focus()
+	}
+	switch {
+	case st.fresh:
+		st.fresh = false
+		in.Focus()
+	case in.Submitted():
+		v.Changed = st.draft != *value
+		*value = st.draft
+		done()
+	case in.Shortcut(0, ui.KeyEscape):
+		v.Canceled = true
+		done()
+	case !in.Focused():
+		v.Changed = st.draft != *value
+		*value = st.draft
+		st.editing = false
+	}
+	return v
 }

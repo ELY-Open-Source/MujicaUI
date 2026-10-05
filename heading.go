@@ -7,7 +7,7 @@ import (
 	"mujicaui/theme"
 )
 
-// HeadingOptions configure a Heading. The zero value is a level 1 heading.
+// HeadingOptions configure a Heading; zero is level 1.
 type HeadingOptions struct {
 	// Level is 1, 2 or 3; zero means 1.
 	Level int
@@ -17,21 +17,17 @@ type HeadingOptions struct {
 	Divider bool
 }
 
-// Heading shows a serif title that follows the desktop's text scale.
+// Heading shows a serif title scaled with desktop text.
 func Heading(c *ui.Context, title string, opts HeadingOptions) *ui.Element {
 	k := Tokens(c)
 	size := headingSize(opts.Level)
-	scale := c.Preferences().TextScale
-	if scale <= 0 {
-		scale = 1
-	}
 	u := Density(c).Unit()
 	col := ui.Column(c).Gap(u).Shrink(0)
 	col.Children(func() {
-		ui.Text(c, title).Font(theme.SerifFont).FontSize(size * scale).FontWeight(600).
+		ui.Text(c, title).Font(theme.SerifFont).FontSize(FontSize(c, size)).FontWeight(600).
 			LineHeight(1.25).TextColor(k.Text)
 		if opts.Subtitle != "" {
-			ui.Text(c, opts.Subtitle).FontSize(theme.BodySize * scale).LineHeight(theme.LineHeight).TextColor(k.TextMuted)
+			ui.Text(c, opts.Subtitle).FontSize(FontSize(c, theme.BodySize)).LineHeight(theme.LineHeight).TextColor(k.TextMuted)
 		}
 		if opts.Divider {
 			ui.Box(c).FillWidth().Height(9).Margin(u, 0, 0, 0).Draw(func(p *ui.Painter, r ui.Rect) {

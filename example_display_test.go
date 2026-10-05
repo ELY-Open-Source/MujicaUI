@@ -15,7 +15,7 @@ func ExampleText() {
 		mujica.Use(c, mujica.Settings{})
 		mujica.Text(c, "Order ID: 4821-AX", mujica.TextOptions{Selectable: true})
 		mujica.Text(c, "A long note that stops after two lines.", mujica.TextOptions{MaxLines: 2})
-		if mujica.EditableText(c, &name, mujica.EditableTextOptions{Error: saveErr}).Changed() {
+		if mujica.EditableText(c, &name, mujica.EditableTextOptions{Error: saveErr}).Changed {
 			saveErr = "" // save name here; set saveErr on failure
 		}
 	}
@@ -99,8 +99,10 @@ func ExampleTag() {
 		mujica.Use(c, mujica.Settings{})
 		ui.Row(c).Gap(8).Children(func() {
 			for i, t := range tags {
-				v := mujica.Tag(c, t, mujica.TagOptions{Icon: "star", Clickable: true, Closable: true})
-				v.Element.Key(t)
+				var v mujica.TagView
+				ui.Box(c).Key(t).Children(func() {
+					v = mujica.Tag(c, t, mujica.TagOptions{Icon: "star", Clickable: true, Closable: true})
+				})
 				if v.Closed {
 					tags = append(tags[:i:i], tags[i+1:]...)
 				}
