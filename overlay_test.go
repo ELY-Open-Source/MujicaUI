@@ -98,7 +98,7 @@ func TestOverlayEscapeClosesTopNonModalLayerFirst(t *testing.T) {
 	bottom, top := false, false
 	tt := ui.NewTester(func(c *ui.Context) {
 		Use(c, Settings{})
-		if Button(c, "Show", ButtonOptions{}).Clicked() {
+		if Button(c, "Show", ButtonOptions{}).Absolute().Right(10).Top(10).Clicked() {
 			if bottom {
 				top = true
 			}
@@ -107,6 +107,7 @@ func TestOverlayEscapeClosesTopNonModalLayerFirst(t *testing.T) {
 		Overlay(c, &top, OverlayOptions{Place: OverlayTopRight}, func() { ui.Text(c, "Top layer") })
 		Drawer(c, &bottom, DrawerOptions{Title: "Bottom layer", NonModal: true, Side: DrawerLeft}, nil)
 	}, 600, 400)
+	tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})
 	_ = tt.Click("Show")
 	_ = tt.Click("Show") // the overlay opens after the drawer, though built before it
 	if !bottom || !top {
