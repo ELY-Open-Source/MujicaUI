@@ -41,19 +41,15 @@ type selectTypeahead struct {
 	at      time.Time
 }
 
-// Select chooses *value from options in a popup. Enter, Space and the
-// arrows open it; the arrows, Home and End move; Enter chooses; Escape
-// closes. Typing on the closed select chooses the option starting with it.
+// Select chooses *value from options in a popup; typing on the closed select jumps to a match.
 func Select[T comparable](c *ui.Context, value *T, options []SelectOption[T], opts SelectOptions) ChoiceResult {
 	k := Tokens(c)
 	old := *value
-	if opts.Disabled {
-		// SelectBase takes clicks as it is built: a disabled one works on a copy.
-		scratch := old
-		value = &scratch
-	}
-	s := ui.SelectBase(c, value)
-	tr := s.Trigger.Disabled(opts.Disabled)
+	value = choiceTarget(value, opts.Disabled)
+	var s *ui.SelectParts[T]
+	// SelectBase takes clicks as it is built: a disabled wrapper and a copy block them.
+	ui.Row(c).Shrink(0).Disabled(opts.Disabled).Children(func() { s = ui.SelectBase(c, value) })
+	tr := s.Trigger
 	if opts.Label != "" {
 		tr.Label(opts.Label)
 	}
@@ -93,6 +89,10 @@ func Select[T comparable](c *ui.Context, value *T, options []SelectOption[T], op
 		}
 	})
 	lastHi := ui.Local(tr, selectKey{"shown"}, func() int { return -1 })
+	if opts.Disabled {
+		// SelectParts has no way to close it (ui/base.go:310): a disabled select builds no popup.
+		return ChoiceResult{tr, false}
+	}
 	s.Popup(func(panel *ui.Element) {
 		selectPanel(c, panel)
 		ui.Scroll(c).MaxHeight(280).Children(func() {
@@ -191,15 +191,31 @@ func selectChevron(open bool) string {
 	return "chevron-down"
 }
 
-// selectClear draws a small clear button that takes no Tab stop; it reports a click.
+// selectClear draws a clear cross outside the Tab order, hit area 28 DIP laid out as 18; it reports a click.
 func selectClear(c *ui.Context, k theme.Tokens, name string) bool {
-	x := ui.Box(c).Size(18, 18).Shrink(0).Radius(theme.ControlRadius).Role(ui.RoleButton).Label(name)
+	x := ui.Box(c).Size(theme.MinHitSize, theme.MinHitSize).Margin(-5).Shrink(0).Radius(theme.ControlRadius).
+		Role(ui.RoleButton).Label(name).Cursor(ui.CursorPointer)
 	clicked := x.Clicked()
 	if x.Hovered() {
 		x.Background(k.SurfaceHover)
 	}
-	x.Draw(func(p *ui.Painter, r ui.Rect) { internal.Mark(p, r, "x", k.TextMuted) })
+	x.Draw(func(p *ui.Painter, r ui.Rect) { internal.Mark(p, selectCenter(r, 14), "x", k.TextMuted) })
 	return clicked
+}
+
+// selectCenter returns the size×size square centered in r.
+func selectCenter(r ui.Rect, size float32) ui.Rect {
+	return ui.Rect{X: r.X + (r.W-size)/2, Y: r.Y + (r.H-size)/2, W: size, H: size}
+}
+
+// selectCheck reserves room for the chosen mark and draws it when on.
+func selectCheck(c *ui.Context, on bool) {
+	k := Tokens(c)
+	ui.Box(c).Size(16, 16).Shrink(0).Draw(func(p *ui.Painter, r ui.Rect) {
+		if on {
+			internal.Mark(p, r, "check", k.AccentText)
+		}
+	})
 }
 
 // selectPanel styles a popup panel.
@@ -209,24 +225,25 @@ func selectPanel(c *ui.Context, panel *ui.Element) {
 		Border(theme.BorderWidth, k.Border).Shadow(0, 4, 12, 0, ui.RGBA(0, 0, 0, 0.14))
 }
 
-// selectRow styles an option row: highlight background, check mark when chosen.
+// selectRow styles an option row: chosen has the selection fill and a check, highlighted a side bar.
 func selectRow(c *ui.Context, row *ui.Element, highlighted, chosen bool, label string) {
 	k := Tokens(c)
 	d := Density(c)
-	row.MinHeight(d.ControlHeight()-4).Padding(0, d.Unit()*3, 0, d.Unit()*2).Gap(d.Unit() * 2).
-		AlignItems(ui.Center).Radius(theme.ControlRadius)
-	if highlighted {
+	row.MinHeight(d.ControlHeight()).Padding(0, d.Unit()*3, 0, d.Unit()*2).Gap(d.Unit() * 2).
+		AlignItems(ui.Center).Radius(theme.ControlRadius).Role(ui.RoleListItem)
+	switch {
+	case chosen:
+		row.Background(k.Selection).TextColor(k.AccentText)
+	case highlighted:
 		row.Background(k.SurfaceHover)
 	}
-	if chosen {
-		row.TextColor(k.AccentText)
+	if highlighted {
+		row.Draw(func(p *ui.Painter, r ui.Rect) {
+			p.Fill(ui.Rect{X: r.X, Y: r.Y + 4, W: 2, H: r.H - 8}, k.AccentText, 1)
+		})
 	}
 	row.Children(func() {
-		ui.Box(c).Size(14, 14).Shrink(0).Draw(func(p *ui.Painter, r ui.Rect) {
-			if chosen {
-				internal.Mark(p, r, "check", k.AccentText)
-			}
-		})
+		selectCheck(c, chosen)
 		ui.Text(c, label).SingleLine()
 	})
 }

@@ -105,10 +105,10 @@ view := func(c *ui.Context) {
 func choiceDemo(c *ui.Context, controls, samples func()) {
 	k := mujica.Tokens(c)
 	ui.Column(c).Gap(20).AlignItems(ui.Start).Children(func() {
-		ui.Text(c, "Parameters").Font(theme.SerifFont).FontSize(theme.H3Size).TextColor(k.Text)
+		ui.Text(c, "Parameters").Font(theme.SerifFont).FontSize(mujica.FontSize(c, theme.H3Size)).TextColor(k.Text)
 		ui.Row(c).Gap(20).Wrap().AlignItems(ui.Center).Children(controls)
 		ui.Box(c).Height(1).FillWidth().Background(k.Ornament)
-		ui.Text(c, "States").Font(theme.SerifFont).FontSize(theme.H3Size).TextColor(k.Text)
+		ui.Text(c, "States").Font(theme.SerifFont).FontSize(mujica.FontSize(c, theme.H3Size)).TextColor(k.Text)
 		ui.Column(c).Gap(16).AlignItems(ui.Start).Children(samples)
 	})
 }
@@ -123,7 +123,7 @@ func choiceFlag(c *ui.Context, on *bool, label string, log func(string)) {
 // choiceLabeled shows a caption above a sample.
 func choiceLabeled(c *ui.Context, caption string, fn func()) {
 	ui.Column(c).Gap(6).Children(func() {
-		ui.Text(c, caption).FontSize(theme.CaptionSize).TextColor(mujica.Tokens(c).TextMuted)
+		ui.Text(c, caption).FontSize(mujica.FontSize(c, theme.CaptionSize)).TextColor(mujica.Tokens(c).TextMuted)
 		fn()
 	})
 }
@@ -288,7 +288,7 @@ var choiceFruits = []mujica.SelectOption[string]{
 
 func selectDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		value                       string
+		value, picked               string
 		clearable, disabled, noData bool
 	}
 	s := *ui.Local(c.Root(), "036", func() *state { return &state{value: "banana", clearable: true} })
@@ -306,9 +306,10 @@ func selectDemo(c *ui.Context, log func(string)) {
 				log(fmt.Sprintf("Fruit: %q", s.value))
 			}
 		})
-		empty := ""
 		choiceLabeled(c, "Placeholder", func() {
-			mujica.Select(c, &empty, choiceFruits, mujica.SelectOptions{Placeholder: "Pick a fruit"})
+			if mujica.Select(c, &s.picked, choiceFruits, mujica.SelectOptions{Placeholder: "Pick a fruit", Clearable: true}).Changed() {
+				log(fmt.Sprintf("Picked: %q", s.picked))
+			}
 		})
 	})
 }

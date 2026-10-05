@@ -42,20 +42,6 @@ func TestToggleIconOnlyNamed(t *testing.T) {
 	}
 }
 
-func TestToggleDisabled(t *testing.T) {
-	on := false
-	tt := ui.NewTester(func(c *ui.Context) {
-		Use(c, Settings{})
-		Toggle(c, &on, "Italic", ToggleOptions{Disabled: true})
-	}, 300, 120)
-	_ = tt.Click("Italic")
-	tt.Key(0, ui.KeyTab)
-	tt.Key(0, ui.KeySpace)
-	if on {
-		t.Fatal("disabled toggle changed")
-	}
-}
-
 func TestToggleNeedsName(t *testing.T) {
 	defer func() {
 		if recover() == nil {

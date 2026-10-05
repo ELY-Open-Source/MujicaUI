@@ -24,13 +24,17 @@ const (
 	switchK float32 = 14
 )
 
-// Switch turns *on over when clicked or with Space. Changed reports the
-// new value; the caller applies it and may set Loading while it does.
+// Switch turns *on over by click or Space; Changed reports it, the caller applies it.
 func Switch(c *ui.Context, on *bool, label string, opts SwitchOptions) *ui.Element {
 	k := Tokens(c)
 	d := Density(c)
-	sw := ui.SwitchBase(c, on).Gap(d.Unit() * 2).AlignItems(ui.Center).MinHeight(theme.MinHitSize).
-		FocusRing(false).Disabled(opts.Disabled || opts.Loading)
+	blocked := opts.Disabled || opts.Loading
+	var sw *ui.Element
+	// Disabled on a wrapper, and a copy, block the base before it takes input.
+	ui.Row(c).Shrink(0).Disabled(blocked).Children(func() {
+		sw = ui.SwitchBase(c, choiceTarget(on, blocked)).Gap(d.Unit() * 2).AlignItems(ui.Center).
+			MinHeight(d.ControlHeight()).FocusRing(false)
+	})
 	if opts.Description != "" {
 		sw.Description(opts.Description)
 	}
@@ -76,6 +80,15 @@ func Switch(c *ui.Context, on *bool, label string, opts SwitchOptions) *ui.Eleme
 		}
 	})
 	return sw
+}
+
+// choiceTarget is v, or a throwaway copy of it while input is blocked.
+func choiceTarget[T any](v *T, blocked bool) *T {
+	if !blocked {
+		return v
+	}
+	cp := *v
+	return &cp
 }
 
 func switchFloat(b bool) float32 {

@@ -13,6 +13,7 @@ func init() {
 		"multi_select.limit":      {"%d of %d chosen", "已选 %d / %d"},
 		"multi_select.more":       {"+%d", "+%d"},
 		"multi_select.remove":     {"Remove %s", "移除 %s"},
+		"combobox.toggle":         {"Show options", "显示选项"},
 		"combobox.loading":        {"Loading…", "加载中…"},
 		"combobox.no_results":     {"No matches", "无匹配项"},
 		"combobox.use":            {"Use “%s”", "使用“%s”"},
@@ -24,5 +25,9 @@ func init() {
 		"tree_select.no_results":  {"No results", "无匹配结果"},
 		"tree_select.expand":      {"Expand %s", "展开 %s"},
 		"tree_select.collapse":    {"Collapse %s", "收起 %s"},
+		"tree_select.expanded":    {"expanded", "已展开"},
+		"tree_select.collapsed":   {"collapsed", "已收起"},
+		"tree_select.mixed":       {"partly selected", "部分选中"},
+		"multi_select.mixed":      {"partly selected", "部分选中"},
 	})
 }

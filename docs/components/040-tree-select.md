@@ -55,5 +55,6 @@ ui.Render(view, 400, 300, 1)
 ## 限制
 
 - 树行基于 `ui.CheckboxBase` / `ui.ButtonBase` 自绘。MyGo 的 `TreeItem` 只能显示文字标签，无法放入复选框（ui/tree.go:44），故未复用。
-- 展开状态与半选状态只在画面上表示：MyGo 不对自定义元素公开 expanded 与 mixed 的设置（ui/base.go:297、ui/element.go:282 仅内部设置），屏幕阅读器读不到这两个状态；展开箭头带“展开/收起 + 节点名”的名称。
+- MyGo 不对自定义元素公开 expanded 与 mixed 状态的设置（ui/tree.go:98、ui/element.go:282 仅内部设置）。组件改用 `Description` 读出“已展开/已收起”“部分选中”，展开箭头带“展开/收起 + 节点名”的名称；屏幕阅读器读不到真正的 expanded/mixed 状态属性。单选行通过 `Selected` 报告选中，并显示勾号。
+- `CollapsibleBase` 的触发器能报告 expanded，但它自身要占一个焦点位，会让方向键在箭头与节点间交替停留，故未采用。
 - 列表未虚拟化，适合数千节点以内。

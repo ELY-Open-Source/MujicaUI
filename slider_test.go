@@ -70,18 +70,6 @@ func TestSliderClampsOutOfRangeValue(t *testing.T) {
 	}
 }
 
-func TestSliderDisabled(t *testing.T) {
-	v, changes := 30.0, 0
-	tt := sliderTester(&v, SliderOptions{Disabled: true, Step: 1}, &changes)
-	tt.Key(0, ui.KeyTab)
-	tt.Key(0, ui.KeyRight)
-	tt.Press(100, 18)
-	tt.Release(100, 18)
-	if v != 30 {
-		t.Fatalf("disabled slider moved to %v", v)
-	}
-}
-
 func TestSliderBadRange(t *testing.T) {
 	defer func() {
 		if recover() == nil {

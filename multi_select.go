@@ -28,9 +28,7 @@ type MultiSelectOptions struct {
 // multiSelectKey keeps this file's state apart from MyGo's own.
 type multiSelectKey struct{ name string }
 
-// MultiSelect chooses several *values from options in a popup with a
-// search field, "Select all" for the matches, and an optional limit.
-// Down from the search moves into the list; Space checks; Escape closes.
+// MultiSelect chooses several *values from options in a popup with search and "Select all".
 func MultiSelect[T comparable](c *ui.Context, values *[]T, options []SelectOption[T], opts MultiSelectOptions) ChoiceResult {
 	if opts.Max < 0 || opts.MaxTags < 0 {
 		panic("mujica: MultiSelect Max and MaxTags must not be negative")
@@ -42,6 +40,9 @@ func MultiSelect[T comparable](c *ui.Context, values *[]T, options []SelectOptio
 		tr.Label(opts.Label)
 	}
 	open := ui.Local(tr, multiSelectKey{"open"}, func() bool { return false })
+	if opts.Disabled {
+		*open = false
+	}
 	query := ui.Local(tr, multiSelectKey{"query"}, func() string { return "" })
 	if tr.Clicked() || (!*open && tr.Shortcut(0, ui.KeyDown)) {
 		*open = !*open
@@ -100,7 +101,7 @@ func multiSelectTag(c *ui.Context, label string, disabled bool) bool {
 	removed := false
 	ui.Row(c).Gap(2).Padding(1, 2, 1, 6).Radius(theme.ControlRadius).Background(k.Selection).
 		Border(theme.BorderWidth, k.Border).Shrink(0).Children(func() {
-		ui.Text(c, label).FontSize(theme.CaptionSize).TextColor(k.Text).SingleLine()
+		ui.Text(c, label).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.Text).SingleLine()
 		if !disabled {
 			removed = selectClear(c, k, fmt.Sprintf(msg(c, "multi_select.remove"), label))
 		}
@@ -170,7 +171,7 @@ func multiSelectPopup[T comparable](c *ui.Context, k theme.Tokens, values *[]T, 
 		})
 		if opts.Max > 0 {
 			ui.Text(c, fmt.Sprintf(msg(c, "multi_select.limit"), len(*values), opts.Max)).
-				FontSize(theme.CaptionSize).TextColor(k.TextMuted).Padding(2, d.Unit()*2)
+				FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.TextMuted).Padding(2, d.Unit()*2)
 		}
 	})
 }
@@ -178,12 +179,16 @@ func multiSelectPopup[T comparable](c *ui.Context, k theme.Tokens, values *[]T, 
 // multiSelectCheck is a CheckboxBase row drawing its own box.
 func multiSelectCheck(c *ui.Context, k theme.Tokens, on *bool, st internal.CheckState, label string, disabled bool) *ui.Element {
 	d := Density(c)
-	scratch := *on
-	if disabled {
-		on = &scratch
+	var cb *ui.Element
+	// A disabled wrapper and a copy block the base, which toggles as it is built.
+	ui.Row(c).Grow(1).Disabled(disabled).Children(func() {
+		cb = ui.CheckboxBase(c, choiceTarget(on, disabled)).MinHeight(d.ControlHeight()).Padding(0, d.Unit()*2).
+			Gap(d.Unit() * 2).AlignItems(ui.Center).Radius(theme.ControlRadius).Grow(1)
+	})
+	if st == internal.Mixed {
+		// MyGo sets the mixed state only inside its own widgets (ui/element.go:282).
+		cb.Description(msg(c, "multi_select.mixed"))
 	}
-	cb := ui.CheckboxBase(c, on).Disabled(disabled).MinHeight(d.ControlHeight()-4).Padding(0, d.Unit()*2).
-		Gap(d.Unit() * 2).AlignItems(ui.Center).Radius(theme.ControlRadius).Grow(1)
 	internal.Ring(cb, k.Focus, theme.ControlRadius)
 	hover := cb.Hovered()
 	if hover {

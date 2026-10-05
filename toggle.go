@@ -23,7 +23,10 @@ func Toggle(c *ui.Context, on *bool, label string, opts ToggleOptions) *ui.Eleme
 	if label == "" && opts.Label == "" {
 		panic("mujica: Toggle needs a label or Label")
 	}
-	b := ui.ToggleBase(c, on).Disabled(opts.Disabled)
+	var b *ui.Element
+	ui.Row(c).Shrink(0).Disabled(opts.Disabled).Children(func() {
+		b = ui.ToggleBase(c, choiceTarget(on, opts.Disabled))
+	})
 	if b.Changed() {
 		slog.Debug("mujica: toggle changed", "label", label+opts.Label, "on", *on)
 	}
