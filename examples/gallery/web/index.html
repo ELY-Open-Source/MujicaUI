@@ -154,7 +154,9 @@ keys.addEventListener("keydown", (e) => {
   if (cmd && commands[e.code] && !e.altKey) {
     send({ type: "command", text: e.code === "KeyZ" && e.shiftKey ? "redo" : commands[e.code] });
   } else {
-    send({ type: "key", code: e.code, text: e.key.length === 1 ? e.key : "", mods: mods(e) });
+    // NumLock off: numpad keys act as navigation keys, named by e.key.
+    const code = e.code.startsWith("Numpad") && e.key.length > 1 && e.key !== "Enter" ? e.key : e.code;
+    send({ type: "key", code, text: e.key.length === 1 ? e.key : "", mods: mods(e) });
   }
   e.preventDefault();
 });
