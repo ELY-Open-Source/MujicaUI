@@ -16,7 +16,7 @@ import (
 type BlinkHighlightOptions struct {
 	// Format writes the value; nil uses two decimals.
 	Format func(v float64) string
-	// Duration of the fade; zero means 800 ms.
+	// Duration of the fade; zero means StateDuration.
 	Duration time.Duration
 }
 
@@ -27,15 +27,14 @@ type blinkState struct {
 	set   bool
 }
 
-// BlinkHighlight shows value and tints it once when it changes, up in Success, down in Danger.
-// An arrow marks the last direction, and stays as the only mark under reduced motion.
+// BlinkHighlight tints value once on change and marks its direction.
 func BlinkHighlight(c *ui.Context, value float64, opts BlinkHighlightOptions) *ui.Element {
 	if math.IsNaN(value) || math.IsInf(value, 0) || opts.Duration < 0 {
 		panic("mujica: BlinkHighlight needs a finite value and a non-negative Duration")
 	}
 	d := opts.Duration
 	if d == 0 {
-		d = 800 * time.Millisecond
+		d = theme.StateDuration
 	}
 	format := opts.Format
 	if format == nil {
@@ -55,6 +54,9 @@ func BlinkHighlight(c *ui.Context, value float64, opts BlinkHighlightOptions) *u
 		slog.Debug("mujica: blink highlight", "from", st.value, "to", value)
 	}
 	st.value, st.set = value, true
+	if c.Preferences().ReduceMotion {
+		st.at = time.Time{}
+	}
 	col := k.Success
 	icon, word := "arrow-up", "blink_highlight.up"
 	if st.dir < 0 {
@@ -65,10 +67,10 @@ func BlinkHighlight(c *ui.Context, value float64, opts BlinkHighlightOptions) *u
 		name += ", " + msg(c, word)
 	}
 	row.Label(name)
-	if dur := Motion(c, d); st.dir != 0 && dur > 0 {
+	if dur := Motion(c, d); st.dir != 0 && !st.at.IsZero() && dur > 0 {
 		if p := float32(now.Sub(st.at)) / float32(dur); p < 1 {
 			row.Background(col.Alpha(0.22 * (1 - p)))
-			c.AnimationFrame()
+			row.DrawOver(func(*ui.Painter, ui.Rect) { c.AnimationFrame() })
 		}
 	}
 	row.Children(func() {

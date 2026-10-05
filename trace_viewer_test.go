@@ -1,6 +1,7 @@
 package mujica
 
 import (
+	"strconv"
 	"testing"
 	"time"
 
@@ -27,6 +28,7 @@ func TestTraceBuild(t *testing.T) {
 		"dup":   {{ID: "a"}, {ID: "a"}},
 		"time":  {{ID: "a", Start: 2, End: 1}},
 		"cycle": {{ID: "a", Parent: "b"}, {ID: "b", Parent: "a"}},
+		"self":  {{ID: "a", Parent: "a"}},
 	} {
 		func() {
 			defer func() {
@@ -82,4 +84,78 @@ func TestTraceViewerSnapshot(t *testing.T) {
 			TraceViewer(c, *s, spans, TraceViewerOptions{}).Element.Grow(1)
 		})
 	})
+}
+
+func TestTraceViewerRefreshKeepsCollapsedRoot(t *testing.T) {
+	var s TraceViewerState
+	spans := traceSample()
+	tt, _ := motionFrames(func(c *ui.Context) {
+		TraceViewer(c, &s, spans, TraceViewerOptions{}).Element.Height(300)
+	}, 700, 400)
+	s.Tree.SetOpen("root", false)
+	tt.Frame()
+	spans = append([]TraceSpan(nil), spans...)
+	tt.Frame()
+	if s.Tree.IsOpen("root") || tt.HasText("llm.plan") {
+		t.Fatal("data refresh reopened a collapsed root")
+	}
+}
+
+func TestTraceViewerLargeDataAndVersion(t *testing.T) {
+	spans := make([]TraceSpan, 100000)
+	for i := range spans {
+		spans[i] = TraceSpan{ID: strconv.Itoa(i), Name: "Span " + strconv.Itoa(i), End: time.Millisecond}
+	}
+	var s TraceViewerState
+	version := 0
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		TraceViewer(c, &s, spans, TraceViewerOptions{Version: version}).Element.Height(300)
+	}, 700, 400)
+	if len(s.index.byID) != 100000 || len(tt.Texts()) > 150 {
+		t.Fatalf("indexed %d texts %d", len(s.index.byID), len(tt.Texts()))
+	}
+	spans[0].End = 2 * time.Millisecond
+	version++
+	tt.Frame()
+	if !tt.HasText("2.0 ms") {
+		t.Fatal("stale duration")
+	}
+}
+
+func TestTraceViewerLargeAttributePreview(t *testing.T) {
+	spans := []TraceSpan{{ID: "root", Name: "Root", Attrs: make([]TraceAttr, 100000)}}
+	for i := range spans[0].Attrs {
+		spans[0].Attrs[i] = TraceAttr{Key: "Key " + strconv.Itoa(i), Value: "Value"}
+	}
+	var s TraceViewerState
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		TraceViewer(c, &s, spans, TraceViewerOptions{}).Element.Height(500)
+	}, 700, 600)
+	if err := tt.Click("Root"); err != nil {
+		t.Fatal(err)
+	}
+	if !tt.HasText("Key 0") || len(tt.Texts()) > 150 {
+		t.Fatalf("attribute preview built %d texts", len(tt.Texts()))
+	}
+}
+
+func TestTraceViewerAttributesKeepTreeVisible(t *testing.T) {
+	spans := []TraceSpan{{ID: "a", Name: "First span", Attrs: make([]TraceAttr, 20)}, {ID: "b", Name: "Second span"}}
+	for i := range spans[0].Attrs {
+		spans[0].Attrs[i] = TraceAttr{Key: strconv.Itoa(i), Value: "Value"}
+	}
+	var s TraceViewerState
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		TraceViewer(c, &s, spans, TraceViewerOptions{}).Element.Height(260)
+	}, 700, 600)
+	if err := tt.Click("First span"); err != nil {
+		t.Fatal(err)
+	}
+	bounds, ok := tt.Find("Second span")
+	if !ok || bounds.H <= 0 || bounds.W <= 0 {
+		t.Fatalf("attributes hid tree row: %+v", bounds)
+	}
 }

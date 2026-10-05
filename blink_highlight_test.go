@@ -69,3 +69,18 @@ func TestBlinkHighlightSnapshot(t *testing.T) {
 		*v, *w = 103.75, 86.5
 	}, func(tt *ui.Tester) { tt.Frame() })
 }
+
+func TestBlinkHighlightRestoredMotionKeepsStaticMark(t *testing.T) {
+	value := 1.0
+	tt, n := motionFrames(func(c *ui.Context) { BlinkHighlight(c, value, BlinkHighlightOptions{Duration: 5 * time.Second}) }, 300, 100)
+	value = 2
+	tt.Frame()
+	tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})
+	tt.SetPreferences(ui.Preferences{TextScale: 1})
+	if motionBusy(tt, n) {
+		t.Fatal("old highlight replayed after restoring motion")
+	}
+	if _, ok := tt.Find("2.00, up"); !ok {
+		t.Fatal("direction mark lost")
+	}
+}

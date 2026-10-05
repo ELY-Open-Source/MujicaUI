@@ -18,7 +18,7 @@ type InterruptButtonOptions struct {
 	Label string
 }
 
-// InterruptButton stops a running agent; Changed reports the interrupt, confirmed when asked.
+// InterruptButton stops a running agent; Changed reports the interrupt.
 func InterruptButton(c *ui.Context, running bool, opts InterruptButtonOptions) ChoiceResult {
 	if opts.Interrupting && !running {
 		panic("mujica: InterruptButton cannot be Interrupting while not running")
@@ -41,7 +41,7 @@ func InterruptButton(c *ui.Context, running bool, opts InterruptButtonOptions) C
 		if !live || b.IsDisabled() {
 			*open = false
 		}
-		clicked := b.Clicked() && live
+		clicked := b.Clicked() && live && !b.IsDisabled()
 		switch {
 		case clicked && opts.Confirm:
 			*open = true
@@ -50,7 +50,7 @@ func InterruptButton(c *ui.Context, running bool, opts InterruptButtonOptions) C
 		}
 		r := Popconfirm(c, b, open, PopconfirmOptions{Title: msg(c, "interrupt_button.confirm"),
 			Description: msg(c, "interrupt_button.detail"), ConfirmLabel: label, CancelLabel: msg(c, "interrupt_button.keep"), Danger: true})
-		if r.Confirmed && live {
+		if r.Confirmed && live && !b.IsDisabled() {
 			res.changed = true
 		}
 	})

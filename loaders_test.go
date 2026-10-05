@@ -41,44 +41,40 @@ var loaderCases = map[string]func(c *ui.Context, o LoaderOptions) *ui.Element{
 	"dots": DotsLoader, "bars": BarsLoader, "pulse": PulseLoader, "orbit": OrbitLoader, "wave": WaveLoader,
 }
 
-func TestLoadersMoveStopAndLabel(t *testing.T) {
-	for name, loader := range loaderCases {
-		t.Run(name, func(t *testing.T) {
-			show := true
-			tt, n := motionFrames(func(c *ui.Context) {
-				if show {
-					loader(c, LoaderOptions{Size: 32, Label: "Thinking"})
-				}
-			}, 200, 80)
-			if _, ok := tt.Find("Thinking"); !ok {
-				t.Fatal("loader not named")
-			}
-			if motionCount(tt, "Thinking") != 1 {
-				t.Fatal("label shown without ShowLabel")
-			}
-			a := encode(t, tt.Image())
-			time.Sleep(120 * time.Millisecond)
-			tt.Frame()
-			if bytes.Equal(a, encode(t, tt.Image())) || !motionBusy(tt, n) {
-				t.Fatal("loader does not move")
-			}
-			tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})
-			if motionBusy(tt, n) || motionCount(tt, "Thinking") != 2 {
-				t.Fatalf("reduced motion: still repainting or no static label: %q", tt.Texts())
-			}
-			a = encode(t, tt.Image())
-			time.Sleep(120 * time.Millisecond)
-			tt.Frame()
-			if !bytes.Equal(a, encode(t, tt.Image())) {
-				t.Fatal("loader moved under reduced motion")
-			}
-			tt.SetPreferences(ui.Preferences{TextScale: 1})
-			show = false
-			tt.Frame()
-			if motionBusy(tt, n) {
-				t.Fatal("hidden loader keeps repainting")
-			}
-		})
+func testLoaderBehavior(t *testing.T, loader func(*ui.Context, LoaderOptions) *ui.Element) {
+	show := true
+	tt, n := motionFrames(func(c *ui.Context) {
+		if show {
+			loader(c, LoaderOptions{Size: 32, Label: "Thinking"})
+		}
+	}, 200, 80)
+	if _, ok := tt.Find("Thinking"); !ok {
+		t.Fatal("loader not named")
+	}
+	if motionCount(tt, "Thinking") != 1 {
+		t.Fatal("label shown without ShowLabel")
+	}
+	a := encode(t, tt.Image())
+	time.Sleep(120 * time.Millisecond)
+	tt.Frame()
+	if bytes.Equal(a, encode(t, tt.Image())) || !motionBusy(tt, n) {
+		t.Fatal("loader does not move")
+	}
+	tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})
+	if motionBusy(tt, n) || motionCount(tt, "Thinking") != 2 {
+		t.Fatalf("reduced motion: still repainting or no static label: %q", tt.Texts())
+	}
+	a = encode(t, tt.Image())
+	time.Sleep(120 * time.Millisecond)
+	tt.Frame()
+	if !bytes.Equal(a, encode(t, tt.Image())) {
+		t.Fatal("loader moved under reduced motion")
+	}
+	tt.SetPreferences(ui.Preferences{TextScale: 1})
+	show = false
+	tt.Frame()
+	if motionBusy(tt, n) {
+		t.Fatal("hidden loader keeps repainting")
 	}
 }
 
@@ -107,9 +103,3 @@ func loaderSnapshot(t *testing.T, name string, loader func(c *ui.Context, o Load
 		})
 	})
 }
-
-func TestDotsLoaderSnapshot(t *testing.T)  { loaderSnapshot(t, "dots_loader", DotsLoader) }
-func TestBarsLoaderSnapshot(t *testing.T)  { loaderSnapshot(t, "bars_loader", BarsLoader) }
-func TestPulseLoaderSnapshot(t *testing.T) { loaderSnapshot(t, "pulse_loader", PulseLoader) }
-func TestOrbitLoaderSnapshot(t *testing.T) { loaderSnapshot(t, "orbit_loader", OrbitLoader) }
-func TestWaveLoaderSnapshot(t *testing.T)  { loaderSnapshot(t, "wave_loader", WaveLoader) }

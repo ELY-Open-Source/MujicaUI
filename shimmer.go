@@ -19,7 +19,7 @@ type ShimmerOptions struct {
 	Label string
 }
 
-// Shimmer shows a sweeping placeholder while loading, then builds content instead.
+// Shimmer sweeps a placeholder while loading, then builds content.
 func Shimmer(c *ui.Context, loading bool, opts ShimmerOptions, content func()) *ui.Element {
 	if !(opts.Width >= 0) || !(opts.Height >= 0) || math.IsInf(float64(opts.Width+opts.Height), 1) {
 		panic("mujica: Shimmer size must be finite and not negative")
@@ -38,7 +38,7 @@ func Shimmer(c *ui.Context, loading bool, opts ShimmerOptions, content func()) *
 	}
 	label := opts.Label
 	if label == "" {
-		label = msg(c, "loading")
+		label = msg(c, "shimmer.loading")
 	}
 	fill := k.SurfaceHover
 	if k.Dark {

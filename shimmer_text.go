@@ -10,7 +10,7 @@ type ShimmerTextOptions struct {
 	Active bool
 }
 
-// ShimmerText shows a status such as "Thinking" with light sweeping across its letters.
+// ShimmerText sweeps light across a status such as "Thinking".
 func ShimmerText(c *ui.Context, text string, opts ShimmerTextOptions) *ui.Element {
 	if text == "" {
 		panic("mujica: ShimmerText needs text")
@@ -18,7 +18,7 @@ func ShimmerText(c *ui.Context, text string, opts ShimmerTextOptions) *ui.Elemen
 	k := Tokens(c)
 	still := c.Preferences().ReduceMotion
 	if !opts.Active || still {
-		e := ui.Text(c, text).TextColor(k.TextMuted)
+		e := ui.Text(c, text).TextColor(k.TextMuted).SingleLine()
 		if opts.Active {
 			e.Role(ui.RoleStatus)
 		}
@@ -26,7 +26,7 @@ func ShimmerText(c *ui.Context, text string, opts ShimmerTextOptions) *ui.Elemen
 	}
 	runes := []rune(text)
 	size := c.Theme().FontSize
-	// The text keeps its layout and name; the sweep is painted over it.
+	// The text keeps layout and name; the sweep paints over.
 	e := ui.Text(c, text).TextColor(ui.Transparent).Role(ui.RoleStatus).SingleLine()
 	e.DrawOver(func(p *ui.Painter, r ui.Rect) {
 		p.AnimationFrame()
@@ -37,7 +37,7 @@ func ShimmerText(c *ui.Context, text string, opts ShimmerTextOptions) *ui.Elemen
 			d := max(0, 1-abs32(float32(i)-at)/3)
 			spans[i] = ui.Span{Text: string(ch), Size: size, Color: k.TextMuted.Mix(k.Text, d)}
 		}
-		p.RichText(r.X, r.Y, 0, spans...)
+		p.Clip(r, 0, func() { p.RichText(r.X, r.Y, 0, spans...) })
 	})
 	return e
 }

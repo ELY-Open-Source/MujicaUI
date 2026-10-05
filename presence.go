@@ -28,7 +28,7 @@ type PresenceOptions struct {
 	Duration time.Duration
 }
 
-// presenceMotion is where content of kind comes from and goes to.
+// presenceMotion is where content comes from and goes.
 func presenceMotion(kind PresenceKind) *ui.Motion {
 	switch kind {
 	case PresenceFade:
@@ -43,7 +43,7 @@ func presenceMotion(kind PresenceKind) *ui.Motion {
 
 type presenceState struct{ shown bool }
 
-// Presence builds content while show is true; it enters and exits with motion, removed once the exit ends.
+// Presence builds content while show, entering and exiting with motion.
 func Presence(c *ui.Context, show bool, opts PresenceOptions, content func()) *ui.Element {
 	m := presenceMotion(opts.Kind)
 	if opts.Duration < 0 {
@@ -61,10 +61,14 @@ func Presence(c *ui.Context, show bool, opts PresenceOptions, content func()) *u
 	}
 	holder.Children(func() {
 		if !show {
+			if c.Preferences().ReduceMotion {
+				// Rebuilding the empty slot cancels MyGo's active exit.
+				ui.Column(c).Key("presence").Invisible().Transition(ui.ElementTransition{Duration: d, Position: true})
+			}
 			return
 		}
 		box := ui.Column(c).AlignItems(ui.Stretch).Key("presence")
-		box.Transition(ui.ElementTransition{Duration: d, Enter: m, Exit: m})
+		box.Transition(ui.ElementTransition{Duration: Motion(c, d), Enter: m, Exit: m})
 		box.Children(content)
 	})
 	return holder

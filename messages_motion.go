@@ -48,6 +48,13 @@ func init() {
 		"tool_registry_panel.enable":    {"Enable %s", "启用 %s"},
 		"tool_registry_panel.required":  {"required", "必填"},
 
+		"dots_loader.loading":  {"Loading", "加载中"},
+		"bars_loader.loading":  {"Loading", "加载中"},
+		"pulse_loader.loading": {"Loading", "加载中"},
+		"orbit_loader.loading": {"Loading", "加载中"},
+		"wave_loader.loading":  {"Loading", "加载中"},
+		"shimmer.loading":      {"Loading", "加载中"},
+
 		"typewriter.skip": {"Skip", "跳过"},
 
 		"blink_highlight.up":   {"up", "上升"},

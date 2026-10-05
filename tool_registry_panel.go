@@ -17,7 +17,7 @@ type ToolParam struct {
 	Description string
 }
 
-// AgentTool is a tool an agent may call; the caller keeps Enabled.
+// AgentTool is a callable tool; the caller keeps Enabled.
 type AgentTool struct {
 	Name        string
 	Description string
@@ -28,36 +28,53 @@ type AgentTool struct {
 // ToolRegistryPanelOptions configure a ToolRegistryPanel.
 type ToolRegistryPanelOptions struct {
 	Disabled bool
+	// Version changes when tool names are edited in place.
+	Version int
 }
 
 // ToolRegistryResult is a built ToolRegistryPanel and its events.
 type ToolRegistryResult struct {
 	Element *ui.Element
+	List    ListView
 	toggled string
 	on      bool
 }
 
-// Toggled returns the tool switched this frame and its new state.
+// Toggled returns the tool switched this frame.
 func (r ToolRegistryResult) Toggled() (name string, on, ok bool) {
 	return r.toggled, r.on, r.toggled != ""
 }
 
-// ToolRegistryPanel lists tools with on/off switches and previews the chosen tool's parameters.
+type toolRegistryIndex struct {
+	src        *AgentTool
+	n, version int
+	byName     map[string]int
+}
+
+// ToolRegistryPanel lists tools with switches and a schema preview.
 func ToolRegistryPanel(c *ui.Context, s *ListState[string], tools []AgentTool, opts ToolRegistryPanelOptions) ToolRegistryResult {
-	seen := map[string]bool{}
-	for _, t := range tools {
-		if t.Name == "" || seen[t.Name] {
-			panic("mujica: AgentTool needs a unique Name")
-		}
-		seen[t.Name] = true
-	}
 	k := Tokens(c)
 	u := Density(c).Unit()
 	row := ui.Row(c).AlignItems(ui.Stretch).Gap(u * 3).Disabled(opts.Disabled)
 	res := ToolRegistryResult{Element: row}
+	index := ui.Local(row, "index", func() toolRegistryIndex { return toolRegistryIndex{} })
+	var first *AgentTool
+	if len(tools) > 0 {
+		first = &tools[0]
+	}
+	if index.byName == nil || index.src != first || index.n != len(tools) || index.version != opts.Version {
+		byName := make(map[string]int, len(tools))
+		for i, t := range tools {
+			if _, exists := byName[t.Name]; t.Name == "" || exists {
+				panic("mujica: AgentTool needs a unique Name")
+			}
+			byName[t.Name] = i
+		}
+		*index = toolRegistryIndex{src: first, n: len(tools), version: opts.Version, byName: byName}
+	}
 	row.Children(func() {
 		ui.Column(c).Width(300).Shrink(0).AlignItems(ui.Stretch).Children(func() {
-			List(c, s, len(tools), ListOptions[string]{
+			res.List = List(c, s, len(tools), ListOptions[string]{
 				Key: func(i int) string { return tools[i].Name }, Label: func(i int) string { return tools[i].Name },
 				Empty: msg(c, "tool_registry_panel.empty"),
 			}, func(i int) {
@@ -72,22 +89,18 @@ func ToolRegistryPanel(c *ui.Context, s *ListState[string], tools []AgentTool, o
 					res.toggled, res.on = t.Name, on
 					slog.Debug("mujica: tool registry toggle", "tool", t.Name, "on", on)
 				}
-			}).Element.Grow(1)
+			})
+			res.List.Element.Grow(1)
 		})
 		ui.Column(c).Grow(1).MinWidth(0).Gap(u*2).Padding(u*3, u*4).Background(k.Surface).Border(theme.BorderWidth, k.Border).
 			Radius(theme.CardRadius).Children(func() {
 			name, ok := s.Selected()
-			var tool *AgentTool
-			for i := range tools {
-				if ok && tools[i].Name == name {
-					tool = &tools[i]
-				}
-			}
-			if tool == nil {
+			i, known := index.byName[name]
+			if !ok || !known {
 				ui.Text(c, msg(c, "tool_registry_panel.choose")).TextColor(k.TextMuted)
 				return
 			}
-			toolSchema(c, *tool)
+			toolSchema(c, tools[i])
 		})
 	})
 	return res
@@ -107,19 +120,22 @@ func toolSchema(c *ui.Context, t AgentTool) {
 		ui.Text(c, msg(c, "tool_registry_panel.no_params")).TextColor(k.TextMuted)
 		return
 	}
-	for _, p := range t.Params {
-		ui.Column(c).Gap(2).Children(func() {
-			ui.Row(c).Gap(u * 2).AlignItems(ui.Center).Children(func() {
-				ui.Text(c, p.Name).Font(theme.MonoFont).FontWeight(600)
-				ui.Text(c, p.Type).Font(theme.MonoFont).FontSize(small).TextColor(k.Info)
-				if p.Required {
-					ui.Text(c, msg(c, "tool_registry_panel.required")).FontSize(small).TextColor(k.AccentText).
-						Padding(0, u).Border(theme.BorderWidth, k.AccentText).Radius(theme.ControlRadius)
+	ui.Column(c).Key(t.Name).Grow(1).MinHeight(0).Children(func() {
+		ui.List(c, nil, len(t.Params), func(i int) {
+			p := t.Params[i]
+			ui.Column(c).Gap(2).MinHeight(Density(c).ControlHeight()).Children(func() {
+				ui.Row(c).Gap(u * 2).AlignItems(ui.Center).Children(func() {
+					ui.Text(c, p.Name).Font(theme.MonoFont).FontWeight(600)
+					ui.Text(c, p.Type).Font(theme.MonoFont).FontSize(small).TextColor(k.Info)
+					if p.Required {
+						ui.Text(c, msg(c, "tool_registry_panel.required")).FontSize(small).TextColor(k.AccentText).
+							Padding(0, u).Border(theme.BorderWidth, k.AccentText).Radius(theme.ControlRadius)
+					}
+				})
+				if p.Description != "" {
+					ui.Text(c, p.Description).FontSize(small).TextColor(k.TextMuted)
 				}
 			})
-			if p.Description != "" {
-				ui.Text(c, p.Description).FontSize(small).TextColor(k.TextMuted)
-			}
-		})
-	}
+		}).Grow(1).MinHeight(0)
+	})
 }
