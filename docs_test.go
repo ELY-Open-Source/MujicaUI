@@ -11,6 +11,7 @@ import (
 var (
 	docsGoBlock = regexp.MustCompile("(?s)```go\n(.*?)```")
 	docsSpace   = regexp.MustCompile(`\s+`)
+	docsPageID  = regexp.MustCompile(`ID: "(\d{3})"`)
 )
 
 // TestDocSnippetsAreCompiledExamples keeps every doc's first Go block inside a compiled Example.
@@ -32,8 +33,33 @@ func TestDocSnippetsAreCompiledExamples(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(docs) != 100 {
-		t.Fatalf("%d component docs, want 100", len(docs))
+	pages, err := filepath.Glob("examples/gallery/pages_*.go")
+	if err != nil {
+		t.Fatal(err)
+	}
+	ids := map[string]bool{}
+	for _, f := range pages {
+		b, err := os.ReadFile(f)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, m := range docsPageID.FindAllSubmatch(b, -1) {
+			ids[string(m[1])] = true
+		}
+	}
+	documented := map[string]bool{}
+	for _, d := range docs {
+		documented[filepath.Base(d)[:3]] = true
+	}
+	for id := range ids {
+		if !documented[id] {
+			t.Errorf("gallery page %s has no doc", id)
+		}
+	}
+	for id := range documented {
+		if !ids[id] {
+			t.Errorf("doc %s has no gallery page", id)
+		}
 	}
 	for _, d := range docs {
 		b, err := os.ReadFile(d)
