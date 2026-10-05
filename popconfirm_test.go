@@ -46,6 +46,29 @@ func TestPopconfirmConfirmByKeyboard(t *testing.T) {
 	}
 }
 
+func TestPopconfirmDangerFocusesCancel(t *testing.T) {
+	open, confirmed := false, 0
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		b := Button(c, "Dismiss", ButtonOptions{})
+		if b.Clicked() {
+			open = true
+		}
+		if Popconfirm(c, b, &open, PopconfirmOptions{Title: "Dismiss the guard?", Danger: true}).Confirmed {
+			confirmed++
+		}
+	}, 400, 300)
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeyEnter)
+	if !open || !tt.Focused("Cancel") {
+		t.Fatalf("open %v, Cancel focused %v", open, tt.Focused("Cancel"))
+	}
+	tt.Key(0, ui.KeyEnter)
+	if confirmed != 0 || open {
+		t.Fatalf("second Enter: confirmed %d open %v", confirmed, open)
+	}
+}
+
 func TestPopconfirmCancelPaths(t *testing.T) {
 	a := &popconfirmApp{}
 	tt := ui.NewTester(a.view, 400, 300)

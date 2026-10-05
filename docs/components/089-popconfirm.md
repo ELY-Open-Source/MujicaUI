@@ -31,7 +31,7 @@ ui.Render(view, 400, 300, 1)
 | `Description` | `string` | `""` | 补充说明，作为面板的无障碍描述。 |
 | `ConfirmLabel` | `string` | 内置“确定 / Confirm” | 确认按钮文字。 |
 | `CancelLabel` | `string` | 内置“取消 / Cancel” | 取消按钮文字。 |
-| `Danger` | `bool` | `false` | 确认按钮使用危险变体，图标改为 Danger 色。 |
+| `Danger` | `bool` | `false` | 确认按钮使用危险变体，图标改为 Danger 色，打开时焦点改在取消。 |
 
 `PopconfirmResult{Confirmed, Cancelled bool}` 只在发生选择的那一帧为 true。
 
@@ -48,7 +48,7 @@ ui.Render(view, 400, 300, 1)
 
 | 按键 | 行为 |
 | --- | --- |
-| 打开时 | 焦点在确认按钮。 |
+| 打开时 | 焦点在确认按钮；`Danger` 时在取消按钮，连按 Enter 不会执行危险操作。 |
 | Enter | 触发聚焦的按钮。 |
 | Tab | 在取消与确认间移动，焦点顺序紧跟锚点。 |
 | Escape | 取消并把焦点还给锚点。 |

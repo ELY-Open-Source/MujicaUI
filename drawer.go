@@ -52,7 +52,7 @@ func Drawer(c *ui.Context, open *bool, opts DrawerOptions, content func()) *ui.E
 	body := func(panel *ui.Element, p float32) {
 		drawerPanel(c, panel, opts.Side, size, p)
 		panel.Label(opts.Title)
-		closed = dialogHeader(c, opts.Title, "", false, true, "drawer.close")
+		closed = dialogHeader(c, opts.Title, false, true, "drawer.close")
 		if content != nil {
 			ui.Scroll(c).Grow(1).Shrink(1).Children(content)
 		}

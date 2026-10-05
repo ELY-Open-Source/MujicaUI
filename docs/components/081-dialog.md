@@ -48,7 +48,7 @@ ui.Render(view, 400, 300, 1)
 | `KeepOnEscape` | `bool` | `false` | Escape 不关闭。 |
 | `HideClose` | `bool` | `false` | 不显示右上角关闭按钮。 |
 
-`open` 为 false 时不构建任何元素。`content` 可为 nil；内容超出窗口高度时在内容区滚动。
+`open` 为 false 时不构建任何元素。`content` 可为 nil；说明与内容一起滚动，标题与操作区始终留在窗口内（含 200% 文字缩放）。
 
 ## 状态
 

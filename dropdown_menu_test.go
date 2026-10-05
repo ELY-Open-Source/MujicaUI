@@ -1,15 +1,17 @@
 package mujica
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/egoist/mygo/ui"
 )
 
 type menuApp struct {
-	chosen []string
-	pinned bool
-	locked bool
+	chosen      []string
+	pinned      bool
+	locked      bool
+	pinDisabled bool
 }
 
 func (a *menuApp) build(m *PopupMenu) {
@@ -17,7 +19,7 @@ func (a *menuApp) build(m *PopupMenu) {
 		if m.Item("Rename", PopupMenuItemOptions{}) {
 			a.chosen = append(a.chosen, "Rename")
 		}
-		if m.Check("Pinned", &a.pinned, PopupMenuItemOptions{KeepOpen: true}) {
+		if m.Check("Pinned", &a.pinned, PopupMenuItemOptions{KeepOpen: true, Disabled: a.pinDisabled}) {
 			a.chosen = append(a.chosen, "Pinned")
 		}
 	})
@@ -130,6 +132,49 @@ func TestDropdownMenuSubmenuFlips(t *testing.T) {
 	s, ok := tt.Find("Archive")
 	if !ok || s.X+s.W > 420 || s.X > r.X {
 		t.Fatalf("submenu %+v not flipped left of %+v", s, r)
+	}
+}
+
+func TestDropdownMenuCheckDisabledThisFrameKeepsValue(t *testing.T) {
+	a := &menuApp{}
+	tt := ui.NewTester(a.view, 500, 400)
+	_ = tt.Click("Actions")
+	tt.Key(0, ui.KeyDown)
+	if !tt.Focused("Pinned") {
+		t.Fatal("Pinned not focused")
+	}
+	a.pinDisabled = true // takes effect in the frame that handles the key
+	tt.Key(0, ui.KeySpace)
+	if a.pinned || len(a.chosen) != 0 {
+		t.Fatalf("disabled check flipped: pinned %v chosen %q", a.pinned, a.chosen)
+	}
+}
+
+func TestDropdownMenuWideSubmenuStaysInWindow(t *testing.T) {
+	wide := strings.Repeat("Wide ", 30)
+	var sub ui.Rect
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Row(c).Fill().Padding(20, 0, 0, 200).Children(func() {
+			DropdownMenu(c, "Actions", DropdownMenuOptions{}, func(m *PopupMenu) {
+				m.Item(wide, PopupMenuItemOptions{})
+				m.Submenu("Move to", PopupMenuItemOptions{}, func(m *PopupMenu) {
+					m.Item(wide+"archive", PopupMenuItemOptions{})
+				})
+			})
+		})
+	}, 800, 400)
+	_ = tt.Click("Actions")
+	r, _ := tt.Find("Move to")
+	tt.Move(r.X+5, r.Y+5)
+	tt.Frame()
+	s, ok := tt.Find(wide + "archive")
+	if !ok {
+		t.Fatal("submenu did not open")
+	}
+	sub = s
+	if sub.X < 4 || sub.X+sub.W > 796 {
+		t.Fatalf("submenu item %+v outside the 800 DIP window", sub)
 	}
 }
 

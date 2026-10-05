@@ -62,13 +62,14 @@ func AlertDialog(c *ui.Context, open *bool, opts AlertDialogOptions) AlertDialog
 		panel.Role(ui.RoleAlertDialog).Label(opts.Title).Description(opts.Description)
 		ui.Row(c).Gap(u * 3).AlignItems(ui.Start).Shrink(0).Children(func() {
 			ui.Icon(c, icons.Must("triangle-alert")).Size(22, 22).TextColor(k.Danger).Shrink(0).Margin(1, 0, 0, 0)
-			ui.Column(c).Gap(u * 2).Grow(1).Children(func() {
-				ui.Text(c, opts.Title).Font(theme.SerifFont).FontSize(FontSize(c, theme.H3Size)).FontWeight(600)
-				if opts.Description != "" {
-					ui.Text(c, opts.Description).TextColor(k.TextMuted)
-				}
-			})
+			ui.Text(c, opts.Title).Font(theme.SerifFont).FontSize(FontSize(c, theme.H3Size)).FontWeight(600).Grow(1)
 		})
+		if opts.Description != "" {
+			// A long description scrolls so the field and the actions stay in the window.
+			ui.Scroll(c).Shrink(1).Padding(0, 0, 0, 22+u*3).Children(func() {
+				ui.Text(c, opts.Description).TextColor(k.TextMuted)
+			})
+		}
 		if opts.ConfirmText != "" {
 			alertDialogTyped(c, st, opts.ConfirmText)
 		}

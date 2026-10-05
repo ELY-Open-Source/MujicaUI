@@ -59,10 +59,19 @@ func Popconfirm(c *ui.Context, anchor *ui.Element, open *bool, opts PopconfirmOp
 		// The text scrolls so the actions stay in the window.
 		ui.Scroll(c).Shrink(1).Children(func() { popconfirmText(c, opts) })
 		ui.Row(c).Gap(u * 2).Justify(ui.End).Shrink(0).Children(func() {
-			if Button(c, cancel, ButtonOptions{Variant: Secondary}).Clicked() {
+			// Danger focuses Cancel, so a second Enter never runs the destructive action.
+			cb := Button(c, cancel, ButtonOptions{Variant: Secondary})
+			if opts.Danger {
+				cb.AutoFocus()
+			}
+			if cb.Clicked() {
 				res.Cancelled = true
 			}
-			if Button(c, confirm, ButtonOptions{Variant: variant}).AutoFocus().Clicked() {
+			ok := Button(c, confirm, ButtonOptions{Variant: variant})
+			if !opts.Danger {
+				ok.AutoFocus()
+			}
+			if ok.Clicked() {
 				res.Confirmed = true
 			}
 		})
