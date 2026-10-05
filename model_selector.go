@@ -19,7 +19,7 @@ type ModelOption struct {
 	Capabilities []string
 	// ContextTokens is the context length; zero hides it.
 	ContextTokens int
-	// Unavailable explains why the model cannot be chosen; empty means available.
+	// Unavailable explains disabled models; empty permits selection.
 	Unavailable string
 }
 
@@ -30,76 +30,149 @@ type ModelSelectorOptions struct {
 	Label string
 }
 
-// ModelSelector chooses a model ID into *value from a list showing capabilities, context length and why some are unavailable.
+// ModelSelector chooses models with capabilities and availability details.
 func ModelSelector(c *ui.Context, value *string, models []ModelOption, opts ModelSelectorOptions) ChoiceResult {
+	if value == nil {
+		panic("mujica: ModelSelector needs value")
+	}
 	for _, m := range models {
 		if m.ID == "" || m.Name == "" || m.ContextTokens < 0 {
-			panic("mujica: ModelOption needs ID, Name and a non-negative ContextTokens")
+			panic("mujica: ModelOption needs ID, Name and non-negative ContextTokens")
 		}
 	}
-	k := Tokens(c)
-	u := Density(c).Unit()
-	old := *value
-	pick := old
-	var s *ui.SelectParts[string]
-	ui.Row(c).Shrink(0).Disabled(opts.Disabled).Children(func() { s = ui.SelectBase(c, &pick) })
-	tr := s.Trigger
+	k, u := Tokens(c), Density(c).Unit()
+	var tr *ui.Element
+	ui.Row(c).Shrink(0).Disabled(opts.Disabled).Children(func() { tr = ui.ButtonBase(c).Role(ui.RolePopUpButton) })
+	st := ui.Local(tr, "model-selector", func() modelSelectorState { return modelSelectorState{hi: -1, lastHi: -1} })
+	disabled := tr.IsDisabled()
+	if disabled {
+		st.open = false
+	}
 	label := opts.Label
 	if label == "" {
 		label = msg(c, "model_selector.label")
 	}
 	tr.Label(label)
+	old := *value
+	choose := func(i int) {
+		if !disabled && i >= 0 && i < len(models) && models[i].Unavailable == "" {
+			*value = models[i].ID
+			st.open = false
+			tr.Focus()
+		}
+	}
+	if tr.Clicked() && !disabled {
+		if st.open {
+			choose(st.hi)
+		} else {
+			st.open = true
+			st.hi = modelSelectorIndex(models, *value)
+		}
+	}
+	if !disabled {
+		move := 0
+		if tr.Shortcut(0, ui.KeyDown) {
+			move = 1
+		}
+		if tr.Shortcut(0, ui.KeyUp) {
+			move = -1
+		}
+		if move != 0 {
+			if !st.open {
+				st.open = true
+				st.hi = modelSelectorIndex(models, *value)
+			} else {
+				for i := st.hi + move; i >= 0 && i < len(models); i += move {
+					if models[i].Unavailable == "" {
+						st.hi = i
+						break
+					}
+				}
+			}
+		}
+		if tr.Shortcut(0, ui.KeyHome) {
+			st.open = true
+			st.hi = modelSelectorIndex(models, "")
+		}
+		if tr.Shortcut(0, ui.KeyEnd) {
+			st.open = true
+			for i := len(models) - 1; i >= 0; i-- {
+				if models[i].Unavailable == "" {
+					st.hi = i
+					break
+				}
+			}
+		}
+	}
+	if st.hi >= len(models) || st.hi >= 0 && models[st.hi].Unavailable != "" {
+		st.hi = modelSelectorIndex(models, *value)
+	}
 	cur, has := modelSelectorFind(models, *value)
-	selectField(c, tr, s.Open(), func() {
+	selectField(c, tr, st.open, func() {
 		if has {
 			ui.Text(c, cur.Name).SingleLine().FontWeight(600).Grow(1).Shrink(1)
 		} else {
 			ui.Text(c, msg(c, "model_selector.placeholder")).SingleLine().TextColor(k.TextMuted).Grow(1).Shrink(1)
 		}
 	})
-	if opts.Disabled {
-		return ChoiceResult{Element: tr}
-	}
-	s.Popup(func(panel *ui.Element) {
-		selectPanel(c, panel)
-		panel.MinWidth(320)
-		ui.Scroll(c).MaxHeight(360).Children(func() {
-			for _, m := range models {
-				var row *ui.Element
-				if m.Unavailable != "" {
-					row = ui.Row(c).Disabled(true).Description(m.Unavailable)
-				} else {
-					row = s.Item(m.ID)
-				}
-				hi := m.Unavailable == "" && row.Highlighted()
-				chosen := m.ID == *value
-				row.Padding(u*2, u*3, u*2, u*2).Gap(u * 2).AlignItems(ui.Start).Radius(theme.ControlRadius).Role(ui.RoleListItem).Label(m.Name)
-				switch {
-				case chosen:
-					row.Background(k.Selection)
-				case hi:
+	if st.open {
+		ww, wh := c.Size()
+		ui.PopoverBase(c, tr, &st.open, func(panel *ui.Element) {
+			overlayStyle(c, panel, overlayAnchored(c, panel, tr.Bounds()))
+			a := tr.Bounds()
+			room := max(a.Y, wh-a.Y-a.H) - 8
+			panel.Margin(4, 0, 0, 0).Padding(4).Width(min(float32(360), max(0, ww-8))).Height(min(float32(360), max(0, room))).Label(label)
+			if st.hi != st.lastHi {
+				st.list.ScrollIntoView(max(st.hi, 0))
+				st.lastHi = st.hi
+			}
+			ui.List(c, &st.list, len(models), func(i int) {
+				m := models[i]
+				hi, chosen := i == st.hi, m.ID == *value
+				row := ui.Row(c).MinHeight(Density(c).ControlHeight()).Disabled(m.Unavailable != "").Description(m.Unavailable).
+					Padding(u*2, u*3, u*2, u*2).Gap(u * 2).AlignItems(ui.Start).Radius(theme.ControlRadius).Role(ui.RoleListItem).Label(m.Name).Cursor(ui.CursorPointer).Selected(chosen)
+				if chosen {
+					row.Background(k.Selection).TextColor(k.Text)
+				} else if hi || row.Hovered() {
 					row.Background(k.SurfaceHover)
 				}
 				if hi {
 					row.Draw(func(p *ui.Painter, r ui.Rect) { p.Fill(ui.Rect{X: r.X, Y: r.Y + 4, W: 2, H: r.H - 8}, k.AccentText, 1) })
 				}
-				row.Children(func() {
-					selectCheck(c, chosen)
-					modelSelectorRow(c, m)
-				})
-			}
+				row.Children(func() { selectCheck(c, chosen); modelSelectorRow(c, m) })
+				if row.Clicked() && !row.IsDisabled() {
+					choose(i)
+				}
+			}).Fill()
 		})
-	})
-	if pick != *value && !tr.IsDisabled() {
-		if m, ok := modelSelectorFind(models, pick); ok && m.Unavailable == "" {
-			*value = pick
-		}
 	}
 	changed := *value != old
 	if changed {
 		slog.Debug("mujica: model_selector changed", "model", *value)
 	}
 	return ChoiceResult{Element: tr, changed: changed}
+}
+
+type modelSelectorState struct {
+	open       bool
+	hi, lastHi int
+	list       ui.ListState
+}
+
+func modelSelectorIndex(models []ModelOption, id string) int {
+	first := -1
+	for i, m := range models {
+		if m.Unavailable != "" {
+			continue
+		}
+		if first < 0 {
+			first = i
+		}
+		if m.ID == id {
+			return i
+		}
+	}
+	return first
 }
 
 // modelSelectorRow shows a model's name, tags, context and unavailability.

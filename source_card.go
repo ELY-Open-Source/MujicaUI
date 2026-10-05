@@ -10,8 +10,8 @@ import (
 	"mujicaui/theme"
 )
 
-// SourceCard shows source n's title, site, time and snippet; Clicked opens it.
-// It lights up with Selection and an accent edge while st holds n Active or hovered.
+// SourceCard displays source metadata; Clicked requests opening.
+// Selection and an edge mark identify active or hovered sources.
 func SourceCard(c *ui.Context, n int, src Source, st *CitationState) *ui.Element {
 	if n < 1 || st == nil || src.Title == "" || src.URL == "" {
 		panic("mujica: SourceCard needs n >= 1, a state and a Source with Title and URL")
@@ -22,6 +22,8 @@ func SourceCard(c *ui.Context, n int, src Source, st *CitationState) *ui.Element
 		Label(fmt.Sprintf(msg(c, "source_card.open"), src.Title)).Tooltip(src.URL).Transition(colorFade)
 	internal.Ring(b, k.Focus, theme.CardRadius)
 	st.track(c, b, n)
+	frame := c.Now()
+	b.Draw(func(_ *ui.Painter, _ ui.Rect) { st.expire(c, frame) })
 	switch {
 	case st.lit(n):
 		b.Background(k.Selection).Border(theme.BorderWidth, k.Border).BorderWidth(theme.BorderWidth, theme.BorderWidth, theme.BorderWidth, 3).

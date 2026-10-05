@@ -14,21 +14,23 @@ type PromptComposerOptions struct {
 	Label string
 	// CmdEnterSends sends with Cmd+Enter (Ctrl+Enter) and makes Enter a newline.
 	CmdEnterSends bool
-	// MaxHeight caps the field in DIPs before it scrolls; zero means 200.
+	// Composing blocks submission while the caller's input method composes.
+	Composing bool
+	// MaxHeight caps input height; zero means 200 DIPs.
 	MaxHeight float32
 	// Attachments builds the row above the field, as AttachmentChips.
 	Attachments func()
-	// Tools builds the left of the bar below the field; Actions its right, as a SendButton.
+	// Tools and Actions build opposite ends of the toolbar.
 	Tools, Actions func()
 	Disabled       bool
 }
 
-// promptHooks are key handlers menus over a composer add each frame.
+// promptHooks hold menu handlers for the current frame.
 type promptHooks struct{ list []func(ui.InputEvent) bool }
 
 type promptHooksKey struct{}
 
-// PromptComposer is a multi-line prompt: Enter sends and Shift+Enter breaks the line, or Cmd+Enter sends.
+// PromptComposer edits prompts with configurable send shortcuts.
 // Submitted never fires for blank text.
 func PromptComposer(c *ui.Context, value *string, opts PromptComposerOptions) InputResult {
 	if value == nil {
@@ -57,6 +59,12 @@ func PromptComposer(c *ui.Context, value *string, opts PromptComposerOptions) In
 		}
 		ta := TextAreaOptions{Label: label, Placeholder: opts.Placeholder, MaxHeight: maxH,
 			keys: func(ev ui.InputEvent) bool {
+				if r.Element.IsDisabled() {
+					return true
+				}
+				if opts.Composing && ev.Kind == ui.InputKeyDown {
+					return ev.Key == ui.KeyEnter
+				}
 				for _, f := range h.list {
 					if f(ev) {
 						return true
@@ -69,7 +77,7 @@ func PromptComposer(c *ui.Context, value *string, opts PromptComposerOptions) In
 		}
 		area := TextArea(c, value, ta)
 		r.Input, r.changed = area.Input, area.Changed()
-		r.submitted = area.Submitted() && strings.TrimSpace(*value) != ""
+		r.submitted = area.Submitted() && !opts.Composing && strings.TrimSpace(*value) != ""
 		if opts.Tools != nil || opts.Actions != nil {
 			ui.Row(c).Gap(u * 2).AlignItems(ui.Center).Children(func() {
 				ui.Row(c).Gap(u).AlignItems(ui.Center).Grow(1).Children(func() {
@@ -89,7 +97,7 @@ func PromptComposer(c *ui.Context, value *string, opts PromptComposerOptions) In
 	return r
 }
 
-// promptComposerHook adds a key handler that runs before the composer's editor this frame.
+// promptComposerHook registers a handler before editor input.
 func promptComposerHook(composer InputResult, f func(ui.InputEvent) bool) {
 	if composer.Element == nil {
 		panic("mujica: menus need a built PromptComposer")

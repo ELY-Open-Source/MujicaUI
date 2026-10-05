@@ -3,6 +3,7 @@ package mujica
 import (
 	"fmt"
 	"log/slog"
+	"math"
 	"strconv"
 
 	"github.com/egoist/mygo/ui"
@@ -16,15 +17,30 @@ type ModelParam struct {
 	// Label and Value are required.
 	Label string
 	Value *float64
-	// Min, Max and Step bound the value; Default lies within them.
+	// Min, Max and Step define the grid; Default selects reset.
 	Min, Max, Step, Default float64
 }
 
-// ParameterPanel adjusts generation parameters with sliders; each shows its range and resets to its default.
+// ParameterPanel displays bounded generation sliders and reset actions.
 func ParameterPanel(c *ui.Context, params []ModelParam) ChoiceResult {
 	for _, p := range params {
-		if p.Label == "" || p.Value == nil || !(p.Min < p.Max) || p.Step <= 0 || p.Default < p.Min || p.Default > p.Max {
+		if p.Label == "" || p.Value == nil || !(p.Min < p.Max) || !(p.Step > 0) || !(p.Default >= p.Min && p.Default <= p.Max) {
 			panic("mujica: ModelParam needs Label, Value, Min < Max, Step > 0 and Default in range")
+		}
+		for _, v := range []float64{p.Min, p.Max, p.Step, p.Default, *p.Value} {
+			if math.IsNaN(v) || math.IsInf(v, 0) {
+				panic("mujica: ModelParam values must be finite")
+			}
+		}
+		if *p.Value < p.Min || *p.Value > p.Max {
+			panic("mujica: ModelParam value must be in range")
+		}
+		spec := numberInputResolve(NumberInputOptions{Min: p.Min, Max: p.Max, Step: p.Step, Precision: sliderDecimals(p.Min, p.Step)})
+		if spec.stepBy(p.Default, 0) != p.Default {
+			panic("mujica: ModelParam default must lie on the step grid")
+		}
+		if spec.stepBy(*p.Value, 0) != *p.Value {
+			panic("mujica: ModelParam value must lie on the step grid")
 		}
 	}
 	k := Tokens(c)
@@ -41,7 +57,9 @@ func ParameterPanel(c *ui.Context, params []ModelParam) ChoiceResult {
 	}
 	r.Element.Children(func() {
 		for _, p := range params {
-			format := func(v float64) string { return strconv.FormatFloat(v, 'f', sliderDecimals(p.Min, p.Step, p.Default), 64) }
+			format := func(v float64) string {
+				return strconv.FormatFloat(v, 'f', sliderDecimals(p.Min, p.Step, p.Default), 64)
+			}
 			ui.Column(c).Key(p.Label).Gap(u).Children(func() {
 				ui.Row(c).Gap(u * 2).AlignItems(ui.Center).Children(func() {
 					ui.Text(c, p.Label).FontWeight(600).Grow(1).SingleLine()

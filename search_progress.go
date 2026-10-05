@@ -2,6 +2,7 @@ package mujica
 
 import (
 	"fmt"
+	"log/slog"
 
 	"github.com/egoist/mygo/ui"
 
@@ -9,7 +10,7 @@ import (
 	"mujicaui/theme"
 )
 
-// SearchStage is one step of a web search, as "Planning" or "Reading".
+// SearchStage describes one caller-owned search step.
 type SearchStage struct {
 	Label string
 	Done  bool
@@ -19,19 +20,19 @@ type SearchStage struct {
 type SearchProgressOptions struct {
 	// Query is the keyword searched; required.
 	Query string
-	// Read and Total count the sources read so far and found.
+	// Read and Total count read and discovered sources.
 	Read, Total int
 	Stages      []SearchStage
-	// Done folds the block to a summary, which the user can open again.
+	// Done folds progress into a summary users can reopen.
 	Done bool
 }
 
-// searchProgressState is the fold, open while searching until the search ends.
+// searchProgressState tracks completion and manual folding.
 type searchProgressState struct {
 	open, done bool
 }
 
-// SearchProgress shows a search's keyword, sources read and stages; once Done it folds to one line.
+// SearchProgress displays keywords, read counts and collapsible stages.
 func SearchProgress(c *ui.Context, opts SearchProgressOptions) ChoiceResult {
 	if opts.Query == "" || opts.Read < 0 || opts.Total < 0 || opts.Read > opts.Total {
 		panic("mujica: SearchProgress needs a Query and 0 <= Read <= Total")
@@ -41,6 +42,11 @@ func SearchProgress(c *ui.Context, opts SearchProgressOptions) ChoiceResult {
 	if opts.Done && !st.done {
 		// Finishing folds it once; the user may open it again.
 		st.open = false
+		slog.Debug("mujica: search_progress complete", "read", opts.Read)
+	}
+	if st.done && !opts.Done {
+		st.open = true
+		slog.Debug("mujica: search_progress restart")
 	}
 	st.done = opts.Done
 	title := fmt.Sprintf(msg(c, "search_progress.searching"), opts.Query)
@@ -48,6 +54,9 @@ func SearchProgress(c *ui.Context, opts SearchProgressOptions) ChoiceResult {
 		title = fmt.Sprintf(msg(c, "search_progress.done"), opts.Query, opts.Read)
 	}
 	r.Element.Children(func() { r.changed = searchProgressBody(c, st, title, opts) })
+	if r.changed {
+		slog.Debug("mujica: search_progress fold", "open", st.open)
+	}
 	return r
 }
 

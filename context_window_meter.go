@@ -11,7 +11,7 @@ import (
 	"mujicaui/theme"
 )
 
-// ContextSegment is one part of the context window, as system, history or attachments.
+// ContextSegment describes one part of the context window.
 type ContextSegment struct {
 	Label  string
 	Tokens int
@@ -19,12 +19,12 @@ type ContextSegment struct {
 
 // ContextWindowMeterOptions configure a ContextWindowMeter.
 type ContextWindowMeterOptions struct {
-	// Warn is the used share that shows the warning; zero means 0.8.
+	// Warn sets the warning threshold; zero means 0.8.
 	Warn float64
 }
 
-// ContextWindowMeter shows how the context window is used, segment by segment, and warns past a threshold.
-// Each segment has a palette color and a legend marker shape, so it never relies on color alone.
+// ContextWindowMeter displays segmented usage and threshold warnings.
+// Palette colors and shaped legend markers identify segments.
 func ContextWindowMeter(c *ui.Context, segments []ContextSegment, limit int, opts ContextWindowMeterOptions) *ui.Element {
 	if limit <= 0 || opts.Warn < 0 || opts.Warn > 1 {
 		panic("mujica: ContextWindowMeter needs limit > 0 and 0 <= Warn <= 1")

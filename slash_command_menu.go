@@ -2,6 +2,7 @@ package mujica
 
 import (
 	"log/slog"
+	"slices"
 	"strings"
 
 	"github.com/egoist/mygo/ui"
@@ -17,7 +18,7 @@ type SlashCommand struct {
 	Description string
 }
 
-// SlashCommandResult is the menu's popup panel, nil while closed, and the command chosen this frame.
+// SlashCommandResult carries the popup and chosen command.
 type SlashCommandResult struct {
 	Element *ui.Element
 	chosen  SlashCommand
@@ -27,34 +28,43 @@ type SlashCommandResult struct {
 // Chosen returns the command picked by Enter or a click.
 func (r SlashCommandResult) Chosen() (SlashCommand, bool) { return r.chosen, r.ok }
 
-// SlashCommandMenu pops up commands while the composer's text is "/" plus a filter.
-// Up and Down move, Enter or a click chooses, Tab completes, Escape closes; typing stays in the composer.
+// SlashCommandMenu filters commands after a slash trigger.
+// Arrows navigate; Enter chooses; Tab completes; Escape dismisses.
 func SlashCommandMenu(c *ui.Context, composer InputResult, value *string, commands []SlashCommand) SlashCommandResult {
-	for _, cmd := range commands {
-		if cmd.Name == "" || strings.ContainsAny(cmd.Name, " \t\n") {
-			panic("mujica: SlashCommand Name must be one word")
-		}
+	if composer.Element == nil || composer.Input == nil || value == nil {
+		panic("mujica: SlashCommandMenu needs composer and value")
 	}
-	var r SlashCommandResult
-	st := ui.Local(composer.Element, slashMenuKey{"slash"}, func() slashMenuState { return slashMenuState{} })
+	data := ui.Local(composer.Element, "slash-data", func() slashMenuData { return slashMenuData{} })
 	query, typing := strings.CutPrefix(*value, "/")
 	typing = typing && !strings.ContainsAny(query, " \t\n")
-	var shown []SlashCommand
-	var rows []slashMenuRow
-	if typing {
-		q := strings.ToLower(query)
-		for pass := range 2 {
-			for _, cmd := range commands {
-				n := strings.ToLower(cmd.Name)
-				if pass == 0 && strings.HasPrefix(n, q) || pass == 1 && !strings.HasPrefix(n, q) && strings.Contains(n, q) {
-					shown = append(shown, cmd)
-					rows = append(rows, slashMenuRow{label: "/" + cmd.Name, detail: cmd.Description})
+	if !data.built || query != data.query || typing != data.typing || !slices.Equal(data.commands, commands) {
+		for _, cmd := range commands {
+			if cmd.Name == "" || strings.ContainsAny(cmd.Name, " \t\n") {
+				panic("mujica: SlashCommand Name must be one word")
+			}
+		}
+		data.built, data.query, data.typing = true, query, typing
+		data.commands = append(data.commands[:0], commands...)
+
+		data.shown, data.rows = data.shown[:0], data.rows[:0]
+		if typing {
+			q := strings.ToLower(query)
+			for pass := range 2 {
+				for _, cmd := range commands {
+					n := strings.ToLower(cmd.Name)
+					if pass == 0 && strings.HasPrefix(n, q) || pass == 1 && !strings.HasPrefix(n, q) && strings.Contains(n, q) {
+						data.shown = append(data.shown, cmd)
+						data.rows = append(data.rows, slashMenuRow{label: "/" + cmd.Name, detail: cmd.Description})
+					}
 				}
 			}
 		}
 	}
-	i, how := slashMenuShow(c, composer, st, query, typing, rows, slashMenuOptions{empty: msg(c, "slash_command_menu.empty"), label: msg(c, "slash_command_menu.label")})
-	r.Element = st.panel
+	var r SlashCommandResult
+	st := ui.Local(composer.Element, slashMenuKey{"slash"}, func() slashMenuState { return slashMenuState{} })
+	shown, rows := data.shown, data.rows
+	i, how, panel := slashMenuShow(c, composer, st, query, typing, rows, slashMenuOptions{empty: msg(c, "slash_command_menu.empty"), label: msg(c, "slash_command_menu.label")})
+	r.Element = panel
 	if i >= 0 {
 		*value = "/" + shown[i].Name + " "
 		if how == slashMenuChose {
@@ -65,9 +75,16 @@ func SlashCommandMenu(c *ui.Context, composer InputResult, value *string, comman
 	return r
 }
 
+type slashMenuData struct {
+	commands, shown []SlashCommand
+	query           string
+	built, typing   bool
+	rows            []slashMenuRow
+}
+
 type slashMenuKey struct{ name string }
 
-// slashMenuRow is one line of a composer menu; a group starts a titled section.
+// slashMenuRow represents an item or titled group.
 type slashMenuRow struct {
 	label, detail, icon, group string
 }
@@ -77,14 +94,14 @@ type slashMenuOptions struct {
 	loading      bool
 }
 
-// slashMenuState is a composer menu's highlight, Escape and pending key choice.
+// slashMenuState tracks navigation, dismissal and pending choices.
 type slashMenuState struct {
 	hi, lastHi int
 	query      string
 	dismissed  *string
 	pick       slashMenuHow
-	panel      *ui.Element
 	held, open bool
+	list       ui.ListState
 }
 
 type slashMenuHow int
@@ -95,30 +112,36 @@ const (
 	slashMenuCompleted
 )
 
-// slashMenuShow runs a composer menu while open and returns the row picked this frame and how.
-func slashMenuShow(c *ui.Context, composer InputResult, st *slashMenuState, query string, open bool, rows []slashMenuRow, o slashMenuOptions) (int, slashMenuHow) {
-	st.panel = nil
+// slashMenuShow returns the selected row and activation method.
+func slashMenuShow(c *ui.Context, composer InputResult, st *slashMenuState, query string, open bool, rows []slashMenuRow, o slashMenuOptions) (int, slashMenuHow, *ui.Element) {
+	if !open {
+		st.dismissed = nil
+	}
 	if query != st.query {
 		st.hi, st.query = 0, query
+		st.list.ScrollTo(0, ui.Start)
 		if st.dismissed != nil && *st.dismissed != query {
 			st.dismissed = nil
 		}
 	}
-	// A press on the panel takes the focus from the composer; the press keeps it open.
+	// Panel presses preserve the menu while transferring focus.
 	open = open && st.dismissed == nil && !composer.Element.IsDisabled() && (composer.Input.Focused() || st.held)
 	pick, how := -1, slashMenuNone
 	st.open = open
 	if !open {
 		st.pick = slashMenuNone
-		return pick, how
+		return pick, how, nil
 	}
-	st.hi = min(st.hi, len(rows)-1)
+	st.hi = min(max(st.hi, 0), len(rows)-1)
 	if st.pick != slashMenuNone && st.hi >= 0 {
 		pick, how = st.hi, st.pick
 	}
 	st.pick = slashMenuNone
 	n := len(rows)
 	promptComposerHook(composer, func(ev ui.InputEvent) bool {
+		if composer.Element.IsDisabled() {
+			return true
+		}
 		if ev.Kind != ui.InputKeyDown || ev.Mods != 0 {
 			return false
 		}
@@ -141,17 +164,18 @@ func slashMenuShow(c *ui.Context, composer InputResult, st *slashMenuState, quer
 		c.Invalidate()
 		return true
 	})
-	if i := slashMenuPanel(c, composer.Element.Bounds(), st, rows, o); i >= 0 {
+	i, panel := slashMenuPanel(c, composer.Element.Bounds(), st, rows, o)
+	if i >= 0 {
 		pick, how = i, slashMenuChose
 	}
 	if pick >= 0 {
 		composer.Input.Focus()
 	}
-	return pick, how
+	return pick, how, panel
 }
 
-// slashMenuPanel draws the rows over or under the composer a and returns a clicked row.
-func slashMenuPanel(c *ui.Context, a ui.Rect, st *slashMenuState, rows []slashMenuRow, o slashMenuOptions) int {
+// slashMenuPanel builds visible rows and returns clicked choices.
+func slashMenuPanel(c *ui.Context, a ui.Rect, st *slashMenuState, rows []slashMenuRow, o slashMenuOptions) (int, *ui.Element) {
 	k := Tokens(c)
 	u := Density(c).Unit()
 	rowH := Density(c).ControlHeight()
@@ -167,14 +191,16 @@ func slashMenuPanel(c *ui.Context, a ui.Rect, st *slashMenuState, rows []slashMe
 	if len(rows) == 0 {
 		h += rowH
 	}
-	h = min(h, 280) + 2*theme.BorderWidth
-	w := min(max(a.W*0.6, 320), max(a.W, 200))
+	ww, wh := c.Size()
+	h = min(h+2*theme.BorderWidth, 280, max(0, wh-8))
+	w := min(max(a.W*0.6, 320), max(a.W, 200), max(0, ww-8))
 	x, y := overlayPlace(c, a, w, h, u)
 	clicked, pressed := -1, false
+	var result *ui.Element
 	ui.Overlay(c, func() {
 		panel := ui.Column(c).Absolute().Left(x).Top(y).Width(w).Height(h).Role(ui.RoleList).Label(o.label)
 		overlayStyle(c, panel, overlayAnchored(c, panel, a))
-		st.panel = panel
+		result = panel
 		panel.HandleInput(func(ev ui.InputEvent) bool {
 			if ev.Kind == ui.InputPointerDown {
 				st.held = true
@@ -182,24 +208,28 @@ func slashMenuPanel(c *ui.Context, a ui.Rect, st *slashMenuState, rows []slashMe
 			return false
 		})
 		panel.Children(func() {
-			ui.Scroll(c).Fill().Padding(u).Children(func() {
+			if st.lastHi != st.hi {
+				st.lastHi = st.hi
+				st.list.ScrollIntoView(max(st.hi, 0))
+			}
+			ui.List(c, &st.list, max(1, len(rows)), func(i int) {
 				if len(rows) == 0 {
-					ui.Row(c).MinHeight(rowH).Padding(0, u*3).Gap(u*2).AlignItems(ui.Center).TextColor(k.TextMuted).Children(func() {
+					ui.Row(c).MinHeight(rowH).Padding(0, u*3).Gap(u * 2).AlignItems(ui.Center).TextColor(k.TextMuted).Children(func() {
 						if o.loading {
 							Spinner(c, SpinnerOptions{Size: 14})
 						}
 						ui.Text(c, o.empty).SingleLine()
 					})
+					return
 				}
-				group := ""
-				for i, r := range rows {
-					if r.group != group {
-						group = r.group
-						ui.Text(c, group).Height(headH).Padding(u*2, u*3, 0, u*3).FontSize(FontSize(c, theme.CaptionSize)).
+				r := rows[i]
+				ui.Column(c).Children(func() {
+					if r.group != "" && (i == 0 || r.group != rows[i-1].group) {
+						ui.Text(c, r.group).Height(headH).Padding(u*2, u*3, 0, u*3).FontSize(FontSize(c, theme.CaptionSize)).
 							FontWeight(600).TextColor(k.TextMuted).Role(ui.RoleText)
 					}
-					row := ui.Row(c).Key(i).Height(rowH).Padding(0, u*3, 0, u*2).Gap(u*2).AlignItems(ui.Center).
-						Radius(theme.ControlRadius).Role(ui.RoleListItem).Label(r.label).Cursor(ui.CursorPointer)
+					row := ui.Row(c).Key(i).MinHeight(rowH).Padding(0, u*3, 0, u*2).Gap(u * 2).AlignItems(ui.Center).
+						Radius(theme.ControlRadius).Role(ui.RoleListItem).Label(r.label).Cursor(ui.CursorPointer).Selected(i == st.hi).TextColor(k.Text)
 					if row.Clicked() {
 						clicked = i
 					}
@@ -209,10 +239,6 @@ func slashMenuPanel(c *ui.Context, a ui.Rect, st *slashMenuState, rows []slashMe
 						row.Background(k.Selection).Draw(func(p *ui.Painter, b ui.Rect) {
 							p.Fill(ui.Rect{X: b.X, Y: b.Y + 4, W: 2, H: b.H - 8}, k.AccentText, 1)
 						})
-						if st.lastHi != i {
-							st.lastHi = i
-							row.ScrollIntoView()
-						}
 					} else if row.Hovered() {
 						row.Background(k.SurfaceHover)
 					}
@@ -223,10 +249,10 @@ func slashMenuPanel(c *ui.Context, a ui.Rect, st *slashMenuState, rows []slashMe
 						ui.Text(c, r.label).SingleLine().Shrink(0).FontWeight(600)
 						ui.Text(c, r.detail).SingleLine().MinWidth(0).Shrink(1).TextColor(k.TextMuted).FontSize(FontSize(c, theme.CaptionSize))
 					})
-				}
-			})
+				})
+			}).Fill().Padding(u)
 		})
 	})
 	st.held = st.held && pressed
-	return clicked
+	return clicked, result
 }

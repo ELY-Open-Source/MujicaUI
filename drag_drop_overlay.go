@@ -21,18 +21,18 @@ type DragDropOverlayOptions struct {
 	Accept func(path string) bool
 }
 
-// DropResult is the overlay's element and the files dropped this frame.
+// DropResult carries the overlay and dropped files.
 type DropResult struct {
 	Element  *ui.Element
 	accepted []string
 	rejected []string
 }
 
-// Accepted returns the dropped paths Accept took; Rejected those it refused.
+// Accepted returns accepted paths; Rejected returns refused paths.
 func (r DropResult) Accepted() []string { return r.accepted }
 func (r DropResult) Rejected() []string { return r.rejected }
 
-// DragDropOverlay wraps content; while files from other apps are dragged over it, a full mask shows the hint.
+// DragDropOverlay covers content during external file dragging.
 func DragDropOverlay(c *ui.Context, opts DragDropOverlayOptions, content func()) DropResult {
 	if content == nil {
 		panic("mujica: DragDropOverlay needs content")

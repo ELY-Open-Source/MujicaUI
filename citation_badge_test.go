@@ -14,7 +14,7 @@ var sourcesSample = []Source{
 	{Title: "Court etiquette", URL: "https://example.net/etiquette", Site: "example.net"},
 }
 
-// citationApp is an answer with badges beside a sources panel, sharing one state.
+// citationApp shares state between inline citations and sources.
 type citationApp struct {
 	st     CitationState
 	opened []int
@@ -96,4 +96,73 @@ func TestCitationBadgeSnapshot(t *testing.T) {
 			CitationBadge(c, 2, sourcesSample[1], st)
 		})
 	})
+}
+
+func TestCitationBadgeHitAreaAndDisabledPreview(t *testing.T) {
+	var st CitationState
+	off := false
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Row(c).Padding(16).Disabled(off).Children(func() {
+			CitationBadge(c, 1, sourcesSample[0], &st)
+		})
+	}, 240, 160)
+	b, _ := tt.Find("Source 1: The Palace of Versailles")
+	if b.W < 28 || b.H < 28 {
+		t.Errorf("hit area %v, want at least 28x28", b)
+	}
+	tt.Key(0, ui.KeyTab)
+	time.Sleep(550 * time.Millisecond)
+	tt.Frame()
+	off = true
+	tt.Frame()
+	tt.Key(0, ui.KeyEnter)
+	if tt.HasText("Seat of the court from 1682.") || st.Active != 0 {
+		t.Errorf("disabled preview or activation: active %d texts %q", st.Active, tt.Texts())
+	}
+}
+
+func TestCitationBadgePreviewFitsNarrowWindow(t *testing.T) {
+	var st CitationState
+	var preview ui.Rect
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		src := sourcesSample[0]
+		ui.Row(c).Padding(8).Children(func() { CitationBadge(c, 1, src, &st) })
+	}, 180, 120)
+	tt.Key(0, ui.KeyTab)
+	time.Sleep(550 * time.Millisecond)
+	tt.Frame()
+	preview, ok := tt.Find("Source preview")
+	if !ok || preview.X < 0 || preview.X+preview.W > 180 || preview.Y+preview.H > 120 {
+		t.Fatalf("preview content outside window: %v found %v", preview, ok)
+	}
+}
+
+func TestCitationBadgeRemovedOwnerClearsHover(t *testing.T) {
+	show := true
+	st := CitationState{}
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Children(func() {
+			ui.Row(c).Key("badge").Height(36).Children(func() {
+				if show {
+					CitationBadge(c, 1, sourcesSample[0], &st)
+				}
+			})
+			ui.Row(c).Key("card").Width(300).Children(func() { SourceCard(c, 1, sourcesSample[0], &st) })
+		})
+	}, 400, 300)
+	b, _ := tt.Find("Source 1: The Palace of Versailles")
+	tt.Move(b.X+b.W/2, b.Y+b.H/2)
+	tt.Frame()
+	if st.hover != 1 {
+		t.Fatal("hover did not activate")
+	}
+	show = false
+	tt.Move(390, 290)
+	tt.Frame()
+	if st.hover != 0 {
+		t.Fatalf("removed owner retained hover %d", st.hover)
+	}
 }

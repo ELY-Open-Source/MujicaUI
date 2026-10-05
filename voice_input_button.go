@@ -22,8 +22,8 @@ type VoiceInputOptions struct {
 	Disabled bool
 }
 
-// VoiceInputButton asks the caller to start or stop recording; while recording it shows the time.
-// Clicked reports a press: start when idle or denied, stop when recording.
+// VoiceInputButton requests recording changes and displays elapsed time.
+// Clicked requests recording start or stop for the current state.
 func VoiceInputButton(c *ui.Context, opts VoiceInputOptions) ChoiceResult {
 	if opts.Recording && (opts.Started.IsZero() || opts.Denied) {
 		panic("mujica: VoiceInputButton recording needs Started and no Denied")
@@ -40,7 +40,6 @@ func VoiceInputButton(c *ui.Context, opts VoiceInputOptions) ChoiceResult {
 			d := max(c.Now().Sub(opts.Started), 0)
 			elapsed = audioClock(d.Truncate(time.Second))
 			label, icon = fmt.Sprintf(msg(c, "voice_input_button.stop"), elapsed), "square"
-			c.After(time.Second - d%time.Second)
 		}
 		h := Density(c).ControlHeight()
 		b := ui.ButtonBase(c).Size(h, h).Radius(h / 2).Label(label).Tooltip(label).Transition(colorFade)
@@ -64,7 +63,10 @@ func VoiceInputButton(c *ui.Context, opts VoiceInputOptions) ChoiceResult {
 		case opts.Recording:
 			ui.Row(c).Gap(u).AlignItems(ui.Center).Children(func() {
 				ui.Box(c).Size(8, 8).Radius(4).Background(k.Danger)
-				ui.Text(c, elapsed).FontFeatures("tnum").TextColor(k.Danger).SingleLine()
+				ui.Text(c, elapsed).FontFeatures("tnum").TextColor(k.Danger).SingleLine().DrawOver(func(_ *ui.Painter, _ ui.Rect) {
+					d := max(c.Now().Sub(opts.Started), 0)
+					c.After(time.Second - d%time.Second)
+				})
 			})
 		case opts.Denied:
 			ui.Row(c).Gap(u).AlignItems(ui.Center).TextColor(k.Danger).Role(ui.RoleStatus).Children(func() {

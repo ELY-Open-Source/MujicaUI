@@ -83,3 +83,29 @@ func TestPromptComposerSnapshot(t *testing.T) {
 		})
 	})
 }
+
+func TestPromptComposerCompositionDoesNotSend(t *testing.T) {
+	text, sends := "draft", 0
+	composing := false
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		if PromptComposer(c, &text, PromptComposerOptions{Label: "Prompt", Composing: composing}).Submitted() {
+			sends++
+		}
+	}, 500, 400)
+	_ = tt.Click("Prompt")
+	composing = true
+	tt.Frame()
+	tt.Compose("邀请", 2)
+	tt.Key(0, ui.KeyEnter)
+	if sends != 0 || text != "draft" {
+		t.Fatalf("composition submitted: sends %d text %q", sends, text)
+	}
+	tt.Type("邀请")
+	composing = false
+	tt.Frame()
+	tt.Key(0, ui.KeyEnter)
+	if sends != 1 || text != "draft邀请" {
+		t.Fatalf("committed input: sends %d text %q", sends, text)
+	}
+}

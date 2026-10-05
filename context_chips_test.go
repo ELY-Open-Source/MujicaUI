@@ -58,3 +58,23 @@ func TestContextChipsSnapshot(t *testing.T) {
 		ui.Column(c).Padding(16).Children(func() { ContextChips(c, mentionSample, ContextChipsOptions{Max: 3}) })
 	})
 }
+
+func TestContextChipsKeyboardAndEmpty(t *testing.T) {
+	items, removed := mentionSample, ""
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		if id, ok := ContextChips(c, items, ContextChipsOptions{Max: 1}).Removed(); ok {
+			removed = id
+		}
+	}, 400, 160)
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeyEnter)
+	if removed != "w1" {
+		t.Fatalf("removed %q, want w1", removed)
+	}
+	items = nil
+	tt.Frame()
+	if tt.HasText("+3 more") || tt.HasText("Versailles") {
+		t.Fatal("empty chips retained content")
+	}
+}
