@@ -8,10 +8,10 @@
 
 ```go
 data := `{"server":{"port":8080},"ready":true}`
-var state mujica.JsonViewerState
+var state devtools.JsonViewerState
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.JsonViewer(c, data, &state, mujica.JsonViewerOptions{})
+	core.Use(c, core.Settings{})
+	r := devtools.JsonViewer(c, data, &state, devtools.JsonViewerOptions{})
 	if r.Copied != "" {
 		fmt.Println("path copied")
 	}

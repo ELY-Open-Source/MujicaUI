@@ -11,8 +11,8 @@ values := []float64{100, 110, 95, 120}
 benchmark := []float64{100, 105, 108, 112}
 times := []time.Time{time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC), time.Date(2026, 2, 1, 0, 0, 0, 0, time.UTC), time.Date(2026, 3, 1, 0, 0, 0, 0, time.UTC), time.Date(2026, 4, 1, 0, 0, 0, 0, time.UTC)}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.PerformanceChart(c, values, mujica.PerformanceChartOptions{Frame: mujica.ChartFrame{Label: "Performance"}, Times: times, Benchmark: benchmark})
+	core.Use(c, core.Settings{})
+	r := finance.PerformanceChart(c, values, finance.PerformanceChartOptions{Frame: chart.ChartFrame{Label: "Performance"}, Times: times, Benchmark: benchmark})
 	if r.Changed() || r.Retried() {
 		fmt.Println(r.Point)
 	}

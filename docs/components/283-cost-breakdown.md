@@ -7,14 +7,14 @@
 ## 最小示例
 
 ```go
-var state mujica.CostBreakdownState
-items := []mujica.CostItem{
+var state feedback.CostBreakdownState
+items := []feedback.CostItem{
 	{Model: "opus", Tool: "search", InputTokens: 1000, OutputTokens: 200, Cost: 0.30},
 	{Model: "haiku", Tool: "search", InputTokens: 4000, OutputTokens: 500, Cost: 0.05},
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.CostBreakdown(c, &state, items, mujica.CostBreakdownOptions{GroupBy: mujica.CostByModel}).Element.Height(260)
+	core.Use(c, core.Settings{})
+	feedback.CostBreakdown(c, &state, items, feedback.CostBreakdownOptions{GroupBy: feedback.CostByModel}).Element.Height(260)
 }
 ui.Render(view, 400, 300, 1)
 ```

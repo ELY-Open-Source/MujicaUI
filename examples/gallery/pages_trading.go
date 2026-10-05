@@ -7,39 +7,41 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ZacharyZhang-NY/MujicaUI/finance"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
 )
 
 const tradingCategory = "Trading"
 
 // tradingTrend shows and applies the rise-color switch.
 func tradingTrend(c *ui.Context, redUp *bool, log func(string)) {
-	if mujica.Checkbox(c, redUp, "Red means up (China)", mujica.CheckboxOptions{}).Changed() {
+	if input.Checkbox(c, redUp, "Red means up (China)", input.CheckboxOptions{}).Changed() {
 		log(fmt.Sprintf("red up %v", *redUp))
 	}
-	t := mujica.GreenUp
+	t := core.GreenUp
 	if *redUp {
-		t = mujica.RedUp
+		t = core.RedUp
 	}
-	mujica.UseTrend(c, t)
+	core.UseTrend(c, t)
 }
 
 // tradingAction is a demo button at its natural width.
 func tradingAction(c *ui.Context, label string) bool {
 	clicked := false
 	ui.Row(c).Children(func() {
-		clicked = mujica.Button(c, label, mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked()
+		clicked = input.Button(c, label, input.ButtonOptions{Variant: input.Secondary}).Clicked()
 	})
 	return clicked
 }
 
 // tradingBook is a deterministic book around mid, moved by step.
-func tradingBook(mid float64, step int) mujica.OrderBookData {
-	var b mujica.OrderBookData
+func tradingBook(mid float64, step int) finance.OrderBookData {
+	var b finance.OrderBookData
 	for i := range 12 {
 		w := float64((i*7+step*3)%11 + 1)
-		b.Bids = append(b.Bids, mujica.BookLevel{Price: math.Round((mid-0.01*float64(i+1))*100) / 100, Size: w * 10})
-		b.Asks = append(b.Asks, mujica.BookLevel{Price: math.Round((mid+0.01*float64(i))*100) / 100, Size: float64((i*5+step)%9+1) * 10})
+		b.Bids = append(b.Bids, finance.BookLevel{Price: math.Round((mid-0.01*float64(i+1))*100) / 100, Size: w * 10})
+		b.Asks = append(b.Asks, finance.BookLevel{Price: math.Round((mid+0.01*float64(i))*100) / 100, Size: float64((i*5+step)%9+1) * 10})
 	}
 	b.Version = step
 	return b
@@ -90,12 +92,12 @@ var tradingPages = []page{
 
 type tradingTickerState struct {
 	redUp bool
-	items []mujica.TickerItem
+	items []finance.TickerItem
 }
 
 func tradingTickerDemo(c *ui.Context, log func(string)) {
 	d := ui.Local(c.Root(), "161", func() tradingTickerState {
-		return tradingTickerState{items: []mujica.TickerItem{{Symbol: "MUJC", Price: 412.08, ChangePercent: -1.35}, {Symbol: "AVE", Price: 88.2, ChangePercent: 2.1}, {Symbol: "OBLV", Price: 1204.5, ChangePercent: 0.4},
+		return tradingTickerState{items: []finance.TickerItem{{Symbol: "MUJC", Price: 412.08, ChangePercent: -1.35}, {Symbol: "AVE", Price: 88.2, ChangePercent: 2.1}, {Symbol: "OBLV", Price: 1204.5, ChangePercent: 0.4},
 			{Symbol: "DOLO", Price: 7.25, ChangePercent: -0.8}, {Symbol: "MORT", Price: 33.1, ChangePercent: 1.2}, {Symbol: "TIMR", Price: 61.9, ChangePercent: -2.3}}}
 	})
 	tradingTrend(c, &d.redUp, log)
@@ -105,9 +107,9 @@ func tradingTickerDemo(c *ui.Context, log func(string)) {
 		}
 		log("prices moved")
 	}
-	ui.Box(c).Width(560).Children(func() { mujica.TickerTape(c, d.items, mujica.TickerTapeOptions{}) })
+	ui.Box(c).Width(560).Children(func() { finance.TickerTape(c, d.items, finance.TickerTapeOptions{}) })
 	formStates(c, func() {
-		ui.Box(c).Width(280).Children(func() { mujica.TickerTape(c, d.items[:2], mujica.TickerTapeOptions{Speed: 15}) })
+		ui.Box(c).Width(280).Children(func() { finance.TickerTape(c, d.items[:2], finance.TickerTapeOptions{Speed: 15}) })
 	})
 }
 
@@ -119,20 +121,20 @@ type tradingQuoteState struct {
 func tradingQuoteDemo(c *ui.Context, log func(string)) {
 	d := ui.Local(c.Root(), "162", func() tradingQuoteState { return tradingQuoteState{price: 412.08} })
 	tradingTrend(c, &d.redUp, log)
-	if mujica.Slider(c, &d.price, mujica.SliderOptions{Min: 380, Max: 440, Step: 0.01, Label: "Price", ShowValue: true}).Changed() {
+	if input.Slider(c, &d.price, input.SliderOptions{Min: 380, Max: 440, Step: 0.01, Label: "Price", ShowValue: true}).Changed() {
 		log(fmt.Sprintf("price %.2f", d.price))
 	}
 	change := d.price - 417.7
 	ui.Row(c).Gap(16).Wrap().Children(func() {
-		mujica.QuoteCard(c, mujica.Quote{Symbol: "MUJC", Name: "Ave Mujica Holdings", Price: d.price, Change: change, ChangePercent: change / 417.7 * 100},
-			mujica.QuoteCardOptions{Chart: func() {
-				k := mujica.Tokens(c)
+		finance.QuoteCard(c, finance.Quote{Symbol: "MUJC", Name: "Ave Mujica Holdings", Price: d.price, Change: change, ChangePercent: change / 417.7 * 100},
+			finance.QuoteCardOptions{Chart: func() {
+				k := core.Tokens(c)
 				ui.Box(c).Fill().Draw(func(p *ui.Painter, r ui.Rect) {
 					p.Line(r.X, r.Y+r.H*0.7, r.X+r.W/2, r.Y+r.H*0.3, 1.5, k.Info)
 					p.Line(r.X+r.W/2, r.Y+r.H*0.3, r.X+r.W, r.Y+r.H*(0.5-float32(change)/40), 1.5, k.Info)
 				})
 			}})
-		mujica.QuoteCard(c, mujica.Quote{Symbol: "AVE", Price: 88.2}, mujica.QuoteCardOptions{})
+		finance.QuoteCard(c, finance.Quote{Symbol: "AVE", Price: 88.2}, finance.QuoteCardOptions{})
 	})
 }
 
@@ -146,19 +148,19 @@ func tradingPriceDemo(c *ui.Context, log func(string)) {
 	tradingTrend(c, &d.redUp, log)
 	formToggles(c, []string{"Thousands separators", "No flash"}, &d.grouping, &d.noFlash)
 	ui.Row(c).Gap(8).Children(func() {
-		if mujica.Button(c, "Tick up", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+		if input.Button(c, "Tick up", input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 			d.price += 12.5
 			log(fmt.Sprintf("price %.2f", d.price))
 		}
-		if mujica.Button(c, "Tick down", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+		if input.Button(c, "Tick down", input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 			d.price -= 12.5
 			log(fmt.Sprintf("price %.2f", d.price))
 		}
 	})
-	mujica.PriceText(c, d.price, mujica.PriceTextOptions{Size: 28, Compare: true, Reference: 18234.5, NoFlash: d.noFlash, NoGrouping: !d.grouping})
+	finance.PriceText(c, d.price, finance.PriceTextOptions{Size: 28, Compare: true, Reference: 18234.5, NoFlash: d.noFlash, NoGrouping: !d.grouping})
 	formStates(c, func() {
-		mujica.PriceText(c, 0.004521, mujica.PriceTextOptions{Decimals: 6})
-		mujica.PriceText(c, 100, mujica.PriceTextOptions{Compare: true, Reference: 100})
+		finance.PriceText(c, 0.004521, finance.PriceTextOptions{Decimals: 6})
+		finance.PriceText(c, 100, finance.PriceTextOptions{Compare: true, Reference: 100})
 	})
 }
 
@@ -171,21 +173,21 @@ func tradingBadgeDemo(c *ui.Context, log func(string)) {
 	d := ui.Local(c.Root(), "164", func() tradingBadgeState { return tradingBadgeState{change: 1.25} })
 	tradingTrend(c, &d.redUp, log)
 	formToggles(c, []string{"Hide percent"}, &d.hidePercent)
-	if mujica.Slider(c, &d.change, mujica.SliderOptions{Min: -5, Max: 5, Step: 0.05, Label: "Change", ShowValue: true}).Changed() {
+	if input.Slider(c, &d.change, input.SliderOptions{Min: -5, Max: 5, Step: 0.05, Label: "Change", ShowValue: true}).Changed() {
 		log(fmt.Sprintf("change %.2f", d.change))
 	}
-	mujica.PriceChangeBadge(c, d.change, d.change/1.47, mujica.PriceChangeBadgeOptions{HidePercent: d.hidePercent})
+	finance.PriceChangeBadge(c, d.change, d.change/1.47, finance.PriceChangeBadgeOptions{HidePercent: d.hidePercent})
 	formStates(c, func() {
-		mujica.PriceChangeBadge(c, 2.4, 1.2, mujica.PriceChangeBadgeOptions{})
-		mujica.PriceChangeBadge(c, -2.4, -1.2, mujica.PriceChangeBadgeOptions{})
-		mujica.PriceChangeBadge(c, 0, 0, mujica.PriceChangeBadgeOptions{})
+		finance.PriceChangeBadge(c, 2.4, 1.2, finance.PriceChangeBadgeOptions{})
+		finance.PriceChangeBadge(c, -2.4, -1.2, finance.PriceChangeBadgeOptions{})
+		finance.PriceChangeBadge(c, 0, 0, finance.PriceChangeBadgeOptions{})
 	})
 }
 
 type tradingBookState struct {
 	redUp, disabled bool
 	step            int
-	book            mujica.OrderBookState
+	book            finance.OrderBookState
 }
 
 func tradingBookDemo(c *ui.Context, log func(string)) {
@@ -197,7 +199,7 @@ func tradingBookDemo(c *ui.Context, log func(string)) {
 		log(fmt.Sprintf("book update %d", d.step))
 	}
 	ui.Box(c).Width(320).Children(func() {
-		r := mujica.OrderBook(c, &d.book, tradingBook(100, d.step), mujica.OrderBookOptions{Depth: 6, Groups: []float64{0.01, 0.05, 0.1}, Disabled: d.disabled})
+		r := finance.OrderBook(c, &d.book, tradingBook(100, d.step), finance.OrderBookOptions{Depth: 6, Groups: []float64{0.01, 0.05, 0.1}, Disabled: d.disabled})
 		if price, side, ok := r.Clicked(); ok {
 			log(fmt.Sprintf("level %v at %.2f", side, price))
 		}
@@ -217,18 +219,18 @@ func tradingLevel2Demo(c *ui.Context, log func(string)) {
 		log(fmt.Sprintf("level 2 update %d", d.step))
 	}
 	book := tradingBook(100, d.step)
-	var data mujica.Level2Data
+	var data finance.Level2Data
 	for i := range 5 {
-		data.Bids = append(data.Bids, mujica.L2Level{Price: book.Bids[i].Price, Size: book.Bids[i].Size, Orders: int(book.Bids[i].Size / 10)})
-		data.Asks = append(data.Asks, mujica.L2Level{Price: book.Asks[i].Price, Size: book.Asks[i].Size, Orders: int(book.Asks[i].Size / 10)})
+		data.Bids = append(data.Bids, finance.L2Level{Price: book.Bids[i].Price, Size: book.Bids[i].Size, Orders: int(book.Bids[i].Size / 10)})
+		data.Asks = append(data.Asks, finance.L2Level{Price: book.Asks[i].Price, Size: book.Asks[i].Size, Orders: int(book.Asks[i].Size / 10)})
 	}
-	ui.Box(c).Width(620).Children(func() { mujica.Level2Quotes(c, data, mujica.Level2QuotesOptions{}) })
+	ui.Box(c).Width(620).Children(func() { finance.Level2Quotes(c, data, finance.Level2QuotesOptions{}) })
 }
 
 type tradingTapeState struct {
 	redUp  bool
-	trades []mujica.TradePrint
-	tape   mujica.TimeAndSalesState
+	trades []finance.TradePrint
+	tape   finance.TimeAndSalesState
 }
 
 func tradingTapeDemo(c *ui.Context, log func(string)) {
@@ -238,17 +240,17 @@ func tradingTapeDemo(c *ui.Context, log func(string)) {
 		at := time.Date(2026, 10, 5, 9, 30, 0, 0, time.Local)
 		for range 20 {
 			n := len(d.trades)
-			side := mujica.SideBuy
+			side := finance.SideBuy
 			if n%3 == 1 {
-				side = mujica.SideSell
+				side = finance.SideSell
 			}
-			d.trades = append(d.trades, mujica.TradePrint{ID: fmt.Sprint(n), Time: at.Add(time.Duration(n) * time.Second),
+			d.trades = append(d.trades, finance.TradePrint{ID: fmt.Sprint(n), Time: at.Add(time.Duration(n) * time.Second),
 				Price: 100 + float64(n%17)/100, Size: float64((n*37)%1500 + 1), Side: side})
 		}
 		log(fmt.Sprintf("%d trades", len(d.trades)))
 	}
 	ui.Box(c).Width(460).Children(func() {
-		if mujica.TimeAndSales(c, &d.tape, d.trades, mujica.TimeAndSalesOptions{LargeSize: 1000}).Changed() {
+		if finance.TimeAndSales(c, &d.tape, d.trades, finance.TimeAndSalesOptions{LargeSize: 1000}).Changed() {
 			log(fmt.Sprintf("paused %v", d.tape.Paused))
 		}
 	})
@@ -257,18 +259,18 @@ func tradingTapeDemo(c *ui.Context, log func(string)) {
 type tradingLadderState struct {
 	redUp, disabled bool
 	last            float64
-	ladder          mujica.DepthLadderState
+	ladder          finance.DepthLadderState
 }
 
 func tradingLadderDemo(c *ui.Context, log func(string)) {
 	d := ui.Local(c.Root(), "168", func() tradingLadderState { return tradingLadderState{last: 100} })
 	tradingTrend(c, &d.redUp, log)
 	formToggles(c, []string{"Disabled"}, &d.disabled)
-	if mujica.Slider(c, &d.last, mujica.SliderOptions{Min: 99.9, Max: 100.1, Step: 0.01, Label: "Last price", ShowValue: true}).Changed() {
+	if input.Slider(c, &d.last, input.SliderOptions{Min: 99.9, Max: 100.1, Step: 0.01, Label: "Last price", ShowValue: true}).Changed() {
 		log(fmt.Sprintf("last %.2f", d.last))
 	}
 	ui.Box(c).Width(360).Children(func() {
-		r := mujica.DepthLadder(c, &d.ladder, d.last, tradingBook(100, 0), mujica.DepthLadderOptions{TickSize: 0.01, Rows: 11, Disabled: d.disabled})
+		r := finance.DepthLadder(c, &d.ladder, d.last, tradingBook(100, 0), finance.DepthLadderOptions{TickSize: 0.01, Rows: 11, Disabled: d.disabled})
 		if price, side, ok := r.Clicked(); ok {
 			log(fmt.Sprintf("order %v at %.2f", side, price))
 		}

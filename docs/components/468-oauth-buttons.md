@@ -9,10 +9,10 @@
 ## 最小示例
 
 ```go
-providers := []mujica.OAuthProvider{{ID: "sso", Name: "Company SSO"}}
+providers := []account.OAuthProvider{{ID: "sso", Name: "Company SSO"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if id, ok := mujica.OAuthButtons(c, providers, mujica.OAuthButtonsOptions{}).Chosen(); ok {
+	core.Use(c, core.Settings{})
+	if id, ok := account.OAuthButtons(c, providers, account.OAuthButtonsOptions{}).Chosen(); ok {
 		fmt.Println("start sign-in with", id)
 	}
 }

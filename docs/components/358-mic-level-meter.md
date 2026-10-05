@@ -9,8 +9,8 @@
 ```go
 level := float32(0.4) // the input's peak, 0 to 1 of full scale
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.MicLevelMeter(c, level, mujica.MicLevelMeterOptions{})
+	core.Use(c, core.Settings{})
+	media.MicLevelMeter(c, level, media.MicLevelMeterOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

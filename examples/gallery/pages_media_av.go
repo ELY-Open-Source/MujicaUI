@@ -7,7 +7,9 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/data"
+	"github.com/ZacharyZhang-NY/MujicaUI/media"
+	"github.com/ZacharyZhang-NY/MujicaUI/navigation"
 )
 
 // mediaClockState simulates the caller's playback: position advances while playing.
@@ -55,12 +57,12 @@ func videoPlayerDemo(c *ui.Context, log func(string)) {
 	if s.noFrame {
 		frame = nil
 	}
-	st := mujica.VideoState{Frame: frame, Position: s.clock.pos, Duration: s.clock.dur, Playing: s.clock.playing,
-		Rate: s.clock.rate, Buffered: []mujica.MediaRange{{Start: 0, End: s.clock.pos + 40*time.Second}},
+	st := media.VideoState{Frame: frame, Position: s.clock.pos, Duration: s.clock.dur, Playing: s.clock.playing,
+		Rate: s.clock.rate, Buffered: []media.MediaRange{{Start: 0, End: s.clock.pos + 40*time.Second}},
 		Subtitle: cues[int(s.clock.pos/(10*time.Second))%3], SubtitlesOn: s.subs, Fullscreen: s.full, PiP: s.pip}
 	mediaSection(c, "Live", func() {
 		ui.Column(c).MaxWidth(640).Children(func() {
-			mujica.VideoPlayer(c, st, mujica.VideoPlayerOptions{
+			media.VideoPlayer(c, st, media.VideoPlayerOptions{
 				OnPlay:       func() { s.clock.playing = true; log("play") },
 				OnPause:      func() { s.clock.playing = false; log("pause") },
 				OnSeek:       func(d time.Duration) { s.clock.pos = d; log("seek " + mediaClockLabel(d)) },
@@ -86,8 +88,8 @@ func videoScrubberDemo(c *ui.Context, log func(string)) {
 			mediaCheck(c, log, &s.disabled, "Disabled")
 		})
 	})
-	opts := mujica.VideoScrubberOptions{Duration: 3 * time.Minute, Disabled: s.disabled,
-		Buffered: []mujica.MediaRange{{Start: 0, End: 90 * time.Second}, {Start: 120 * time.Second, End: 140 * time.Second}}}
+	opts := media.VideoScrubberOptions{Duration: 3 * time.Minute, Disabled: s.disabled,
+		Buffered: []media.MediaRange{{Start: 0, End: 90 * time.Second}, {Start: 120 * time.Second, End: 140 * time.Second}}}
 	if s.preview {
 		opts.Preview = func(at time.Duration) {
 			ui.Image(c, mediaBitmaps[int(at/(time.Minute))%3]).Fit(ui.Cover).Fill()
@@ -95,7 +97,7 @@ func videoScrubberDemo(c *ui.Context, log func(string)) {
 	}
 	mediaSection(c, "Live", func() {
 		ui.Column(c).MaxWidth(560).Padding(110, 0, 0, 0).Children(func() {
-			if mujica.VideoScrubber(c, &s.pos, opts).Changed() {
+			if media.VideoScrubber(c, &s.pos, opts).Changed() {
 				log("seek " + mediaClockLabel(s.pos))
 			}
 		})
@@ -112,8 +114,8 @@ func audioPlayerDemo(c *ui.Context, log func(string)) {
 	mediaSection(c, "Parameters", func() { mediaCheck(c, log, &s.disabled, "Disabled") })
 	mediaSection(c, "Live", func() {
 		ui.Column(c).MaxWidth(560).Children(func() {
-			mujica.AudioPlayer(c, mujica.AudioState{Title: "Ave Mujica — Overture", Position: s.clock.pos, Duration: s.clock.dur, Playing: s.clock.playing},
-				mujica.AudioPlayerOptions{
+			media.AudioPlayer(c, media.AudioState{Title: "Ave Mujica — Overture", Position: s.clock.pos, Duration: s.clock.dur, Playing: s.clock.playing},
+				media.AudioPlayerOptions{
 					OnPlay:   func() { s.clock.playing = true; log("play") },
 					OnPause:  func() { s.clock.playing = false; log("pause") },
 					OnSeek:   func(d time.Duration) { s.clock.pos = d; log("seek " + mediaClockLabel(d)) },
@@ -136,7 +138,7 @@ var mediaSamples = func() []float32 {
 func audioWaveformDemo(c *ui.Context, log func(string)) {
 	type state struct {
 		pos       time.Duration
-		sel       mujica.MediaRange
+		sel       media.MediaRange
 		status    int
 		selecting bool
 	}
@@ -144,28 +146,28 @@ func audioWaveformDemo(c *ui.Context, log func(string)) {
 	mediaSection(c, "Parameters", func() {
 		ui.Row(c).Gap(16).AlignItems(ui.Center).Children(func() {
 			before := s.status
-			mujica.SegmentedControl(c, &s.status, []mujica.Segment{{Label: "Ready"}, {Label: "Loading"}, {Label: "Failed"}, {Label: "Empty"}}, mujica.SegmentedControlOptions{Label: "Status"})
+			navigation.SegmentedControl(c, &s.status, []navigation.Segment{{Label: "Ready"}, {Label: "Loading"}, {Label: "Failed"}, {Label: "Empty"}}, navigation.SegmentedControlOptions{Label: "Status"})
 			if s.status != before {
 				log(fmt.Sprintf("status %d", s.status))
 			}
 			mediaCheck(c, log, &s.selecting, "Selectable")
 		})
 	})
-	opts := mujica.AudioWaveformOptions{Duration: time.Minute, Position: s.pos, OnSeek: func(d time.Duration) { s.pos = d; log("seek " + mediaClockLabel(d)) }}
+	opts := media.AudioWaveformOptions{Duration: time.Minute, Position: s.pos, OnSeek: func(d time.Duration) { s.pos = d; log("seek " + mediaClockLabel(d)) }}
 	if s.selecting {
 		opts.Selection = &s.sel
 	}
-	data := mediaSamples
+	samples := mediaSamples
 	switch s.status {
 	case 1:
-		opts.Status, data = mujica.DataLoading, nil
+		opts.Status, samples = data.DataLoading, nil
 	case 2:
-		opts.Status, opts.Error, data = mujica.DataFailed, "The recording could not be decoded.", nil
+		opts.Status, opts.Error, samples = data.DataFailed, "The recording could not be decoded.", nil
 	case 3:
-		data = nil
+		samples = nil
 	}
 	mediaSection(c, "Live", func() {
-		if mujica.AudioWaveform(c, data, opts).Changed() {
+		if media.AudioWaveform(c, samples, opts).Changed() {
 			log(fmt.Sprintf("selection %s – %s", mediaClockLabel(s.sel.Start), mediaClockLabel(s.sel.End)))
 		}
 	})
@@ -186,6 +188,6 @@ func audioSpectrumDemo(c *ui.Context, log func(string)) {
 		c.AnimationFrame()
 	}
 	mediaSection(c, "Live", func() {
-		mujica.AudioSpectrum(c, bands, mujica.AudioSpectrumOptions{BandLabel: func(i int) string { return freqs[i] }})
+		media.AudioSpectrum(c, bands, media.AudioSpectrumOptions{BandLabel: func(i int) string { return freqs[i] }})
 	})
 }

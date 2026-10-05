@@ -9,11 +9,11 @@
 ```go
 open := []string{"choir"}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Accordion(c, &open, []mujica.AccordionItem{
+	core.Use(c, core.Settings{})
+	data.Accordion(c, &open, []data.AccordionItem{
 		{ID: "choir", Title: "Choir", Content: func() { ui.Text(c, "Twelve voices.") }},
 		{ID: "nave", Title: "Nave", Content: func() { ui.Text(c, "Black oak pews.") }},
-	}, mujica.AccordionOptions{})
+	}, data.AccordionOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

@@ -9,11 +9,11 @@
 ## 最小示例
 
 ```go
-var state mujica.TimeAndSalesState
-trades := []mujica.TradePrint{{ID: "1", Time: time.Now(), Price: 100.01, Size: 300, Side: mujica.SideBuy}}
+var state finance.TimeAndSalesState
+trades := []finance.TradePrint{{ID: "1", Time: time.Now(), Price: 100.01, Size: 300, Side: finance.SideBuy}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.TimeAndSales(c, &state, trades, mujica.TimeAndSalesOptions{LargeSize: 1000})
+	core.Use(c, core.Settings{})
+	finance.TimeAndSales(c, &state, trades, finance.TimeAndSalesOptions{LargeSize: 1000})
 }
 ui.Render(view, 400, 300, 1)
 ```

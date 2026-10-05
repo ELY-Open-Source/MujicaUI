@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-if mujica.PasswordInput(c, &password, mujica.PasswordInputOptions{Label: "Password"}).Submitted() {
+if input.PasswordInput(c, &password, input.PasswordInputOptions{Label: "Password"}).Submitted() {
 	fmt.Println("signing in")
 }
 ```

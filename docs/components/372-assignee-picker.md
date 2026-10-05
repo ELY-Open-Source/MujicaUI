@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-members := []mujica.ProjectMember{{ID: "ann", Name: "Ann"}, {ID: "ben", Name: "Ben"}}
+members := []project.ProjectMember{{ID: "ann", Name: "Ann"}, {ID: "ben", Name: "Ben"}}
 ids := []string{"ann"}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.AssigneePicker(c, &ids, members, mujica.AssigneePickerOptions{Max: 2}).Changed() {
+	core.Use(c, core.Settings{})
+	if project.AssigneePicker(c, &ids, members, project.AssigneePickerOptions{Max: 2}).Changed() {
 		log.Println("assignees", ids)
 	}
 }

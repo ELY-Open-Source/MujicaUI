@@ -7,12 +7,12 @@
 ## 最小示例
 
 ```go
-state := mujica.CurrencyConverterState{Amount: 100, From: "USD", To: "JPY"}
-currencies := []mujica.Currency{{Code: "USD", Name: "Dollar", Decimals: 2}, {Code: "JPY", Name: "Yen", Decimals: 0}}
+state := finance.CurrencyConverterState{Amount: 100, From: "USD", To: "JPY"}
+currencies := []finance.Currency{{Code: "USD", Name: "Dollar", Decimals: 2}, {Code: "JPY", Name: "Yen", Decimals: 0}}
 rate := 149.37
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.CurrencyConverter(c, &state, currencies, mujica.CurrencyConverterOptions{Rate: rate})
+	core.Use(c, core.Settings{})
+	r := finance.CurrencyConverter(c, &state, currencies, finance.CurrencyConverterOptions{Rate: rate})
 	if r.PairChanged {
 		rate = 0
 		fmt.Println(state.From, state.To)

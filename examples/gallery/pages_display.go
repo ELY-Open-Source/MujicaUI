@@ -6,7 +6,9 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ZacharyZhang-NY/MujicaUI/display"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
 )
 
 var displayPages = []page{
@@ -43,7 +45,7 @@ type textState struct {
 
 func textDemo(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "011", func() textState { return textState{maxLines: 0, selectable: true, name: "Coronation.md"} })
-	mujica.Heading(c, "Text", mujica.HeadingOptions{Subtitle: "换行、省略、选择复制与可编辑模式", Divider: true})
+	display.Heading(c, "Text", display.HeadingOptions{Subtitle: "换行、省略、选择复制与可编辑模式", Divider: true})
 	displaySection(c, "Parameters", func() {
 		displayControls(c, func() {
 			ui.Text(c, fmt.Sprintf("MaxLines %d", int(s.maxLines)))
@@ -55,12 +57,12 @@ func textDemo(c *ui.Context, log func(string)) {
 	})
 	displaySection(c, "Display", func() {
 		ui.Box(c).Width(360).Children(func() {
-			mujica.Text(c, "Velvet curtains fall over the long gallery. Every candle leans toward the open door, and the quartet plays on while the guests take their places beneath the chandeliers.",
-				mujica.TextOptions{MaxLines: int(s.maxLines), Selectable: s.selectable})
+			display.Text(c, "Velvet curtains fall over the long gallery. Every candle leans toward the open door, and the quartet plays on while the guests take their places beneath the chandeliers.",
+				display.TextOptions{MaxLines: int(s.maxLines), Selectable: s.selectable})
 		})
 	})
 	displaySection(c, "Editable", func() {
-		e := mujica.EditableText(c, &s.name, mujica.EditableTextOptions{Saving: s.saving, Error: s.saveErr, Label: "File name"})
+		e := display.EditableText(c, &s.name, display.EditableTextOptions{Saving: s.saving, Error: s.saveErr, Label: "File name"})
 		if e.Changed() {
 			if s.failNext {
 				s.saveErr = "Save failed: the name is already taken."
@@ -76,9 +78,9 @@ func textDemo(c *ui.Context, log func(string)) {
 	})
 }
 
-const textCode = `mujica.Text(c, "Order ID: 4821-AX", mujica.TextOptions{Selectable: true})
-mujica.Text(c, "A long note that stops after two lines.", mujica.TextOptions{MaxLines: 2})
-if mujica.EditableText(c, &name, mujica.EditableTextOptions{Error: saveErr}).Changed() {
+const textCode = `display.Text(c, "Order ID: 4821-AX", display.TextOptions{Selectable: true})
+display.Text(c, "A long note that stops after two lines.", display.TextOptions{MaxLines: 2})
+if display.EditableText(c, &name, display.EditableTextOptions{Error: saveErr}).Changed() {
 	saveErr = "" // save name here; set saveErr on failure
 }`
 
@@ -89,7 +91,7 @@ type headingState struct {
 
 func headingDemo(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "012", func() headingState { return headingState{level: 1, subtitle: true, divide: true} })
-	mujica.Heading(c, "Heading", mujica.HeadingOptions{Subtitle: "三级衬线标题、副标题与装饰分隔线", Divider: true})
+	display.Heading(c, "Heading", display.HeadingOptions{Subtitle: "三级衬线标题、副标题与装饰分隔线", Divider: true})
 	displaySection(c, "Parameters", func() {
 		displayControls(c, func() {
 			ui.Text(c, fmt.Sprintf("Level %d", int(s.level)))
@@ -105,17 +107,17 @@ func headingDemo(c *ui.Context, log func(string)) {
 		if s.subtitle {
 			sub = "Ceremonies of the winter season"
 		}
-		mujica.Heading(c, "The Grand Hall", mujica.HeadingOptions{Level: int(s.level), Subtitle: sub, Divider: s.divide})
+		display.Heading(c, "The Grand Hall", display.HeadingOptions{Level: int(s.level), Subtitle: sub, Divider: s.divide})
 	})
 	displaySection(c, "Levels", func() {
 		for l := 1; l <= 3; l++ {
-			mujica.Heading(c, fmt.Sprintf("Level %d · 宫廷", l), mujica.HeadingOptions{Level: l})
+			display.Heading(c, fmt.Sprintf("Level %d · 宫廷", l), display.HeadingOptions{Level: l})
 		}
 	})
 }
 
-const headingCode = `mujica.Heading(c, "The Grand Hall", mujica.HeadingOptions{Subtitle: "Winter ceremonies", Divider: true})
-mujica.Heading(c, "Guest Ledger", mujica.HeadingOptions{Level: 2})`
+const headingCode = `display.Heading(c, "The Grand Hall", display.HeadingOptions{Subtitle: "Winter ceremonies", Divider: true})
+display.Heading(c, "Guest Ledger", display.HeadingOptions{Level: 2})`
 
 type iconState struct {
 	name  string
@@ -124,12 +126,12 @@ type iconState struct {
 	label bool
 }
 
-var iconTones = map[string]mujica.IconTone{"Inherit": mujica.IconInherit, "Muted": mujica.IconMuted, "Accent": mujica.IconAccent,
-	"Success": mujica.IconSuccess, "Warning": mujica.IconWarning, "Danger": mujica.IconDanger, "Info": mujica.IconInfo}
+var iconTones = map[string]display.IconTone{"Inherit": display.IconInherit, "Muted": display.IconMuted, "Accent": display.IconAccent,
+	"Success": display.IconSuccess, "Warning": display.IconWarning, "Danger": display.IconDanger, "Info": display.IconInfo}
 
 func iconDemo(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "013", func() iconState { return iconState{name: "star", size: "24", tone: "Accent"} })
-	mujica.Heading(c, "Icon", mujica.HeadingOptions{Subtitle: "按名称取图标；尺寸与语义颜色；缺失时可见回退", Divider: true})
+	display.Heading(c, "Icon", display.HeadingOptions{Subtitle: "按名称取图标；尺寸与语义颜色；缺失时可见回退", Divider: true})
 	displaySection(c, "Parameters", func() {
 		displayControls(c, func() {
 			if ui.Select(c, &s.name, []string{"star", "bell", "settings", "moon", "sun", "no-such-icon"}).Changed() {
@@ -151,24 +153,24 @@ func iconDemo(c *ui.Context, log func(string)) {
 		if s.label {
 			label = "Preview icon"
 		}
-		mujica.Icon(c, s.name, mujica.IconOptions{Size: size, Tone: iconTones[s.tone], Label: label})
+		display.Icon(c, s.name, display.IconOptions{Size: size, Tone: iconTones[s.tone], Label: label})
 	})
 	displaySection(c, "Tones and fallback", func() {
 		ui.Row(c).Gap(14).Children(func() {
 			for _, t := range []string{"Inherit", "Muted", "Accent", "Success", "Warning", "Danger", "Info"} {
-				mujica.Icon(c, "circle-check", mujica.IconOptions{Size: 20, Tone: iconTones[t]}).Key(t)
+				display.Icon(c, "circle-check", display.IconOptions{Size: 20, Tone: iconTones[t]}).Key(t)
 			}
-			mujica.Icon(c, "missing-name", mujica.IconOptions{Size: 20})
+			display.Icon(c, "missing-name", display.IconOptions{Size: 20})
 		})
 	})
 }
 
 const iconCode = `ui.Row(c).Gap(8).Children(func() {
-	mujica.Icon(c, "star", mujica.IconOptions{})
-	mujica.Icon(c, "circle-check", mujica.IconOptions{Size: 20, Tone: mujica.IconSuccess, Label: "Done"})
+	display.Icon(c, "star", display.IconOptions{})
+	display.Icon(c, "circle-check", display.IconOptions{Size: 20, Tone: display.IconSuccess, Label: "Done"})
 })`
 
-var displayPeople = []mujica.AvatarItem{
+var displayPeople = []display.AvatarItem{
 	{Name: "Sakiko Togawa"}, {Name: "Uika Misumi"}, {Name: "Mutsumi Wakaba"}, {Name: "Umiri Yahata"},
 	{Name: "Nyamu Yutenji"}, {Name: "Tomori Takamatsu"}, {Name: "Anon Chihaya"}, {Name: "Rana Kaname"},
 }
@@ -177,7 +179,7 @@ type avatarGroupState struct{ max, count float64 }
 
 func avatarGroupDemo(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "016", func() avatarGroupState { return avatarGroupState{max: 3, count: 6} })
-	mujica.Heading(c, "AvatarGroup", mujica.HeadingOptions{Subtitle: "最大显示数量、剩余数量与完整名单", Divider: true})
+	display.Heading(c, "AvatarGroup", display.HeadingOptions{Subtitle: "最大显示数量、剩余数量与完整名单", Divider: true})
 	displaySection(c, "Parameters", func() {
 		displayControls(c, func() {
 			ui.Text(c, fmt.Sprintf("Max %d", int(s.max)))
@@ -191,9 +193,9 @@ func avatarGroupDemo(c *ui.Context, log func(string)) {
 		})
 	})
 	displaySection(c, "Preview", func() {
-		for i, g := range []mujica.AvatarGroupView{
-			mujica.AvatarGroup(c, displayPeople[:int(s.count)], mujica.AvatarGroupOptions{Max: int(s.max)}),
-			mujica.AvatarGroup(c, displayPeople, mujica.AvatarGroupOptions{Max: 4, Size: 24}),
+		for i, g := range []display.AvatarGroupView{
+			display.AvatarGroup(c, displayPeople[:int(s.count)], display.AvatarGroupOptions{Max: int(s.max)}),
+			display.AvatarGroup(c, displayPeople, display.AvatarGroupOptions{Max: 4, Size: 24}),
 		} {
 			if g.Toggled {
 				log(fmt.Sprintf("group %d open=%v", i+1, g.Open))
@@ -202,7 +204,7 @@ func avatarGroupDemo(c *ui.Context, log func(string)) {
 	})
 }
 
-const avatarGroupCode = `mujica.AvatarGroup(c, people, mujica.AvatarGroupOptions{Max: 3})`
+const avatarGroupCode = `display.AvatarGroup(c, people, display.AvatarGroupOptions{Max: 3})`
 
 type badgeState struct {
 	count, max float64
@@ -210,14 +212,14 @@ type badgeState struct {
 	tone, pos  string
 }
 
-var badgeTones = map[string]mujica.BadgeTone{"Accent": mujica.BadgeAccent, "Neutral": mujica.BadgeNeutral, "Success": mujica.BadgeSuccess,
-	"Warning": mujica.BadgeWarning, "Danger": mujica.BadgeDanger, "Info": mujica.BadgeInfo}
-var badgePositions = map[string]mujica.BadgePosition{"TopRight": mujica.BadgeTopRight, "TopLeft": mujica.BadgeTopLeft,
-	"BottomRight": mujica.BadgeBottomRight, "BottomLeft": mujica.BadgeBottomLeft}
+var badgeTones = map[string]display.BadgeTone{"Accent": display.BadgeAccent, "Neutral": display.BadgeNeutral, "Success": display.BadgeSuccess,
+	"Warning": display.BadgeWarning, "Danger": display.BadgeDanger, "Info": display.BadgeInfo}
+var badgePositions = map[string]display.BadgePosition{"TopRight": display.BadgeTopRight, "TopLeft": display.BadgeTopLeft,
+	"BottomRight": display.BadgeBottomRight, "BottomLeft": display.BadgeBottomLeft}
 
 func badgeDemo(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "017", func() badgeState { return badgeState{count: 120, max: 99, tone: "Accent", pos: "TopRight"} })
-	mujica.Heading(c, "Badge", mujica.HeadingOptions{Subtitle: "文字或计数、上限、位置与完整朗读", Divider: true})
+	display.Heading(c, "Badge", display.HeadingOptions{Subtitle: "文字或计数、上限、位置与完整朗读", Divider: true})
 	displaySection(c, "Parameters", func() {
 		displayControls(c, func() {
 			ui.Text(c, fmt.Sprintf("Count %d", int(s.count)))
@@ -233,24 +235,24 @@ func badgeDemo(c *ui.Context, log func(string)) {
 			}
 		})
 	})
-	opts := mujica.BadgeOptions{Text: s.text, Count: int(s.count), Max: int(s.max), Tone: badgeTones[s.tone], Label: "Unread"}
+	opts := display.BadgeOptions{Text: s.text, Count: int(s.count), Max: int(s.max), Tone: badgeTones[s.tone], Label: "Unread"}
 	displaySection(c, "Inline", func() {
 		ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
 			ui.Text(c, "Inbox")
-			mujica.Badge(c, opts, nil)
+			display.Badge(c, opts, nil)
 		})
 	})
 	displaySection(c, "Corner", func() {
 		opts.Position = badgePositions[s.pos]
 		ui.Box(c).Padding(10).Children(func() {
-			mujica.Badge(c, opts, func() { mujica.Avatar(c, "Sakiko Togawa", mujica.AvatarOptions{Size: 40}) })
+			display.Badge(c, opts, func() { display.Avatar(c, "Sakiko Togawa", display.AvatarOptions{Size: 40}) })
 		})
 	})
 }
 
-const badgeCode = `mujica.Badge(c, mujica.BadgeOptions{Text: "New", Tone: mujica.BadgeNeutral}, nil)
-mujica.Badge(c, mujica.BadgeOptions{Count: unread, Label: "Unread", Position: mujica.BadgeTopRight}, func() {
-	mujica.Avatar(c, "Sakiko Togawa", mujica.AvatarOptions{})
+const badgeCode = `display.Badge(c, display.BadgeOptions{Text: "New", Tone: display.BadgeNeutral}, nil)
+display.Badge(c, display.BadgeOptions{Count: unread, Label: "Unread", Position: display.BadgeTopRight}, func() {
+	display.Avatar(c, "Sakiko Togawa", display.AvatarOptions{})
 })`
 
 type tagState struct {
@@ -262,14 +264,14 @@ func tagDemo(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "018", func() tagState {
 		return tagState{tags: []string{"Baroque", "Gothic", "Rococo", "Court"}, icon: true, clickable: true, closable: true}
 	})
-	mujica.Heading(c, "Tag", mujica.HeadingOptions{Subtitle: "标签文字、图标；点击与关闭分离", Divider: true})
+	display.Heading(c, "Tag", display.HeadingOptions{Subtitle: "标签文字、图标；点击与关闭分离", Divider: true})
 	displaySection(c, "Parameters", func() {
 		displayControls(c, func() {
 			displayLog(log, ui.Checkbox(c, &s.icon, "Icon"), "icon", &s.icon)
 			displayLog(log, ui.Checkbox(c, &s.clickable, "Clickable"), "clickable", &s.clickable)
 			displayLog(log, ui.Checkbox(c, &s.closable, "Closable"), "closable", &s.closable)
 			displayLog(log, ui.Checkbox(c, &s.dis, "Disabled"), "dis", &s.dis)
-			if mujica.Button(c, "Reset tags", mujica.ButtonOptions{Variant: mujica.Ghost}).Clicked() {
+			if input.Button(c, "Reset tags", input.ButtonOptions{Variant: input.Ghost}).Clicked() {
 				s.tags = []string{"Baroque", "Gothic", "Rococo", "Court"}
 				log("reset")
 			}
@@ -283,9 +285,9 @@ func tagDemo(c *ui.Context, log func(string)) {
 		ui.Row(c).Gap(8).Wrap().Children(func() {
 			for i := 0; i < len(s.tags); i++ {
 				t := s.tags[i]
-				var v mujica.TagView
+				var v display.TagView
 				ui.Box(c).Key(t).Children(func() {
-					v = mujica.Tag(c, t, mujica.TagOptions{Icon: icon, Clickable: s.clickable, Closable: s.closable, Disabled: s.dis})
+					v = display.Tag(c, t, display.TagOptions{Icon: icon, Clickable: s.clickable, Closable: s.closable, Disabled: s.dis})
 				})
 				if v.Clicked {
 					log("clicked " + t)
@@ -301,9 +303,9 @@ func tagDemo(c *ui.Context, log func(string)) {
 }
 
 const tagCode = `for i, t := range tags {
-	var v mujica.TagView
+	var v display.TagView
 	ui.Box(c).Key(t).Children(func() {
-		v = mujica.Tag(c, t, mujica.TagOptions{Icon: "star", Clickable: true, Closable: true})
+		v = display.Tag(c, t, display.TagOptions{Icon: "star", Clickable: true, Closable: true})
 	})
 	if v.Closed {
 		tags = append(tags[:i:i], tags[i+1:]...)
@@ -317,32 +319,32 @@ type linkState struct {
 
 func linkDemo(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "019", func() linkState { return linkState{url: "https://example.com/charter"} })
-	mujica.Heading(c, "Link", mujica.HeadingOptions{Subtitle: "外部地址或应用内动作；键盘激活；打开失败反馈", Divider: true})
+	display.Heading(c, "Link", display.HeadingOptions{Subtitle: "外部地址或应用内动作；键盘激活；打开失败反馈", Divider: true})
 	displaySection(c, "Parameters", func() {
 		displayControls(c, func() {
 			displayLog(log, ui.TextInput(c, &s.url).Placeholder("URL (empty = in-app action)").Width(320), "url", &s.url)
-			if mujica.Button(c, "Simulate open failure", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+			if input.Button(c, "Simulate open failure", input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 				s.external = "No application can open this link."
 				log("open failure set")
 			}
-			if mujica.Button(c, "Clear error", mujica.ButtonOptions{Variant: mujica.Ghost}).Clicked() {
+			if input.Button(c, "Clear error", input.ButtonOptions{Variant: input.Ghost}).Clicked() {
 				s.external = ""
 				log("open failure cleared")
 			}
 		})
 	})
 	displaySection(c, "Preview", func() {
-		if mujica.Link(c, "Read the court charter", mujica.LinkOptions{URL: s.url, Error: s.external}).Clicked() {
+		if display.Link(c, "Read the court charter", display.LinkOptions{URL: s.url, Error: s.external}).Clicked() {
 			log("activated " + s.url)
 		}
-		if mujica.Link(c, "Show the guest list", mujica.LinkOptions{}).Clicked() {
+		if display.Link(c, "Show the guest list", display.LinkOptions{}).Clicked() {
 			log("in-app action")
 		}
 	})
 }
 
-const linkCode = `mujica.Link(c, "Read the charter", mujica.LinkOptions{URL: "https://example.com/charter"})
-if mujica.Link(c, "Show details", mujica.LinkOptions{}).Clicked() {
+const linkCode = `display.Link(c, "Read the charter", display.LinkOptions{URL: "https://example.com/charter"})
+if display.Link(c, "Show details", display.LinkOptions{}).Clicked() {
 	details = !details
 }`
 
@@ -350,7 +352,7 @@ type kbdState struct{ combo string }
 
 func kbdDemo(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "020", func() kbdState { return kbdState{combo: "Mod+Shift+P"} })
-	mujica.Heading(c, "Kbd", mujica.HeadingOptions{Subtitle: "单键与组合键；按平台显示 Command 或 Ctrl", Divider: true})
+	display.Heading(c, "Kbd", display.HeadingOptions{Subtitle: "单键与组合键；按平台显示 Command 或 Ctrl", Divider: true})
 	displaySection(c, "Parameters", func() {
 		displayControls(c, func() {
 			if ui.TextInput(c, &s.combo).Placeholder("Keys joined by +").Width(220).Changed() {
@@ -366,20 +368,20 @@ func kbdDemo(c *ui.Context, log func(string)) {
 			}
 		}
 		if len(keys) > 0 {
-			mujica.Kbd(c, keys...)
+			display.Kbd(c, keys...)
 		}
 	})
 	displaySection(c, "Common", func() {
 		for _, row := range [][]string{{"Mod", "K"}, {"Mod", "Shift", "P"}, {"Alt", "Up"}, {"Esc"}, {"Ctrl", "Tab"}} {
 			ui.Row(c).Gap(12).AlignItems(ui.Center).Children(func() {
-				mujica.Kbd(c, row...)
-				ui.Text(c, strings.Join(row, " + ")).TextColor(mujica.Tokens(c).TextMuted)
+				display.Kbd(c, row...)
+				ui.Text(c, strings.Join(row, " + ")).TextColor(core.Tokens(c).TextMuted)
 			})
 		}
 	})
 }
 
 const kbdCode = `ui.Row(c).Gap(6).Children(func() {
-	mujica.Text(c, "Command palette", mujica.TextOptions{})
-	mujica.Kbd(c, "Mod", "Shift", "P")
+	display.Text(c, "Command palette", display.TextOptions{})
+	display.Kbd(c, "Mod", "Shift", "P")
 })`

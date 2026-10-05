@@ -9,10 +9,10 @@
 ## 最小示例
 
 ```go
-var state mujica.LoginFormState
+var state account.LoginFormState
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.LoginForm(c, &state, mujica.LoginFormOptions{OnSubmit: func(account, password string, remember bool) {
+	core.Use(c, core.Settings{})
+	account.LoginForm(c, &state, account.LoginFormOptions{OnSubmit: func(account, password string, remember bool) {
 		// Submit credentials through the caller-provided auth service.
 		state.EndSubmit("")
 	}})

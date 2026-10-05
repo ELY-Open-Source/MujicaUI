@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-mujica.ThinkingBlock(c, &open, mujica.ThinkingBlockOptions{Elapsed: 12 * time.Second}, func() {
+chat.ThinkingBlock(c, &open, chat.ThinkingBlockOptions{Elapsed: 12 * time.Second}, func() {
 	ui.Text(c, "Weigh the guest list.")
 })
 ```

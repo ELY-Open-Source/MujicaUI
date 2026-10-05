@@ -9,8 +9,8 @@
 ```go
 running, stopping := true, false
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.InterruptButton(c, running, mujica.InterruptButtonOptions{Confirm: true, Interrupting: stopping})
+	core.Use(c, core.Settings{})
+	r := feedback.InterruptButton(c, running, feedback.InterruptButtonOptions{Confirm: true, Interrupting: stopping})
 	if r.Changed() {
 		stopping = true // cancel the run, then clear running and stopping
 	}

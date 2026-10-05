@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-mujica.Steps(c, &current, []mujica.Step{
+navigation.Steps(c, &current, []navigation.Step{
 	{Title: "Account", Clickable: true},
 	{Title: "Profile", Description: "Name and seal"},
 	{Title: "Confirm"},
-}, mujica.StepsOptions{Label: "Sign-up"})
+}, navigation.StepsOptions{Label: "Sign-up"})
 ```
 
 签名：`func Steps(c *ui.Context, current *int, steps []Step, opts StepsOptions) ChoiceResult`

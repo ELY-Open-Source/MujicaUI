@@ -7,14 +7,14 @@
 ## 最小示例
 
 ```go
-var state mujica.BlameViewState
-lines := []mujica.BlameLine{
+var state git.BlameViewState
+lines := []git.BlameLine{
 	{Hash: "a1b2c3d4", Author: "Sakiko", When: time.Now(), Summary: "Add main", Text: "package main"},
 	{Hash: "a1b2c3d4", Author: "Sakiko", When: time.Now(), Summary: "Add main", Text: "func main() {}"},
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.BlameView(c, &state, lines, mujica.BlameViewOptions{Language: "go"}).Height(240)
+	core.Use(c, core.Settings{})
+	git.BlameView(c, &state, lines, git.BlameViewOptions{Language: "go"}).Height(240)
 }
 ui.Render(view, 400, 300, 1)
 ```

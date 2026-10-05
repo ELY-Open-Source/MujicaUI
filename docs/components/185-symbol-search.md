@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-var state mujica.SymbolSearchState
-rows := []mujica.MarketSymbol{{Code: "AAPL", Name: "Apple", Market: "NASDAQ", Type: "Stock"}}
+var state finance.SymbolSearchState
+rows := []finance.MarketSymbol{{Code: "AAPL", Name: "Apple", Market: "NASDAQ", Type: "Stock"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.SymbolSearch(c, &state, rows, mujica.SymbolSearchOptions{Markets: []string{"NASDAQ", "NYSE"}, Recent: rows})
+	core.Use(c, core.Settings{})
+	r := finance.SymbolSearch(c, &state, rows, finance.SymbolSearchOptions{Markets: []string{"NASDAQ", "NYSE"}, Recent: rows})
 	if r.Changed || r.Picked || r.Retry {
 		fmt.Println(state.Query, state.Market, r.Chosen.Code)
 	}

@@ -7,14 +7,14 @@
 ## 最小示例
 
 ```go
-devices := mujica.MediaDevices{
-	Microphones: []mujica.MediaDevice{{ID: "mic-1", Name: "Built-in Microphone"}},
-	Speakers:    []mujica.MediaDevice{{ID: "out-1", Name: "Headphones"}},
+devices := media.MediaDevices{
+	Microphones: []media.MediaDevice{{ID: "mic-1", Name: "Built-in Microphone"}},
+	Speakers:    []media.MediaDevice{{ID: "out-1", Name: "Headphones"}},
 }
-sel := mujica.DeviceSelection{Microphone: "mic-1"}
+sel := media.DeviceSelection{Microphone: "mic-1"}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.DeviceSelector(c, &sel, devices, mujica.DeviceSelectorOptions{})
+	core.Use(c, core.Settings{})
+	media.DeviceSelector(c, &sel, devices, media.DeviceSelectorOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

@@ -7,8 +7,8 @@
 ## 最小示例
 
 ```go
-mujica.Grid(c, mujica.GridOptions{Columns: []ui.Track{ui.Fixed(96), ui.Fr(1)}}, func() {
-	mujica.GridCell(c, mujica.GridCellOptions{ColumnSpan: -1}, func() { ui.Text(c, "Header") })
+layout.Grid(c, layout.GridOptions{Columns: []ui.Track{ui.Fixed(96), ui.Fr(1)}}, func() {
+	layout.GridCell(c, layout.GridCellOptions{ColumnSpan: -1}, func() { ui.Text(c, "Header") })
 	ui.Text(c, "Name")
 	ui.Text(c, "Ada")
 })

@@ -11,9 +11,9 @@
 ```go
 open, step := true, 0
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	compose := mujica.Button(c, "Compose", mujica.ButtonOptions{})
-	mujica.Coachmark(c, &open, &step, []mujica.CoachmarkStep{{Anchor: compose, Title: "Write here", Body: "Start a new letter."}})
+	core.Use(c, core.Settings{})
+	compose := input.Button(c, "Compose", input.ButtonOptions{})
+	account.Coachmark(c, &open, &step, []account.CoachmarkStep{{Anchor: compose, Title: "Write here", Body: "Start a new letter."}})
 }
 ui.Render(view, 400, 300, 1)
 ```

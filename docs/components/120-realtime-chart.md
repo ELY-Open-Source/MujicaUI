@@ -7,15 +7,15 @@
 ## 最小示例
 
 ```go
-buf := mujica.NewRealtimeBuffer(600, "Bell")
+buf := chart.NewRealtimeBuffer(600, "Bell")
 start := time.Date(2026, 10, 5, 9, 0, 0, 0, time.UTC)
 for i := range 60 {
 	buf.Append(start.Add(time.Duration(i)*time.Second), float64(i%7))
 }
-var state mujica.RealtimeChartState
+var state chart.RealtimeChartState
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.RealtimeChart(c, &state, buf, mujica.RealtimeChartOptions{Frame: mujica.ChartFrame{Label: "Sound"}, Window: 30 * time.Second})
+	core.Use(c, core.Settings{})
+	chart.RealtimeChart(c, &state, buf, chart.RealtimeChartOptions{Frame: chart.ChartFrame{Label: "Sound"}, Window: 30 * time.Second})
 }
 ui.Render(view, 400, 300, 1)
 ```

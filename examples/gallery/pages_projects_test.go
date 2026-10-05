@@ -5,7 +5,8 @@ import (
 	"testing"
 
 	"github.com/egoist/mygo/ui"
-	mujica "mujicaui"
+
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
 )
 
 func projectsGalleryTester(t *testing.T, id string) (*ui.Tester, *[]string) {
@@ -14,7 +15,7 @@ func projectsGalleryTester(t *testing.T, id string) (*ui.Tester, *[]string) {
 	for _, p := range projectsPages {
 		if p.ID == id {
 			tt := ui.NewTester(func(c *ui.Context) {
-				mujica.Use(c, mujica.Settings{})
+				core.Use(c, core.Settings{})
 				ui.Column(c).Fill().Gap(12).Padding(16).Children(func() { p.Demo(c, func(s string) { events = append(events, s) }) })
 			}, 1200, 1000)
 			tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})

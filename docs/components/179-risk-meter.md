@@ -10,8 +10,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.RiskMeter(c, 4, mujica.RiskMeterOptions{})
+	core.Use(c, core.Settings{})
+	finance.RiskMeter(c, 4, finance.RiskMeterOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

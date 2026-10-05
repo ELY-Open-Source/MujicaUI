@@ -11,9 +11,9 @@
 ```go
 email := ""
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.FormField(c, "Email", mujica.FormFieldOptions{Required: true, Description: "For receipts."}, func() *ui.Element {
-		return mujica.InputGroup(c, &email, mujica.InputGroupOptions{}).Input
+	core.Use(c, core.Settings{})
+	input.FormField(c, "Email", input.FormFieldOptions{Required: true, Description: "For receipts."}, func() *ui.Element {
+		return input.InputGroup(c, &email, input.InputGroupOptions{}).Input
 	})
 }
 ui.Render(view, 400, 300, 1)

@@ -8,9 +8,9 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.SplitButton(c, "Save", mujica.SplitButtonOptions{}, func(m *mujica.PopupMenu) {
-		if m.Item("Save as…", mujica.PopupMenuItemOptions{}) {
+	core.Use(c, core.Settings{})
+	r := overlay.SplitButton(c, "Save", overlay.SplitButtonOptions{}, func(m *overlay.PopupMenu) {
+		if m.Item("Save as…", overlay.PopupMenuItemOptions{}) {
 			// ask for a file name
 		}
 	})

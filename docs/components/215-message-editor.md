@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-if mujica.MessageEditor(c, &draft, mujica.MessageEditorOptions{Original: "Hello"}).Saved() {
+if chat.MessageEditor(c, &draft, chat.MessageEditorOptions{Original: "Hello"}).Saved() {
 	fmt.Println("new branch from", draft)
 }
 ```

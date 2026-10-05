@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-var state mujica.PomodoroState
+var state project.PomodoroState
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.PomodoroTimer(c, &state, mujica.PomodoroTimerOptions{Focus: 25 * time.Minute})
+	core.Use(c, core.Settings{})
+	r := project.PomodoroTimer(c, &state, project.PomodoroTimerOptions{Focus: 25 * time.Minute})
 	if r.Changed() {
 		log.Println("timer", state.Phase(), state.Running())
 	}

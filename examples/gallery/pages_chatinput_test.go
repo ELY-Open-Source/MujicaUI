@@ -8,10 +8,10 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
 )
 
-func chatinputDemoTester(t *testing.T, id string, mode mujica.Mode) (*ui.Tester, *[]string) {
+func chatinputDemoTester(t *testing.T, id string, mode core.Mode) (*ui.Tester, *[]string) {
 	t.Helper()
 	var p *page
 	for i := range chatinputPages {
@@ -25,7 +25,7 @@ func chatinputDemoTester(t *testing.T, id string, mode mujica.Mode) (*ui.Tester,
 	}
 	events := new([]string)
 	tt := ui.NewTester(func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{Mode: mode})
+		core.Use(c, core.Settings{Mode: mode})
 		ui.Scroll(c).Fill().Padding(24).Gap(16).Children(func() { p.Demo(c, func(s string) { *events = append(*events, s) }) })
 	}, 900, 800)
 	tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})
@@ -40,7 +40,7 @@ func TestChatinputDemosRender(t *testing.T) {
 		if p.Category != "Chat Input" || p.Code == "" || p.Keys == "" {
 			t.Errorf("incomplete page %s", p.ID)
 		}
-		for _, mode := range []mujica.Mode{mujica.Light, mujica.Dark} {
+		for _, mode := range []core.Mode{core.Light, core.Dark} {
 			tt, _ := chatinputDemoTester(t, p.ID, mode)
 			if tt.HasText("panic") {
 				t.Errorf("%s: panic shown", p.ID)
@@ -69,7 +69,7 @@ func TestChatinputDemosEvents(t *testing.T) {
 		{"237", "Source 1: The Palace of Versailles"}, {"238", "Open The Palace of Versailles"},
 		{"239", "Locate last source"}, {"240", "Searching for “Versailles 1682”"},
 	} {
-		tt, events := chatinputDemoTester(t, tc.id, mujica.Light)
+		tt, events := chatinputDemoTester(t, tc.id, core.Light)
 		if err := tt.Click(tc.click); err != nil {
 			t.Fatalf("%s: %v", tc.id, err)
 		}

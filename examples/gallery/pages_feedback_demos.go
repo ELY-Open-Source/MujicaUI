@@ -6,19 +6,21 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
-	"mujicaui/theme"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ZacharyZhang-NY/MujicaUI/feedback"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
+	"github.com/ZacharyZhang-NY/MujicaUI/theme"
 )
 
 // feedbackSection titles a part of a demo.
 func feedbackSection(c *ui.Context, title string, fn func()) {
 	ui.Column(c).Gap(8).FillWidth().Children(func() {
-		ui.Text(c, title).FontSize(theme.CaptionSize).TextColor(mujica.Tokens(c).TextMuted)
+		ui.Text(c, title).FontSize(theme.CaptionSize).TextColor(core.Tokens(c).TextMuted)
 		fn()
 	})
 }
 
-var feedbackSeverities = []mujica.Severity{mujica.SeverityInfo, mujica.SeveritySuccess, mujica.SeverityWarning, mujica.SeverityError}
+var feedbackSeverities = []core.Severity{core.SeverityInfo, core.SeveritySuccess, core.SeverityWarning, core.SeverityError}
 
 func alertDemo(c *ui.Context, log func(string)) {
 	type state struct {
@@ -38,7 +40,7 @@ func alertDemo(c *ui.Context, log func(string)) {
 			})
 		})
 		feedbackSection(c, "Live", func() {
-			opts := mujica.AlertOptions{Severity: feedbackSeverities[s.sev]}
+			opts := feedback.AlertOptions{Severity: feedbackSeverities[s.sev]}
 			if s.title {
 				opts.Title = "Import failed"
 			}
@@ -49,21 +51,21 @@ func alertDemo(c *ui.Context, log func(string)) {
 			if s.closable {
 				open = &s.open
 			}
-			r := mujica.Alert(c, open, "The archive could not be read.", opts)
+			r := feedback.Alert(c, open, "The archive could not be read.", opts)
 			if r.Action {
 				log("alert: action Retry")
 			}
 			if r.Closed {
 				log("alert: closed")
 			}
-			if s.closable && !s.open && mujica.Button(c, "Show again", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+			if s.closable && !s.open && input.Button(c, "Show again", input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 				s.open = true
 				log("alert: reopened")
 			}
 		})
 		feedbackSection(c, "Severities", func() {
 			for _, sev := range feedbackSeverities {
-				mujica.Alert(c, nil, "Severity "+sev.String()+" uses its own icon, bar and name.", mujica.AlertOptions{Severity: sev}).Element.Key(sev)
+				feedback.Alert(c, nil, "Severity "+sev.String()+" uses its own icon, bar and name.", feedback.AlertOptions{Severity: sev}).Element.Key(sev)
 			}
 		})
 	})
@@ -89,28 +91,28 @@ func toastDemo(c *ui.Context, log func(string)) {
 		})
 		feedbackSection(c, "Actions", func() {
 			ui.Row(c).Gap(12).Wrap().Children(func() {
-				if mujica.Button(c, "Show toast", mujica.ButtonOptions{}).Clicked() {
+				if input.Button(c, "Show toast", input.ButtonOptions{}).Clicked() {
 					s.n++
-					m := mujica.ToastMessage{ID: fmt.Sprint(s.n), Severity: feedbackSeverities[s.sev], Message: fmt.Sprintf("Message %d", s.n)}
+					m := feedback.ToastMessage{ID: fmt.Sprint(s.n), Severity: feedbackSeverities[s.sev], Message: fmt.Sprintf("Message %d", s.n)}
 					if s.action {
 						m.Action = "Undo"
 					}
-					if m.Severity != mujica.SeverityError {
+					if m.Severity != core.SeverityError {
 						m.Duration = time.Duration(s.seconds * float64(time.Second))
 					}
-					mujica.ShowToast(c, m)
+					feedback.ShowToast(c, m)
 					log("toast: show " + m.ID)
 				}
-				if mujica.Button(c, "Show five at once", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+				if input.Button(c, "Show five at once", input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 					for range 5 {
 						s.n++
-						mujica.ShowToast(c, mujica.ToastMessage{ID: fmt.Sprint(s.n), Message: fmt.Sprintf("Queued %d", s.n)})
+						feedback.ShowToast(c, feedback.ToastMessage{ID: fmt.Sprint(s.n), Message: fmt.Sprintf("Queued %d", s.n)})
 					}
 					log("toast: five queued, three visible")
 				}
-				if mujica.Button(c, "Repeat same ID", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+				if input.Button(c, "Repeat same ID", input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 					s.n++
-					mujica.ShowToast(c, mujica.ToastMessage{ID: "sync", Message: fmt.Sprintf("Synced %d times", s.n)})
+					feedback.ShowToast(c, feedback.ToastMessage{ID: "sync", Message: fmt.Sprintf("Synced %d times", s.n)})
 					log("toast: dedupe id sync")
 				}
 			})
@@ -118,7 +120,7 @@ func toastDemo(c *ui.Context, log func(string)) {
 			ui.TextInput(c, &s.note).Width(320)
 		})
 	})
-	if r := mujica.Toaster(c); r.Action != "" {
+	if r := feedback.Toaster(c); r.Action != "" {
 		log("toast: action " + r.Action)
 	} else if r.Closed != "" {
 		log("toast: closed " + r.Closed)
@@ -149,8 +151,8 @@ func progressDemo(c *ui.Context, log func(string)) {
 			})
 		})
 		feedbackSection(c, "Progress", func() {
-			mujica.Progress(c, s.value, mujica.ProgressOptions{
-				Shape: mujica.ProgressShape(s.ring), Indeterminate: s.indet, Label: "Uploading", ShowValue: s.showValue,
+			feedback.Progress(c, s.value, feedback.ProgressOptions{
+				Shape: feedback.ProgressShape(s.ring), Indeterminate: s.indet, Label: "Uploading", ShowValue: s.showValue,
 			})
 		})
 		feedbackSection(c, "Meter with thresholds 70 and 90", func() {
@@ -161,8 +163,8 @@ func progressDemo(c *ui.Context, log func(string)) {
 				}
 			})
 			v := float64(int(s.meter))
-			mujica.Meter(c, v, mujica.MeterOptions{Max: 100, Label: "Disk", ShowValue: true, Levels: &ui.MeterLevels{Warning: 70, Critical: 90}})
-			mujica.Meter(c, 100-v, mujica.MeterOptions{Max: 100, Label: "Battery (low is bad)", ShowValue: true, Levels: &ui.MeterLevels{Warning: 30, Critical: 10}})
+			feedback.Meter(c, v, feedback.MeterOptions{Max: 100, Label: "Disk", ShowValue: true, Levels: &ui.MeterLevels{Warning: 70, Critical: 90}})
+			feedback.Meter(c, 100-v, feedback.MeterOptions{Max: 100, Label: "Battery (low is bad)", ShowValue: true, Levels: &ui.MeterLevels{Warning: 30, Critical: 10}})
 		})
 	})
 }
@@ -188,13 +190,13 @@ func spinnerDemo(c *ui.Context, log func(string)) {
 		})
 		feedbackSection(c, "Live", func() {
 			if s.active {
-				mujica.Spinner(c, mujica.SpinnerOptions{Size: float32(s.size), Label: "Syncing", ShowLabel: s.showLabel})
+				core.Spinner(c, core.SpinnerOptions{Size: float32(s.size), Label: "Syncing", ShowLabel: s.showLabel})
 			} else {
 				ui.Text(c, "Done")
 			}
 		})
 		feedbackSection(c, "In a button", func() {
-			mujica.Button(c, "Saving", mujica.ButtonOptions{Loading: true})
+			input.Button(c, "Saving", input.ButtonOptions{Loading: true})
 		})
 	})
 }
@@ -216,15 +218,15 @@ func skeletonDemo(c *ui.Context, log func(string)) {
 			}
 		})
 		feedbackSection(c, "Card (same size loading and loaded)", func() {
-			ui.Row(c).Gap(12).Padding(16).Width(420).Background(mujica.Tokens(c).Surface).Radius(theme.CardRadius).Children(func() {
+			ui.Row(c).Gap(12).Padding(16).Width(420).Background(core.Tokens(c).Surface).Radius(theme.CardRadius).Children(func() {
 				if s.loading {
-					mujica.Skeleton(c, mujica.SkeletonOptions{Shape: mujica.SkeletonCircle})
+					feedback.Skeleton(c, feedback.SkeletonOptions{Shape: feedback.SkeletonCircle})
 					ui.Column(c).Grow(1).Children(func() {
-						mujica.Skeleton(c, mujica.SkeletonOptions{Lines: int(s.lines)})
+						feedback.Skeleton(c, feedback.SkeletonOptions{Lines: int(s.lines)})
 					})
 					return
 				}
-				ui.Box(c).Size(40, 40).Radius(20).Background(mujica.Tokens(c).Selection)
+				ui.Box(c).Size(40, 40).Radius(20).Background(core.Tokens(c).Selection)
 				ui.Column(c).Grow(1).Children(func() {
 					for i := range int(s.lines) {
 						ui.Text(c, fmt.Sprintf("Loaded line %d", i+1)).LineHeight(theme.LineHeight)
@@ -233,7 +235,7 @@ func skeletonDemo(c *ui.Context, log func(string)) {
 			})
 		})
 		feedbackSection(c, "Rect", func() {
-			mujica.Skeleton(c, mujica.SkeletonOptions{Shape: mujica.SkeletonRect, Width: 420, Height: 96})
+			feedback.Skeleton(c, feedback.SkeletonOptions{Shape: feedback.SkeletonRect, Width: 420, Height: 96})
 		})
 	})
 }
@@ -257,14 +259,14 @@ func emptyStateDemo(c *ui.Context, log func(string)) {
 			})
 		})
 		feedbackSection(c, "Live", func() {
-			opts := mujica.EmptyStateOptions{Kind: mujica.EmptyKind(s.kind), NoIcon: !s.icon}
+			opts := feedback.EmptyStateOptions{Kind: feedback.EmptyKind(s.kind), NoIcon: !s.icon}
 			if s.kind == 1 {
 				opts.Query = s.query
 			}
 			if s.action {
 				opts.Action = []string{"New project", "Clear search"}[s.kind]
 			}
-			if mujica.EmptyState(c, opts).Action {
+			if feedback.EmptyState(c, opts).Action {
 				log("empty state: action " + opts.Action)
 				s.query = ""
 			}
@@ -281,7 +283,7 @@ func resultDemo(c *ui.Context, log func(string)) {
 		feedbackSection(c, "Parameters", func() {
 			ui.Segmented(c, &s.kind, "Success", "Failure", "Forbidden")
 		})
-		r := mujica.Result(c, mujica.ResultOptions{Kind: mujica.ResultKind(s.kind), Description: descs[s.kind], Actions: actions[s.kind]})
+		r := feedback.Result(c, feedback.ResultOptions{Kind: feedback.ResultKind(s.kind), Description: descs[s.kind], Actions: actions[s.kind]})
 		if r.Action >= 0 {
 			log("result: action " + actions[s.kind][r.Action])
 		}
@@ -297,21 +299,21 @@ func statusDemo(c *ui.Context, log func(string)) {
 	ui.Column(c).Gap(16).FillWidth().Children(func() {
 		feedbackSection(c, "Parameters", func() {
 			if ui.Segmented(c, &s.status, "Success", "Warning", "Error", "Offline", "Busy").Changed() {
-				log("status: " + mujica.Status(s.status).String())
+				log("status: " + feedback.Status(s.status).String())
 			}
 			ui.Checkbox(c, &s.custom, "Custom label")
 		})
 		feedbackSection(c, "Live", func() {
-			opts := mujica.StatusIndicatorOptions{}
+			opts := feedback.StatusIndicatorOptions{}
 			if s.custom {
 				opts.Label = "Database replica"
 			}
-			mujica.StatusIndicator(c, mujica.Status(s.status), opts)
+			feedback.StatusIndicator(c, feedback.Status(s.status), opts)
 		})
 		feedbackSection(c, "All states (shape and word, not color alone)", func() {
 			ui.Row(c).Gap(20).Wrap().Children(func() {
-				for st := mujica.StatusSuccess; st <= mujica.StatusBusy; st++ {
-					mujica.StatusIndicator(c, st, mujica.StatusIndicatorOptions{}).Key(st)
+				for st := feedback.StatusSuccess; st <= feedback.StatusBusy; st++ {
+					feedback.StatusIndicator(c, st, feedback.StatusIndicatorOptions{}).Key(st)
 				}
 			})
 		})
@@ -320,11 +322,11 @@ func statusDemo(c *ui.Context, log func(string)) {
 
 func notificationDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		items []mujica.Notification
+		items []feedback.Notification
 		n     int
 	}
 	s := ui.Local(c.Root(), "099", func() state {
-		return state{items: []mujica.Notification{
+		return state{items: []feedback.Notification{
 			{ID: "a", Title: "Build failed", Body: "main · 3 tests failing", Time: "2 min ago", Action: "View log"},
 			{ID: "b", Title: "Invite accepted", Body: "Mira joined the workspace", Time: "1 h ago"},
 			{ID: "c", Title: "Backup complete", Time: "Yesterday", Read: true},
@@ -332,15 +334,15 @@ func notificationDemo(c *ui.Context, log func(string)) {
 	})
 	ui.Column(c).Gap(16).FillWidth().Children(func() {
 		feedbackSection(c, "Caller-owned list", func() {
-			if mujica.Button(c, "Add notification", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+			if input.Button(c, "Add notification", input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 				s.n++
 				id := fmt.Sprintf("new-%d", s.n)
-				s.items = append([]mujica.Notification{{ID: id, Title: fmt.Sprintf("Comment %d on the design doc", s.n), Time: "now"}}, s.items...)
+				s.items = append([]feedback.Notification{{ID: id, Title: fmt.Sprintf("Comment %d on the design doc", s.n), Time: "now"}}, s.items...)
 				log("notifications: added " + id)
 			}
 		})
 		ui.Column(c).Width(520).Height(420).Children(func() {
-			r := mujica.NotificationCenter(c, &s.items, mujica.NotificationCenterOptions{})
+			r := feedback.NotificationCenter(c, &s.items, feedback.NotificationCenterOptions{})
 			for _, ev := range [][2]string{{"action", r.Action}, {"toggled", r.Toggled}, {"opened", r.Opened}, {"removed", r.Removed}} {
 				if ev[1] != "" {
 					log("notifications: " + ev[0] + " " + ev[1])
@@ -372,15 +374,15 @@ func loadingOverlayDemo(c *ui.Context, log func(string)) {
 			})
 		})
 		feedbackSection(c, "Covered region", func() {
-			opts := mujica.LoadingOverlayOptions{Label: "Generating report…"}
+			opts := feedback.LoadingOverlayOptions{Label: "Generating report…"}
 			if s.cancel {
 				opts.Cancel = "Cancel"
 			}
-			r := mujica.LoadingOverlay(c, s.loading, opts, func() {
-				ui.Column(c).Gap(8).Padding(16).FillWidth().AlignItems(ui.Start).Background(mujica.Tokens(c).Surface).Radius(theme.CardRadius).Children(func() {
+			r := feedback.LoadingOverlay(c, s.loading, opts, func() {
+				ui.Column(c).Gap(8).Padding(16).FillWidth().AlignItems(ui.Start).Background(core.Tokens(c).Surface).Radius(theme.CardRadius).Children(func() {
 					ui.Text(c, "Quarterly report").Font(theme.SerifFont).FontSize(theme.H3Size)
 					ui.Text(c, fmt.Sprintf("Exported %d times.", s.saves))
-					if mujica.Button(c, "Export", mujica.ButtonOptions{}).Clicked() {
+					if input.Button(c, "Export", input.ButtonOptions{}).Clicked() {
 						s.saves++
 						log("overlay: export clicked")
 					}
@@ -393,7 +395,7 @@ func loadingOverlayDemo(c *ui.Context, log func(string)) {
 			}
 		})
 		feedbackSection(c, "Outside the region (always usable)", func() {
-			if mujica.Button(c, "Outside button", mujica.ButtonOptions{Variant: mujica.Secondary}).AlignSelf(ui.Start).Clicked() {
+			if input.Button(c, "Outside button", input.ButtonOptions{Variant: input.Secondary}).AlignSelf(ui.Start).Clicked() {
 				log("overlay: outside clicked")
 			}
 		})

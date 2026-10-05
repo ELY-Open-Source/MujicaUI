@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-incident := mujica.Incident{Title: "API latency", Status: mujica.IncidentMonitoring, Impact: mujica.ImpactMinor, Updates: []mujica.IncidentUpdate{{Status: mujica.IncidentIdentified, Text: "Slow query located"}, {Status: mujica.IncidentMonitoring, Text: "Recovery observed"}}}
+incident := devtools.Incident{Title: "API latency", Status: devtools.IncidentMonitoring, Impact: devtools.ImpactMinor, Updates: []devtools.IncidentUpdate{{Status: devtools.IncidentIdentified, Text: "Slow query located"}, {Status: devtools.IncidentMonitoring, Text: "Recovery observed"}}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.IncidentCard(c, incident)
+	core.Use(c, core.Settings{})
+	devtools.IncidentCard(c, incident)
 }
 ui.Render(view, 720, 480, 1)
 ```

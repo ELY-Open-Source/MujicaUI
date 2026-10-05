@@ -9,10 +9,10 @@
 ```go
 unread := 120
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Badge(c, mujica.BadgeOptions{Text: "New", Tone: mujica.BadgeNeutral}, nil)
-	mujica.Badge(c, mujica.BadgeOptions{Count: unread, Label: "Unread", Position: mujica.BadgeTopRight}, func() {
-		mujica.Avatar(c, "Sakiko Togawa", mujica.AvatarOptions{})
+	core.Use(c, core.Settings{})
+	display.Badge(c, display.BadgeOptions{Text: "New", Tone: display.BadgeNeutral}, nil)
+	display.Badge(c, display.BadgeOptions{Count: unread, Label: "Unread", Position: display.BadgeTopRight}, func() {
+		display.Avatar(c, "Sakiko Togawa", display.AvatarOptions{})
 	})
 }
 ```

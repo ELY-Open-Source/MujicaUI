@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-groups := []mujica.BoxGroup{{Name: "Choir", Values: []float64{1, 2, 3, 4, 7, 9}}, {Name: "Nave", Values: []float64{2, 4, 5, 6, 8}}}
+groups := []chart.BoxGroup{{Name: "Choir", Values: []float64{1, 2, 3, 4, 7, 9}}, {Name: "Nave", Values: []float64{2, 4, 5, 6, 8}}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ViolinPlot(c, groups, mujica.ViolinPlotOptions{Frame: mujica.ChartFrame{Label: "Hymns"}, Bandwidth: 1})
+	core.Use(c, core.Settings{})
+	chart.ViolinPlot(c, groups, chart.ViolinPlotOptions{Frame: chart.ChartFrame{Label: "Hymns"}, Bandwidth: 1})
 }
 ui.Render(view, 400, 300, 1)
 ```

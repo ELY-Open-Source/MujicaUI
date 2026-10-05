@@ -5,8 +5,9 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
-	"mujicaui/icons"
+	"github.com/ZacharyZhang-NY/MujicaUI/icons"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
+	"github.com/ZacharyZhang-NY/MujicaUI/navigation"
 )
 
 const overtureID = "overture"
@@ -83,19 +84,19 @@ func (g *gallery) categoryName(cat string) string {
 func (g *gallery) pageName(p page) string { return g.t(p.Name, p.ZhName) }
 
 // sections groups the pages that match the query by category, in PRD order.
-func (g *gallery) sections() []mujica.SidebarSection {
-	out := []mujica.SidebarSection{{Title: g.t("Overture", "序章"), Items: []mujica.SidebarItem{
+func (g *gallery) sections() []navigation.SidebarSection {
+	out := []navigation.SidebarSection{{Title: g.t("Overture", "序章"), Items: []navigation.SidebarItem{
 		{ID: overtureID, Label: g.t("Overture", "序章"), Icon: icons.Must("house")},
 	}}}
-	var comps []mujica.SidebarItem
+	var comps []navigation.SidebarItem
 	q := strings.ToLower(strings.TrimSpace(g.query))
 	for _, cp := range compositions {
 		if q == "" || strings.Contains(strings.ToLower(cp.ID+" "+cp.Name+" "+cp.ZhName), q) {
-			comps = append(comps, mujica.SidebarItem{ID: cp.ID, Label: g.t(cp.Name, cp.ZhName), Icon: icons.Must(cp.Icon)})
+			comps = append(comps, navigation.SidebarItem{ID: cp.ID, Label: g.t(cp.Name, cp.ZhName), Icon: icons.Must(cp.Icon)})
 		}
 	}
 	if len(comps) > 0 {
-		out = append(out, mujica.SidebarSection{Title: g.t("Compositions", "组合示例"), Items: comps})
+		out = append(out, navigation.SidebarSection{Title: g.t("Compositions", "组合示例"), Items: comps})
 	}
 	index := map[string]int{}
 	for _, p := range g.pages {
@@ -106,9 +107,9 @@ func (g *gallery) sections() []mujica.SidebarSection {
 		if !ok {
 			i = len(out)
 			index[p.Category] = i
-			out = append(out, mujica.SidebarSection{Title: g.categoryName(p.Category)})
+			out = append(out, navigation.SidebarSection{Title: g.categoryName(p.Category)})
 		}
-		out[i].Items = append(out[i].Items, mujica.SidebarItem{ID: p.ID, Label: p.ID + "  " + g.pageName(p)})
+		out[i].Items = append(out[i].Items, navigation.SidebarItem{ID: p.ID, Label: p.ID + "  " + g.pageName(p)})
 	}
 	return out
 }
@@ -116,7 +117,7 @@ func (g *gallery) sections() []mujica.SidebarSection {
 func (g *gallery) sidebar(c *ui.Context) {
 	ui.Column(c).FillWidth().Gap(8).Padding(8, 8, 0, 8).Children(func() {
 		before := g.query
-		mujica.SearchInput(c, &g.query, mujica.SearchInputOptions{Placeholder: g.t("Search · 搜索", "搜索 · Search")})
+		input.SearchInput(c, &g.query, input.SearchInputOptions{Placeholder: g.t("Search · 搜索", "搜索 · Search")})
 		if g.query != before {
 			g.logFor("shell")("search " + g.query)
 		}
@@ -125,27 +126,27 @@ func (g *gallery) sidebar(c *ui.Context) {
 	if len(sections) == 1 && g.query != "" {
 		ui.Text(c, g.t("No component matches.", "没有匹配的组件。")).Padding(8, 16)
 	}
-	if mujica.Sidebar(c, &g.selected, sections, mujica.SidebarOptions{}).Changed() {
+	if navigation.Sidebar(c, &g.selected, sections, navigation.SidebarOptions{}).Changed() {
 		g.logFor("shell")("open " + g.selected)
 	}
 }
 
 func (g *gallery) commandPalette(c *ui.Context) {
-	cmds := []mujica.Command{
+	cmds := []navigation.Command{
 		{ID: overtureID, Label: g.t("Overture", "序章"), Group: g.t("Go to", "前往")},
 		{ID: "theme", Label: g.t("Cycle theme", "切换主题"), Group: g.t("Window", "窗口"), Keywords: []string{"dark", "light", "深色", "浅色"}},
 		{ID: "density", Label: g.t("Cycle density", "切换密度"), Group: g.t("Window", "窗口"), Keywords: []string{"compact", "紧凑"}},
 		{ID: "locale", Label: g.t("Switch to Chinese", "切换到英文"), Group: g.t("Window", "窗口"), Keywords: []string{"language", "语言"}},
 	}
 	for _, cp := range compositions {
-		cmds = append(cmds, mujica.Command{ID: "page:" + cp.ID, Label: g.t(cp.Name, cp.ZhName), Group: g.t("Compositions", "组合示例"),
+		cmds = append(cmds, navigation.Command{ID: "page:" + cp.ID, Label: g.t(cp.Name, cp.ZhName), Group: g.t("Compositions", "组合示例"),
 			Keywords: []string{cp.Name, cp.ZhName, "composition", "组合"}})
 	}
 	for _, p := range g.pages {
-		cmds = append(cmds, mujica.Command{ID: "page:" + p.ID, Label: p.ID + " " + g.pageName(p), Group: g.categoryName(p.Category),
+		cmds = append(cmds, navigation.Command{ID: "page:" + p.ID, Label: p.ID + " " + g.pageName(p), Group: g.categoryName(p.Category),
 			Keywords: []string{p.Name, p.ZhName, p.Category, categoryZh[p.Category]}})
 	}
-	id, ok := mujica.CommandPalette(c, &g.palette, cmds, mujica.CommandPaletteOptions{}).Chosen()
+	id, ok := navigation.CommandPalette(c, &g.palette, cmds, navigation.CommandPaletteOptions{}).Chosen()
 	if !ok {
 		return
 	}

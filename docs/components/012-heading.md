@@ -8,9 +8,9 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Heading(c, "The Grand Hall", mujica.HeadingOptions{Subtitle: "Winter ceremonies", Divider: true})
-	mujica.Heading(c, "Guest Ledger", mujica.HeadingOptions{Level: 2})
+	core.Use(c, core.Settings{})
+	display.Heading(c, "The Grand Hall", display.HeadingOptions{Subtitle: "Winter ceremonies", Divider: true})
+	display.Heading(c, "Guest Ledger", display.HeadingOptions{Level: 2})
 }
 ```
 

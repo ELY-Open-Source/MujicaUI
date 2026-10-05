@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-statuses := []mujica.WorkflowStatus{{ID: "todo", Name: "To do", Group: mujica.StatusUnstarted}, {ID: "done", Name: "Done", Group: mujica.StatusCompleted}}
-tasks := []mujica.Task{{ID: "ENG-1", Title: "Plan the release", Status: "todo"}}
+statuses := []project.WorkflowStatus{{ID: "todo", Name: "To do", Group: project.StatusUnstarted}, {ID: "done", Name: "Done", Group: project.StatusCompleted}}
+tasks := []project.Task{{ID: "ENG-1", Title: "Plan the release", Status: "todo"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.KanbanBoard(c, &tasks, mujica.KanbanBoardOptions{Columns: []mujica.KanbanColumn{{Status: "todo"}, {Status: "done", WIP: 2}}, Statuses: statuses})
+	core.Use(c, core.Settings{})
+	r := project.KanbanBoard(c, &tasks, project.KanbanBoardOptions{Columns: []project.KanbanColumn{{Status: "todo"}, {Status: "done", WIP: 2}}, Statuses: statuses})
 	if move, ok := r.Moved(); ok {
 		log.Println("move", move.ID, move.To, move.Index)
 	}

@@ -8,10 +8,10 @@
 
 ```go
 var path []string
-root := mujica.HeatNode{Name: "Market", Children: []mujica.HeatNode{{Name: "Technology", Children: []mujica.HeatNode{{Name: "AAPL", Cap: 3000, Change: 1.2}, {Name: "MSFT", Cap: 2800, Change: -0.6}}}, {Name: "Energy", Cap: 450, Change: -2.1}}}
+root := chart.HeatNode{Name: "Market", Children: []chart.HeatNode{{Name: "Technology", Children: []chart.HeatNode{{Name: "AAPL", Cap: 3000, Change: 1.2}, {Name: "MSFT", Cap: 2800, Change: -0.6}}}, {Name: "Energy", Cap: 450, Change: -2.1}}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.MarketHeatmap(c, &path, root, mujica.MarketHeatmapOptions{Frame: mujica.ChartFrame{Label: "Market"}})
+	core.Use(c, core.Settings{})
+	r := chart.MarketHeatmap(c, &path, root, chart.MarketHeatmapOptions{Frame: chart.ChartFrame{Label: "Market"}})
 	if r.Changed() || r.ValueChanged() || r.Retried() {
 		fmt.Println(path, r.Point)
 	}

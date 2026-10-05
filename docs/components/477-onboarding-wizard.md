@@ -10,10 +10,10 @@
 
 ```go
 step := 0
-steps := []mujica.WizardStep{{Title: "Welcome"}, {Title: "Pick a theme"}, {Title: "Done"}}
+steps := []account.WizardStep{{Title: "Welcome"}, {Title: "Pick a theme"}, {Title: "Done"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.OnboardingWizard(c, &step, steps, mujica.OnboardingWizardOptions{}).Finished() {
+	core.Use(c, core.Settings{})
+	if account.OnboardingWizard(c, &step, steps, account.OnboardingWizardOptions{}).Finished() {
 		fmt.Println("onboarded")
 	}
 }

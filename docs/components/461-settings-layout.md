@@ -11,13 +11,13 @@
 ```go
 page := ""
 sound := true
-pages := []mujica.SettingsPage{{ID: "general", Label: "General"}, {ID: "privacy", Label: "Privacy"}}
+pages := []account.SettingsPage{{ID: "general", Label: "General"}, {ID: "privacy", Label: "Privacy"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.SettingsLayout(c, &page, pages, mujica.SettingsLayoutOptions{}, func(id string) {
-		mujica.SettingsSection(c, "Notifications", func() {
-			mujica.SettingsRow(c, "Sound", mujica.SettingsRowOptions{ID: "sound"}, func() *ui.Element {
-				return mujica.Switch(c, &sound, "", mujica.SwitchOptions{})
+	core.Use(c, core.Settings{})
+	account.SettingsLayout(c, &page, pages, account.SettingsLayoutOptions{}, func(id string) {
+		account.SettingsSection(c, "Notifications", func() {
+			account.SettingsRow(c, "Sound", account.SettingsRowOptions{ID: "sound"}, func() *ui.Element {
+				return input.Switch(c, &sound, "", input.SwitchOptions{})
 			})
 		})
 	})

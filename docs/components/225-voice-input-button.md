@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-var rec mujica.VoiceInputOptions
+var rec chat.VoiceInputOptions
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.VoiceInputButton(c, rec).Changed() {
-		rec = mujica.VoiceInputOptions{Recording: !rec.Recording, Started: time.Now()}
+	core.Use(c, core.Settings{})
+	if chat.VoiceInputButton(c, rec).Changed() {
+		rec = chat.VoiceInputOptions{Recording: !rec.Recording, Started: time.Now()}
 	}
 }
 ui.Render(view, 400, 300, 1)

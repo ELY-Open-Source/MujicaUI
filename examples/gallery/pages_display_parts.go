@@ -5,13 +5,13 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/display"
 )
 
 // displaySection shows a titled block of a demo.
 func displaySection(c *ui.Context, title string, fn func()) {
 	ui.Column(c).Gap(10).Margin(0, 0, 20, 0).Children(func() {
-		mujica.Heading(c, title, mujica.HeadingOptions{Level: 3})
+		display.Heading(c, title, display.HeadingOptions{Level: 3})
 		fn()
 	})
 }

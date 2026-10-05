@@ -9,10 +9,10 @@
 ```go
 var status []string
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ChoiceChips(c, &status, []mujica.ToggleItem[string]{
+	core.Use(c, core.Settings{})
+	input.ChoiceChips(c, &status, []input.ToggleItem[string]{
 		{Value: "open", Label: "Open"}, {Value: "closed", Label: "Closed"},
-	}, mujica.ChoiceChipsOptions{Multiple: true, Label: "Status"})
+	}, input.ChoiceChipsOptions{Multiple: true, Label: "Status"})
 }
 ```
 

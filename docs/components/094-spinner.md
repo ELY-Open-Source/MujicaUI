@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-mujica.Spinner(c, mujica.SpinnerOptions{Size: 20, Label: "Syncing", ShowLabel: true})
+core.Spinner(c, core.SpinnerOptions{Size: 20, Label: "Syncing", ShowLabel: true})
 ```
 
 签名：`func Spinner(c *ui.Context, opts SpinnerOptions) *ui.Element`

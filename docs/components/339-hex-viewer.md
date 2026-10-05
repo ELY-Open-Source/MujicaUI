@@ -8,10 +8,10 @@
 
 ```go
 data := []byte("MUJICA court ledger\x00\x01")
-var state mujica.HexViewerState
+var state code.HexViewerState
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.HexViewer(c, data, &state, mujica.HexViewerOptions{}).Element.Height(160)
+	core.Use(c, core.Settings{})
+	code.HexViewer(c, data, &state, code.HexViewerOptions{}).Element.Height(160)
 }
 ui.Render(view, 400, 300, 1)
 ```

@@ -8,13 +8,13 @@
 
 ```go
 open := false
-members := []mujica.ShareMember{{ID: "ada", Name: "Ada", Permission: mujica.PermissionEdit, Owner: true}}
+members := []files.ShareMember{{ID: "ada", Name: "Ada", Permission: files.PermissionEdit, Owner: true}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.Button(c, "Share", mujica.ButtonOptions{}).Clicked() {
+	core.Use(c, core.Settings{})
+	if input.Button(c, "Share", input.ButtonOptions{}).Clicked() {
 		open = true
 	}
-	mujica.ShareDialog(c, &open, &members, mujica.ShareDialogOptions{Title: "Ledger", Link: "https://court.org/ledger"})
+	files.ShareDialog(c, &open, &members, files.ShareDialogOptions{Title: "Ledger", Link: "https://court.org/ledger"})
 }
 ui.Render(view, 600, 400, 1)
 ```

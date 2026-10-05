@@ -10,10 +10,10 @@
 
 ```go
 current := "a"
-accounts := []mujica.Account{{ID: "a", Name: "Sakiko Togawa", Email: "sakiko@court"}, {ID: "b", Name: "Oblivionis"}}
+accounts := []account.Account{{ID: "a", Name: "Sakiko Togawa", Email: "sakiko@court"}, {ID: "b", Name: "Oblivionis"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.AccountSwitcher(c, &current, accounts, mujica.AccountSwitcherOptions{}).Add() {
+	core.Use(c, core.Settings{})
+	if account.AccountSwitcher(c, &current, accounts, account.AccountSwitcherOptions{}).Add() {
 		fmt.Println("sign in another account")
 	}
 }

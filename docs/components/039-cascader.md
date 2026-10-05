@@ -8,15 +8,15 @@
 
 ```go
 var path []string
-level := func(p []string) mujica.CascaderLevel {
+level := func(p []string) input.CascaderLevel {
 	if len(p) == 0 {
-		return mujica.CascaderLevel{Nodes: []mujica.CascaderNode{{Value: "fr", Label: "France"}}}
+		return input.CascaderLevel{Nodes: []input.CascaderNode{{Value: "fr", Label: "France"}}}
 	}
-	return mujica.CascaderLevel{Nodes: []mujica.CascaderNode{{Value: "paris", Label: "Paris", Leaf: true}}}
+	return input.CascaderLevel{Nodes: []input.CascaderNode{{Value: "paris", Label: "Paris", Leaf: true}}}
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Cascader(c, &path, mujica.CascaderOptions{Level: level, Label: "City"})
+	core.Use(c, core.Settings{})
+	input.Cascader(c, &path, input.CascaderOptions{Level: level, Label: "City"})
 }
 ui.Render(view, 400, 300, 1)
 ```

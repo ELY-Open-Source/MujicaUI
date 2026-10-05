@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-entries := []mujica.ArchiveEntry{{Path: "court/seal.go", Size: 4000, Packed: 1000}}
-var state mujica.ArchiveViewerState
+entries := []files.ArchiveEntry{{Path: "court/seal.go", Size: 4000, Packed: 1000}}
+var state files.ArchiveViewerState
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ArchiveViewer(c, entries, &state, mujica.ArchiveViewerOptions{}).Element.Height(240)
+	core.Use(c, core.Settings{})
+	files.ArchiveViewer(c, entries, &state, files.ArchiveViewerOptions{}).Element.Height(240)
 }
 ui.Render(view, 600, 300, 1)
 ```

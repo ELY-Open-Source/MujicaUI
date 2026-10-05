@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-statuses := []mujica.WorkflowStatus{{ID: "todo", Name: "To do", Group: mujica.StatusUnstarted}, {ID: "done", Name: "Done", Group: mujica.StatusCompleted}}
-task := mujica.Task{ID: "ENG-1", Title: "Plan the release", Status: "todo", Priority: mujica.PriorityHigh}
+statuses := []project.WorkflowStatus{{ID: "todo", Name: "To do", Group: project.StatusUnstarted}, {ID: "done", Name: "Done", Group: project.StatusCompleted}}
+task := project.Task{ID: "ENG-1", Title: "Plan the release", Status: "todo", Priority: project.PriorityHigh}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.IssueCard(c, task, mujica.IssueCardOptions{Statuses: statuses}).Clicked() {
+	core.Use(c, core.Settings{})
+	if project.IssueCard(c, task, project.IssueCardOptions{Statuses: statuses}).Clicked() {
 		log.Println("open", task.ID)
 	}
 }

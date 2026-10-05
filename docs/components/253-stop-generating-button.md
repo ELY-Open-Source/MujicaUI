@@ -9,8 +9,8 @@
 ```go
 generating := true
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.StopGeneratingButton(c, mujica.StopGeneratingButtonOptions{Generating: generating}).Changed() {
+	core.Use(c, core.Settings{})
+	if chat.StopGeneratingButton(c, chat.StopGeneratingButtonOptions{Generating: generating}).Changed() {
 		generating = false
 	}
 }

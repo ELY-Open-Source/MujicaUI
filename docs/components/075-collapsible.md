@@ -9,8 +9,8 @@
 ```go
 open := false
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Collapsible(c, &open, mujica.CollapsibleOptions{Title: "Details"}, func() {
+	core.Use(c, core.Settings{})
+	data.Collapsible(c, &open, data.CollapsibleOptions{Title: "Details"}, func() {
 		ui.Text(c, "Candles are lit at the seventh bell.")
 	})
 }

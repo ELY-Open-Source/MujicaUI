@@ -5,7 +5,8 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/chart"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
 )
 
 func c2ViolinDemo(c *ui.Context, log func(string))  { c2DistributionDemo(c, log, "129", "ViolinPlot") }
@@ -16,10 +17,10 @@ func c2DistributionDemo(c *ui.Context, log func(string), id, name string) {
 		status    string
 		bandwidth float64
 		disabled  bool
-		groups    []mujica.BoxGroup
+		groups    []chart.BoxGroup
 	}
 	s := ui.Local(c.Root(), id, func() state {
-		return state{status: "Ready", groups: []mujica.BoxGroup{
+		return state{status: "Ready", groups: []chart.BoxGroup{
 			{Name: "Matins", Values: []float64{1, 2, 2, 3, 4, 5, 8, 9}},
 			{Name: "Vespers", Values: []float64{3, 4, 5, 6, 6, 7, 8, 11}},
 		}}
@@ -35,9 +36,9 @@ func c2DistributionDemo(c *ui.Context, log func(string), id, name string) {
 		}
 		ui.Column(c).Disabled(s.disabled).Children(func() {
 			if id == "129" {
-				c1Log(log, name, mujica.ViolinPlot(c, groups, mujica.ViolinPlotOptions{Frame: f, Bandwidth: s.bandwidth}))
+				c1Log(log, name, chart.ViolinPlot(c, groups, chart.ViolinPlotOptions{Frame: f, Bandwidth: s.bandwidth}))
 			} else {
-				c1Log(log, name, mujica.DensityPlot(c, groups, mujica.DensityPlotOptions{Frame: f, Bandwidth: s.bandwidth}))
+				c1Log(log, name, chart.DensityPlot(c, groups, chart.DensityPlotOptions{Frame: f, Bandwidth: s.bandwidth}))
 			}
 		})
 	})
@@ -55,7 +56,7 @@ func c2ParallelDemo(c *ui.Context, log func(string)) {
 	})
 	c1Section(c, "ParallelCoordinates", func() {
 		c2Check(c, &s.disabled, "Disabled", log)
-		if mujica.Button(c, "Clear filters", mujica.ButtonOptions{Disabled: s.disabled}).Clicked() {
+		if input.Button(c, "Clear filters", input.ButtonOptions{Disabled: s.disabled}).Clicked() {
 			s.filters = map[string][2]float64{}
 			log("ParallelCoordinates: clear filters")
 		}
@@ -68,7 +69,7 @@ func c2ParallelDemo(c *ui.Context, log func(string)) {
 			names = nil
 		}
 		ui.Column(c).Disabled(s.disabled).Children(func() {
-			c1Log(log, "ParallelCoordinates", mujica.ParallelCoordinates(c, &s.filters, []string{"Age", "Hymns", "Vigils"}, rows, mujica.ParallelCoordinatesOptions{Frame: f, Names: names}))
+			c1Log(log, "ParallelCoordinates", chart.ParallelCoordinates(c, &s.filters, []string{"Age", "Hymns", "Vigils"}, rows, chart.ParallelCoordinatesOptions{Frame: f, Names: names}))
 		})
 		ui.Text(c, fmt.Sprintf("Filters: %v", s.filters))
 	})
@@ -99,7 +100,7 @@ func c2ChordDemo(c *ui.Context, log func(string)) {
 			matrix = nil
 		}
 		ui.Column(c).Disabled(s.disabled).Children(func() {
-			c1Log(log, "ChordDiagram", mujica.ChordDiagram(c, names, matrix, mujica.ChordDiagramOptions{Frame: f}))
+			c1Log(log, "ChordDiagram", chart.ChordDiagram(c, names, matrix, chart.ChordDiagramOptions{Frame: f}))
 		})
 	})
 }

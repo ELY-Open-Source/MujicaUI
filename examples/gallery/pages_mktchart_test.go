@@ -5,14 +5,15 @@ import (
 	"testing"
 
 	"github.com/egoist/mygo/ui"
-	mujica "mujicaui"
+
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
 )
 
 func mktDemoTester(t *testing.T, id string) (*ui.Tester, *[]string) {
 	t.Helper()
 	events := &[]string{}
 	tt := ui.NewTester(func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{})
+		core.Use(c, core.Settings{})
 		ui.Scroll(c).Fill().Padding(12).Children(func() { mktDemo(c, func(s string) { *events = append(*events, s) }, id) })
 	}, 900, 800)
 	tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})

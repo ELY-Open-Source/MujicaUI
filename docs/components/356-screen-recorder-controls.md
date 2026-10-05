@@ -7,14 +7,14 @@
 ## 最小示例
 
 ```go
-st := mujica.RecorderState{}
+st := media.RecorderState{}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ScreenRecorderControls(c, st, mujica.ScreenRecorderControlsOptions{
-		OnStart:  func() { st.Status = mujica.RecorderRecording },
-		OnPause:  func() { st.Status = mujica.RecorderPaused },
-		OnResume: func() { st.Status = mujica.RecorderRecording },
-		OnStop:   func() { st = mujica.RecorderState{} },
+	core.Use(c, core.Settings{})
+	media.ScreenRecorderControls(c, st, media.ScreenRecorderControlsOptions{
+		OnStart:  func() { st.Status = media.RecorderRecording },
+		OnPause:  func() { st.Status = media.RecorderPaused },
+		OnResume: func() { st.Status = media.RecorderRecording },
+		OnStop:   func() { st = media.RecorderState{} },
 	})
 }
 ui.Render(view, 400, 300, 1)

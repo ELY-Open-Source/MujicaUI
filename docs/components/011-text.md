@@ -10,10 +10,10 @@
 name := "Coronation.md"
 saveErr := ""
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Text(c, "Order ID: 4821-AX", mujica.TextOptions{Selectable: true})
-	mujica.Text(c, "A long note that stops after two lines.", mujica.TextOptions{MaxLines: 2})
-	if mujica.EditableText(c, &name, mujica.EditableTextOptions{Error: saveErr}).Changed() {
+	core.Use(c, core.Settings{})
+	display.Text(c, "Order ID: 4821-AX", display.TextOptions{Selectable: true})
+	display.Text(c, "A long note that stops after two lines.", display.TextOptions{MaxLines: 2})
+	if display.EditableText(c, &name, display.EditableTextOptions{Error: saveErr}).Changed() {
 		saveErr = "" // save name here; set saveErr on failure
 	}
 }

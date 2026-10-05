@@ -9,12 +9,12 @@
 ```go
 color := ui.Hex("#7D2034")
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ColorPalette(c, &color, []mujica.ColorSwatch{
+	core.Use(c, core.Settings{})
+	input.ColorPalette(c, &color, []input.ColorSwatch{
 		{Color: ui.Hex("#7D2034"), Name: "Wine"},
 		{Color: ui.Hex("#AD9164"), Name: "Old gold"},
 		{Color: ui.Hex("#355E80"), Name: "Slate blue"},
-	}, mujica.ColorPaletteOptions{Custom: true, Label: "Tag color"})
+	}, input.ColorPaletteOptions{Custom: true, Label: "Tag color"})
 }
 ```
 

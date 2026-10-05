@@ -8,8 +8,8 @@
 
 ```go
 	view := func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{})
-		mujica.CandleCountdown(c, "1h", mujica.CandleCountdownOptions{Location: time.UTC})
+		core.Use(c, core.Settings{})
+		chart.CandleCountdown(c, "1h", chart.CandleCountdownOptions{Location: time.UTC})
 	}
 	ui.Render(view, 640, 400, 1)
 ```

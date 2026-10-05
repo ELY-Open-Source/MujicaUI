@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-var state mujica.OptionChainState
-rows := []mujica.OptionStrike{{Strike: 100, Call: mujica.OptionQuote{Bid: 3, Ask: 3.2, Last: 3.1}, Put: mujica.OptionQuote{Bid: 2, Ask: 2.2, Last: 2.1}}}
+var state finance.OptionChainState
+rows := []finance.OptionStrike{{Strike: 100, Call: finance.OptionQuote{Bid: 3, Ask: 3.2, Last: 3.1}, Put: finance.OptionQuote{Bid: 2, Ask: 2.2, Last: 2.1}}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.OptionChain(c, &state, []string{"Oct 17", "Nov 21"}, rows, mujica.OptionChainOptions{Spot: 100.4})
+	core.Use(c, core.Settings{})
+	r := finance.OptionChain(c, &state, []string{"Oct 17", "Nov 21"}, rows, finance.OptionChainOptions{Spot: 100.4})
 	if r.Changed || r.Submitted || r.ExpiryChanged {
 		fmt.Println(state.Expiry, state.Strike, state.Side)
 	}

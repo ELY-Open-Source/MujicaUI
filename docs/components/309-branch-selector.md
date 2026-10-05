@@ -8,10 +8,10 @@
 
 ```go
 branch := "main"
-branches := []mujica.Branch{{Name: "main", Current: true}, {Name: "origin/main", Remote: true}}
+branches := []git.Branch{{Name: "main", Current: true}, {Name: "origin/main", Remote: true}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.BranchSelector(c, &branch, branches, mujica.BranchSelectorOptions{AllowCreate: true})
+	core.Use(c, core.Settings{})
+	r := git.BranchSelector(c, &branch, branches, git.BranchSelectorOptions{AllowCreate: true})
 	if name, ok := r.Created(); ok {
 		_ = name // run git switch -c name
 	}

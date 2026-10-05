@@ -8,10 +8,10 @@
 
 ```go
 names := []string{"Matins", "Lauds", "Prime", "Terce"}
-var state mujica.ListState[string]
+var state data.ListState[string]
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	v := mujica.List(c, &state, len(names), mujica.ListOptions[string]{
+	core.Use(c, core.Settings{})
+	v := data.List(c, &state, len(names), data.ListOptions[string]{
 		Key:   func(i int) string { return names[i] },
 		Label: func(i int) string { return names[i] },
 	}, func(i int) { ui.Text(c, names[i]) })

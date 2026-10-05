@@ -7,15 +7,15 @@
 ## 最小示例
 
 ```go
-var state mujica.TraceViewerState
-spans := []mujica.TraceSpan{
+var state feedback.TraceViewerState
+spans := []feedback.TraceSpan{
 	{ID: "run", Name: "agent.run", End: 900 * time.Millisecond},
 	{ID: "plan", Parent: "run", Name: "llm.plan", Start: 10 * time.Millisecond, End: 210 * time.Millisecond,
-		Attrs: []mujica.TraceAttr{{Key: "model", Value: "opus"}}},
+		Attrs: []feedback.TraceAttr{{Key: "model", Value: "opus"}}},
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.TraceViewer(c, &state, spans, mujica.TraceViewerOptions{}).Element.Height(260)
+	core.Use(c, core.Settings{})
+	feedback.TraceViewer(c, &state, spans, feedback.TraceViewerOptions{}).Element.Height(260)
 }
 ui.Render(view, 400, 300, 1)
 ```

@@ -9,10 +9,10 @@
 ## 最小示例
 
 ```go
-var files []mujica.DroppedFile
+var files []input.DroppedFile
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.FileDropZone(c, &files, mujica.FileDropZoneOptions{
+	core.Use(c, core.Settings{})
+	input.FileDropZone(c, &files, input.FileDropZoneOptions{
 		Extensions: []string{"png", "jpg"}, MaxFiles: 3, MaxSize: 5 << 20,
 	})
 }

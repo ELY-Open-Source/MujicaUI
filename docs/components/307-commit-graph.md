@@ -7,16 +7,16 @@
 ## 最小示例
 
 ```go
-var state mujica.CommitGraphState
-commits := []mujica.Commit{
+var state git.CommitGraphState
+commits := []git.Commit{
 	{Hash: "c3", Parents: []string{"c2", "b1"}, Subject: "Merge branch", Refs: []string{"main"}},
 	{Hash: "b1", Parents: []string{"c1"}, Subject: "Feature"},
 	{Hash: "c2", Parents: []string{"c1"}, Subject: "Fix"},
 	{Hash: "c1", Subject: "Initial commit"},
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.CommitGraph(c, &state, commits, mujica.CommitGraphOptions{}).Element.Height(240)
+	core.Use(c, core.Settings{})
+	git.CommitGraph(c, &state, commits, git.CommitGraphOptions{}).Element.Height(240)
 }
 ui.Render(view, 400, 300, 1)
 ```

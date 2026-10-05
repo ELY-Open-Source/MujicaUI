@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.AgentProgress(c, 0.4, mujica.AgentProgressOptions{Action: "Reading ledger.md"})
+	core.Use(c, core.Settings{})
+	agent.AgentProgress(c, 0.4, agent.AgentProgressOptions{Action: "Reading ledger.md"})
 }
 ui.Render(view, 400, 300, 1)
 ```

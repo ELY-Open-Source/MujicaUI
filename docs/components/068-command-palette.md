@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-res := mujica.CommandPalette(c, &open, []mujica.Command{
+res := navigation.CommandPalette(c, &open, []navigation.Command{
 	{ID: "new", Label: "New document", Group: "File"},
 	{ID: "theme", Label: "Toggle dark mode", Group: "View", Keywords: []string{"night"}},
-}, mujica.CommandPaletteOptions{})
+}, navigation.CommandPaletteOptions{})
 if id, ok := res.Chosen(); ok {
 	fmt.Println("run", id)
 }

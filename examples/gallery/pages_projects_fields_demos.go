@@ -2,32 +2,38 @@ package main
 
 import (
 	"fmt"
-	"github.com/egoist/mygo/ui"
 	"math"
-	mujica "mujicaui"
+
+	"github.com/egoist/mygo/ui"
+
+	"github.com/ZacharyZhang-NY/MujicaUI/chart"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ZacharyZhang-NY/MujicaUI/data"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
+	"github.com/ZacharyZhang-NY/MujicaUI/project"
 )
 
 func projectsDemoBurndownChart(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "369", func() struct {
 		disabled bool
-		status   mujica.DataStatus
+		status   data.DataStatus
 		total    float64
 		values   []float64
 	} {
 		return struct {
 			disabled bool
-			status   mujica.DataStatus
+			status   data.DataStatus
 			total    float64
 			values   []float64
 		}{total: 40, values: []float64{40, 38, 32, 34, 26, math.NaN(), 20, 18}}
 	})
 	projectsCheck(c, log, &s.disabled, "Disabled")
-	projectsChoice(c, log, &s.status, []mujica.SelectOption[mujica.DataStatus]{{Value: mujica.DataReady, Label: "Ready"}, {Value: mujica.DataLoading, Label: "Loading"}, {Value: mujica.DataFailed, Label: "Error"}}, "Data state")
-	if mujica.NumberInput(c, &s.total, mujica.NumberInputOptions{Min: 1, Max: 100, Step: 1, Label: "Total work"}).Changed() {
+	projectsChoice(c, log, &s.status, []input.SelectOption[data.DataStatus]{{Value: data.DataReady, Label: "Ready"}, {Value: data.DataLoading, Label: "Loading"}, {Value: data.DataFailed, Label: "Error"}}, "Data state")
+	if input.NumberInput(c, &s.total, input.NumberInputOptions{Min: 1, Max: 100, Step: 1, Label: "Total work"}).Changed() {
 		log(fmt.Sprintf("total = %g", s.total))
 	}
 	ui.Box(c).Disabled(s.disabled).FillWidth().Children(func() {
-		r := mujica.BurndownChart(c, s.values, mujica.BurndownChartOptions{Frame: mujica.ChartFrame{Label: "Release burndown", Status: s.status, Error: "Data unavailable"}, Start: mujica.Date{Year: 2026, Month: 10, Day: 1}, End: mujica.Date{Year: 2026, Month: 10, Day: 14}, Total: s.total})
+		r := project.BurndownChart(c, s.values, project.BurndownChartOptions{Frame: chart.ChartFrame{Label: "Release burndown", Status: s.status, Error: "Data unavailable"}, Start: core.Date{Year: 2026, Month: 10, Day: 1}, End: core.Date{Year: 2026, Month: 10, Day: 14}, Total: s.total})
 		if r.Changed() {
 			log(fmt.Sprintf("point = %d", r.Point))
 		}
@@ -35,7 +41,7 @@ func projectsDemoBurndownChart(c *ui.Context, log func(string)) {
 			log("toggle " + name)
 		}
 		if r.Retried() {
-			s.status = mujica.DataReady
+			s.status = data.DataReady
 			log("retry")
 		}
 	})
@@ -43,17 +49,17 @@ func projectsDemoBurndownChart(c *ui.Context, log func(string)) {
 
 func projectsDemoPriorityIndicator(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "370", func() struct {
-		priority mujica.Priority
+		priority project.Priority
 		iconOnly bool
 	} {
 		return struct {
-			priority mujica.Priority
+			priority project.Priority
 			iconOnly bool
-		}{priority: mujica.PriorityHigh}
+		}{priority: project.PriorityHigh}
 	})
 	projectsCheck(c, log, &s.iconOnly, "Icon only")
-	projectsChoice(c, log, &s.priority, []mujica.SelectOption[mujica.Priority]{{Value: mujica.PriorityNone, Label: "None"}, {Value: mujica.PriorityLow, Label: "Low"}, {Value: mujica.PriorityMedium, Label: "Medium"}, {Value: mujica.PriorityHigh, Label: "High"}, {Value: mujica.PriorityUrgent, Label: "Urgent"}}, "Priority")
-	mujica.PriorityIndicator(c, s.priority, mujica.PriorityIndicatorOptions{IconOnly: s.iconOnly})
+	projectsChoice(c, log, &s.priority, []input.SelectOption[project.Priority]{{Value: project.PriorityNone, Label: "None"}, {Value: project.PriorityLow, Label: "Low"}, {Value: project.PriorityMedium, Label: "Medium"}, {Value: project.PriorityHigh, Label: "High"}, {Value: project.PriorityUrgent, Label: "Urgent"}}, "Priority")
+	project.PriorityIndicator(c, s.priority, project.PriorityIndicatorOptions{IconOnly: s.iconOnly})
 }
 
 func projectsDemoStatusSelect(c *ui.Context, log func(string)) {
@@ -67,7 +73,7 @@ func projectsDemoStatusSelect(c *ui.Context, log func(string)) {
 		}{value: "todo"}
 	})
 	projectsCheck(c, log, &s.disabled, "Disabled")
-	if mujica.StatusSelect(c, &s.value, projectsStatuses, mujica.StatusSelectOptions{Disabled: s.disabled}).Changed() {
+	if project.StatusSelect(c, &s.value, projectsStatuses, project.StatusSelectOptions{Disabled: s.disabled}).Changed() {
 		log("status " + s.value)
 	}
 }
@@ -85,27 +91,27 @@ func projectsDemoAssigneePicker(c *ui.Context, log func(string)) {
 		}{ids: []string{"ann"}, max: 2}
 	})
 	projectsCheck(c, log, &s.disabled, "Disabled")
-	if mujica.NumberInput(c, &s.max, mujica.NumberInputOptions{Min: 0, Max: 3, Step: 1, Label: "Selection limit"}).Changed() {
+	if input.NumberInput(c, &s.max, input.NumberInputOptions{Min: 0, Max: 3, Step: 1, Label: "Selection limit"}).Changed() {
 		log(fmt.Sprintf("limit = %g", s.max))
 	}
-	if mujica.AssigneePicker(c, &s.ids, projectsMembers, mujica.AssigneePickerOptions{Max: int(s.max), Disabled: s.disabled}).Changed() {
+	if project.AssigneePicker(c, &s.ids, projectsMembers, project.AssigneePickerOptions{Max: int(s.max), Disabled: s.disabled}).Changed() {
 		log(fmt.Sprintf("assignees %v", s.ids))
 	}
 }
 
 func projectsDemoDueDatePicker(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "373", func() struct {
-		due            mujica.Date
+		due            core.Date
 		disabled, done bool
 	} {
 		return struct {
-			due            mujica.Date
+			due            core.Date
 			disabled, done bool
-		}{due: mujica.Date{Year: 2026, Month: 10, Day: 3}}
+		}{due: core.Date{Year: 2026, Month: 10, Day: 3}}
 	})
 	projectsCheck(c, log, &s.disabled, "Disabled")
 	projectsCheck(c, log, &s.done, "Completed")
-	if mujica.DueDatePicker(c, &s.due, mujica.DueDatePickerOptions{Done: s.done, Disabled: s.disabled}).Changed() {
+	if project.DueDatePicker(c, &s.due, project.DueDatePickerOptions{Done: s.done, Disabled: s.disabled}).Changed() {
 		log(fmt.Sprintf("due %v", s.due))
 	}
 }
@@ -116,7 +122,7 @@ func projectsDemoIssueCard(c *ui.Context, log func(string)) {
 	projectsCheck(c, log, &s.disabled, "Disabled")
 	projectsCheck(c, log, selected, "Selected")
 	ui.Box(c).Width(300).Children(func() {
-		if mujica.IssueCard(c, s.tasks[0], mujica.IssueCardOptions{Statuses: projectsStatuses, Members: projectsMembers, Labels: projectsLabels, Selected: *selected, Disabled: s.disabled}).Clicked() {
+		if project.IssueCard(c, s.tasks[0], project.IssueCardOptions{Statuses: projectsStatuses, Members: projectsMembers, Labels: projectsLabels, Selected: *selected, Disabled: s.disabled}).Clicked() {
 			*selected = !*selected
 			log("open " + s.tasks[0].ID)
 		}
@@ -135,8 +141,8 @@ func projectsDemoIssueIdBadge(c *ui.Context, log func(string)) {
 	})
 	projectsCheck(c, log, &s.disabled, "Disabled")
 	projectsCheck(c, log, &s.copyable, "Copyable")
-	projectsChoice(c, log, &s.id, []mujica.SelectOption[string]{{Value: "ENG-123", Label: "ENG-123"}, {Value: "OPS-7", Label: "OPS-7"}}, "Issue key")
-	if mujica.IssueIdBadge(c, s.id, mujica.IssueIdBadgeOptions{Copyable: s.copyable, Disabled: s.disabled}).Changed() {
+	projectsChoice(c, log, &s.id, []input.SelectOption[string]{{Value: "ENG-123", Label: "ENG-123"}, {Value: "OPS-7", Label: "OPS-7"}}, "Issue key")
+	if project.IssueIdBadge(c, s.id, project.IssueIdBadgeOptions{Copyable: s.copyable, Disabled: s.disabled}).Changed() {
 		log("copied " + s.id)
 	}
 }

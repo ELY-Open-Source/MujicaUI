@@ -10,12 +10,12 @@
 
 ```go
 query := ""
-groups := []mujica.ShortcutGroup{{Title: "General", Bindings: []mujica.ShortcutBinding{
-	{Action: "Command palette", Shortcut: mujica.Shortcut{Mods: ui.Cmd | ui.Shift, Key: ui.KeyP}},
+groups := []account.ShortcutGroup{{Title: "General", Bindings: []account.ShortcutBinding{
+	{Action: "Command palette", Shortcut: account.Shortcut{Mods: ui.Cmd | ui.Shift, Key: ui.KeyP}},
 }}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.KeyboardShortcutsList(c, &query, groups, mujica.KeyboardShortcutsListOptions{})
+	core.Use(c, core.Settings{})
+	account.KeyboardShortcutsList(c, &query, groups, account.KeyboardShortcutsListOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

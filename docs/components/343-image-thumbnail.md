@@ -10,8 +10,8 @@
 photo := ui.NewBitmap(examplePhoto)
 selected := false
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.ImageThumbnail(c, photo, mujica.ImageThumbnailOptions{Alt: "Grand hall", Aspect: 4.0 / 3, Selected: selected}).Changed() {
+	core.Use(c, core.Settings{})
+	if media.ImageThumbnail(c, photo, media.ImageThumbnailOptions{Alt: "Grand hall", Aspect: 4.0 / 3, Selected: selected}).Changed() {
 		selected = !selected
 	}
 }

@@ -9,8 +9,8 @@
 ```go
 open := true
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.UndoToast(c, &open, "Note deleted", mujica.UndoToastOptions{
+	core.Use(c, core.Settings{})
+	feedback.UndoToast(c, &open, "Note deleted", feedback.UndoToastOptions{
 		OnUndo: func() {
 			// restore the note
 		},

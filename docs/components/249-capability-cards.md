@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-cards := []mujica.CapabilityCard{{Title: "Plan", Icon: icons.Must("calendar"), Examples: []string{"Plan a ball"}}}
+cards := []chat.CapabilityCard{{Title: "Plan", Icon: icons.Must("calendar"), Examples: []string{"Plan a ball"}}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if v := mujica.CapabilityCards(c, cards, mujica.CapabilityCardsOptions{}); v.Example != "" {
+	core.Use(c, core.Settings{})
+	if v := chat.CapabilityCards(c, cards, chat.CapabilityCardsOptions{}); v.Example != "" {
 		log.Println("ask", v.Example)
 	}
 }

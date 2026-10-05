@@ -8,10 +8,10 @@
 
 ```go
 current := "c2"
-points := []mujica.Checkpoint{{ID: "c2", Label: "Menu drafted"}, {ID: "c1", Label: "Start"}}
+points := []agent.Checkpoint{{ID: "c2", Label: "Menu drafted"}, {ID: "c1", Label: "Start"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.CheckpointList(c, &current, points, mujica.CheckpointListOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if agent.CheckpointList(c, &current, points, agent.CheckpointListOptions{}).Changed() {
 		fmt.Println("restore", current)
 	}
 }

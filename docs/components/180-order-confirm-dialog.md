@@ -11,9 +11,9 @@
 ```go
 open := true
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.OrderConfirmDialog(c, &open, mujica.OrderConfirmDialogOptions{
-		Lines:       []mujica.OrderSummaryLine{{Label: "Symbol", Value: "MUJC"}, {Label: "Quantity", Value: "100"}},
+	core.Use(c, core.Settings{})
+	r := finance.OrderConfirmDialog(c, &open, finance.OrderConfirmDialogOptions{
+		Lines:       []finance.OrderSummaryLine{{Label: "Symbol", Value: "MUJC"}, {Label: "Quantity", Value: "100"}},
 		Risk:        "Leveraged products can lose more than the deposit.",
 		Acknowledge: "I understand the risk",
 	})

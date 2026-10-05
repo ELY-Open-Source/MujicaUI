@@ -8,8 +8,8 @@
 
 ```go
 open := true
-r := mujica.Alert(c, &open, "The archive could not be read.", mujica.AlertOptions{
-	Severity: mujica.SeverityError,
+r := feedback.Alert(c, &open, "The archive could not be read.", feedback.AlertOptions{
+	Severity: core.SeverityError,
 	Title:    "Import failed",
 	Action:   "Retry",
 })

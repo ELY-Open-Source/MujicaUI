@@ -9,11 +9,11 @@
 ## 最小示例
 
 ```go
-var state mujica.DataTableState[string]
-rows := []mujica.PositionRow{{ID: "p1", Symbol: "MUJC", Quantity: 100, AvgCost: 400, Price: 412.08}}
+var state data.DataTableState[string]
+rows := []finance.PositionRow{{ID: "p1", Symbol: "MUJC", Quantity: 100, AvgCost: 400, Price: 412.08}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if id, ok := mujica.PositionTable(c, &state, rows, mujica.PositionTableOptions{}).Acted(); ok {
+	core.Use(c, core.Settings{})
+	if id, ok := finance.PositionTable(c, &state, rows, finance.PositionTableOptions{}).Acted(); ok {
 		fmt.Println("close", id)
 	}
 }

@@ -9,8 +9,8 @@
 ```go
 var prompt string
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.PromptComposer(c, &prompt, mujica.PromptComposerOptions{Placeholder: "Ask the herald"})
+	core.Use(c, core.Settings{})
+	r := chat.PromptComposer(c, &prompt, chat.PromptComposerOptions{Placeholder: "Ask the herald"})
 	if r.Submitted() {
 		fmt.Println("send", prompt)
 		prompt = ""

@@ -11,8 +11,8 @@
 ```go
 tint := ui.Hex("#7D2034")
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ColorPicker(c, &tint, mujica.ColorPickerOptions{Label: "Tint"})
+	core.Use(c, core.Settings{})
+	input.ColorPicker(c, &tint, input.ColorPickerOptions{Label: "Tint"})
 }
 ui.Render(view, 400, 300, 1)
 ```

@@ -7,9 +7,13 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
-	"mujicaui/icons"
-	"mujicaui/theme"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ZacharyZhang-NY/MujicaUI/feedback"
+	"github.com/ZacharyZhang-NY/MujicaUI/icons"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
+	"github.com/ZacharyZhang-NY/MujicaUI/layout"
+	"github.com/ZacharyZhang-NY/MujicaUI/navigation"
+	"github.com/ZacharyZhang-NY/MujicaUI/theme"
 )
 
 // event is one line of the gallery's event log.
@@ -65,16 +69,16 @@ func (g *gallery) logFor(id string) func(string) {
 	}
 }
 
-func (g *gallery) settings() mujica.Settings {
-	s := mujica.Settings{Mode: mujica.Mode(g.mode), Density: densities[g.density], Locale: mujica.EnUS}
+func (g *gallery) settings() core.Settings {
+	s := core.Settings{Mode: core.Mode(g.mode), Density: densities[g.density], Locale: core.EnUS}
 	if g.zh {
-		s.Locale = mujica.ZhCN
+		s.Locale = core.ZhCN
 	}
 	return s
 }
 
 func (g *gallery) view(c *ui.Context) {
-	mujica.Use(c, g.settings())
+	core.Use(c, g.settings())
 	w, _ := c.Size()
 	if narrow := w < 900; narrow != g.autoFold {
 		g.autoFold, g.folded = narrow, narrow
@@ -84,7 +88,7 @@ func (g *gallery) view(c *ui.Context) {
 		scroll = &ui.ScrollState{}
 		g.scrolls[g.selected] = scroll
 	}
-	mujica.AppShell(c, &g.folded, mujica.AppShellOptions{
+	layout.AppShell(c, &g.folded, layout.AppShellOptions{
 		TitleBar:      func() { g.titleBar(c) },
 		Sidebar:       func() { g.sidebar(c) },
 		Content:       func() { g.content(c) },
@@ -92,33 +96,33 @@ func (g *gallery) view(c *ui.Context) {
 		ContentScroll: scroll,
 	})
 	g.commandPalette(c)
-	mujica.Toaster(c)
+	feedback.Toaster(c)
 }
 
 func (g *gallery) titleBar(c *ui.Context) {
-	mujica.TitleBar(c, "MujicaUI", mujica.TitleBarOptions{Trailing: func() {
+	layout.TitleBar(c, "MujicaUI", layout.TitleBarOptions{Trailing: func() {
 		ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
 			mode := g.mode
-			if mujica.SegmentedControl(c, &g.mode, []mujica.Segment{
+			if navigation.SegmentedControl(c, &g.mode, []navigation.Segment{
 				{Label: g.t("System", "跟随系统"), Icon: icons.Must("settings"), HideLabel: true},
 				{Label: g.t("Light", "浅色"), Icon: icons.Must("sun"), HideLabel: true},
 				{Label: g.t("Dark", "深色"), Icon: icons.Must("moon"), HideLabel: true},
-			}, mujica.SegmentedControlOptions{Label: g.t("Theme", "主题")}).Changed() && mode != g.mode {
-				g.logFor("shell")("theme " + mujica.Mode(g.mode).String())
+			}, navigation.SegmentedControlOptions{Label: g.t("Theme", "主题")}).Changed() && mode != g.mode {
+				g.logFor("shell")("theme " + core.Mode(g.mode).String())
 				g.overture.switches++
 			}
 			density := g.density
-			if mujica.SegmentedControl(c, &g.density, []mujica.Segment{
+			if navigation.SegmentedControl(c, &g.density, []navigation.Segment{
 				{Label: g.t("Compact", "紧凑")}, {Label: g.t("Default", "默认")}, {Label: g.t("Comfortable", "宽松")},
-			}, mujica.SegmentedControlOptions{Label: g.t("Density", "密度")}).Changed() && density != g.density {
+			}, navigation.SegmentedControlOptions{Label: g.t("Density", "密度")}).Changed() && density != g.density {
 				g.logFor("shell")("density " + densities[g.density].String())
 				g.overture.switches++
 			}
-			if mujica.Button(c, g.t("中文", "English"), mujica.ButtonOptions{Variant: mujica.Ghost}).Clicked() {
+			if input.Button(c, g.t("中文", "English"), input.ButtonOptions{Variant: input.Ghost}).Clicked() {
 				g.zh = !g.zh
 				g.logFor("shell")(fmt.Sprintf("locale %s", g.settings().Locale))
 			}
-			if mujica.IconButton(c, icons.Must("command"), g.t("Command palette", "命令面板"), mujica.IconButtonOptions{Variant: mujica.Ghost}).Clicked() {
+			if input.IconButton(c, icons.Must("command"), g.t("Command palette", "命令面板"), input.IconButtonOptions{Variant: input.Ghost}).Clicked() {
 				g.palette = true
 			}
 		})
@@ -126,16 +130,16 @@ func (g *gallery) titleBar(c *ui.Context) {
 }
 
 func (g *gallery) statusBar(c *ui.Context) {
-	left := []mujica.StatusItem{
+	left := []layout.StatusItem{
 		{ID: "count", Text: fmt.Sprintf(g.t("%d components", "%d 个组件"), len(g.pages)), Icon: icons.Must("layout-grid")},
-		{ID: "look", Text: fmt.Sprintf("%s · %s", mujica.Mode(g.mode), densities[g.density]), Secondary: true},
+		{ID: "look", Text: fmt.Sprintf("%s · %s", core.Mode(g.mode), densities[g.density]), Secondary: true},
 	}
-	var right []mujica.StatusItem
+	var right []layout.StatusItem
 	if n := len(g.events); n > 0 {
 		e := g.events[n-1]
-		right = append(right, mujica.StatusItem{ID: "last", Text: e.page + " · " + e.text, Icon: icons.Must("bell"), Secondary: true})
+		right = append(right, layout.StatusItem{ID: "last", Text: e.page + " · " + e.text, Icon: icons.Must("bell"), Secondary: true})
 	}
-	mujica.StatusBar(c, mujica.StatusBarOptions{Left: left, Right: right})
+	layout.StatusBar(c, layout.StatusBarOptions{Left: left, Right: right})
 }
 
 func (g *gallery) content(c *ui.Context) {

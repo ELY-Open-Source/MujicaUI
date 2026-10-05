@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-var value mujica.FeedbackValue
+var value chat.FeedbackValue
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.FeedbackForm(c, &value, mujica.FeedbackFormOptions{Rating: mujica.FeedbackDown}).Submitted {
+	core.Use(c, core.Settings{})
+	if chat.FeedbackForm(c, &value, chat.FeedbackFormOptions{Rating: chat.FeedbackDown}).Submitted {
 		log.Println("reasons", value.Reasons)
 	}
 }

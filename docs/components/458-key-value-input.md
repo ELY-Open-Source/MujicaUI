@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-rows := []mujica.KeyValue{{Key: "Accept", Value: "application/json", Enabled: true}}
+rows := []devtools.KeyValue{{Key: "Accept", Value: "application/json", Enabled: true}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.KeyValueInput(c, &rows, mujica.KeyValueInputOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if devtools.KeyValueInput(c, &rows, devtools.KeyValueInputOptions{}).Changed() {
 		fmt.Println("rows", len(rows))
 	}
 }

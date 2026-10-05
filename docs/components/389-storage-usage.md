@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-segments := []mujica.StorageSegment{{Label: "Documents", Bytes: 24 << 30}, {Label: "Photos", Bytes: 40 << 30}}
+segments := []files.StorageSegment{{Label: "Documents", Bytes: 24 << 30}, {Label: "Photos", Bytes: 40 << 30}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.StorageUsage(c, segments, mujica.StorageUsageOptions{Capacity: 128 << 30, Label: "Court disk"})
+	core.Use(c, core.Settings{})
+	files.StorageUsage(c, segments, files.StorageUsageOptions{Capacity: 128 << 30, Label: "Court disk"})
 }
 ui.Render(view, 500, 240, 1)
 ```

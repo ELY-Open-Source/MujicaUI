@@ -7,8 +7,10 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
-	"mujicaui/icons"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ZacharyZhang-NY/MujicaUI/icons"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
+	"github.com/ZacharyZhang-NY/MujicaUI/layout"
 )
 
 var layoutPages = []page{
@@ -67,16 +69,16 @@ func layoutSlider(c *ui.Context, v *float64, label string, lo, hi float64, log f
 func layoutControls(c *ui.Context, fn func()) { ui.Row(c).Wrap().Gap(12).Children(fn) }
 
 func layoutFrame(c *ui.Context, h float32, fn func()) *ui.Element {
-	return ui.Column(c).Height(h).Border(1, mujica.Tokens(c).Border).Radius(4).Clip().Children(fn)
+	return ui.Column(c).Height(h).Border(1, core.Tokens(c).Border).Radius(4).Clip().Children(fn)
 }
 
 var layoutSpaces = []string{"Default", "None", "XS", "S", "M", "L", "XL", "XXL"}
 
-func layoutSpace(s string) mujica.Space { return mujica.Space(slices.Index(layoutSpaces, s)) }
+func layoutSpace(s string) layout.Space { return layout.Space(slices.Index(layoutSpaces, s)) }
 
 const layoutAppShellCode = `var collapsed bool
-mujica.AppShell(c, &collapsed, mujica.AppShellOptions{
-	TitleBar: func() { mujica.TitleBar(c, "Court Records", mujica.TitleBarOptions{}) },
+layout.AppShell(c, &collapsed, layout.AppShellOptions{
+	TitleBar: func() { layout.TitleBar(c, "Court Records", layout.TitleBarOptions{}) },
 	Sidebar:  func() { ui.Text(c, "Chronicles") },
 	Content:  func() { ui.Text(c, "The Grand Hall") },
 })`
@@ -94,7 +96,7 @@ func layoutAppShellDemo(c *ui.Context, log func(string)) {
 		layoutCheck(c, &s.collapsed, "Collapsed", log)
 		layoutSlider(c, &s.width, "Sidebar width", 160, 320, log)
 	})
-	opts := mujica.AppShellOptions{
+	opts := layout.AppShellOptions{
 		SidebarWidth:  float32(s.width),
 		ContentScroll: &s.scroll,
 		Sidebar: func() {
@@ -103,7 +105,7 @@ func layoutAppShellDemo(c *ui.Context, log func(string)) {
 			}
 		},
 		Content: func() {
-			mujica.Container(c, mujica.ContainerOptions{}, func() {
+			layout.Container(c, layout.ContainerOptions{}, func() {
 				for i := range 30 {
 					ui.Text(c, fmt.Sprintf("Entry %d of the court record", i+1)).Padding(4, 0)
 				}
@@ -111,24 +113,24 @@ func layoutAppShellDemo(c *ui.Context, log func(string)) {
 		},
 	}
 	if s.title {
-		opts.TitleBar = func() { mujica.TitleBar(c, "Court Records", mujica.TitleBarOptions{}) }
+		opts.TitleBar = func() { layout.TitleBar(c, "Court Records", layout.TitleBarOptions{}) }
 	}
 	if s.status {
 		opts.StatusBar = func() {
-			mujica.StatusBar(c, mujica.StatusBarOptions{Left: []mujica.StatusItem{{ID: "pos", Text: fmt.Sprintf("Scrolled %.0f", s.scroll.Y)}}})
+			layout.StatusBar(c, layout.StatusBarOptions{Left: []layout.StatusItem{{ID: "pos", Text: fmt.Sprintf("Scrolled %.0f", s.scroll.Y)}}})
 		}
 	}
 	ui.Column(c).Margin(16, 0, 0, 0).Children(func() {
 		layoutFrame(c, 360, func() {
-			if mujica.AppShell(c, &s.collapsed, opts).Toggled {
+			if layout.AppShell(c, &s.collapsed, opts).Toggled {
 				log(fmt.Sprintf("sidebar collapsed: %v", s.collapsed))
 			}
 		})
 	})
 }
 
-const layoutTitleBarCode = `mujica.TitleBar(c, "Court Records", mujica.TitleBarOptions{
-	Trailing: func() { mujica.Button(c, "Share", mujica.ButtonOptions{Variant: mujica.Ghost}) },
+const layoutTitleBarCode = `layout.TitleBar(c, "Court Records", layout.TitleBarOptions{
+	Trailing: func() { input.Button(c, "Share", input.ButtonOptions{Variant: input.Ghost}) },
 })`
 
 func layoutTitleBarDemo(c *ui.Context, log func(string)) {
@@ -142,32 +144,32 @@ func layoutTitleBarDemo(c *ui.Context, log func(string)) {
 		layoutCheck(c, &s.trailing, "Trailing tool", log)
 		layoutChoice(c, &s.title, "Title", []string{"Court Records", "宫廷档案", "A very long title of the royal chronicle of the court"}, log)
 	})
-	var opts mujica.TitleBarOptions
+	var opts layout.TitleBarOptions
 	if s.leading {
 		opts.Leading = func() {
-			if mujica.Button(c, "", mujica.ButtonOptions{Variant: mujica.Ghost, Icon: icons.Must("panel-left"), Label: "Sidebar"}).Clicked() {
+			if input.Button(c, "", input.ButtonOptions{Variant: input.Ghost, Icon: icons.Must("panel-left"), Label: "Sidebar"}).Clicked() {
 				log("leading tool clicked")
 			}
 		}
 	}
 	if s.trailing {
 		opts.Trailing = func() {
-			if mujica.Button(c, "Share", mujica.ButtonOptions{Variant: mujica.Ghost}).Clicked() {
+			if input.Button(c, "Share", input.ButtonOptions{Variant: input.Ghost}).Clicked() {
 				log("Share clicked")
 			}
 		}
 	}
 	ui.Column(c).Margin(16, 0, 0, 0).Width(520).Children(func() {
-		layoutFrame(c, 90, func() { mujica.TitleBar(c, s.title, opts) })
+		layoutFrame(c, 90, func() { layout.TitleBar(c, s.title, opts) })
 	})
 	bar := c.TitleBar()
 	ui.Text(c, fmt.Sprintf("Window controls reserve: left %.0f, right %.0f, height %.0f DIP", bar.Left, bar.Right, bar.Height)).
-		TextColor(mujica.Tokens(c).TextMuted).Margin(8, 0, 0, 0)
+		TextColor(core.Tokens(c).TextMuted).Margin(8, 0, 0, 0)
 }
 
-const layoutStatusBarCode = `bar := mujica.StatusBar(c, mujica.StatusBarOptions{
-	Left:  []mujica.StatusItem{{ID: "sync", Text: "Syncing", ShowProgress: true, Progress: 0.4}},
-	Right: []mujica.StatusItem{{ID: "bell", Label: "Notifications", Icon: icons.Must("bell"), Action: true}},
+const layoutStatusBarCode = `bar := layout.StatusBar(c, layout.StatusBarOptions{
+	Left:  []layout.StatusItem{{ID: "sync", Text: "Syncing", ShowProgress: true, Progress: 0.4}},
+	Right: []layout.StatusItem{{ID: "bell", Label: "Notifications", Icon: icons.Must("bell"), Action: true}},
 })
 if bar.Clicked == "bell" {
 	opened++
@@ -186,30 +188,30 @@ func layoutStatusBarDemo(c *ui.Context, log func(string)) {
 		layoutSlider(c, &s.progress, "Percent", 0, 100, log)
 		layoutChoice(c, &s.tone, "Tone", []string{"Neutral", "Success", "Warning", "Danger", "Info"}, log)
 	})
-	tones := map[string]mujica.StatusItemTone{"Neutral": mujica.StatusItemNeutral, "Success": mujica.StatusItemSuccess,
-		"Warning": mujica.StatusItemWarning, "Danger": mujica.StatusItemDanger, "Info": mujica.StatusItemInfo}
-	opts := mujica.StatusBarOptions{
-		Left: []mujica.StatusItem{
+	tones := map[string]layout.StatusItemTone{"Neutral": layout.StatusItemNeutral, "Success": layout.StatusItemSuccess,
+		"Warning": layout.StatusItemWarning, "Danger": layout.StatusItemDanger, "Info": layout.StatusItemInfo}
+	opts := layout.StatusBarOptions{
+		Left: []layout.StatusItem{
 			{ID: "branch", Text: "main", Icon: icons.Must("folder")},
 			{ID: "sync", Text: "Syncing", ShowProgress: s.showProgress, Progress: float32(s.progress / 100)},
 			{ID: "lint", Text: "2 warnings", Tone: tones[s.tone], Secondary: true, Action: true},
 		},
-		Right: []mujica.StatusItem{
+		Right: []layout.StatusItem{
 			{ID: "enc", Text: "UTF-8", Secondary: true},
 			{ID: "pos", Text: "Ln 12, Col 4", Secondary: true},
 			{ID: "bell", Label: "Notifications", Icon: icons.Must("bell"), Action: true},
 		},
 	}
 	ui.Column(c).Margin(16, 0, 0, 0).Width(float32(s.width)).Children(func() {
-		if id := mujica.StatusBar(c, opts).Clicked; id != "" {
+		if id := layout.StatusBar(c, opts).Clicked; id != "" {
 			log("clicked " + id)
 		}
 	})
 	ui.Text(c, "Narrow the width: secondary items fold into a count, last first.").
-		TextColor(mujica.Tokens(c).TextMuted).Margin(8, 0, 0, 0)
+		TextColor(core.Tokens(c).TextMuted).Margin(8, 0, 0, 0)
 }
 
-const layoutContainerCode = `mujica.Container(c, mujica.ContainerOptions{MaxWidth: 320, Center: true}, func() {
+const layoutContainerCode = `layout.Container(c, layout.ContainerOptions{MaxWidth: 320, Center: true}, func() {
 	ui.Text(c, "A centered column of prose.")
 })`
 
@@ -228,10 +230,10 @@ func layoutContainerDemo(c *ui.Context, log func(string)) {
 		layoutCheck(c, &s.clip, "Clip", log)
 		layoutCheck(c, &s.wide, "Overflowing child", log)
 	})
-	k := mujica.Tokens(c)
+	k := core.Tokens(c)
 	ui.Column(c).Margin(16, 0, 0, 0).Children(func() {
 		layoutFrame(c, 200, func() {
-			mujica.Container(c, mujica.ContainerOptions{MaxWidth: float32(s.maxWidth), Padding: layoutSpace(s.padding),
+			layout.Container(c, layout.ContainerOptions{MaxWidth: float32(s.maxWidth), Padding: layoutSpace(s.padding),
 				Center: s.center, Fill: s.fill, Clip: s.clip}, func() {
 				ui.Text(c, "Of the Court").FontSize(18)
 				ui.Text(c, "Prose keeps a readable measure inside a container.").TextColor(k.TextMuted)
@@ -243,12 +245,12 @@ func layoutContainerDemo(c *ui.Context, log func(string)) {
 	})
 }
 
-const layoutStackCode = `mujica.Stack(c, mujica.StackOptions{Horizontal: true, Gap: mujica.SpaceM}, func() {
-	mujica.Button(c, "Save", mujica.ButtonOptions{})
+const layoutStackCode = `layout.Stack(c, layout.StackOptions{Horizontal: true, Gap: layout.SpaceM}, func() {
+	input.Button(c, "Save", input.ButtonOptions{})
 	if showDraft {
-		mujica.Button(c, "Draft", mujica.ButtonOptions{Variant: mujica.Secondary})
+		input.Button(c, "Draft", input.ButtonOptions{Variant: input.Secondary})
 	}
-	mujica.Button(c, "Cancel", mujica.ButtonOptions{Variant: mujica.Ghost})
+	input.Button(c, "Cancel", input.ButtonOptions{Variant: input.Ghost})
 })`
 
 func layoutStackDemo(c *ui.Context, log func(string)) {
@@ -272,13 +274,13 @@ func layoutStackDemo(c *ui.Context, log func(string)) {
 		layoutChoice(c, &s.align, "Align", aligns, log)
 		layoutChoice(c, &s.justify, "Justify", []string{"Start", "Center", "End", "SpaceBetween"}, log)
 	})
-	align := mujica.StackAlign(slices.Index(aligns, s.align))
+	align := layout.StackAlign(slices.Index(aligns, s.align))
 	ui.Column(c).Margin(16, 0, 0, 0).Width(420).Children(func() {
 		layoutFrame(c, 200, func() {
-			mujica.Stack(c, mujica.StackOptions{Horizontal: s.horizontal, Wrap: s.wrap, Gap: layoutSpace(s.gap),
+			layout.Stack(c, layout.StackOptions{Horizontal: s.horizontal, Wrap: s.wrap, Gap: layoutSpace(s.gap),
 				Align: align, Justify: justifies[s.justify]}, func() {
 				for _, n := range []string{"Save", "Draft", "Publish", "Archive", "Cancel"} {
-					if (!s.hide || n != "Draft") && mujica.Button(c, n, mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+					if (!s.hide || n != "Draft") && input.Button(c, n, input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 						log(n + " clicked")
 					}
 				}
@@ -287,8 +289,8 @@ func layoutStackDemo(c *ui.Context, log func(string)) {
 	})
 }
 
-const layoutGridCode = `mujica.Grid(c, mujica.GridOptions{Columns: []ui.Track{ui.Fixed(96), ui.Fr(1)}}, func() {
-	mujica.GridCell(c, mujica.GridCellOptions{ColumnSpan: -1}, func() { ui.Text(c, "Header") })
+const layoutGridCode = `layout.Grid(c, layout.GridOptions{Columns: []ui.Track{ui.Fixed(96), ui.Fr(1)}}, func() {
+	layout.GridCell(c, layout.GridCellOptions{ColumnSpan: -1}, func() { ui.Text(c, "Header") })
 	ui.Text(c, "Name")
 	ui.Text(c, "Ada")
 })`
@@ -309,22 +311,22 @@ func layoutGridDemo(c *ui.Context, log func(string)) {
 		layoutCheck(c, &s.header, "Header spans all", log)
 		layoutCheck(c, &s.tall, "First cell spans 2 rows", log)
 	})
-	k := mujica.Tokens(c)
+	k := core.Tokens(c)
 	cell := func(text string) {
 		ui.Box(c).Center().Padding(8).Background(k.Surface).Border(1, k.Border).Radius(4).
 			Children(func() { ui.Text(c, text).TextColor(k.TextMuted) })
 	}
 	ui.Column(c).Margin(16, 0, 0, 0).Width(520).Children(func() {
-		mujica.Grid(c, mujica.GridOptions{Columns: []ui.Track{tracks[s.first], ui.Fr(1), ui.Fr(1)},
+		layout.Grid(c, layout.GridOptions{Columns: []ui.Track{tracks[s.first], ui.Fr(1), ui.Fr(1)},
 			Gap: layoutSpace(s.gap), RowGap: layoutSpace(s.rowGap)}, func() {
 			if s.header {
-				mujica.GridCell(c, mujica.GridCellOptions{ColumnSpan: -1}, func() { cell("Header, ColumnSpan -1") })
+				layout.GridCell(c, layout.GridCellOptions{ColumnSpan: -1}, func() { cell("Header, ColumnSpan -1") })
 			}
 			span := 1
 			if s.tall {
 				span = 2
 			}
-			mujica.GridCell(c, mujica.GridCellOptions{RowSpan: span}, func() { cell(s.first) })
+			layout.GridCell(c, layout.GridCellOptions{RowSpan: span}, func() { cell(s.first) })
 			for i := range 4 {
 				cell(fmt.Sprintf("Cell %d", i+1))
 			}
@@ -333,7 +335,7 @@ func layoutGridDemo(c *ui.Context, log func(string)) {
 }
 
 const layoutScrollAreaCode = `var offset ui.ScrollState
-mujica.ScrollArea(c, &offset, mujica.ScrollAreaOptions{Label: "Log"}, func() {
+layout.ScrollArea(c, &offset, layout.ScrollAreaOptions{Label: "Log"}, func() {
 	for range 50 {
 		ui.Text(c, "A line of the log")
 	}
@@ -346,25 +348,25 @@ func layoutScrollAreaDemo(c *ui.Context, log func(string)) {
 		lastX, lastY float32
 	}
 	s := ui.Local(c.Root(), "007", func() state { return state{direction: "Vertical"} })
-	dirs := map[string]mujica.ScrollDirection{"Vertical": mujica.ScrollVertical, "Horizontal": mujica.ScrollHorizontal, "Both": mujica.ScrollBoth}
+	dirs := map[string]layout.ScrollDirection{"Vertical": layout.ScrollVertical, "Horizontal": layout.ScrollHorizontal, "Both": layout.ScrollBoth}
 	layoutControls(c, func() {
 		layoutChoice(c, &s.direction, "Direction", []string{"Vertical", "Horizontal", "Both"}, log)
-		if mujica.Button(c, "Top", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+		if input.Button(c, "Top", input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 			s.offset.X, s.offset.Y = 0, 0
 			log("scroll to start")
 		}
-		if mujica.Button(c, "Middle", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+		if input.Button(c, "Middle", input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 			s.offset.X, s.offset.Y = s.offset.MaxX/2, s.offset.MaxY/2
 			log("scroll to middle")
 		}
-		if mujica.Button(c, "End", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+		if input.Button(c, "End", input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 			s.offset.X, s.offset.Y = math.MaxFloat32, math.MaxFloat32
 			log("scroll to end")
 		}
 	})
-	k := mujica.Tokens(c)
+	k := core.Tokens(c)
 	ui.Column(c).Margin(16, 0, 0, 0).Width(420).Children(func() {
-		mujica.ScrollArea(c, &s.offset, mujica.ScrollAreaOptions{Direction: dirs[s.direction], Label: "Ledger"}, func() {
+		layout.ScrollArea(c, &s.offset, layout.ScrollAreaOptions{Direction: dirs[s.direction], Label: "Ledger"}, func() {
 			for i := range 40 {
 				ui.Text(c, fmt.Sprintf("%02d  Ledger line of the treasury, folio %d, carried over from the last quarter", i+1, i+7)).
 					SingleLine().Padding(4, 12)
@@ -379,30 +381,30 @@ func layoutScrollAreaDemo(c *ui.Context, log func(string)) {
 		TextColor(k.TextMuted).Margin(8, 0, 0, 0)
 }
 
-const layoutSplitPaneCode = `split := mujica.SplitPaneState{Size: 160}
-mujica.SplitPane(c, &split, mujica.SplitPaneOptions{MinFirst: 120, Collapsible: mujica.SplitPaneFirst},
+const layoutSplitPaneCode = `split := layout.SplitPaneState{Size: 160}
+layout.SplitPane(c, &split, layout.SplitPaneOptions{MinFirst: 120, Collapsible: layout.SplitPaneFirst},
 	func() { ui.Text(c, "Files") },
 	func() { ui.Text(c, "Editor") },
 ).Fill()`
 
 func layoutSplitPaneDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		split       mujica.SplitPaneState
+		split       layout.SplitPaneState
 		vertical    bool
 		collapsible string
 		minFirst    float64
 	}
 	s := ui.Local(c.Root(), "008", func() state {
-		return state{split: mujica.SplitPaneState{Size: 180}, collapsible: "First", minFirst: 120}
+		return state{split: layout.SplitPaneState{Size: 180}, collapsible: "First", minFirst: 120}
 	})
-	sides := map[string]mujica.SplitPaneSide{"Neither": mujica.SplitPaneNeither, "First": mujica.SplitPaneFirst, "Second": mujica.SplitPaneSecond}
+	sides := map[string]layout.SplitPaneSide{"Neither": layout.SplitPaneNeither, "First": layout.SplitPaneFirst, "Second": layout.SplitPaneSecond}
 	layoutControls(c, func() {
 		layoutCheck(c, &s.vertical, "Vertical", log)
 		layoutChoice(c, &s.collapsible, "Collapsible", []string{"Neither", "First", "Second"}, log)
 		layoutSlider(c, &s.minFirst, "Min first", 40, 200, log)
 	})
 	s.split.Collapsed = s.split.Collapsed && s.collapsible != "Neither"
-	k := mujica.Tokens(c)
+	k := core.Tokens(c)
 	pane := func(title, body string, bg ui.Color) func() {
 		return func() {
 			ui.Column(c).Fill().Padding(12).Gap(6).Background(bg).Children(func() {
@@ -413,7 +415,7 @@ func layoutSplitPaneDemo(c *ui.Context, log func(string)) {
 	}
 	ui.Column(c).Margin(16, 0, 0, 0).Width(560).Children(func() {
 		layoutFrame(c, 280, func() {
-			r := mujica.SplitPane(c, &s.split, mujica.SplitPaneOptions{Vertical: s.vertical, MinFirst: float32(s.minFirst),
+			r := layout.SplitPane(c, &s.split, layout.SplitPaneOptions{Vertical: s.vertical, MinFirst: float32(s.minFirst),
 				Collapsible: sides[s.collapsible]},
 				pane("Files", "Drag the divider, or focus it and use the arrows.", k.Surface),
 				pane("Editor", "Enter on the divider folds the collapsible pane.", k.Background))
@@ -429,7 +431,7 @@ func layoutSplitPaneDemo(c *ui.Context, log func(string)) {
 }
 
 const layoutAspectRatioCode = `ui.Box(c).Size(320, 240).Children(func() {
-	mujica.AspectRatio(c, mujica.AspectRatioOptions{Ratio: 16.0 / 9}, func() {
+	layout.AspectRatio(c, layout.AspectRatioOptions{Ratio: 16.0 / 9}, func() {
 		ui.Text(c, "16 : 9")
 	})
 })`
@@ -446,9 +448,9 @@ func layoutAspectRatioDemo(c *ui.Context, log func(string)) {
 		layoutSlider(c, &s.width, "Parent width", 120, 560, log)
 		layoutSlider(c, &s.height, "Parent height", 80, 320, log)
 	})
-	k := mujica.Tokens(c)
+	k := core.Tokens(c)
 	ui.Box(c).Margin(16, 0, 0, 0).Size(float32(s.width), float32(s.height)).Border(1, k.Border).Children(func() {
-		mujica.AspectRatio(c, mujica.AspectRatioOptions{Ratio: ratios[s.ratio]}, func() {
+		layout.AspectRatio(c, layout.AspectRatioOptions{Ratio: ratios[s.ratio]}, func() {
 			ui.Box(c).Fill().Center().Background(k.Surface).Border(1, k.Ornament).Children(func() {
 				ui.Text(c, s.ratio).TextColor(k.TextMuted)
 			})
@@ -457,8 +459,8 @@ func layoutAspectRatioDemo(c *ui.Context, log func(string)) {
 }
 
 const layoutDividerCode = `ui.Column(c).Padding(16).Gap(12).Children(func() {
-	mujica.Divider(c, mujica.DividerOptions{Ornament: true})
-	mujica.Divider(c, mujica.DividerOptions{Label: "Chapter II"})
+	layout.Divider(c, layout.DividerOptions{Ornament: true})
+	layout.Divider(c, layout.DividerOptions{Label: "Chapter II"})
 })`
 
 func layoutDividerDemo(c *ui.Context, log func(string)) {
@@ -478,19 +480,19 @@ func layoutDividerDemo(c *ui.Context, log func(string)) {
 	if label == "None" || s.vertical {
 		label = ""
 	}
-	opts := mujica.DividerOptions{Vertical: s.vertical, Ornament: s.ornament, Label: label}
+	opts := layout.DividerOptions{Vertical: s.vertical, Ornament: s.ornament, Label: label}
 	ui.Column(c).Margin(16, 0, 0, 0).Width(480).Children(func() {
 		if s.vertical {
 			ui.Row(c).Height(80).Gap(16).Children(func() {
 				ui.Text(c, "Overture")
-				mujica.Divider(c, opts)
+				layout.Divider(c, opts)
 				ui.Text(c, "Aria")
 			})
 			return
 		}
 		ui.Column(c).Gap(16).Children(func() {
 			ui.Text(c, "Overture")
-			mujica.Divider(c, opts)
+			layout.Divider(c, opts)
 			ui.Text(c, "Aria")
 		})
 	})

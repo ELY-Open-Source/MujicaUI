@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-var state mujica.ListState[string]
-commits := []mujica.Commit{{Hash: "a1b2c3d4", Author: "Sakiko", When: time.Now(), Subject: "Add the commit list"}}
+var state data.ListState[string]
+commits := []git.Commit{{Hash: "a1b2c3d4", Author: "Sakiko", When: time.Now(), Subject: "Add the commit list"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.CommitList(c, &state, commits, mujica.CommitListOptions{})
+	core.Use(c, core.Settings{})
+	r := git.CommitList(c, &state, commits, git.CommitListOptions{})
 	r.Element.Height(240)
 	if hash, ok := state.Selected(); ok && r.Submitted() {
 		_ = hash // show the commit

@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-var state mujica.ConflictResolverState
+var state git.ConflictResolverState
 text := "a\n<<<<<<< HEAD\nmine\n=======\ntheirs\n>>>>>>> feature\nb"
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.ConflictResolver(c, &state, text, mujica.ConflictResolverOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if git.ConflictResolver(c, &state, text, git.ConflictResolverOptions{}).Changed() {
 		_ = state.Result() // save the file once every block is resolved
 	}
 }

@@ -8,10 +8,10 @@
 
 ```go
 account := ""
-accounts := []mujica.PortfolioAccount{{ID: "a", Name: "Brokerage", Total: 120000, DayPnL: 1250, TotalReturn: 20000, Cost: 100000}, {ID: "b", Name: "Retirement", Total: 80000, DayPnL: -300, TotalReturn: 5000, Cost: 75000}}
+accounts := []finance.PortfolioAccount{{ID: "a", Name: "Brokerage", Total: 120000, DayPnL: 1250, TotalReturn: 20000, Cost: 100000}, {ID: "b", Name: "Retirement", Total: 80000, DayPnL: -300, TotalReturn: 5000, Cost: 75000}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.PortfolioSummary(c, &account, accounts, mujica.PortfolioSummaryOptions{})
+	core.Use(c, core.Settings{})
+	r := finance.PortfolioSummary(c, &account, accounts, finance.PortfolioSummaryOptions{})
 	if r.Changed() {
 		fmt.Println(account)
 	}

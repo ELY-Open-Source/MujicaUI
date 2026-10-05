@@ -9,11 +9,11 @@
 ```go
 open := true
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.PermissionPrompt(c, &open, mujica.PermissionPromptOptions{
+	core.Use(c, core.Settings{})
+	r := agent.PermissionPrompt(c, &open, agent.PermissionPromptOptions{
 		Title: "Write to the ledger?", Scope: "Write access to ~/court/ledger",
 	})
-	if r.Choice == mujica.PermissionAllowAlways {
+	if r.Choice == agent.PermissionAllowAlways {
 		fmt.Println("remember the grant")
 	}
 }

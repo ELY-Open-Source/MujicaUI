@@ -11,12 +11,12 @@ loc := time.Local
 ev := exampleEvents(loc)[0]
 open := false
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	chip := mujica.EventChip(c, ev, mujica.EventChipOptions{Location: loc})
+	core.Use(c, core.Settings{})
+	chip := datetime.EventChip(c, ev, datetime.EventChipOptions{Location: loc})
 	if chip.Clicked() {
 		open = true
 	}
-	r := mujica.EventPopover(c, chip, &open, ev, mujica.EventPopoverOptions{Location: loc})
+	r := datetime.EventPopover(c, chip, &open, ev, datetime.EventPopoverOptions{Location: loc})
 	if r.Delete() {
 		fmt.Println("delete", ev.ID)
 	}

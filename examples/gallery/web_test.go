@@ -13,7 +13,8 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
 )
 
 // mirrorRig serves a one-field view through the web mirror.
@@ -28,9 +29,9 @@ func newMirrorRig(t *testing.T) *mirrorRig {
 	r := &mirrorRig{t: t}
 	var h http.Handler
 	r.m, h = newMirror(func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{})
+		core.Use(c, core.Settings{})
 		ui.Column(c).Padding(40).Children(func() {
-			mujica.TextInput(c, &r.text, mujica.TextInputOptions{Label: "Ledger"})
+			input.TextInput(c, &r.text, input.TextInputOptions{Label: "Ledger"})
 		})
 	})
 	r.srv = httptest.NewServer(h)
@@ -38,7 +39,7 @@ func newMirrorRig(t *testing.T) *mirrorRig {
 	return r
 }
 
-func (r *mirrorRig) post(in input) int {
+func (r *mirrorRig) post(in webEvent) int {
 	r.t.Helper()
 	body, err := json.Marshal(in)
 	if err != nil {
@@ -97,15 +98,15 @@ func TestMirrorServesPageAndFirstNotice(t *testing.T) {
 func TestMirrorTypingAndIMEReachTheView(t *testing.T) {
 	r := newMirrorRig(t)
 	before := r.get("/frame.png")
-	if code := r.post(input{Type: "key", Code: "Tab"}); code != http.StatusNoContent {
+	if code := r.post(webEvent{Type: "key", Code: "Tab"}); code != http.StatusNoContent {
 		t.Fatalf("tab: %d", code)
 	}
 	for _, ch := range "Ave" {
-		r.post(input{Type: "key", Code: "Key" + strings.ToUpper(string(ch)), Text: string(ch), Mods: []bool{ch == 'A'}})
+		r.post(webEvent{Type: "key", Code: "Key" + strings.ToUpper(string(ch)), Text: string(ch), Mods: []bool{ch == 'A'}})
 	}
-	r.post(input{Type: "compose", Text: "宫廷", Caret: 2})
-	r.post(input{Type: "compose"})
-	r.post(input{Type: "text", Text: "宫廷"})
+	r.post(webEvent{Type: "compose", Text: "宫廷", Caret: 2})
+	r.post(webEvent{Type: "compose"})
+	r.post(webEvent{Type: "text", Text: "宫廷"})
 	if got := r.value(); got != "Ave宫廷" {
 		t.Fatalf("value %q, want %q", got, "Ave宫廷")
 	}
@@ -116,7 +117,7 @@ func TestMirrorTypingAndIMEReachTheView(t *testing.T) {
 
 func TestMirrorRejectsBadInput(t *testing.T) {
 	r := newMirrorRig(t)
-	for name, in := range map[string]input{
+	for name, in := range map[string]webEvent{
 		"unknown type":  {Type: "teleport"},
 		"unmapped code": {Type: "key", Code: "Hyper"},
 		"tiny window":   {Type: "resize", W: 10, H: 10, Scale: 1},
@@ -143,7 +144,7 @@ func mirrorWith(t *testing.T, view func(c *ui.Context)) (*mirror, *httptest.Serv
 	return m, srv
 }
 
-func postInput(t *testing.T, srv *httptest.Server, in input) {
+func postInput(t *testing.T, srv *httptest.Server, in webEvent) {
 	t.Helper()
 	body, err := json.Marshal(in)
 	if err != nil {
@@ -163,7 +164,7 @@ func TestMirrorTimersFireWithoutInput(t *testing.T) {
 	start := time.Now()
 	var late bool
 	m, _ := mirrorWith(t, func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{})
+		core.Use(c, core.Settings{})
 		late = c.Now().Sub(start) > 300*time.Millisecond
 		if !late {
 			c.After(350 * time.Millisecond)
@@ -180,25 +181,25 @@ func TestMirrorTimersFireWithoutInput(t *testing.T) {
 func TestMirrorModifiedClickNeedsReleaseInPlace(t *testing.T) {
 	clicks := 0
 	_, srv := mirrorWith(t, func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{})
+		core.Use(c, core.Settings{})
 		ui.Column(c).Padding(20).Children(func() {
-			if mujica.Button(c, "Seal", mujica.ButtonOptions{}).Clicked() {
+			if input.Button(c, "Seal", input.ButtonOptions{}).Clicked() {
 				clicks++
 			}
 		})
 	})
 	shift := []bool{true}
-	postInput(t, srv, input{Type: "down", X: 40, Y: 35, Mods: shift})
-	postInput(t, srv, input{Type: "up", X: 400, Y: 400, Mods: shift})
-	postInput(t, srv, input{Type: "down", X: 40, Y: 35, Mods: shift})
-	postInput(t, srv, input{Type: "up", X: 41, Y: 35, Mods: shift})
+	postInput(t, srv, webEvent{Type: "down", X: 40, Y: 35, Mods: shift})
+	postInput(t, srv, webEvent{Type: "up", X: 400, Y: 400, Mods: shift})
+	postInput(t, srv, webEvent{Type: "down", X: 40, Y: 35, Mods: shift})
+	postInput(t, srv, webEvent{Type: "up", X: 41, Y: 35, Mods: shift})
 	if clicks != 1 {
 		t.Fatalf("clicks %d, want 1 (released elsewhere must not click)", clicks)
 	}
 }
 
 func TestMirrorForwardsRepeatedCopy(t *testing.T) {
-	m, _ := mirrorWith(t, func(c *ui.Context) { mujica.Use(c, mujica.Settings{}) })
+	m, _ := mirrorWith(t, func(c *ui.Context) { core.Use(c, core.Settings{}) })
 	ch := make(chan []byte, 8)
 	m.mu.Lock()
 	m.subs[ch] = struct{}{}
@@ -224,8 +225,8 @@ func TestMirrorForwardsRepeatedCopy(t *testing.T) {
 
 func TestMirrorMapsNumpad(t *testing.T) {
 	r := newMirrorRig(t)
-	r.post(input{Type: "key", Code: "Tab"})
-	if code := r.post(input{Type: "key", Code: "Numpad7", Text: "7"}); code != http.StatusNoContent {
+	r.post(webEvent{Type: "key", Code: "Tab"})
+	if code := r.post(webEvent{Type: "key", Code: "Numpad7", Text: "7"}); code != http.StatusNoContent {
 		t.Fatalf("numpad: %d", code)
 	}
 	if got := r.value(); got != "7" {
@@ -235,9 +236,9 @@ func TestMirrorMapsNumpad(t *testing.T) {
 
 func TestMirrorForwardsEveryAnnouncement(t *testing.T) {
 	m, srv := mirrorWith(t, func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{})
+		core.Use(c, core.Settings{})
 		ui.Column(c).Padding(20).Children(func() {
-			if mujica.Button(c, "Ring", mujica.ButtonOptions{}).Clicked() {
+			if input.Button(c, "Ring", input.ButtonOptions{}).Clicked() {
 				c.Announce("bell rung")
 			}
 		})
@@ -247,8 +248,8 @@ func TestMirrorForwardsEveryAnnouncement(t *testing.T) {
 	m.subs[ch] = struct{}{}
 	m.mu.Unlock()
 	for range 2 {
-		postInput(t, srv, input{Type: "down", X: 40, Y: 35})
-		postInput(t, srv, input{Type: "up", X: 40, Y: 35})
+		postInput(t, srv, webEvent{Type: "down", X: 40, Y: 35})
+		postInput(t, srv, webEvent{Type: "up", X: 40, Y: 35})
 	}
 	heard := 0
 	for len(ch) > 0 {
@@ -265,9 +266,9 @@ func TestMirrorModifiedClickReleasedJustOutsideDoesNotClick(t *testing.T) {
 	clicks := 0
 	var box ui.Rect
 	m, srv := mirrorWith(t, func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{})
+		core.Use(c, core.Settings{})
 		ui.Column(c).Padding(20).AlignItems(ui.Start).Children(func() {
-			b := mujica.Button(c, "Seal", mujica.ButtonOptions{})
+			b := input.Button(c, "Seal", input.ButtonOptions{})
 			box = b.Bounds()
 			if b.Clicked() {
 				clicks++
@@ -280,8 +281,8 @@ func TestMirrorModifiedClickReleasedJustOutsideDoesNotClick(t *testing.T) {
 	m.mu.Unlock()
 	shift := []bool{true}
 	y := r.Y + r.H/2
-	postInput(t, srv, input{Type: "down", X: r.X + r.W - 1, Y: y, Mods: shift})
-	postInput(t, srv, input{Type: "up", X: r.X + r.W + 2, Y: y, Mods: shift})
+	postInput(t, srv, webEvent{Type: "down", X: r.X + r.W - 1, Y: y, Mods: shift})
+	postInput(t, srv, webEvent{Type: "up", X: r.X + r.W + 2, Y: y, Mods: shift})
 	if clicks != 0 {
 		t.Fatalf("clicks %d after releasing 2 DIP outside", clicks)
 	}
@@ -289,9 +290,9 @@ func TestMirrorModifiedClickReleasedJustOutsideDoesNotClick(t *testing.T) {
 
 func TestMirrorNotifiesEveryCopyOfEqualText(t *testing.T) {
 	m, srv := mirrorWith(t, func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{})
+		core.Use(c, core.Settings{})
 		ui.Column(c).Padding(20).Children(func() {
-			if mujica.Button(c, "Copy", mujica.ButtonOptions{}).Clicked() {
+			if input.Button(c, "Copy", input.ButtonOptions{}).Clicked() {
 				c.WriteClipboard("snippet")
 			}
 		})
@@ -301,8 +302,8 @@ func TestMirrorNotifiesEveryCopyOfEqualText(t *testing.T) {
 	m.subs[ch] = struct{}{}
 	m.mu.Unlock()
 	for range 2 {
-		postInput(t, srv, input{Type: "down", X: 40, Y: 35})
-		postInput(t, srv, input{Type: "up", X: 40, Y: 35})
+		postInput(t, srv, webEvent{Type: "down", X: 40, Y: 35})
+		postInput(t, srv, webEvent{Type: "up", X: 40, Y: 35})
 	}
 	copies := 0
 	for len(ch) > 0 {

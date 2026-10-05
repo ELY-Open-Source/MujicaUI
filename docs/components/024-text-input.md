@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-r := mujica.TextInput(c, &name, mujica.TextInputOptions{Label: "Name", Placeholder: "Your name", Clearable: true})
+r := input.TextInput(c, &name, input.TextInputOptions{Label: "Name", Placeholder: "Your name", Clearable: true})
 if r.Submitted() {
 	fmt.Println("hello", name)
 }

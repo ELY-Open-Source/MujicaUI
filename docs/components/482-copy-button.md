@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.CopyButton(c, "https://example.com/invite/42", mujica.CopyButtonOptions{Label: "Copy link"})
+	core.Use(c, core.Settings{})
+	input.CopyButton(c, "https://example.com/invite/42", input.CopyButtonOptions{Label: "Copy link"})
 }
 ```
 

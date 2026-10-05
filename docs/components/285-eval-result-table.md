@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-var state mujica.DataTableState[string]
-cases := []mujica.EvalCase{{ID: "c1", Name: "Greets by title", Score: 0.98, Passed: true}, {ID: "c2", Name: "Refuses forgery", Score: 0.41}}
+var state data.DataTableState[string]
+cases := []feedback.EvalCase{{ID: "c1", Name: "Greets by title", Score: 0.98, Passed: true}, {ID: "c2", Name: "Refuses forgery", Score: 0.41}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.EvalResultTable(c, &state, cases, mujica.EvalResultTableOptions{})
+	core.Use(c, core.Settings{})
+	r := feedback.EvalResultTable(c, &state, cases, feedback.EvalResultTableOptions{})
 	r.Table.Element.Height(260)
 	if id, ok := r.Diff(); ok {
 		_ = id // open expected and actual output side by side

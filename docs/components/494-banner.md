@@ -9,9 +9,9 @@
 ```go
 open := true
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.Banner(c, &open, "Maintenance tonight at 22:00.", mujica.BannerOptions{
-		Severity: mujica.SeverityWarning,
+	core.Use(c, core.Settings{})
+	r := input.Banner(c, &open, "Maintenance tonight at 22:00.", input.BannerOptions{
+		Severity: core.SeverityWarning,
 		Action:   "Details",
 	})
 	if r.Action {

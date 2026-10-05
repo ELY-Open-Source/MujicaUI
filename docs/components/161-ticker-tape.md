@@ -9,10 +9,10 @@
 ## 最小示例
 
 ```go
-items := []mujica.TickerItem{{Symbol: "MUJC", Price: 412.08, ChangePercent: -1.35}, {Symbol: "AVE", Price: 88.2, ChangePercent: 2.1}}
+items := []finance.TickerItem{{Symbol: "MUJC", Price: 412.08, ChangePercent: -1.35}, {Symbol: "AVE", Price: 88.2, ChangePercent: 2.1}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.TickerTape(c, items, mujica.TickerTapeOptions{})
+	core.Use(c, core.Settings{})
+	finance.TickerTape(c, items, finance.TickerTapeOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

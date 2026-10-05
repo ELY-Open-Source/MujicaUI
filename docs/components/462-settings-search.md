@@ -10,10 +10,10 @@
 
 ```go
 query, page := "", "general"
-entries := []mujica.SettingEntry{{ID: "sound", Page: "general", Label: "Sound", Keywords: []string{"audio"}}}
+entries := []account.SettingEntry{{ID: "sound", Page: "general", Label: "Sound", Keywords: []string{"audio"}}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if e, ok := mujica.SettingsSearch(c, &query, entries, mujica.SettingsSearchOptions{}).Chosen(); ok {
+	core.Use(c, core.Settings{})
+	if e, ok := account.SettingsSearch(c, &query, entries, account.SettingsSearchOptions{}).Chosen(); ok {
 		page = e.Page
 	}
 	fmt.Println("page", page)

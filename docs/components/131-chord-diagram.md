@@ -10,8 +10,8 @@
 names := []string{"Nave", "Choir", "Crypt"}
 matrix := [][]float64{{0, 5, 2}, {4, 0, 1}, {1, 2, 0}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ChordDiagram(c, names, matrix, mujica.ChordDiagramOptions{Frame: mujica.ChartFrame{Label: "Paths"}})
+	core.Use(c, core.Settings{})
+	chart.ChordDiagram(c, names, matrix, chart.ChordDiagramOptions{Frame: chart.ChartFrame{Label: "Paths"}})
 }
 ui.Render(view, 400, 300, 1)
 ```

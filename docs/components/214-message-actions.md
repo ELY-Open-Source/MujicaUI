@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-if a, ok := mujica.MessageActions(c, mujica.MessageAssistant, mujica.MessageActionsOptions{Feedback: &rating}).Action(); ok {
+if a, ok := chat.MessageActions(c, chat.MessageAssistant, chat.MessageActionsOptions{Feedback: &rating}).Action(); ok {
 	fmt.Println("action", a)
 }
 ```

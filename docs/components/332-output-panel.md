@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-channels := []mujica.OutputChannel{{Name: "Build", Lines: []string{"compiling court", "\x1b[32mok\x1b[0m"}}}
-var state mujica.OutputPanelState
+channels := []code.OutputChannel{{Name: "Build", Lines: []string{"compiling court", "\x1b[32mok\x1b[0m"}}}
+var state code.OutputPanelState
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.OutputPanel(c, channels, &state, mujica.OutputPanelOptions{})
+	core.Use(c, core.Settings{})
+	r := code.OutputPanel(c, channels, &state, code.OutputPanelOptions{})
 	r.Element.Height(240)
 	if r.Cleared != "" {
 		channels[state.Channel].Lines = nil

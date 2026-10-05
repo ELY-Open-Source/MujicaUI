@@ -8,15 +8,15 @@
 
 ```go
 var roles []string
-nodes := []mujica.TreeSelectNode{
-	{ID: "court", Label: "Court", Children: []mujica.TreeSelectNode{
+nodes := []input.TreeSelectNode{
+	{ID: "court", Label: "Court", Children: []input.TreeSelectNode{
 		{ID: "king", Label: "King"},
 		{ID: "queen", Label: "Queen"},
 	}},
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.TreeSelect(c, &roles, nodes, mujica.TreeSelectOptions{Multiple: true, Label: "Roles"})
+	core.Use(c, core.Settings{})
+	input.TreeSelect(c, &roles, nodes, input.TreeSelectOptions{Multiple: true, Label: "Roles"})
 }
 ui.Render(view, 400, 300, 1)
 ```

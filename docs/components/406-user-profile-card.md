@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-profile := mujica.UserProfile{Name: "Sakiko Togawa", Presence: mujica.PresenceBusy, Role: "Keyboard", Status: "In rehearsal"}
+profile := messaging.UserProfile{Name: "Sakiko Togawa", Presence: messaging.PresenceBusy, Role: "Keyboard", Status: "In rehearsal"}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.UserProfileCard(c, profile, mujica.UserProfileCardOptions{Actions: func() {
-		mujica.Button(c, "Message", mujica.ButtonOptions{})
+	core.Use(c, core.Settings{})
+	messaging.UserProfileCard(c, profile, messaging.UserProfileCardOptions{Actions: func() {
+		input.Button(c, "Message", input.ButtonOptions{})
 	}})
 }
 ui.Render(view, 400, 300, 1)

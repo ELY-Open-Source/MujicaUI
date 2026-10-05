@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ThinkingIndicator(c, mujica.ThinkingIndicatorOptions{Phase: "Searching the archives"})
+	core.Use(c, core.Settings{})
+	chat.ThinkingIndicator(c, chat.ThinkingIndicatorOptions{Phase: "Searching the archives"})
 }
 ui.Render(view, 400, 300, 1)
 ```

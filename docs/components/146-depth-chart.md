@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-	bids := []mujica.DepthLevel{{Price: 99, Size: 10}, {Price: 98, Size: 20}}
-	asks := []mujica.DepthLevel{{Price: 101, Size: 15}, {Price: 102, Size: 25}}
+	bids := []chart.DepthLevel{{Price: 99, Size: 10}, {Price: 98, Size: 20}}
+	asks := []chart.DepthLevel{{Price: 101, Size: 15}, {Price: 102, Size: 25}}
 	view := func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{})
-		mujica.DepthChart(c, bids, asks, mujica.DepthChartOptions{Frame: mujica.ChartFrame{Label: "BTC", Height: 200}})
+		core.Use(c, core.Settings{})
+		chart.DepthChart(c, bids, asks, chart.DepthChartOptions{Frame: chart.ChartFrame{Label: "BTC", Height: 200}})
 	}
 	ui.Render(view, 640, 400, 1)
 ```

@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.QRCode(c, "https://example.com/mujica", mujica.QRCodeOptions{Level: mujica.QRQuartile})
+	core.Use(c, core.Settings{})
+	input.QRCode(c, "https://example.com/mujica", input.QRCodeOptions{Level: input.QRQuartile})
 }
 ```
 

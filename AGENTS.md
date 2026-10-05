@@ -1,6 +1,6 @@
 # AGENTS.md
 
-MujicaUI: court-gothic components for MyGo native UI. Go library, package `mujica`, module `mujicaui`.
+MujicaUI: court-gothic components for MyGo native UI. Go library, module `github.com/ZacharyZhang-NY/MujicaUI`, one package per component category.
 Progress truth: `TASKS.md`. Requirements: `PRD.md` and `docs/prd/ext-*.md` (101–500).
 Planned: once 001–500 land, the root package splits into category sub-packages (TASKS T22). Until then everything stays in the root package.
 
@@ -18,16 +18,21 @@ Read MyGo source before using an API: `go env GOMODCACHE`/github.com/egoist/mygo
 ## Layout
 
 ```text
-*.go                 one component per file, root package mujica
-*_test.go            tests beside the component
-messages_<group>.go  built-in copy (en-US, zh-CN) via addMessages
+core/                Use, Tokens, Density, Motion, FontSize, Msg; shared result types and helpers;
+                     messages_<group>.go built-in copy (en-US, zh-CN) via addMessages; docs tests
+<category>/          one component per file, package = folder name:
+                     layout display input datetime navigation data overlay feedback chart
+                     finance chat agent git code media project files messaging devtools account
+<category>/*_test.go tests beside the component; example_<group>_test.go compiled doc examples
 theme/               tokens, density, type, motion, contrast
 icons/               embedded Lucide icons: icons.Must("check")
-internal/            focus ring, ornaments
+internal/            focus ring, ornaments; internal/snaptest runs snapshot goldens
 examples/gallery/    native Gallery; pages_<group>.go per PRD 4.x group
 docs/components/     NNN-name.md, one page per component
-testdata/snapshots/  <os>/<name>-<light|dark>.png
+testdata/snapshots/  <os>/<name>-<light|dark>.png, shared by every package
 ```
+
+Gallery categories map to packages: Inputs, Choices, Forms, Essentials -> input; Date & Time, Calendar -> datetime; Feedback, Agent Ops & Motion -> feedback; Charts I, Charts II, Market Charts -> chart; Trading, Markets -> finance; Chat Messages, Chat Input, Chat Sessions -> chat; Terminal & Code -> code; Projects -> project; Files & Collaboration -> files; Messaging & Mail -> messaging; Dashboards & Dev Tools -> devtools; Settings & Account -> account. Imports point down only: core imports no category; a piece two categories need moves to core or internal.
 
 ## Component rules
 
@@ -36,15 +41,15 @@ testdata/snapshots/  <os>/<name>-<light|dark>.png
 - Shared helpers: `iconAction` (borderless icon button), `overlayStyle(c, panel, overlayEnter(c, panel))` (popup surface and entry fade), `internal.RuleDiamond` / `internal.Frame` (ornaments), `colorFade` (state color transition).
 - Zero `Options` gives the default look. No `map[string]any` config.
 - Explicit font sizes: `FontSize(c, theme.CaptionSize)`; it applies the desktop text scale.
-- Colors: `k := mujica.Tokens(c)`. Metrics: `theme.*` consts and `Density(c).Unit()` / `.ControlHeight()`.
+- Colors: `k := core.Tokens(c)`. Metrics: `theme.*` consts and `Density(c).Unit()` / `.ControlHeight()`.
 - Build on MyGo Bases (`ui.ButtonBase`, `ui.CheckboxBase`, `ui.SelectBase`, ...) or MyGo widgets restyled through the theme `Use` sets. Never reach into MyGo internals.
 - Focus: `internal.Ring(e, k.Focus, radius)` for the 2 DIP ring with 2 DIP gap.
 - State marks (checked, selected, progress) use `OnAccent` on `Accent`, or `AccentText`, never `Accent` alone on dark surfaces (2.44:1).
 - Ornament color only for dividers, corners, panel titles. No gradients, glow, glass or texture.
 - Animated paths: pass coordinates through `internal.Snap(p, v)`. MyGo caches path masks by quarter-pixel keys (ui/path.go); unsnapped motion reuses near-miss masks and breaks snapshots.
-- Durations: `mujica.Motion(c, theme.StateDuration)`; popups use `theme.PopupDuration`.
+- Durations: `core.Motion(c, theme.StateDuration)`; popups use `theme.PopupDuration`.
 - Disabled blocks input before handling it (`Disabled(true)`); MyGo dims disabled elements, do not add opacity.
-- Copy shown by a component comes from `msg(c, key)`; business copy comes from the caller.
+- Copy shown by a component comes from `core.Msg(c, key)`; business copy comes from the caller.
 - No cross-frame `*ui.Element` caching, no goroutines touching elements.
 - Fail fast: panic on programmer errors (bad options); never swallow errors.
 - Log state transitions in composites with `slog.Debug("mujica: <component> <event>", ...)`. Never log passwords.
@@ -53,7 +58,7 @@ testdata/snapshots/  <os>/<name>-<light|dark>.png
 ## Tests
 
 - `ui.NewTester` drives click, keys, typing. Assert values, not existence.
-- Every component: one `snapshot(t, name, w, h, view)` call (light and dark). Refresh with `go test -run <Name> -update .`
+- Every component: one `snapshot(t, name, w, h, view)` call (light and dark; each package wraps `internal/snaptest`). Refresh with `go test -run <Name> -update ./<category>`
 - Run `go vet ./... && go test ./...` before reporting done.
 - Each snapshot test renders in a fresh child process (snapshot_test.go), because MyGo's path-mask cache is process-wide. Order and neighbours never change pixels; `-run <Name> -update` is safe.
 

@@ -7,13 +7,13 @@
 ## 最小示例
 
 ```go
-people := []mujica.AvatarItem{
+people := []display.AvatarItem{
 	{Name: "Sakiko Togawa"}, {Name: "Uika Misumi"}, {Name: "Mutsumi Wakaba"},
 	{Name: "Umiri Yahata"}, {Name: "Nyamu Yutenji"},
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.AvatarGroup(c, people, mujica.AvatarGroupOptions{Max: 3})
+	core.Use(c, core.Settings{})
+	display.AvatarGroup(c, people, display.AvatarGroupOptions{Max: 3})
 }
 ```
 

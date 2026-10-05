@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-nodes := []mujica.SankeyNode{{ID: "tithe", Label: "Tithes"}, {ID: "fund", Label: "Fund"}, {ID: "roof", Label: "Roof"}}
-links := []mujica.SankeyLink{{From: "tithe", To: "fund", Value: 60}, {From: "fund", To: "roof", Value: 50}}
+nodes := []chart.SankeyNode{{ID: "tithe", Label: "Tithes"}, {ID: "fund", Label: "Fund"}, {ID: "roof", Label: "Roof"}}
+links := []chart.SankeyLink{{From: "tithe", To: "fund", Value: 60}, {From: "fund", To: "roof", Value: 50}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.SankeyChart(c, nodes, links, mujica.SankeyChartOptions{Frame: mujica.ChartFrame{Label: "Money"}})
+	core.Use(c, core.Settings{})
+	chart.SankeyChart(c, nodes, links, chart.SankeyChartOptions{Frame: chart.ChartFrame{Label: "Money"}})
 }
 ui.Render(view, 400, 300, 1)
 ```

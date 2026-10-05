@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-if i, ok := mujica.Breadcrumb(c, path, mujica.BreadcrumbOptions{}).Chosen(); ok {
+if i, ok := navigation.Breadcrumb(c, path, navigation.BreadcrumbOptions{}).Chosen(); ok {
 	path = path[:i+1]
 }
 ```

@@ -13,9 +13,9 @@ if err != nil {
 }
 var meeting time.Time
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	opts := mujica.DateTimePickerOptions{Label: "Meeting", Location: tokyo, MinuteStep: 15}
-	if mujica.DateTimePicker(c, &meeting, opts).Changed() {
+	core.Use(c, core.Settings{})
+	opts := datetime.DateTimePickerOptions{Label: "Meeting", Location: tokyo, MinuteStep: 15}
+	if datetime.DateTimePicker(c, &meeting, opts).Changed() {
 		fmt.Println("meeting", meeting)
 	}
 }

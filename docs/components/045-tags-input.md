@@ -11,8 +11,8 @@
 ```go
 tags := []string{"gothic"}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.TagsInput(c, &tags, mujica.TagsInputOptions{Max: 5, Placeholder: "Add a tag", Label: "Tags"})
+	core.Use(c, core.Settings{})
+	input.TagsInput(c, &tags, input.TagsInputOptions{Max: 5, Placeholder: "Add a tag", Label: "Tags"})
 }
 ui.Render(view, 400, 300, 1)
 ```

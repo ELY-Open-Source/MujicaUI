@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-rows := []mujica.GreeksRow{{Label: "AAPL 100 C", Greeks: mujica.OptionGreeks{Delta: 0.5, Gamma: 0.03, Theta: -0.1, Vega: 0.2, Rho: 0.05}}}
+rows := []finance.GreeksRow{{Label: "AAPL 100 C", Greeks: finance.OptionGreeks{Delta: 0.5, Gamma: 0.03, Theta: -0.1, Vega: 0.2, Rho: 0.05}}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.GreeksTable(c, rows, mujica.GreeksTableOptions{Notes: true})
+	core.Use(c, core.Settings{})
+	finance.GreeksTable(c, rows, finance.GreeksTableOptions{Notes: true})
 }
 ui.Render(view, 960, 440, 1)
 ```

@@ -7,8 +7,8 @@
 ## 最小示例
 
 ```go
-items := []mujica.RadioItem[string]{{Value: "s", Label: "Small"}, {Value: "m", Label: "Medium"}, {Value: "l", Label: "Large"}}
-if mujica.RadioGroup(c, &size, items, mujica.RadioGroupOptions{Label: "Size"}).Changed() {
+items := []input.RadioItem[string]{{Value: "s", Label: "Small"}, {Value: "m", Label: "Medium"}, {Value: "l", Label: "Large"}}
+if input.RadioGroup(c, &size, items, input.RadioGroupOptions{Label: "Size"}).Changed() {
 	fmt.Println("size", size)
 }
 ```

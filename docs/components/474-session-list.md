@@ -9,10 +9,10 @@
 ## 最小示例
 
 ```go
-sessions := []mujica.Session{{ID: "s1", Device: "MacBook Pro", Current: true}, {ID: "s2", Device: "iPhone", Location: "Osaka"}}
+sessions := []account.Session{{ID: "s1", Device: "MacBook Pro", Current: true}, {ID: "s2", Device: "iPhone", Location: "Osaka"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if id, ok := mujica.SessionList(c, sessions, mujica.SessionListOptions{}).Revoked(); ok {
+	core.Use(c, core.Settings{})
+	if id, ok := account.SessionList(c, sessions, account.SessionListOptions{}).Revoked(); ok {
 		fmt.Println("sign out", id)
 	}
 }

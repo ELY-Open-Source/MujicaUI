@@ -9,8 +9,8 @@
 ```go
 thinking := true
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ShimmerText(c, "Thinking…", mujica.ShimmerTextOptions{Active: thinking})
+	core.Use(c, core.Settings{})
+	feedback.ShimmerText(c, "Thinking…", feedback.ShimmerTextOptions{Active: thinking})
 }
 ui.Render(view, 400, 300, 1)
 ```

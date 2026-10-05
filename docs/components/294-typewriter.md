@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.Typewriter(c, "The court assembles at dusk.", mujica.TypewriterOptions{Speed: 30, Skippable: true})
+	core.Use(c, core.Settings{})
+	r := feedback.Typewriter(c, "The court assembles at dusk.", feedback.TypewriterOptions{Speed: 30, Skippable: true})
 	if r.Changed() {
 		// show the next message
 	}

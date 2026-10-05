@@ -6,10 +6,8 @@
 
 ## 安装
 
-模块路径暂为 `mujicaui`，尚未发布到代码托管地址。本地使用：
-
 ```sh
-go mod edit -require=mujicaui@v0.0.0 -replace=mujicaui=/path/to/MujicaUI
+go get github.com/ZacharyZhang-NY/MujicaUI
 ```
 
 要求 Go 1.27.1 与 MyGo v0.2.10（见 [兼容表](docs/compat.md)）。
@@ -27,16 +25,17 @@ import (
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
 )
 
 type app struct{ name string }
 
 func (a *app) view(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{Locale: mujica.ZhCN})
+	core.Use(c, core.Settings{Locale: core.ZhCN})
 	ui.Column(c).Fill().Center().Gap(12).Children(func() {
-		mujica.TextInput(c, &a.name, mujica.TextInputOptions{Placeholder: "姓名"})
-		if mujica.Button(c, "觐见", mujica.ButtonOptions{}).Clicked() {
+		input.TextInput(c, &a.name, input.TextInputOptions{Placeholder: "姓名"})
+		if input.Button(c, "觐见", input.ButtonOptions{}).Clicked() {
 			log.Println("hello", a.name)
 		}
 	})
@@ -55,15 +54,15 @@ func main() {
 
 ## 主题
 
-每帧开头调用 `mujica.Use(c, settings)`。`Settings` 决定模式（`System`、`Light`、`Dark`）、密度（`theme.Compact`、`theme.Default`、`theme.Comfortable`）、语言与文案覆盖。每个窗口各自设置，切换不重置业务状态。
+每帧开头调用 `core.Use(c, settings)`。`Settings` 决定模式（`System`、`Light`、`Dark`）、密度（`theme.Compact`、`theme.Default`、`theme.Comfortable`）、语言与文案覆盖。每个窗口各自设置，切换不重置业务状态。
 
 ```go
-mujica.Use(c, mujica.Settings{
-	Mode:    mujica.Dark,
+core.Use(c, core.Settings{
+	Mode:    core.Dark,
 	Density: theme.Compact,
-	Locale:  mujica.ZhCN,
+	Locale:  core.ZhCN,
 })
-k := mujica.Tokens(c) // 当前窗口的颜色
+k := core.Tokens(c) // 当前窗口的颜色
 ```
 
 覆盖顺序：组件参数，窗口 `Settings`，库默认值。系统高对比度、文本缩放、减少动画始终生效。

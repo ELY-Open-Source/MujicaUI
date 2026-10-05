@@ -8,10 +8,10 @@
 
 ```go
 model := "herald"
-models := []mujica.ModelOption{{ID: "herald", Name: "Herald 2", Capabilities: []string{"Vision"}, ContextTokens: 200000}}
+models := []chat.ModelOption{{ID: "herald", Name: "Herald 2", Capabilities: []string{"Vision"}, ContextTokens: 200000}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.ModelSelector(c, &model, models, mujica.ModelSelectorOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if chat.ModelSelector(c, &model, models, chat.ModelSelectorOptions{}).Changed() {
 		fmt.Println("model", model)
 	}
 }

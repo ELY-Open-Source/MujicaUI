@@ -9,11 +9,11 @@
 ```go
 open := true
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.Button(c, "Filters", mujica.ButtonOptions{}).Clicked() {
+	core.Use(c, core.Settings{})
+	if input.Button(c, "Filters", input.ButtonOptions{}).Clicked() {
 		open = true
 	}
-	mujica.Drawer(c, &open, mujica.DrawerOptions{Title: "Filters", Side: mujica.DrawerRight, Size: 320}, func() {
+	overlay.Drawer(c, &open, overlay.DrawerOptions{Title: "Filters", Side: overlay.DrawerRight, Size: 320}, func() {
 		ui.Text(c, "Guests are placed by rank.")
 	})
 }

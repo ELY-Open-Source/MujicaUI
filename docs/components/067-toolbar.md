@@ -7,13 +7,13 @@
 ## 最小示例
 
 ```go
-mujica.Toolbar(c, mujica.ToolbarOptions{Label: "Format"}, func() {
-	mujica.ToolbarGroup(c, func() {
-		mujica.ToolbarButton(c, "Bold", mujica.ToolbarButtonOptions{Icon: icons.Must("bold")})
-		mujica.ToolbarButton(c, "Italic", mujica.ToolbarButtonOptions{Icon: icons.Must("italic")})
+navigation.Toolbar(c, navigation.ToolbarOptions{Label: "Format"}, func() {
+	navigation.ToolbarGroup(c, func() {
+		navigation.ToolbarButton(c, "Bold", navigation.ToolbarButtonOptions{Icon: icons.Must("bold")})
+		navigation.ToolbarButton(c, "Italic", navigation.ToolbarButtonOptions{Icon: icons.Must("italic")})
 	})
-	mujica.ToolbarSeparator(c)
-	if mujica.ToolbarButton(c, "Copy", mujica.ToolbarButtonOptions{Icon: icons.Must("copy"), ShowLabel: true}).Clicked() {
+	navigation.ToolbarSeparator(c)
+	if navigation.ToolbarButton(c, "Copy", navigation.ToolbarButtonOptions{Icon: icons.Must("copy"), ShowLabel: true}).Clicked() {
 		fmt.Println("copy")
 	}
 })

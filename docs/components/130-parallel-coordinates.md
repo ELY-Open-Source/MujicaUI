@@ -11,8 +11,8 @@ filters := map[string][2]float64{}
 axes := []string{"Age", "Hymns", "Vigils"}
 rows := [][]float64{{20, 3, 9}, {35, 8, 2}, {50, 5, 5}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ParallelCoordinates(c, &filters, axes, rows, mujica.ParallelCoordinatesOptions{Frame: mujica.ChartFrame{Label: "Monks"}, Names: []string{"Agnes", "Clare", "Hild"}})
+	core.Use(c, core.Settings{})
+	chart.ParallelCoordinates(c, &filters, axes, rows, chart.ParallelCoordinatesOptions{Frame: chart.ChartFrame{Label: "Monks"}, Names: []string{"Agnes", "Clare", "Hild"}})
 }
 ui.Render(view, 400, 300, 1)
 ```

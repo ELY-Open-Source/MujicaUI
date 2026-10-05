@@ -11,8 +11,8 @@
 ```go
 code := ""
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.PinInput(c, &code, mujica.PinInputOptions{Length: 6}).Completed() {
+	core.Use(c, core.Settings{})
+	if input.PinInput(c, &code, input.PinInputOptions{Length: 6}).Completed() {
 		fmt.Println("verify", code)
 	}
 }

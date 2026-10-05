@@ -9,8 +9,8 @@
 ```go
 text := `{"port":8080,"ready":true}`
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.JsonEditor(c, &text, mujica.JsonEditorOptions{})
+	core.Use(c, core.Settings{})
+	r := devtools.JsonEditor(c, &text, devtools.JsonEditorOptions{})
 	if r.Changed {
 		fmt.Println("valid", r.Valid)
 	}

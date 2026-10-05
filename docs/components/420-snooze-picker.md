@@ -9,8 +9,8 @@
 ```go
 var until time.Time
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.SnoozePicker(c, &until, mujica.SnoozePickerOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if messaging.SnoozePicker(c, &until, messaging.SnoozePickerOptions{}).Changed() {
 		_ = until // hide the mail until then
 	}
 }

@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-slices := []mujica.ChartSlice{{Label: "Wax", Value: 50}, {Label: "Oil", Value: 30}, {Label: "Salt", Value: 4}, {Label: "Ash", Value: 3}}
+slices := []chart.ChartSlice{{Label: "Wax", Value: 50}, {Label: "Oil", Value: 30}, {Label: "Salt", Value: 4}, {Label: "Ash", Value: 3}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.PieChart(c, slices, mujica.PieChartOptions{Frame: mujica.ChartFrame{Label: "Stores"}, Donut: true, MinAngle: 20})
+	core.Use(c, core.Settings{})
+	chart.PieChart(c, slices, chart.PieChartOptions{Frame: chart.ChartFrame{Label: "Stores"}, Donut: true, MinAngle: 20})
 }
 ui.Render(view, 400, 300, 1)
 ```

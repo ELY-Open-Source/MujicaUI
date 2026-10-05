@@ -7,14 +7,14 @@
 ## 最小示例
 
 ```go
-state := mujica.DebugPaused
+state := code.DebugPaused
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	switch mujica.DebugToolbar(c, state, mujica.DebugToolbarOptions{}).Action {
-	case mujica.DebugContinue:
-		state = mujica.DebugRunning
-	case mujica.DebugStop:
-		state = mujica.DebugStopped
+	core.Use(c, core.Settings{})
+	switch code.DebugToolbar(c, state, code.DebugToolbarOptions{}).Action {
+	case code.DebugContinue:
+		state = code.DebugRunning
+	case code.DebugStop:
+		state = code.DebugStopped
 	}
 }
 ui.Render(view, 400, 300, 1)

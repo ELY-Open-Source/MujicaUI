@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-results := []mujica.SearchFileResult{{Path: "court/seal.go", Matches: []mujica.SearchMatch{{Line: 12, Text: "func Seal() {", Start: 5, End: 9}}}}
-state := mujica.SearchPanelState{Query: "seal"}
+results := []code.SearchFileResult{{Path: "court/seal.go", Matches: []code.SearchMatch{{Line: 12, Text: "func Seal() {", Start: 5, End: 9}}}}
+state := code.SearchPanelState{Query: "seal"}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.SearchPanel(c, results, &state, mujica.SearchPanelOptions{})
+	core.Use(c, core.Settings{})
+	r := code.SearchPanel(c, results, &state, code.SearchPanelOptions{})
 	r.Element.Height(280)
 	if r.Opened != nil {
 		fmt.Println("open", r.Opened.Path, r.Opened.Line)

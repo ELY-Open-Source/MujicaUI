@@ -7,9 +7,9 @@
 ## 最小示例
 
 ```go
-mujica.Progress(c, 0.62, mujica.ProgressOptions{Label: "Uploading", ShowValue: true})
-mujica.Progress(c, 0, mujica.ProgressOptions{Shape: mujica.ProgressRing, Indeterminate: true, Label: "Connecting"})
-mujica.Meter(c, 93, mujica.MeterOptions{
+feedback.Progress(c, 0.62, feedback.ProgressOptions{Label: "Uploading", ShowValue: true})
+feedback.Progress(c, 0, feedback.ProgressOptions{Shape: feedback.ProgressRing, Indeterminate: true, Label: "Connecting"})
+feedback.Meter(c, 93, feedback.MeterOptions{
 	Max: 100, Label: "Disk", ShowValue: true,
 	Levels: &ui.MeterLevels{Warning: 70, Critical: 90},
 })

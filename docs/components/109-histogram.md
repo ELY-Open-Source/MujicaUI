@@ -9,8 +9,8 @@
 ```go
 values := []float64{1, 2, 2, 3, 4, 5, 9, 10}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Histogram(c, values, mujica.HistogramOptions{Frame: mujica.ChartFrame{Label: "Ages"}, BinWidth: 5})
+	core.Use(c, core.Settings{})
+	chart.Histogram(c, values, chart.HistogramOptions{Frame: chart.ChartFrame{Label: "Ages"}, BinWidth: 5})
 }
 ui.Render(view, 400, 300, 1)
 ```

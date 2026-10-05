@@ -7,14 +7,14 @@
 ## 最小示例
 
 ```go
-var state mujica.ConversationListState
-convs := []mujica.ChatConversation{
+var state chat.ConversationListState
+convs := []chat.ChatConversation{
 	{ID: "1", Title: "Court etiquette", Updated: time.Now()},
 	{ID: "2", Title: "Royal letters", Updated: time.Now().AddDate(0, 0, -30), Pinned: true},
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.ConversationList(c, &state, convs, mujica.ConversationListOptions{Label: "History"}, nil).Changed() {
+	core.Use(c, core.Settings{})
+	if chat.ConversationList(c, &state, convs, chat.ConversationListOptions{Label: "History"}, nil).Changed() {
 		log.Println("open", state.Selected)
 	}
 }

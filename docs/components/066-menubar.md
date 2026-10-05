@@ -7,15 +7,15 @@
 ## 最小示例
 
 ```go
-res := mujica.Menubar(c, []mujica.MenubarMenu{
-	{Label: "File", Items: []mujica.MenubarItem{
-		{ID: "new", Label: "New", Shortcut: mujica.MenubarShortcut{Mods: ui.Cmd, Key: ui.KeyN}},
-		{Label: "Export", Items: []mujica.MenubarItem{{ID: "pdf", Label: "PDF"}}},
+res := navigation.Menubar(c, []navigation.MenubarMenu{
+	{Label: "File", Items: []navigation.MenubarItem{
+		{ID: "new", Label: "New", Shortcut: navigation.MenubarShortcut{Mods: ui.Cmd, Key: ui.KeyN}},
+		{Label: "Export", Items: []navigation.MenubarItem{{ID: "pdf", Label: "PDF"}}},
 	}},
-	{Label: "View", Items: []mujica.MenubarItem{
-		{ID: "wrap", Label: "Word wrap", Kind: mujica.MenubarCheck, Checked: wrap},
+	{Label: "View", Items: []navigation.MenubarItem{
+		{ID: "wrap", Label: "Word wrap", Kind: navigation.MenubarCheck, Checked: wrap},
 	}},
-}, mujica.MenubarOptions{})
+}, navigation.MenubarOptions{})
 if id, ok := res.Chosen(); ok && id == "wrap" {
 	wrap = !wrap
 }

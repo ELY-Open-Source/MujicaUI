@@ -9,12 +9,12 @@
 ```go
 open := true
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	b := mujica.Button(c, "Guests", mujica.ButtonOptions{Variant: mujica.Secondary})
+	core.Use(c, core.Settings{})
+	b := input.Button(c, "Guests", input.ButtonOptions{Variant: input.Secondary})
 	if b.Clicked() {
 		open = !open
 	}
-	mujica.Popover(c, b, &open, mujica.PopoverOptions{Title: "Guest list"}, func() {
+	overlay.Popover(c, b, &open, overlay.PopoverOptions{Title: "Guest list"}, func() {
 		ui.Text(c, "Twelve guests confirmed.")
 	})
 }

@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-file := mujica.PreviewFile{Name: "seal.go", Text: "package court\nfunc Seal() {}"}
+file := files.PreviewFile{Name: "seal.go", Text: "package court\nfunc Seal() {}"}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.FilePreview(c, file, mujica.FilePreviewOptions{}).Element.Height(240)
+	core.Use(c, core.Settings{})
+	files.FilePreview(c, file, files.FilePreviewOptions{}).Element.Height(240)
 }
 ui.Render(view, 500, 300, 1)
 ```

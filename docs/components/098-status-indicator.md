@@ -7,8 +7,8 @@
 ## 最小示例
 
 ```go
-mujica.StatusIndicator(c, mujica.StatusSuccess, mujica.StatusIndicatorOptions{Label: "API online"})
-mujica.StatusIndicator(c, mujica.StatusOffline, mujica.StatusIndicatorOptions{})
+feedback.StatusIndicator(c, feedback.StatusSuccess, feedback.StatusIndicatorOptions{Label: "API online"})
+feedback.StatusIndicator(c, feedback.StatusOffline, feedback.StatusIndicatorOptions{})
 ```
 
 签名：`func StatusIndicator(c *ui.Context, status Status, opts StatusIndicatorOptions) *ui.Element`

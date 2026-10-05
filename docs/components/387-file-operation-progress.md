@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-op := mujica.FileOperation{Kind: mujica.FileCopy, Done: 2, Total: 10, Current: "seal.go"}
+op := files.FileOperation{Kind: files.FileCopy, Done: 2, Total: 10, Current: "seal.go"}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.FileOperationProgress(c, op, mujica.FileOperationOptions{})
+	core.Use(c, core.Settings{})
+	files.FileOperationProgress(c, op, files.FileOperationOptions{})
 }
 ui.Render(view, 500, 240, 1)
 ```

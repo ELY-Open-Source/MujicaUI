@@ -9,8 +9,8 @@
 ```go
 open := true
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Overlay(c, &open, mujica.OverlayOptions{Place: mujica.OverlayBottomRight, Label: "Now playing"}, func() {
+	core.Use(c, core.Settings{})
+	overlay.Overlay(c, &open, overlay.OverlayOptions{Place: overlay.OverlayBottomRight, Label: "Now playing"}, func() {
 		ui.Text(c, "Symbol I: △")
 	})
 }

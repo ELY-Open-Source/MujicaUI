@@ -7,12 +7,12 @@
 ## 最小示例
 
 ```go
-due := mujica.Date{Year: 2026, Month: time.October, Day: 5}
+due := core.Date{Year: 2026, Month: time.October, Day: 5}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	opts := mujica.DatePickerOptions{Label: "Due date", Clearable: true,
-		Min: mujica.Date{Year: 2026, Month: time.January, Day: 1}}
-	if mujica.DatePicker(c, &due, opts).Changed() {
+	core.Use(c, core.Settings{})
+	opts := datetime.DatePickerOptions{Label: "Due date", Clearable: true,
+		Min: core.Date{Year: 2026, Month: time.January, Day: 1}}
+	if datetime.DatePicker(c, &due, opts).Changed() {
 		fmt.Println("due", due)
 	}
 }

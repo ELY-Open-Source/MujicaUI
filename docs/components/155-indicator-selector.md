@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-	var overlays []mujica.IndicatorOverlay
-	var panes mujica.IndicatorPanes
+	var overlays []chart.IndicatorOverlay
+	var panes chart.IndicatorPanes
 	view := func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{})
-		mujica.IndicatorSelector(c, &overlays, &panes, mujica.IndicatorSelectorOptions{})
+		core.Use(c, core.Settings{})
+		chart.IndicatorSelector(c, &overlays, &panes, chart.IndicatorSelectorOptions{})
 	}
 	ui.Render(view, 640, 400, 1)
 ```

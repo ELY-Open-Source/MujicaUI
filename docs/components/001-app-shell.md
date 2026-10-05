@@ -8,8 +8,8 @@
 
 ```go
 var collapsed bool
-mujica.AppShell(c, &collapsed, mujica.AppShellOptions{
-	TitleBar: func() { mujica.TitleBar(c, "Court Records", mujica.TitleBarOptions{}) },
+layout.AppShell(c, &collapsed, layout.AppShellOptions{
+	TitleBar: func() { layout.TitleBar(c, "Court Records", layout.TitleBarOptions{}) },
 	Sidebar:  func() { ui.Text(c, "Chronicles") },
 	Content:  func() { ui.Text(c, "The Grand Hall") },
 })

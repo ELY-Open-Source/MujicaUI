@@ -9,8 +9,8 @@
 ```go
 prompt, saved := "You are helpful.", "You are helpful."
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.SystemPromptEditor(c, &prompt, mujica.SystemPromptEditorOptions{Default: "You are helpful.", Saved: saved}).Save {
+	core.Use(c, core.Settings{})
+	if chat.SystemPromptEditor(c, &prompt, chat.SystemPromptEditorOptions{Default: "You are helpful.", Saved: saved}).Save {
 		saved = prompt
 	}
 }

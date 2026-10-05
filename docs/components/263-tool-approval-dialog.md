@@ -9,8 +9,8 @@
 ```go
 open := true
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.ToolApprovalDialog(c, &open, mujica.ToolApprovalOptions{
+	core.Use(c, core.Settings{})
+	r := agent.ToolApprovalDialog(c, &open, agent.ToolApprovalOptions{
 		Tool: "delete_files", Args: "{\"glob\":\"*.tmp\"}", Reason: "Clean the build folder.",
 	})
 	if r.Allowed {

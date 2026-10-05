@@ -1,10 +1,13 @@
 package main
 
 import (
-	"github.com/egoist/mygo/ui"
-	mujica "mujicaui"
 	"strings"
 	"testing"
+
+	"github.com/egoist/mygo/ui"
+
+	"github.com/ZacharyZhang-NY/MujicaUI/account"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
 )
 
 func accountClick(t *testing.T, tt *ui.Tester, label string) {
@@ -25,7 +28,7 @@ func TestAccountPagesInteractiveEvents(t *testing.T) {
 		"463": func(t *testing.T, tt *ui.Tester) { accountClick(t, tt, "Dark") },
 		"464": func(t *testing.T, tt *ui.Tester) { accountClick(t, tt, "#355E80") },
 		"465": func(t *testing.T, tt *ui.Tester) {
-			value := mujica.Shortcut{Mods: ui.Cmd | ui.Shift, Key: ui.KeyP}
+			value := account.Shortcut{Mods: ui.Cmd | ui.Shift, Key: ui.KeyP}
 			accountClick(t, tt, "Command palette: "+value.String())
 			tt.Key(ui.Cmd, ui.KeyK)
 		},
@@ -86,7 +89,7 @@ func TestAccountPagesInteractiveEvents(t *testing.T) {
 			}
 			var events []string
 			tt := ui.NewTester(func(c *ui.Context) {
-				mujica.Use(c, mujica.Settings{})
+				core.Use(c, core.Settings{})
 				ui.Column(c).Padding(20).Gap(16).Children(func() { p.Demo(c, func(s string) { events = append(events, s) }) })
 			}, 1100, 800)
 			actions[p.ID](t, tt)

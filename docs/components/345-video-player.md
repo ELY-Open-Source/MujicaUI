@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-st := mujica.VideoState{Duration: 4 * time.Minute, Rate: 1}
+st := media.VideoState{Duration: 4 * time.Minute, Rate: 1}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.VideoPlayer(c, st, mujica.VideoPlayerOptions{
+	core.Use(c, core.Settings{})
+	media.VideoPlayer(c, st, media.VideoPlayerOptions{
 		OnPlay:  func() { st.Playing = true },  // start your decoder
 		OnPause: func() { st.Playing = false }, // pause it
 		OnSeek:  func(d time.Duration) { st.Position = d },

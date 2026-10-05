@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.DiffStat(c, 120, 8, mujica.DiffStatOptions{})
+	core.Use(c, core.Settings{})
+	git.DiffStat(c, 120, 8, git.DiffStatOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

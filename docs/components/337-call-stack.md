@@ -7,14 +7,14 @@
 ## 最小示例
 
 ```go
-threads := []mujica.DebugThread{{ID: "t1", Name: "main", Frames: []mujica.StackFrame{
+threads := []code.DebugThread{{ID: "t1", Name: "main", Frames: []code.StackFrame{
 	{ID: "f1", Name: "court.Seal", File: "court/seal.go", Line: 14},
 	{ID: "f2", Name: "main.main", File: "main.go", Line: 9},
 }}}
-state := mujica.CallStackState{Current: "f1"}
+state := code.CallStackState{Current: "f1"}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.CallStack(c, threads, &state, mujica.CallStackOptions{})
+	core.Use(c, core.Settings{})
+	r := code.CallStack(c, threads, &state, code.CallStackOptions{})
 	r.Element.Height(200)
 	if r.Changed() {
 		fmt.Println("show frame", state.Current)

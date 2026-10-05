@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-if mujica.NumberInput(c, &copies, mujica.NumberInputOptions{Min: 1, Max: 99, Label: "Copies"}).Changed() {
+if input.NumberInput(c, &copies, input.NumberInputOptions{Min: 1, Max: 99, Label: "Copies"}).Changed() {
 	fmt.Println("copies", copies)
 }
 ```

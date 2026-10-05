@@ -8,10 +8,10 @@
 
 ```go
 axes := []string{"Voice", "Latin", "Chant", "Organ"}
-series := []mujica.ChartSeries{{Name: "Agnès", Values: []float64{8, 6, 9, 4}}}
+series := []chart.ChartSeries{{Name: "Agnès", Values: []float64{8, 6, 9, 4}}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.RadarChart(c, axes, series, mujica.RadarChartOptions{Frame: mujica.ChartFrame{Label: "Skills"}})
+	core.Use(c, core.Settings{})
+	chart.RadarChart(c, axes, series, chart.RadarChartOptions{Frame: chart.ChartFrame{Label: "Skills"}})
 }
 ui.Render(view, 400, 300, 1)
 ```

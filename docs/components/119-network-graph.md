@@ -7,12 +7,12 @@
 ## 最小示例
 
 ```go
-var state mujica.NetworkGraphState
-nodes := []mujica.GraphNode{{ID: "a", Label: "Abbot"}, {ID: "b", Label: "Prior"}, {ID: "c", Label: "Novice"}}
-edges := []mujica.GraphEdge{{From: "a", To: "b"}, {From: "b", To: "c"}}
+var state chart.NetworkGraphState
+nodes := []chart.GraphNode{{ID: "a", Label: "Abbot"}, {ID: "b", Label: "Prior"}, {ID: "c", Label: "Novice"}}
+edges := []chart.GraphEdge{{From: "a", To: "b"}, {From: "b", To: "c"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.NetworkGraph(c, &state, nodes, edges, mujica.NetworkGraphOptions{Frame: mujica.ChartFrame{Label: "House"}, Force: true})
+	core.Use(c, core.Settings{})
+	chart.NetworkGraph(c, &state, nodes, edges, chart.NetworkGraphOptions{Frame: chart.ChartFrame{Label: "House"}, Force: true})
 }
 ui.Render(view, 400, 300, 1)
 ```

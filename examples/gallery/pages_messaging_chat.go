@@ -6,7 +6,11 @@ import (
 	"time"
 
 	"github.com/egoist/mygo/ui"
-	mujica "mujicaui"
+
+	"github.com/ZacharyZhang-NY/MujicaUI/chat"
+	"github.com/ZacharyZhang-NY/MujicaUI/display"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
+	"github.com/ZacharyZhang-NY/MujicaUI/messaging"
 )
 
 func chatMessageDemo(c *ui.Context, log func(string)) {
@@ -21,54 +25,54 @@ func chatMessageDemo(c *ui.Context, log func(string)) {
 	mediaCheck(c, log, &s.reply, "Reply slot")
 	mediaCheck(c, log, &s.reactions, "Reaction slot")
 	at := time.Date(2026, 10, 5, 21, 7, 0, 0, time.Local)
-	mujica.ChatMessage(c, mujica.ChatEntry{Author: "Uika", Time: at, Text: "Rehearsal at nine.", Own: s.own}, mujica.ChatMessageOptions{})
-	opts := mujica.ChatMessageOptions{Continued: s.continued}
+	messaging.ChatMessage(c, messaging.ChatEntry{Author: "Uika", Time: at, Text: "Rehearsal at nine.", Own: s.own}, messaging.ChatMessageOptions{})
+	opts := messaging.ChatMessageOptions{Continued: s.continued}
 	if s.reply {
 		opts.Reply = func() {
-			if mujica.QuoteReply(c, "Sakiko", "When do we start?").Clicked() {
+			if chat.QuoteReply(c, "Sakiko", "When do we start?").Clicked() {
 				log("jump to quoted message")
 			}
 		}
 	}
 	if s.reactions {
 		opts.Reactions = func() {
-			if mujica.Toggle(c, &s.reacted, "Like", mujica.ToggleOptions{}).Changed() {
+			if input.Toggle(c, &s.reacted, "Like", input.ToggleOptions{}).Changed() {
 				log(fmt.Sprintf("reaction %v", s.reacted))
 			}
 		}
 	}
-	mujica.ChatMessage(c, mujica.ChatEntry{Author: "Uika", Time: at.Add(time.Minute), Text: "Bring the masks.", Own: s.own, Edited: s.edited}, opts)
+	messaging.ChatMessage(c, messaging.ChatEntry{Author: "Uika", Time: at.Add(time.Minute), Text: "Bring the masks.", Own: s.own, Edited: s.edited}, opts)
 }
 
 func unreadDividerDemo(c *ui.Context, log func(string)) {
 	count := ui.Local(c.Root(), "403", func() float64 { return 3 })
-	if mujica.NumberInput(c, count, mujica.NumberInputOptions{Min: 0, Max: 999, Step: 1, Label: "Unread count"}).Changed() {
+	if input.NumberInput(c, count, input.NumberInputOptions{Min: 0, Max: 999, Step: 1, Label: "Unread count"}).Changed() {
 		log(fmt.Sprintf("unread %.0f", *count))
 	}
-	mujica.UnreadDivider(c, int(*count))
-	inputSection(c, "Zero count", func() { mujica.UnreadDivider(c, 0) })
+	messaging.UnreadDivider(c, int(*count))
+	inputSection(c, "Zero count", func() { messaging.UnreadDivider(c, 0) })
 }
 
 func readReceiptDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		receipt mujica.ReceiptState
+		receipt messaging.ReceiptState
 		readers bool
 		max     float64
 	}
-	s := ui.Local(c.Root(), "404", func() state { return state{receipt: mujica.ReceiptRead, readers: true, max: 3} })
-	items := []mujica.SelectOption[mujica.ReceiptState]{{Value: mujica.ReceiptSent, Label: "Sent"}, {Value: mujica.ReceiptDelivered, Label: "Delivered"}, {Value: mujica.ReceiptRead, Label: "Read"}}
-	if mujica.Select(c, &s.receipt, items, mujica.SelectOptions{Label: "Receipt"}).Changed() {
+	s := ui.Local(c.Root(), "404", func() state { return state{receipt: messaging.ReceiptRead, readers: true, max: 3} })
+	items := []input.SelectOption[messaging.ReceiptState]{{Value: messaging.ReceiptSent, Label: "Sent"}, {Value: messaging.ReceiptDelivered, Label: "Delivered"}, {Value: messaging.ReceiptRead, Label: "Read"}}
+	if input.Select(c, &s.receipt, items, input.SelectOptions{Label: "Receipt"}).Changed() {
 		log(fmt.Sprintf("receipt %d", s.receipt))
 	}
 	mediaCheck(c, log, &s.readers, "Reader avatars")
-	if mujica.NumberInput(c, &s.max, mujica.NumberInputOptions{Min: 1, Max: 4, Step: 1, Label: "Max avatars"}).Changed() {
+	if input.NumberInput(c, &s.max, input.NumberInputOptions{Min: 1, Max: 4, Step: 1, Label: "Max avatars"}).Changed() {
 		log(fmt.Sprintf("max %.0f", s.max))
 	}
-	opts := mujica.ReadReceiptOptions{Max: int(s.max)}
+	opts := messaging.ReadReceiptOptions{Max: int(s.max)}
 	if s.readers {
-		opts.Readers = []mujica.AvatarItem{{Name: "Uika"}, {Name: "Mutsumi"}, {Name: "Umiri"}, {Name: "Nyamu"}}
+		opts.Readers = []display.AvatarItem{{Name: "Uika"}, {Name: "Mutsumi"}, {Name: "Umiri"}, {Name: "Nyamu"}}
 	}
-	mujica.ReadReceipt(c, s.receipt, opts)
+	messaging.ReadReceipt(c, s.receipt, opts)
 }
 
 func emojiPickerDemo(c *ui.Context, log func(string)) {
@@ -80,7 +84,7 @@ func emojiPickerDemo(c *ui.Context, log func(string)) {
 	}
 	s := ui.Local(c.Root(), "412", func() state { return state{} })
 	mediaCheck(c, log, &s.disabled, "Disabled")
-	if r := mujica.EmojiPicker(c, mujica.EmojiPickerOptions{Recent: &s.recent, Tone: &s.tone, Disabled: s.disabled}); r.Picked != "" {
+	if r := messaging.EmojiPicker(c, messaging.EmojiPickerOptions{Recent: &s.recent, Tone: &s.tone, Disabled: s.disabled}); r.Picked != "" {
 		s.picked = r.Picked
 		log("emoji " + r.Picked)
 	}
@@ -89,26 +93,26 @@ func emojiPickerDemo(c *ui.Context, log func(string)) {
 
 func pinnedMessagesDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		pins     []mujica.ChatEntry
+		pins     []messaging.ChatEntry
 		disabled bool
 		jump     string
 	}
-	newPins := func() []mujica.ChatEntry {
-		return []mujica.ChatEntry{{ID: "a", Author: "Sakiko", Text: "Rehearsal moves to nine."}, {ID: "b", Author: "Uika", Text: "Masks are in the hall."}}
+	newPins := func() []messaging.ChatEntry {
+		return []messaging.ChatEntry{{ID: "a", Author: "Sakiko", Text: "Rehearsal moves to nine."}, {ID: "b", Author: "Uika", Text: "Masks are in the hall."}}
 	}
 	s := ui.Local(c.Root(), "413", func() state { return state{pins: newPins()} })
 	mediaCheck(c, log, &s.disabled, "Disabled")
-	if mujica.Button(c, "Restore pins", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+	if input.Button(c, "Restore pins", input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 		s.pins = newPins()
 		log("pins restored")
 	}
-	r := mujica.PinnedMessages(c, s.pins, mujica.PinnedMessagesOptions{Disabled: s.disabled, Height: 180})
+	r := messaging.PinnedMessages(c, s.pins, messaging.PinnedMessagesOptions{Disabled: s.disabled, Height: 180})
 	if r.Jump != "" {
 		s.jump = r.Jump
 		log("jump " + r.Jump)
 	}
 	if r.Unpinned != "" {
-		s.pins = slices.DeleteFunc(slices.Clone(s.pins), func(m mujica.ChatEntry) bool { return m.ID == r.Unpinned })
+		s.pins = slices.DeleteFunc(slices.Clone(s.pins), func(m messaging.ChatEntry) bool { return m.ID == r.Unpinned })
 		log("unpin " + r.Unpinned)
 	}
 	ui.Text(c, "Jump target: "+s.jump)
@@ -117,21 +121,21 @@ func pinnedMessagesDemo(c *ui.Context, log func(string)) {
 func threadPanelDemo(c *ui.Context, log func(string)) {
 	type state struct {
 		open, disabled bool
-		replies        []mujica.ChatEntry
+		replies        []messaging.ChatEntry
 	}
 	s := ui.Local(c.Root(), "414", func() state {
-		return state{open: true, replies: []mujica.ChatEntry{{ID: "1", Author: "Uika", Text: "Overture first."}}}
+		return state{open: true, replies: []messaging.ChatEntry{{ID: "1", Author: "Uika", Text: "Overture first."}}}
 	})
 	mediaCheck(c, log, &s.disabled, "Disabled")
-	if mujica.Button(c, "Open thread", mujica.ButtonOptions{Disabled: s.disabled}).Clicked() {
+	if input.Button(c, "Open thread", input.ButtonOptions{Disabled: s.disabled}).Clicked() {
 		s.open = true
 		log("thread opened")
 	}
 	before := s.open
 	ui.Row(c).Height(420).Children(func() {
-		r := mujica.ThreadPanel(c, &s.open, mujica.ChatEntry{ID: "root", Author: "Sakiko", Text: "Set list for Friday?"}, s.replies, mujica.ThreadPanelOptions{Disabled: s.disabled})
+		r := messaging.ThreadPanel(c, &s.open, messaging.ChatEntry{ID: "root", Author: "Sakiko", Text: "Set list for Friday?"}, s.replies, messaging.ThreadPanelOptions{Disabled: s.disabled})
 		if r.Sent != "" {
-			s.replies = append(s.replies, mujica.ChatEntry{ID: fmt.Sprint(len(s.replies) + 1), Author: "Me", Text: r.Sent, Own: true})
+			s.replies = append(s.replies, messaging.ChatEntry{ID: fmt.Sprint(len(s.replies) + 1), Author: "Me", Text: r.Sent, Own: true})
 			log("reply sent")
 		}
 	})

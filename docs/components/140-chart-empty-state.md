@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ChartEmptyState(c, mujica.DataFailed, mujica.ChartEmptyStateOptions{Height: 180, Error: "The archive did not answer"})
+	core.Use(c, core.Settings{})
+	chart.ChartEmptyState(c, data.DataFailed, chart.ChartEmptyStateOptions{Height: 180, Error: "The archive did not answer"})
 }
 ui.Render(view, 400, 240, 1)
 ```

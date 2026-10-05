@@ -4,22 +4,24 @@ import (
 	"fmt"
 
 	"github.com/egoist/mygo/ui"
-	mujica "mujicaui"
+
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
+	"github.com/ZacharyZhang-NY/MujicaUI/messaging"
 )
 
 func callControlsDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		call     mujica.CallState
+		call     messaging.CallState
 		disabled bool
 		ended    bool
 	}
 	s := ui.Local(c.Root(), "409", func() state { return state{} })
 	mediaCheck(c, log, &s.disabled, "Disabled")
-	if mujica.Button(c, "Reconnect", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+	if input.Button(c, "Reconnect", input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 		s.ended = false
 		log("call joined")
 	}
-	mujica.CallControls(c, s.call, mujica.CallControlsOptions{
+	messaging.CallControls(c, s.call, messaging.CallControlsOptions{
 		Disabled: s.disabled || s.ended,
 		OnMute:   func(on bool) { s.call.Muted = on; log(fmt.Sprintf("mute %v", on)) },
 		OnCamera: func(off bool) { s.call.CameraOff = off; log(fmt.Sprintf("camera off %v", off)) },
@@ -39,10 +41,10 @@ func videoCallGridDemo(c *ui.Context, log func(string)) {
 	mediaCheck(c, log, &s.muted, "Muted")
 	mediaCheck(c, log, &s.cameraOff, "Camera off")
 	mediaCheck(c, log, &s.frame, "Caller-provided frame")
-	if mujica.NumberInput(c, &s.columns, mujica.NumberInputOptions{Min: 0, Max: 3, Step: 1, Label: "Columns (0 = auto)"}).Changed() {
+	if input.NumberInput(c, &s.columns, input.NumberInputOptions{Min: 0, Max: 3, Step: 1, Label: "Columns (0 = auto)"}).Changed() {
 		log(fmt.Sprintf("columns %.0f", s.columns))
 	}
-	people := []mujica.CallParticipant{
+	people := []messaging.CallParticipant{
 		{ID: "1", Name: "Sakiko", Speaking: s.speaking, Muted: s.muted, CameraOff: s.cameraOff},
 		{ID: "2", Name: "Uika", Muted: true}, {ID: "3", Name: "Mutsumi", CameraOff: true}, {ID: "4", Name: "Umiri"},
 	}
@@ -50,7 +52,7 @@ func videoCallGridDemo(c *ui.Context, log func(string)) {
 		people[0].Frame = mediaBitmaps[0]
 		people[3].Frame = mediaBitmaps[1]
 	}
-	mujica.VideoCallGrid(c, people, mujica.VideoCallGridOptions{Columns: int(s.columns)})
+	messaging.VideoCallGrid(c, people, messaging.VideoCallGridOptions{Columns: int(s.columns)})
 }
 
 func incomingCallDialogDemo(c *ui.Context, log func(string)) {
@@ -62,11 +64,11 @@ func incomingCallDialogDemo(c *ui.Context, log func(string)) {
 	mediaCheck(c, log, &s.video, "Video call")
 	mediaCheck(c, log, &s.focusAccept, "Focus Accept")
 	mediaCheck(c, log, &s.disabled, "Disabled")
-	if mujica.Button(c, "Incoming call", mujica.ButtonOptions{Disabled: s.disabled}).Clicked() {
+	if input.Button(c, "Incoming call", input.ButtonOptions{Disabled: s.disabled}).Clicked() {
 		s.open = true
 		log("incoming call")
 	}
-	mujica.IncomingCallDialog(c, &s.open, mujica.IncomingCall{Caller: "Sakiko Togawa", Video: s.video}, mujica.IncomingCallOptions{
+	messaging.IncomingCallDialog(c, &s.open, messaging.IncomingCall{Caller: "Sakiko Togawa", Video: s.video}, messaging.IncomingCallOptions{
 		Disabled: s.disabled, FocusAccept: s.focusAccept,
 		OnAccept:  func(video bool) { s.result = fmt.Sprintf("Accepted, video: %v", video); log(s.result) },
 		OnDecline: func() { s.result = "Declined"; log(s.result) },

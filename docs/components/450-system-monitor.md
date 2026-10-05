@@ -8,10 +8,10 @@
 
 ```go
 times := []time.Time{time.Date(2026, 10, 5, 9, 0, 0, 0, time.UTC), time.Date(2026, 10, 5, 9, 0, 5, 0, time.UTC)}
-metrics := []mujica.MonitorMetric{{Name: "CPU", Unit: "%", Samples: []float64{42, 51}}, {Name: "Memory", Unit: "GB", Samples: []float64{3.2, 3.4}}}
+metrics := []devtools.MonitorMetric{{Name: "CPU", Unit: "%", Samples: []float64{42, 51}}, {Name: "Memory", Unit: "GB", Samples: []float64{3.2, 3.4}}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.SystemMonitor(c, times, metrics, mujica.SystemMonitorOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if devtools.SystemMonitor(c, times, metrics, devtools.SystemMonitorOptions{}).Changed() {
 		fmt.Println("retry")
 	}
 }

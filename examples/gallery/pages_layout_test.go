@@ -5,7 +5,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
 )
 
 func layoutPageTester(t *testing.T, id string, events *[]string) *ui.Tester {
@@ -13,7 +13,7 @@ func layoutPageTester(t *testing.T, id string, events *[]string) *ui.Tester {
 	for _, p := range layoutPages {
 		if p.ID == id {
 			return ui.NewTester(func(c *ui.Context) {
-				mujica.Use(c, mujica.Settings{})
+				core.Use(c, core.Settings{})
 				ui.Scroll(c).Fill().Children(func() {
 					p.Demo(c, func(s string) { *events = append(*events, s) })
 				})

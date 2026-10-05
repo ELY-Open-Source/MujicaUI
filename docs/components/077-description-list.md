@@ -8,12 +8,12 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.DescriptionList(c, []mujica.DescriptionItem{
+	core.Use(c, core.Settings{})
+	data.DescriptionList(c, []data.DescriptionItem{
 		{Label: "Archivist", Value: "Sister Agnès", Copyable: true},
 		{Label: "Shelf", Value: "North vault, row 7"},
 		{Label: "Seal", Value: "Wine-red wax", Span: -1},
-	}, mujica.DescriptionListOptions{})
+	}, data.DescriptionListOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

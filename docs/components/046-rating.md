@@ -11,8 +11,8 @@
 ```go
 stars := 3.5
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Rating(c, &stars, mujica.RatingOptions{Step: 0.5, ShowValue: true})
+	core.Use(c, core.Settings{})
+	input.Rating(c, &stars, input.RatingOptions{Step: 0.5, ShowValue: true})
 }
 ui.Render(view, 400, 300, 1)
 ```

@@ -7,17 +7,17 @@
 ## 最小示例
 
 ```go
-var state mujica.FileExplorerState
-opts := mujica.FileExplorerOptions{
+var state files.FileExplorerState
+opts := files.FileExplorerOptions{
 	Roots:   []string{"/court"},
 	Folders: func(string) []string { return nil },
-	Entries: func(string) []mujica.FileEntry {
-		return []mujica.FileEntry{{Path: "/court/seal.go", Name: "seal.go", Size: 1024}}
+	Entries: func(string) []files.FileEntry {
+		return []files.FileEntry{{Path: "/court/seal.go", Name: "seal.go", Size: 1024}}
 	},
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.FileExplorer(c, &state, opts).Element.Height(240)
+	core.Use(c, core.Settings{})
+	files.FileExplorer(c, &state, opts).Element.Height(240)
 }
 ui.Render(view, 600, 300, 1)
 ```

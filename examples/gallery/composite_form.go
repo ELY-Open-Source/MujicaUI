@@ -7,7 +7,11 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ZacharyZhang-NY/MujicaUI/data"
+	"github.com/ZacharyZhang-NY/MujicaUI/datetime"
+	"github.com/ZacharyZhang-NY/MujicaUI/feedback"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
 )
 
 const formID = "c-form"
@@ -28,10 +32,10 @@ const (
 )
 
 type formSubmitDemo struct {
-	st       mujica.FormState
+	st       input.FormState
 	name     string
 	password string
-	debut    mujica.Date
+	debut    core.Date
 	tags     []string
 	terms    bool
 	failNext bool
@@ -65,7 +69,7 @@ func (g *gallery) formView(c *ui.Context, log func(string)) {
 			drained = true
 		}
 	}
-	mujica.Card(c, mujica.CardOptions{Title: g.t("Audition entry", "试演报名")}, func() {
+	data.Card(c, data.CardOptions{Title: g.t("Audition entry", "试演报名")}, func() {
 		switch s.phase {
 		case formSucceeded:
 			g.formSuccess(c, log)
@@ -79,11 +83,11 @@ func (g *gallery) formView(c *ui.Context, log func(string)) {
 
 func (g *gallery) formEdit(c *ui.Context, log func(string)) {
 	s := &g.cForm
-	if mujica.Switch(c, &s.failNext, g.t("The server rejects the next submit", "服务器拒绝下一次提交"), mujica.SwitchOptions{Disabled: s.st.Submitting()}).Changed() {
+	if input.Switch(c, &s.failNext, g.t("The server rejects the next submit", "服务器拒绝下一次提交"), input.SwitchOptions{Disabled: s.st.Submitting()}).Changed() {
 		log(fmt.Sprintf("fail next submit %v", s.failNext))
 	}
-	r := mujica.LoadingOverlay(c, s.st.Submitting(), mujica.LoadingOverlayOptions{Label: g.t("Submitting…", "正在提交…")}, func() {
-		res := mujica.Form(c, &s.st, mujica.FormOptions{Horizontal: true, SubmitLabel: g.t("Submit entry", "提交报名")}, func(f *mujica.FormScope) {
+	r := feedback.LoadingOverlay(c, s.st.Submitting(), feedback.LoadingOverlayOptions{Label: g.t("Submitting…", "正在提交…")}, func() {
+		res := input.Form(c, &s.st, input.FormOptions{Horizontal: true, SubmitLabel: g.t("Submit entry", "提交报名")}, func(f *input.FormScope) {
 			g.formFields(c, f, log)
 		})
 		res.Element.FillWidth()
@@ -108,9 +112,9 @@ func (g *gallery) formEdit(c *ui.Context, log func(string)) {
 	r.Element.FillWidth()
 }
 
-func (g *gallery) formFields(c *ui.Context, f *mujica.FormScope, log func(string)) {
+func (g *gallery) formFields(c *ui.Context, f *input.FormScope, log func(string)) {
 	s := &g.cForm
-	mujica.FormItem(c, f, "name", &s.name, mujica.FormItemOptions[string]{Label: g.t("Stage name", "艺名"), Required: true,
+	input.FormItem(c, f, "name", &s.name, input.FormItemOptions[string]{Label: g.t("Stage name", "艺名"), Required: true,
 		Description: g.t("Checked against the archive; “Oblivionis” is taken.", "将与档案核对；“Oblivionis”已被占用。"),
 		Validate: func(v string) string {
 			if len([]rune(strings.TrimSpace(v))) < 2 {
@@ -132,44 +136,44 @@ func (g *gallery) formFields(c *ui.Context, f *mujica.FormScope, log func(string
 				c.Invalidate()
 			}()
 		}}, func() *ui.Element {
-		return mujica.TextInput(c, &s.name, mujica.TextInputOptions{}).Input
+		return input.TextInput(c, &s.name, input.TextInputOptions{}).Input
 	})
-	mujica.FormItem(c, f, "password", &s.password, mujica.FormItemOptions[string]{Label: g.t("Password", "密码"), Required: true,
+	input.FormItem(c, f, "password", &s.password, input.FormItemOptions[string]{Label: g.t("Password", "密码"), Required: true,
 		Validate: func(v string) string {
 			if len([]rune(v)) < 8 {
 				return g.t("Use at least 8 characters.", "至少 8 个字符。")
 			}
 			return ""
 		}}, func() *ui.Element {
-		r := mujica.PasswordInput(c, &s.password, mujica.PasswordInputOptions{})
+		r := input.PasswordInput(c, &s.password, input.PasswordInputOptions{})
 		if r.Submitted() {
 			s.st.Submit()
 		}
 		return r.Input
 	})
-	mujica.FormItem(c, f, "debut", &s.debut, mujica.FormItemOptions[mujica.Date]{Label: g.t("Debut date", "首演日期"), Required: true}, func() *ui.Element {
-		r := mujica.DatePicker(c, &s.debut, mujica.DatePickerOptions{Clearable: true})
+	input.FormItem(c, f, "debut", &s.debut, input.FormItemOptions[core.Date]{Label: g.t("Debut date", "首演日期"), Required: true}, func() *ui.Element {
+		r := datetime.DatePicker(c, &s.debut, datetime.DatePickerOptions{Clearable: true})
 		if r.Changed() {
 			log("debut " + s.debut.Format("2006-01-02"))
 		}
 		return r.Input
 	})
-	mujica.FormItem(c, f, "roles", &s.tags, mujica.FormItemOptions[[]string]{Label: g.t("Roles", "担当"), Required: true,
+	input.FormItem(c, f, "roles", &s.tags, input.FormItemOptions[[]string]{Label: g.t("Roles", "担当"), Required: true,
 		Description: g.t("Up to 4; press Enter after each.", "最多 4 个；每个后按 Enter。")}, func() *ui.Element {
-		r := mujica.TagsInput(c, &s.tags, mujica.TagsInputOptions{Max: 4, Invalid: s.st.Error("roles") != "", Placeholder: g.t("keyboard, bass…", "键盘、贝斯…")})
+		r := input.TagsInput(c, &s.tags, input.TagsInputOptions{Max: 4, Invalid: s.st.Error("roles") != "", Placeholder: g.t("keyboard, bass…", "键盘、贝斯…")})
 		if r.Changed() {
 			log(fmt.Sprintf("roles %q", s.tags))
 		}
 		return r.Input
 	})
-	mujica.FormItem(c, f, "terms", &s.terms, mujica.FormItemOptions[bool]{Label: g.t("Terms", "条款"),
+	input.FormItem(c, f, "terms", &s.terms, input.FormItemOptions[bool]{Label: g.t("Terms", "条款"),
 		Validate: func(v bool) string {
 			if !v {
 				return g.t("Accept the terms to continue.", "请先同意条款。")
 			}
 			return ""
 		}}, func() *ui.Element {
-		e := mujica.Checkbox(c, &s.terms, g.t("I accept the covenant of the masquerade", "我接受假面舞会的盟约"), mujica.CheckboxOptions{})
+		e := input.Checkbox(c, &s.terms, g.t("I accept the covenant of the masquerade", "我接受假面舞会的盟约"), input.CheckboxOptions{})
 		if e.Changed() {
 			log(fmt.Sprintf("terms %v", s.terms))
 		}
@@ -179,7 +183,7 @@ func (g *gallery) formFields(c *ui.Context, f *mujica.FormScope, log func(string
 
 func (g *gallery) formSuccess(c *ui.Context, log func(string)) {
 	s := &g.cForm
-	r := mujica.Result(c, mujica.ResultOptions{Kind: mujica.ResultSuccess, Title: g.t("Entry received", "报名已收到"),
+	r := feedback.Result(c, feedback.ResultOptions{Kind: feedback.ResultSuccess, Title: g.t("Entry received", "报名已收到"),
 		Description: fmt.Sprintf(g.t("%s, your debut on %s is on the ledger.", "%s，你在 %s 的首演已登记。"), s.name, s.debut.Format("2006-01-02")),
 		Actions:     []string{g.t("New entry", "新的报名")}})
 	if r.Action == 0 {
@@ -190,7 +194,7 @@ func (g *gallery) formSuccess(c *ui.Context, log func(string)) {
 
 func (g *gallery) formFailure(c *ui.Context, log func(string)) {
 	s := &g.cForm
-	r := mujica.Result(c, mujica.ResultOptions{Kind: mujica.ResultFailure, Title: g.t("Entry not sent", "报名未送达"), Description: s.failure,
+	r := feedback.Result(c, feedback.ResultOptions{Kind: feedback.ResultFailure, Title: g.t("Entry not sent", "报名未送达"), Description: s.failure,
 		Actions: []string{g.t("Retry", "重试"), g.t("Back to the form", "返回表单")}})
 	switch r.Action {
 	case 0:

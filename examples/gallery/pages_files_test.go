@@ -6,16 +6,17 @@ import (
 	"testing"
 
 	"github.com/egoist/mygo/ui"
-	mujica "mujicaui"
+
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
 )
 
-func filesDemoTester(t *testing.T, id string, mode mujica.Mode) (*ui.Tester, *[]string) {
+func filesDemoTester(t *testing.T, id string, mode core.Mode) (*ui.Tester, *[]string) {
 	t.Helper()
 	for _, p := range filesPages {
 		if p.ID == id {
 			events := &[]string{}
 			tt := ui.NewTester(func(c *ui.Context) {
-				mujica.Use(c, mujica.Settings{Mode: mode})
+				core.Use(c, core.Settings{Mode: mode})
 				ui.Scroll(c).Fill().Padding(24).Gap(12).Children(func() { p.Demo(c, func(s string) { *events = append(*events, s) }) })
 			}, 900, 800)
 			tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})
@@ -59,7 +60,7 @@ func TestFilesGalleryActions(t *testing.T) {
 		{"400", "Selection", "Selection = false"},
 	}
 	for _, tc := range cases {
-		for _, mode := range []mujica.Mode{mujica.Light, mujica.Dark} {
+		for _, mode := range []core.Mode{core.Light, core.Dark} {
 			t.Run(fmt.Sprintf("%s-%s", tc.id, mode), func(t *testing.T) {
 				tt, events := filesDemoTester(t, tc.id, mode)
 				if err := tt.Click(tc.action); err != nil {
@@ -88,7 +89,7 @@ func TestFilesGalleryActions(t *testing.T) {
 }
 
 func TestFilesGalleryStorageParameter(t *testing.T) {
-	tt, events := filesDemoTester(t, "389", mujica.Light)
+	tt, events := filesDemoTester(t, "389", core.Light)
 	if err := tt.Click("Photos (GB)"); err != nil {
 		t.Fatal(err)
 	}
@@ -101,7 +102,7 @@ func TestFilesGalleryStorageParameter(t *testing.T) {
 }
 
 func TestFilesGalleryGridRange(t *testing.T) {
-	tt, events := filesDemoTester(t, "382", mujica.Light)
+	tt, events := filesDemoTester(t, "382", core.Light)
 	if err := tt.Click("notes.md"); err != nil {
 		t.Fatal(err)
 	}

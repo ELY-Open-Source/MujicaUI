@@ -9,12 +9,12 @@
 ```go
 text := "se"
 open := true
-items := []mujica.Completion{{Label: "Seal", Kind: mujica.SymbolMethod, Detail: "func()"}, {Label: "Search", Kind: mujica.SymbolFunction}}
-var state mujica.CompletionMenuState
+items := []code.Completion{{Label: "Seal", Kind: code.SymbolMethod, Detail: "func()"}, {Label: "Search", Kind: code.SymbolFunction}}
+var state code.CompletionMenuState
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	in := mujica.TextInput(c, &text, mujica.TextInputOptions{Label: "Code"})
-	if r := mujica.CompletionMenu(c, in.Input, &open, items, &state, mujica.CompletionMenuOptions{}); r.Accepted != nil {
+	core.Use(c, core.Settings{})
+	in := input.TextInput(c, &text, input.TextInputOptions{Label: "Code"})
+	if r := code.CompletionMenu(c, in.Input, &open, items, &state, code.CompletionMenuOptions{}); r.Accepted != nil {
 		text = r.Accepted.Label
 	}
 }

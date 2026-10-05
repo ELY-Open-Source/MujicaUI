@@ -10,8 +10,8 @@
 var recent []string
 tone := 0
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if r := mujica.EmojiPicker(c, mujica.EmojiPickerOptions{Recent: &recent, Tone: &tone}); r.Picked != "" {
+	core.Use(c, core.Settings{})
+	if r := messaging.EmojiPicker(c, messaging.EmojiPickerOptions{Recent: &recent, Tone: &tone}); r.Picked != "" {
 		_ = r.Picked // insert it
 	}
 }

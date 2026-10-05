@@ -10,10 +10,11 @@ import (
 	"testing"
 
 	"github.com/egoist/mygo/ui"
-	mujica "mujicaui"
+
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
 )
 
-func messagingDemoTester(t *testing.T, id string, mode mujica.Mode) (*ui.Tester, *[]string) {
+func messagingDemoTester(t *testing.T, id string, mode core.Mode) (*ui.Tester, *[]string) {
 	t.Helper()
 	i := slices.IndexFunc(messagingPages, func(p page) bool { return p.ID == id })
 	if i < 0 {
@@ -21,7 +22,7 @@ func messagingDemoTester(t *testing.T, id string, mode mujica.Mode) (*ui.Tester,
 	}
 	events := &[]string{}
 	tt := ui.NewTester(func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{Mode: mode})
+		core.Use(c, core.Settings{Mode: mode})
 		ui.Scroll(c).Fill().Padding(24).Gap(12).Children(func() {
 			messagingPages[i].Demo(c, func(s string) { *events = append(*events, s) })
 		})
@@ -58,7 +59,7 @@ func TestMessagingDemosInteractAndLog(t *testing.T) {
 		t.Fatalf("pages=%d, cases=%d", len(messagingPages), len(cases))
 	}
 	for _, tc := range cases {
-		for _, mode := range []mujica.Mode{mujica.Light, mujica.Dark} {
+		for _, mode := range []core.Mode{core.Light, core.Dark} {
 			t.Run(tc.id+mode.String(), func(t *testing.T) {
 				tt, events := messagingDemoTester(t, tc.id, mode)
 				if err := tt.Click(tc.click); err != nil {
@@ -105,7 +106,7 @@ func TestMessagingDemoCaptures(t *testing.T) {
 		if p.Category != "Messaging & Mail" || p.Code == "" || p.Keys == "" {
 			t.Fatalf("incomplete page %s", p.ID)
 		}
-		for _, mode := range []mujica.Mode{mujica.Light, mujica.Dark} {
+		for _, mode := range []core.Mode{core.Light, core.Dark} {
 			tt, _ := messagingDemoTester(t, p.ID, mode)
 			f, err := os.Create(filepath.Join(dir, fmt.Sprintf("%s-%s.png", p.ID, mode)))
 			if err != nil {

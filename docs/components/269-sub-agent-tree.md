@@ -7,12 +7,12 @@
 ## 最小示例
 
 ```go
-agents := []mujica.SubAgent{{ID: "lead", Name: "Steward", State: mujica.AgentRunning, Children: []mujica.SubAgent{
-	{ID: "cook", Name: "Cook", Task: "Plan the menu", State: mujica.AgentWaiting},
+agents := []agent.SubAgent{{ID: "lead", Name: "Steward", State: agent.AgentRunning, Children: []agent.SubAgent{
+	{ID: "cook", Name: "Cook", Task: "Plan the menu", State: agent.AgentWaiting},
 }}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.SubAgentTree(c, agents, mujica.SubAgentTreeOptions{})
+	core.Use(c, core.Settings{})
+	agent.SubAgentTree(c, agents, agent.SubAgentTreeOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.InlineDiff(c, "The court meets at noon", "The court meets at dusk", mujica.InlineDiffOptions{})
+	core.Use(c, core.Settings{})
+	git.InlineDiff(c, "The court meets at noon", "The court meets at dusk", git.InlineDiffOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

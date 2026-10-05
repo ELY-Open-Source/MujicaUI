@@ -8,9 +8,9 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	b := mujica.Button(c, "Seal", mujica.ButtonOptions{})
-	mujica.Tooltip(c, b, "Seal the letter with wax", mujica.TooltipOptions{})
+	core.Use(c, core.Settings{})
+	b := input.Button(c, "Seal", input.ButtonOptions{})
+	overlay.Tooltip(c, b, "Seal the letter with wax", overlay.TooltipOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

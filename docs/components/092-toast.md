@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-if mujica.Button(c, "Delete note", mujica.ButtonOptions{Variant: mujica.Danger}).Clicked() {
-	mujica.ShowToast(c, mujica.ToastMessage{ID: "note-1", Message: "Note deleted", Action: "Undo"})
+if input.Button(c, "Delete note", input.ButtonOptions{Variant: input.Danger}).Clicked() {
+	feedback.ShowToast(c, feedback.ToastMessage{ID: "note-1", Message: "Note deleted", Action: "Undo"})
 }
 // Last in the view:
-if r := mujica.Toaster(c); r.Action == "note-1" {
+if r := feedback.Toaster(c); r.Action == "note-1" {
 	// restore the note
 }
 ```

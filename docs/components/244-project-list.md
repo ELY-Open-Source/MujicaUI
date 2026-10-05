@@ -7,14 +7,14 @@
 ## 最小示例
 
 ```go
-var state mujica.ProjectListState
-projects := []mujica.ChatProject{{ID: "p1", Name: "Coronation", Folder: "Court"}}
-convs := func(id string) []mujica.ChatConversation {
-	return []mujica.ChatConversation{{ID: "1", Title: "Menu"}}
+var state chat.ProjectListState
+projects := []chat.ChatProject{{ID: "p1", Name: "Coronation", Folder: "Court"}}
+convs := func(id string) []chat.ChatConversation {
+	return []chat.ChatConversation{{ID: "1", Title: "Menu"}}
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if v := mujica.ProjectList(c, &state, projects, convs, mujica.ProjectListOptions{}); v.Moved {
+	core.Use(c, core.Settings{})
+	if v := chat.ProjectList(c, &state, projects, convs, chat.ProjectListOptions{}); v.Moved {
 		log.Println("move", v.MoveID, "to", v.MoveTo)
 	}
 }

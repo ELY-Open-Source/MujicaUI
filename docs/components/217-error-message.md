@@ -7,8 +7,8 @@
 ## 最小示例
 
 ```go
-opts := mujica.ErrorMessageOptions{RetryAt: time.Now().Add(30 * time.Second)}
-if mujica.ErrorMessage(c, "429 Too Many Requests", opts).Retried() {
+opts := chat.ErrorMessageOptions{RetryAt: time.Now().Add(30 * time.Second)}
+if chat.ErrorMessage(c, "429 Too Many Requests", opts).Retried() {
 	fmt.Println("send again")
 }
 ```

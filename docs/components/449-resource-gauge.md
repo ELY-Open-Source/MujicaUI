@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-readings := []mujica.ResourceReading{{Name: "CPU", Used: 45, Total: 100}, {Name: "Memory", Used: 6.4, Total: 8, Unit: "GB"}, {Name: "Disk", Used: 470, Total: 500, Unit: "GB"}}
+readings := []devtools.ResourceReading{{Name: "CPU", Used: 45, Total: 100}, {Name: "Memory", Used: 6.4, Total: 8, Unit: "GB"}, {Name: "Disk", Used: 470, Total: 500, Unit: "GB"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.ResourceGauge(c, readings, mujica.ResourceGaugeOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if devtools.ResourceGauge(c, readings, devtools.ResourceGaugeOptions{}).Changed() {
 		fmt.Println("retry")
 	}
 }

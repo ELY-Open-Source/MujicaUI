@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-if mujica.BranchNavigator(c, &branch, 3).Changed() {
+if chat.BranchNavigator(c, &branch, 3).Changed() {
 	fmt.Println("show branch", branch)
 }
 ```

@@ -5,8 +5,8 @@ var feedbackPages = []page{
 		ID: "091", Name: "Alert", ZhName: "提示条 警告 通知横幅", Category: "Feedback",
 		Demo: alertDemo,
 		Code: `open := true
-r := mujica.Alert(c, &open, "The archive could not be read.", mujica.AlertOptions{
-	Severity: mujica.SeverityError,
+r := feedback.Alert(c, &open, "The archive could not be read.", feedback.AlertOptions{
+	Severity: core.SeverityError,
 	Title:    "Import failed",
 	Action:   "Retry",
 })
@@ -18,11 +18,11 @@ if r.Action {
 	{
 		ID: "092", Name: "Toast", ZhName: "轻提示 消息队列 吐司", Category: "Feedback",
 		Demo: toastDemo,
-		Code: `if mujica.Button(c, "Delete note", mujica.ButtonOptions{Variant: mujica.Danger}).Clicked() {
-	mujica.ShowToast(c, mujica.ToastMessage{ID: "note-1", Message: "Note deleted", Action: "Undo"})
+		Code: `if input.Button(c, "Delete note", input.ButtonOptions{Variant: input.Danger}).Clicked() {
+	feedback.ShowToast(c, feedback.ToastMessage{ID: "note-1", Message: "Note deleted", Action: "Undo"})
 }
 // Last in the view:
-if r := mujica.Toaster(c); r.Action == "note-1" {
+if r := feedback.Toaster(c); r.Action == "note-1" {
 	// restore the note
 }`,
 		Keys: "Toasts never take the focus. Tab reaches their buttons after the page; Escape closes the focused toast. Hover or focus pauses its timer.",
@@ -30,9 +30,9 @@ if r := mujica.Toaster(c); r.Action == "note-1" {
 	{
 		ID: "093", Name: "Progress", ZhName: "进度条 环形进度 计量条", Category: "Feedback",
 		Demo: progressDemo,
-		Code: `mujica.Progress(c, 0.62, mujica.ProgressOptions{Label: "Uploading", ShowValue: true})
-mujica.Progress(c, 0, mujica.ProgressOptions{Shape: mujica.ProgressRing, Indeterminate: true, Label: "Connecting"})
-mujica.Meter(c, 93, mujica.MeterOptions{
+		Code: `feedback.Progress(c, 0.62, feedback.ProgressOptions{Label: "Uploading", ShowValue: true})
+feedback.Progress(c, 0, feedback.ProgressOptions{Shape: feedback.ProgressRing, Indeterminate: true, Label: "Connecting"})
+feedback.Meter(c, 93, feedback.MeterOptions{
 	Max: 100, Label: "Disk", ShowValue: true,
 	Levels: &ui.MeterLevels{Warning: 70, Critical: 90},
 })`,
@@ -41,16 +41,16 @@ mujica.Meter(c, 93, mujica.MeterOptions{
 	{
 		ID: "094", Name: "Spinner", ZhName: "加载标记 加载中 转圈", Category: "Feedback",
 		Demo: spinnerDemo,
-		Code: `mujica.Spinner(c, mujica.SpinnerOptions{Size: 20, Label: "Syncing", ShowLabel: true})`,
+		Code: `core.Spinner(c, core.SpinnerOptions{Size: 20, Label: "Syncing", ShowLabel: true})`,
 		Keys: "Not focusable; read as an indeterminate progress indicator named by Label.",
 	},
 	{
 		ID: "095", Name: "Skeleton", ZhName: "骨架屏 占位", Category: "Feedback",
 		Demo: skeletonDemo,
 		Code: `ui.Row(c).Gap(12).Children(func() {
-	mujica.Skeleton(c, mujica.SkeletonOptions{Shape: mujica.SkeletonCircle})
+	feedback.Skeleton(c, feedback.SkeletonOptions{Shape: feedback.SkeletonCircle})
 	ui.Column(c).Grow(1).Children(func() {
-		mujica.Skeleton(c, mujica.SkeletonOptions{Lines: 2})
+		feedback.Skeleton(c, feedback.SkeletonOptions{Lines: 2})
 	})
 })`,
 		Keys: "Decorative; not focusable and hidden from assistive technology.",
@@ -58,8 +58,8 @@ mujica.Meter(c, 93, mujica.MeterOptions{
 	{
 		ID: "096", Name: "EmptyState", ZhName: "空状态 无数据 无搜索结果", Category: "Feedback",
 		Demo: emptyStateDemo,
-		Code: `r := mujica.EmptyState(c, mujica.EmptyStateOptions{
-	Kind:   mujica.EmptyNoResults,
+		Code: `r := feedback.EmptyState(c, feedback.EmptyStateOptions{
+	Kind:   feedback.EmptyNoResults,
 	Query:  query,
 	Action: "Clear search",
 })
@@ -71,8 +71,8 @@ if r.Action {
 	{
 		ID: "097", Name: "Result", ZhName: "结果页 成功 失败 无权限", Category: "Feedback",
 		Demo: resultDemo,
-		Code: `r := mujica.Result(c, mujica.ResultOptions{
-	Kind:        mujica.ResultForbidden,
+		Code: `r := feedback.Result(c, feedback.ResultOptions{
+	Kind:        feedback.ResultForbidden,
 	Description: "You need the Editor role to change billing.",
 	Actions:     []string{"Request access", "Go back"},
 })
@@ -85,14 +85,14 @@ case 1: // navigate back
 	{
 		ID: "098", Name: "StatusIndicator", ZhName: "状态标记 在线 离线", Category: "Feedback",
 		Demo: statusDemo,
-		Code: `mujica.StatusIndicator(c, mujica.StatusSuccess, mujica.StatusIndicatorOptions{Label: "API online"})
-mujica.StatusIndicator(c, mujica.StatusOffline, mujica.StatusIndicatorOptions{})`,
+		Code: `feedback.StatusIndicator(c, feedback.StatusSuccess, feedback.StatusIndicatorOptions{Label: "API online"})
+feedback.StatusIndicator(c, feedback.StatusOffline, feedback.StatusIndicatorOptions{})`,
 		Keys: "Not focusable; read as a status with its word.",
 	},
 	{
 		ID: "099", Name: "NotificationCenter", ZhName: "通知中心 消息列表", Category: "Feedback",
 		Demo: notificationDemo,
-		Code: `r := mujica.NotificationCenter(c, &items, mujica.NotificationCenterOptions{})
+		Code: `r := feedback.NotificationCenter(c, &items, feedback.NotificationCenterOptions{})
 if r.Action == "a" {
 	// open the build log
 }`,
@@ -101,9 +101,9 @@ if r.Action == "a" {
 	{
 		ID: "100", Name: "LoadingOverlay", ZhName: "加载遮罩 区域加载", Category: "Feedback",
 		Demo: loadingOverlayDemo,
-		Code: `r := mujica.LoadingOverlay(c, loading, mujica.LoadingOverlayOptions{Cancel: "Cancel"}, func() {
+		Code: `r := feedback.LoadingOverlay(c, loading, feedback.LoadingOverlayOptions{Cancel: "Cancel"}, func() {
 	ui.Text(c, "Quarterly report")
-	mujica.Button(c, "Export", mujica.ButtonOptions{})
+	input.Button(c, "Export", input.ButtonOptions{})
 })
 if r.Canceled {
 	loading = false

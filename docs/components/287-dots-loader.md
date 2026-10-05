@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.DotsLoader(c, mujica.LoaderOptions{Label: "Thinking", ShowLabel: true})
+	core.Use(c, core.Settings{})
+	feedback.DotsLoader(c, feedback.LoaderOptions{Label: "Thinking", ShowLabel: true})
 }
 ui.Render(view, 400, 300, 1)
 ```

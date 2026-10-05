@@ -7,14 +7,14 @@
 ## 最小示例
 
 ```go
-draft := mujica.MailDraft{To: []string{"uika@example.com"}}
+draft := messaging.MailDraft{To: []string{"uika@example.com"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.MailComposer(c, &draft, mujica.MailComposerOptions{
-		OnSaveDraft: func(d mujica.MailDraft) {}, // store d
+	core.Use(c, core.Settings{})
+	r := messaging.MailComposer(c, &draft, messaging.MailComposerOptions{
+		OnSaveDraft: func(d messaging.MailDraft) {}, // store d
 	})
 	if r.Sent {
-		draft = mujica.MailDraft{}
+		draft = messaging.MailDraft{}
 	}
 }
 ui.Render(view, 400, 300, 1)

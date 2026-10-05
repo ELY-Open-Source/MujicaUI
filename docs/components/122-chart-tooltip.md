@@ -8,9 +8,9 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	k := mujica.Tokens(c)
-	mujica.ChartTooltip(c, 40, 40, []mujica.ChartTooltipLine{{Text: "Lauds"}, {Text: "Pews 5", Color: k.Info}, {Text: "Candles 2", Color: k.Success, Shape: 1}})
+	core.Use(c, core.Settings{})
+	k := core.Tokens(c)
+	chart.ChartTooltip(c, 40, 40, []chart.ChartTooltipLine{{Text: "Lauds"}, {Text: "Pews 5", Color: k.Info}, {Text: "Candles 2", Color: k.Success, Shape: 1}})
 }
 ui.Render(view, 400, 200, 1)
 ```

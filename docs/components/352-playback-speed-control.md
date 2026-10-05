@@ -9,8 +9,8 @@
 ```go
 rate := 1.0
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.PlaybackSpeedControl(c, &rate, mujica.PlaybackSpeedControlOptions{})
+	core.Use(c, core.Settings{})
+	media.PlaybackSpeedControl(c, &rate, media.PlaybackSpeedControlOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

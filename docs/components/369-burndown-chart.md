@@ -8,10 +8,10 @@
 
 ```go
 remaining := []float64{40, 32, 25, 18}
-opts := mujica.BurndownChartOptions{Frame: mujica.ChartFrame{Label: "Release burndown"}, Start: mujica.Date{Year: 2026, Month: 10, Day: 1}, End: mujica.Date{Year: 2026, Month: 10, Day: 14}, Total: 40}
+opts := project.BurndownChartOptions{Frame: chart.ChartFrame{Label: "Release burndown"}, Start: core.Date{Year: 2026, Month: 10, Day: 1}, End: core.Date{Year: 2026, Month: 10, Day: 14}, Total: 40}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.BurndownChart(c, remaining, opts)
+	core.Use(c, core.Settings{})
+	r := project.BurndownChart(c, remaining, opts)
 	if r.Changed() {
 		log.Println("point", r.Point)
 	}

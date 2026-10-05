@@ -9,10 +9,10 @@
 ## 最小示例
 
 ```go
-var state mujica.FeedbackWidgetState
+var state account.FeedbackWidgetState
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if f, ok := mujica.FeedbackWidget(c, &state, mujica.FeedbackWidgetOptions{}).Submitted(); ok {
+	core.Use(c, core.Settings{})
+	if f, ok := account.FeedbackWidget(c, &state, account.FeedbackWidgetOptions{}).Submitted(); ok {
 		fmt.Println("send", f.Kind)
 		state.EndSubmit("")
 	}

@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-var cites mujica.CitationState
-sources := []mujica.Source{{Title: "Hall of Mirrors", URL: "https://example.org/hall"}}
+var cites chat.CitationState
+sources := []chat.Source{{Title: "Hall of Mirrors", URL: "https://example.org/hall"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if n, ok := mujica.SourcesPanel(c, sources, &cites).Opened(); ok {
+	core.Use(c, core.Settings{})
+	if n, ok := chat.SourcesPanel(c, sources, &cites).Opened(); ok {
 		fmt.Println("open", sources[n-1].URL)
 	}
 }

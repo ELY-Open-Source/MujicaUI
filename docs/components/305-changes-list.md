@@ -7,14 +7,14 @@
 ## 最小示例
 
 ```go
-var state mujica.ChangesListState
-files := []mujica.ChangedFile{
-	{Path: "main.go", Status: mujica.GitModified, Staged: true},
-	{Path: "notes.txt", Status: mujica.GitUntracked},
+var state git.ChangesListState
+files := []git.ChangedFile{
+	{Path: "main.go", Status: git.GitModified, Staged: true},
+	{Path: "notes.txt", Status: git.GitUntracked},
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.ChangesList(c, &state, files, mujica.ChangesListOptions{})
+	core.Use(c, core.Settings{})
+	r := git.ChangesList(c, &state, files, git.ChangesListOptions{})
 	r.Element.Height(240)
 	if action, path, ok := r.Action(); ok {
 		_, _ = action, path // run git add or git restore --staged

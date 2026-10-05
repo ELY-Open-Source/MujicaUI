@@ -8,8 +8,8 @@ import (
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
-	"mujicaui/icons"
+	"github.com/ZacharyZhang-NY/MujicaUI/icons"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
 )
 
 // formStates shows a component's states side by side.
@@ -30,7 +30,7 @@ func formToggles(c *ui.Context, names []string, values ...*bool) {
 }
 
 type formDemo struct {
-	st                     mujica.FormState
+	st                     input.FormState
 	name, email            string
 	tags                   []string
 	horizontal, slowServer bool
@@ -75,7 +75,7 @@ type pickerDemo struct {
 }
 
 type dropDemo struct {
-	files    []mujica.DroppedFile
+	files    []input.DroppedFile
 	images   bool
 	disabled bool
 }
@@ -85,7 +85,7 @@ type transferDemo struct {
 	disabled bool
 }
 
-var transferDemoItems = []mujica.TransferItem{
+var transferDemoItems = []input.TransferItem{
 	{ID: "sakiko", Label: "Sakiko Togawa"}, {ID: "uika", Label: "Uika Misumi"}, {ID: "mutsumi", Label: "Mutsumi Wakaba"},
 	{ID: "umiri", Label: "Umiri Yahata"}, {ID: "nyamu", Label: "Nyamu Yutenji"}, {ID: "tomori", Label: "Tomori Takamatsu", Disabled: true},
 	{ID: "anon", Label: "Anon Chihaya"}, {ID: "rana", Label: "Rana Kaname"}, {ID: "soyo", Label: "Soyo Nagasaki"},
@@ -117,8 +117,8 @@ var formPages = []page{
 				}
 			}
 			formToggles(c, []string{"Labels beside fields", "Server rejects the submit"}, &d.horizontal, &d.slowServer)
-			res := mujica.Form(c, &d.st, mujica.FormOptions{Horizontal: d.horizontal}, func(f *mujica.FormScope) {
-				mujica.FormItem(c, f, "name", &d.name, mujica.FormItemOptions[string]{Label: "Stage name", Required: true, Initial: "Sakiko",
+			res := input.Form(c, &d.st, input.FormOptions{Horizontal: d.horizontal}, func(f *input.FormScope) {
+				input.FormItem(c, f, "name", &d.name, input.FormItemOptions[string]{Label: "Stage name", Required: true, Initial: "Sakiko",
 					Description: "Checked against the archive; \"Oblivionis\" is taken.",
 					Async: func(v string, version uint64) {
 						log(fmt.Sprintf("async check started v%d", version))
@@ -132,23 +132,23 @@ var formPages = []page{
 							c.Invalidate()
 						}()
 					}}, func() *ui.Element {
-					return mujica.InputGroup(c, &d.name, mujica.InputGroupOptions{Invalid: d.st.Error("name") != ""}).Input
+					return input.InputGroup(c, &d.name, input.InputGroupOptions{Invalid: d.st.Error("name") != ""}).Input
 				})
-				mujica.FormItem(c, f, "email", &d.email, mujica.FormItemOptions[string]{Label: "Email", Required: true,
+				input.FormItem(c, f, "email", &d.email, input.FormItemOptions[string]{Label: "Email", Required: true,
 					Validate: func(v string) string {
 						if !strings.Contains(v, "@") {
 							return "Enter an email address."
 						}
 						return ""
 					}}, func() *ui.Element {
-					g := mujica.InputGroup(c, &d.email, mujica.InputGroupOptions{Invalid: d.st.Error("email") != ""})
+					g := input.InputGroup(c, &d.email, input.InputGroupOptions{Invalid: d.st.Error("email") != ""})
 					if g.Submitted() {
 						d.st.Submit()
 					}
 					return g.Input
 				})
-				mujica.FormItem(c, f, "tags", &d.tags, mujica.FormItemOptions[[]string]{Label: "Roles", Required: true, Initial: []string{"keyboard"}}, func() *ui.Element {
-					return mujica.TagsInput(c, &d.tags, mujica.TagsInputOptions{Max: 4, Invalid: d.st.Error("tags") != ""}).Input
+				input.FormItem(c, f, "tags", &d.tags, input.FormItemOptions[[]string]{Label: "Roles", Required: true, Initial: []string{"keyboard"}}, func() *ui.Element {
+					return input.TagsInput(c, &d.tags, input.TagsInputOptions{Max: 4, Invalid: d.st.Error("tags") != ""}).Input
 				})
 			})
 			if res.Submitted() {
@@ -176,9 +176,9 @@ var formPages = []page{
 			if d.withError {
 				e = "This name is already in the guest list."
 			}
-			mujica.FormField(c, "Guest name", mujica.FormFieldOptions{Required: d.required, Horizontal: d.horizontal,
+			input.FormField(c, "Guest name", input.FormFieldOptions{Required: d.required, Horizontal: d.horizontal,
 				Description: "As written on the invitation.", Error: e}, func() *ui.Element {
-				g := mujica.InputGroup(c, &d.value, mujica.InputGroupOptions{Invalid: d.withError})
+				g := input.InputGroup(c, &d.value, input.InputGroupOptions{Invalid: d.withError})
 				if g.Changed() {
 					log(fmt.Sprintf("value %q", d.value))
 				}
@@ -190,9 +190,9 @@ var formPages = []page{
 		Demo: func(c *ui.Context, log func(string)) {
 			d := ui.Local(c.Root(), "043", func() groupDemo { return groupDemo{value: "mujica"} })
 			formToggles(c, []string{"Disabled", "Read-only", "Invalid"}, &d.disabled, &d.readOnly, &d.invalid)
-			opts := mujica.InputGroupOptions{Prefix: "https://", Suffix: ".org", Label: "Site", Disabled: d.disabled, ReadOnly: d.readOnly, Invalid: d.invalid,
-				Buttons: []mujica.InputGroupButton{{Label: "Clear", Icon: icons.Must("x"), IconOnly: true}, {Label: "Copy", Icon: icons.Must("copy")}}}
-			g := mujica.InputGroup(c, &d.value, opts)
+			opts := input.InputGroupOptions{Prefix: "https://", Suffix: ".org", Label: "Site", Disabled: d.disabled, ReadOnly: d.readOnly, Invalid: d.invalid,
+				Buttons: []input.InputGroupButton{{Label: "Clear", Icon: icons.Must("x"), IconOnly: true}, {Label: "Copy", Icon: icons.Must("copy")}}}
+			g := input.InputGroup(c, &d.value, opts)
 			switch g.Clicked {
 			case 0:
 				d.value = ""
@@ -208,9 +208,9 @@ var formPages = []page{
 				log("submitted")
 			}
 			formStates(c, func() {
-				for _, o := range []mujica.InputGroupOptions{{Label: "Disabled", Disabled: true}, {Label: "Read-only", ReadOnly: true}, {Label: "Invalid", Invalid: true}} {
+				for _, o := range []input.InputGroupOptions{{Label: "Disabled", Disabled: true}, {Label: "Read-only", ReadOnly: true}, {Label: "Invalid", Invalid: true}} {
 					v := o.Label
-					mujica.InputGroup(c, &v, o)
+					input.InputGroup(c, &v, o)
 				}
 			})
 		}},
@@ -226,7 +226,7 @@ var formPages = []page{
 			if len(d.code) > n {
 				d.code = d.code[:n]
 			}
-			p := mujica.PinInput(c, &d.code, mujica.PinInputOptions{Length: n, Disabled: d.disabled, Invalid: d.invalid})
+			p := input.PinInput(c, &d.code, input.PinInputOptions{Length: n, Disabled: d.disabled, Invalid: d.invalid})
 			if p.Changed() {
 				log(fmt.Sprintf("code %q", d.code))
 			}
@@ -235,8 +235,8 @@ var formPages = []page{
 			}
 			formStates(c, func() {
 				a, b := "12", "0420"
-				mujica.PinInput(c, &a, mujica.PinInputOptions{Length: 4, Disabled: true, Label: "Disabled code"})
-				mujica.PinInput(c, &b, mujica.PinInputOptions{Length: 4, Invalid: true, Label: "Invalid code"})
+				input.PinInput(c, &a, input.PinInputOptions{Length: 4, Disabled: true, Label: "Disabled code"})
+				input.PinInput(c, &b, input.PinInputOptions{Length: 4, Invalid: true, Label: "Invalid code"})
 			})
 		}},
 	{ID: "045", Name: "TagsInput", ZhName: "标签输入", Category: "Forms", Code: formCode["TagsInput"],
@@ -244,7 +244,7 @@ var formPages = []page{
 		Demo: func(c *ui.Context, log func(string)) {
 			d := ui.Local(c.Root(), "045", func() tagsDemo { return tagsDemo{tags: []string{"rose", "thorn"}} })
 			formToggles(c, []string{"At most 5", "Disabled"}, &d.limit, &d.disabled)
-			opts := mujica.TagsInputOptions{Placeholder: "Add a flower", Label: "Flowers", Disabled: d.disabled,
+			opts := input.TagsInputOptions{Placeholder: "Add a flower", Label: "Flowers", Disabled: d.disabled,
 				Validate: func(s string) string {
 					if len([]rune(s)) > 16 {
 						return "Keep tags under 16 characters."
@@ -254,7 +254,7 @@ var formPages = []page{
 			if d.limit {
 				opts.Max = 5
 			}
-			if mujica.TagsInput(c, &d.tags, opts).Changed() {
+			if input.TagsInput(c, &d.tags, opts).Changed() {
 				log(fmt.Sprintf("tags %q", d.tags))
 			}
 		}},
@@ -270,13 +270,13 @@ var formPages = []page{
 			if !d.half {
 				d.value = float64(int(d.value + 0.5))
 			}
-			if mujica.Rating(c, &d.value, mujica.RatingOptions{Step: step, ReadOnly: d.readOnly, Disabled: d.disabled, ShowValue: true}).Changed() {
+			if input.Rating(c, &d.value, input.RatingOptions{Step: step, ReadOnly: d.readOnly, Disabled: d.disabled, ShowValue: true}).Changed() {
 				log(fmt.Sprintf("rating %v", d.value))
 			}
 			formStates(c, func() {
 				a, b := 4.5, 2.0
-				mujica.Rating(c, &a, mujica.RatingOptions{Step: 0.5, ReadOnly: true, Label: "Read-only rating"})
-				mujica.Rating(c, &b, mujica.RatingOptions{Disabled: true, Label: "Disabled rating"})
+				input.Rating(c, &a, input.RatingOptions{Step: 0.5, ReadOnly: true, Label: "Read-only rating"})
+				input.Rating(c, &b, input.RatingOptions{Disabled: true, Label: "Disabled rating"})
 			})
 		}},
 	{ID: "047", Name: "ColorPicker", ZhName: "颜色选择器", Category: "Forms", Code: formCode["ColorPicker"],
@@ -284,7 +284,7 @@ var formPages = []page{
 		Demo: func(c *ui.Context, log func(string)) {
 			d := ui.Local(c.Root(), "047", func() colorDemo { return colorDemo{color: ui.Hex("#7D2034")} })
 			formToggles(c, []string{"Disabled"}, &d.disabled)
-			if mujica.ColorPicker(c, &d.color, mujica.ColorPickerOptions{Label: "Banner color", Disabled: d.disabled}).Changed() {
+			if input.ColorPicker(c, &d.color, input.ColorPickerOptions{Label: "Banner color", Disabled: d.disabled}).Changed() {
 				log(fmt.Sprintf("color %v", d.color))
 			}
 		}},
@@ -293,11 +293,11 @@ var formPages = []page{
 		Demo: func(c *ui.Context, log func(string)) {
 			d := ui.Local(c.Root(), "048", func() pickerDemo { return pickerDemo{multiple: true} })
 			formToggles(c, []string{"Folders", "Multiple", "PDF and MIDI only", "Disabled"}, &d.directory, &d.multiple, &d.filter, &d.disabled)
-			opts := mujica.FilePickerOptions{Directory: d.directory, Multiple: d.multiple, Disabled: d.disabled, Title: "Choose scores"}
+			opts := input.FilePickerOptions{Directory: d.directory, Multiple: d.multiple, Disabled: d.disabled, Title: "Choose scores"}
 			if d.filter {
 				opts.Filters = []mygo.FileFilter{{Name: "Scores", Extensions: []string{"pdf", "mid"}}}
 			}
-			p := mujica.FilePicker(c, &d.paths, opts)
+			p := input.FilePicker(c, &d.paths, opts)
 			if p.Changed() {
 				log(fmt.Sprintf("picked %d: %q", len(d.paths), d.paths))
 			}
@@ -310,11 +310,11 @@ var formPages = []page{
 		Demo: func(c *ui.Context, log func(string)) {
 			d := ui.Local(c.Root(), "049", func() dropDemo { return dropDemo{} })
 			formToggles(c, []string{"Images only", "Disabled"}, &d.images, &d.disabled)
-			opts := mujica.FileDropZoneOptions{MaxFiles: 4, MaxSize: 10 << 20, Disabled: d.disabled}
+			opts := input.FileDropZoneOptions{MaxFiles: 4, MaxSize: 10 << 20, Disabled: d.disabled}
 			if d.images {
 				opts.Extensions = []string{"png", "jpg", "jpeg", "gif"}
 			}
-			if mujica.FileDropZone(c, &d.files, opts).Changed() {
+			if input.FileDropZone(c, &d.files, opts).Changed() {
 				log(fmt.Sprintf("files %d", len(d.files)))
 			}
 		}},
@@ -323,7 +323,7 @@ var formPages = []page{
 		Demo: func(c *ui.Context, log func(string)) {
 			d := ui.Local(c.Root(), "050", func() transferDemo { return transferDemo{chosen: []string{"sakiko"}} })
 			formToggles(c, []string{"Disabled"}, &d.disabled)
-			if mujica.Transfer(c, &d.chosen, transferDemoItems, mujica.TransferOptions{SourceTitle: "Auditions", TargetTitle: "Band", Disabled: d.disabled}).Changed() {
+			if input.Transfer(c, &d.chosen, transferDemoItems, input.TransferOptions{SourceTitle: "Auditions", TargetTitle: "Band", Disabled: d.disabled}).Changed() {
 				log(fmt.Sprintf("band %q", d.chosen))
 			}
 		}},
@@ -331,13 +331,13 @@ var formPages = []page{
 
 // formCode holds each page's copyable snippet, the same as its doc and Example.
 var formCode = map[string]string{
-	"Form": `var state mujica.FormState
+	"Form": `var state input.FormState
 name := ""
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	res := mujica.Form(c, &state, mujica.FormOptions{}, func(f *mujica.FormScope) {
-		mujica.FormItem(c, f, "name", &name, mujica.FormItemOptions[string]{Label: "Name", Required: true}, func() *ui.Element {
-			return mujica.InputGroup(c, &name, mujica.InputGroupOptions{Invalid: state.Error("name") != ""}).Input
+	core.Use(c, core.Settings{})
+	res := input.Form(c, &state, input.FormOptions{}, func(f *input.FormScope) {
+		input.FormItem(c, f, "name", &name, input.FormItemOptions[string]{Label: "Name", Required: true}, func() *ui.Element {
+			return input.InputGroup(c, &name, input.InputGroupOptions{Invalid: state.Error("name") != ""}).Input
 		})
 	})
 	if res.Submitted() {
@@ -347,18 +347,18 @@ view := func(c *ui.Context) {
 ui.Render(view, 400, 300, 1)`,
 	"FormField": `email := ""
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.FormField(c, "Email", mujica.FormFieldOptions{Required: true, Description: "For receipts."}, func() *ui.Element {
-		return mujica.InputGroup(c, &email, mujica.InputGroupOptions{}).Input
+	core.Use(c, core.Settings{})
+	input.FormField(c, "Email", input.FormFieldOptions{Required: true, Description: "For receipts."}, func() *ui.Element {
+		return input.InputGroup(c, &email, input.InputGroupOptions{}).Input
 	})
 }
 ui.Render(view, 400, 300, 1)`,
 	"InputGroup": `site := ""
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	g := mujica.InputGroup(c, &site, mujica.InputGroupOptions{
+	core.Use(c, core.Settings{})
+	g := input.InputGroup(c, &site, input.InputGroupOptions{
 		Prefix: "https://", Label: "Site",
-		Buttons: []mujica.InputGroupButton{{Label: "Open"}},
+		Buttons: []input.InputGroupButton{{Label: "Open"}},
 	})
 	if g.Clicked == 0 {
 		c.OpenURL("https://" + site)
@@ -367,52 +367,52 @@ view := func(c *ui.Context) {
 ui.Render(view, 400, 300, 1)`,
 	"PinInput": `code := ""
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.PinInput(c, &code, mujica.PinInputOptions{Length: 6}).Completed() {
+	core.Use(c, core.Settings{})
+	if input.PinInput(c, &code, input.PinInputOptions{Length: 6}).Completed() {
 		fmt.Println("verify", code)
 	}
 }
 ui.Render(view, 400, 300, 1)`,
 	"TagsInput": `tags := []string{"gothic"}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.TagsInput(c, &tags, mujica.TagsInputOptions{Max: 5, Placeholder: "Add a tag", Label: "Tags"})
+	core.Use(c, core.Settings{})
+	input.TagsInput(c, &tags, input.TagsInputOptions{Max: 5, Placeholder: "Add a tag", Label: "Tags"})
 }
 ui.Render(view, 400, 300, 1)`,
 	"Rating": `stars := 3.5
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Rating(c, &stars, mujica.RatingOptions{Step: 0.5, ShowValue: true})
+	core.Use(c, core.Settings{})
+	input.Rating(c, &stars, input.RatingOptions{Step: 0.5, ShowValue: true})
 }
 ui.Render(view, 400, 300, 1)`,
 	"ColorPicker": `tint := ui.Hex("#7D2034")
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ColorPicker(c, &tint, mujica.ColorPickerOptions{Label: "Tint"})
+	core.Use(c, core.Settings{})
+	input.ColorPicker(c, &tint, input.ColorPickerOptions{Label: "Tint"})
 }
 ui.Render(view, 400, 300, 1)`,
 	"FilePicker": `var paths []string
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.FilePicker(c, &paths, mujica.FilePickerOptions{
+	core.Use(c, core.Settings{})
+	input.FilePicker(c, &paths, input.FilePickerOptions{
 		Multiple: true,
 		Filters:  []mygo.FileFilter{{Name: "Scores", Extensions: []string{"pdf", "mid"}}},
 	})
 }
 ui.Render(view, 400, 300, 1)`,
-	"FileDropZone": `var files []mujica.DroppedFile
+	"FileDropZone": `var files []input.DroppedFile
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.FileDropZone(c, &files, mujica.FileDropZoneOptions{
+	core.Use(c, core.Settings{})
+	input.FileDropZone(c, &files, input.FileDropZoneOptions{
 		Extensions: []string{"png", "jpg"}, MaxFiles: 3, MaxSize: 5 << 20,
 	})
 }
 ui.Render(view, 400, 300, 1)`,
 	"Transfer": `chosen := []string{"uika"}
-items := []mujica.TransferItem{{ID: "uika", Label: "Uika"}, {ID: "mutsumi", Label: "Mutsumi"}, {ID: "nyamu", Label: "Nyamu", Disabled: true}}
+items := []input.TransferItem{{ID: "uika", Label: "Uika"}, {ID: "mutsumi", Label: "Mutsumi"}, {ID: "nyamu", Label: "Nyamu", Disabled: true}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Transfer(c, &chosen, items, mujica.TransferOptions{})
+	core.Use(c, core.Settings{})
+	input.Transfer(c, &chosen, items, input.TransferOptions{})
 }
 ui.Render(view, 400, 300, 1)`,
 }

@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-bps := []mujica.Breakpoint{{ID: "a", File: "court/seal.go", Line: 12, Enabled: true}, {ID: "b", File: "main.go", Line: 9, Condition: "n > 3"}}
+bps := []code.Breakpoint{{ID: "a", File: "court/seal.go", Line: 12, Enabled: true}, {ID: "b", File: "main.go", Line: 9, Condition: "n > 3"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.BreakpointList(c, &bps, mujica.BreakpointListOptions{})
+	core.Use(c, core.Settings{})
+	r := code.BreakpointList(c, &bps, code.BreakpointListOptions{})
 	r.Element.Height(200)
 	if r.Toggled != "" || r.Edited != "" {
 		fmt.Println("sync breakpoints with the debugger")

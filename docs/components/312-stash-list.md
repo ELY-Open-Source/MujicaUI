@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-var state mujica.ListState[string]
-stashes := []mujica.Stash{{Ref: "stash@{0}", Message: "WIP on main", Branch: "main"}}
+var state data.ListState[string]
+stashes := []git.Stash{{Ref: "stash@{0}", Message: "WIP on main", Branch: "main"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.StashList(c, &state, stashes, mujica.StashListOptions{})
+	core.Use(c, core.Settings{})
+	r := git.StashList(c, &state, stashes, git.StashListOptions{})
 	r.Element.Height(200)
 	if action, ref, ok := r.Action(); ok {
 		_, _ = action, ref // run git stash apply, pop or drop

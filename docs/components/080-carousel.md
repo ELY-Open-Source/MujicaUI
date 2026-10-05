@@ -9,8 +9,8 @@
 ```go
 index := 0
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Carousel(c, &index, 3, mujica.CarouselOptions{Label: "Windows", Autoplay: true}, func(i int) {
+	core.Use(c, core.Settings{})
+	data.Carousel(c, &index, 3, data.CarouselOptions{Label: "Windows", Autoplay: true}, func(i int) {
 		ui.Text(c, fmt.Sprintf("Rose window %d", i+1)).Padding(24)
 	}).Element.Size(360, 220)
 }

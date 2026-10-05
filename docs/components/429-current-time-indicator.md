@@ -8,9 +8,9 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
+	core.Use(c, core.Settings{})
 	ui.Box(c).Size(200, 240).Children(func() {
-		mujica.CurrentTimeIndicator(c, mujica.CurrentTimeIndicatorOptions{Location: time.Local})
+		datetime.CurrentTimeIndicator(c, datetime.CurrentTimeIndicatorOptions{Location: time.Local})
 	})
 }
 ui.Render(view, 400, 300, 1)

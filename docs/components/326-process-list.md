@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-procs := []mujica.Process{{PID: 7, Name: "archivist", CPU: 42, Memory: 50 << 20}, {PID: 9, Name: "herald", CPU: 3, Memory: 8 << 20}}
-var state mujica.ProcessListState
+procs := []code.Process{{PID: 7, Name: "archivist", CPU: 42, Memory: 50 << 20}, {PID: 9, Name: "herald", CPU: 3, Memory: 8 << 20}}
+var state code.ProcessListState
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.ProcessList(c, procs, &state, mujica.ProcessListOptions{})
+	core.Use(c, core.Settings{})
+	r := code.ProcessList(c, procs, &state, code.ProcessListOptions{})
 	r.Element.Height(240)
 	if r.End != nil {
 		fmt.Println("kill", r.End.PID)

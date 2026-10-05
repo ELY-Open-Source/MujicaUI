@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-var state mujica.ListState[string]
-tags := []mujica.GitTag{{Name: "v1.1.0", Target: "a1b2c3d4", Annotation: "Release"}}
+var state data.ListState[string]
+tags := []git.GitTag{{Name: "v1.1.0", Target: "a1b2c3d4", Annotation: "Release"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.TagList(c, &state, tags, mujica.TagListOptions{})
+	core.Use(c, core.Settings{})
+	r := git.TagList(c, &state, tags, git.TagListOptions{})
 	r.Element.Height(200)
 	if _, hash, ok := r.Action(); ok {
 		_ = hash // show the tagged commit

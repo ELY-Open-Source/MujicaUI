@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-value := mujica.PermissionView
+value := files.PermissionView
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.PermissionSelect(c, &value, mujica.PermissionSelectOptions{})
+	core.Use(c, core.Settings{})
+	files.PermissionSelect(c, &value, files.PermissionSelectOptions{})
 }
 ui.Render(view, 300, 100, 1)
 ```

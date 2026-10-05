@@ -2,20 +2,20 @@ package main
 
 // Media page snippets, each its compiled Example's body.
 const (
-	imageCropperCode = `crop := mujica.ImageCrop{} // empty: starts fitted to the image
+	imageCropperCode = `crop := media.ImageCrop{} // empty: starts fitted to the image
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.ImageCropper(c, examplePhoto, &crop, mujica.ImageCropperOptions{Aspect: 1}).Changed() {
+	core.Use(c, core.Settings{})
+	if media.ImageCropper(c, examplePhoto, &crop, media.ImageCropperOptions{Aspect: 1}).Changed() {
 		_ = crop.Rect // in pixels of the photo turned by crop.Rotation
 	}
 }
 ui.Render(view, 400, 300, 1)`
 	imageAnnotatorCode = `photo := ui.NewBitmap(examplePhoto)
-var notes []mujica.Annotation
+var notes []media.Annotation
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.ImageAnnotator(c, photo, &notes, mujica.ImageAnnotatorOptions{}).Changed() {
-		data, _ := mujica.ExportAnnotations(notes)
+	core.Use(c, core.Settings{})
+	if media.ImageAnnotator(c, photo, &notes, media.ImageAnnotatorOptions{}).Changed() {
+		data, _ := media.ExportAnnotations(notes)
 		_ = data // save the JSON
 	}
 }
@@ -23,26 +23,26 @@ ui.Render(view, 400, 300, 1)`
 	imageThumbnailCode = `photo := ui.NewBitmap(examplePhoto)
 selected := false
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.ImageThumbnail(c, photo, mujica.ImageThumbnailOptions{Alt: "Grand hall", Aspect: 4.0 / 3, Selected: selected}).Changed() {
+	core.Use(c, core.Settings{})
+	if media.ImageThumbnail(c, photo, media.ImageThumbnailOptions{Alt: "Grand hall", Aspect: 4.0 / 3, Selected: selected}).Changed() {
 		selected = !selected
 	}
 }
 ui.Render(view, 400, 300, 1)`
-	lightboxCode = `images := []mujica.ViewerImage{{Source: ui.NewBitmap(examplePhoto), Alt: "The grand hall"}}
+	lightboxCode = `images := []data.ViewerImage{{Source: ui.NewBitmap(examplePhoto), Alt: "The grand hall"}}
 open, index := false, 0
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.Button(c, "View photos", mujica.ButtonOptions{}).Clicked() {
+	core.Use(c, core.Settings{})
+	if input.Button(c, "View photos", input.ButtonOptions{}).Clicked() {
 		open = true
 	}
-	mujica.Lightbox(c, &open, &index, images)
+	media.Lightbox(c, &open, &index, images)
 }
 ui.Render(view, 400, 300, 1)`
-	videoPlayerCode = `st := mujica.VideoState{Duration: 4 * time.Minute, Rate: 1}
+	videoPlayerCode = `st := media.VideoState{Duration: 4 * time.Minute, Rate: 1}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.VideoPlayer(c, st, mujica.VideoPlayerOptions{
+	core.Use(c, core.Settings{})
+	media.VideoPlayer(c, st, media.VideoPlayerOptions{
 		OnPlay:  func() { st.Playing = true },  // start your decoder
 		OnPause: func() { st.Playing = false }, // pause it
 		OnSeek:  func(d time.Duration) { st.Position = d },
@@ -52,26 +52,26 @@ view := func(c *ui.Context) {
 ui.Render(view, 400, 300, 1)`
 	videoScrubberCode = `pos := 30 * time.Second
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.VideoScrubber(c, &pos, mujica.VideoScrubberOptions{
+	core.Use(c, core.Settings{})
+	media.VideoScrubber(c, &pos, media.VideoScrubberOptions{
 		Duration: 2 * time.Minute,
-		Buffered: []mujica.MediaRange{{Start: 0, End: time.Minute}},
+		Buffered: []media.MediaRange{{Start: 0, End: time.Minute}},
 	})
 }
 ui.Render(view, 400, 300, 1)`
-	videoStripCode = `frames := []mujica.StripFrame{{At: 0}, {At: 10 * time.Second}, {At: 20 * time.Second}}
+	videoStripCode = `frames := []media.StripFrame{{At: 0}, {At: 10 * time.Second}, {At: 20 * time.Second}}
 current := 0
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.VideoThumbnailStrip(c, &current, frames, mujica.VideoThumbnailStripOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if media.VideoThumbnailStrip(c, &current, frames, media.VideoThumbnailStripOptions{}).Changed() {
 		_ = frames[current].At // seek the player there
 	}
 }
 ui.Render(view, 400, 300, 1)`
-	audioPlayerCode = `st := mujica.AudioState{Title: "Overture", Duration: 3 * time.Minute}
+	audioPlayerCode = `st := media.AudioState{Title: "Overture", Duration: 3 * time.Minute}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.AudioPlayer(c, st, mujica.AudioPlayerOptions{
+	core.Use(c, core.Settings{})
+	media.AudioPlayer(c, st, media.AudioPlayerOptions{
 		OnPlay:  func() { st.Playing = true },
 		OnPause: func() { st.Playing = false },
 		OnSeek:  func(d time.Duration) { st.Position = d },
@@ -79,10 +79,10 @@ view := func(c *ui.Context) {
 }
 ui.Render(view, 400, 300, 1)`
 	audioWaveformCode = `samples := make([]float32, 48000) // from your decoder, -1 to 1
-pos, sel := time.Duration(0), mujica.MediaRange{}
+pos, sel := time.Duration(0), media.MediaRange{}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.AudioWaveform(c, samples, mujica.AudioWaveformOptions{
+	core.Use(c, core.Settings{})
+	media.AudioWaveform(c, samples, media.AudioWaveformOptions{
 		Duration: time.Second, Position: pos, Selection: &sel,
 		OnSeek: func(d time.Duration) { pos = d },
 	})
@@ -90,89 +90,89 @@ view := func(c *ui.Context) {
 ui.Render(view, 400, 300, 1)`
 	audioSpectrumCode = `bands := []float32{0.2, 0.6, 0.9, 0.4, 0.1} // set by your analyser, then c.Invalidate()
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.AudioSpectrum(c, bands, mujica.AudioSpectrumOptions{})
+	core.Use(c, core.Settings{})
+	media.AudioSpectrum(c, bands, media.AudioSpectrumOptions{})
 }
 ui.Render(view, 400, 300, 1)`
 	volumeCode = `volume, muted := 0.8, false
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.VolumeControl(c, &volume, &muted, mujica.VolumeControlOptions{})
+	core.Use(c, core.Settings{})
+	media.VolumeControl(c, &volume, &muted, media.VolumeControlOptions{})
 }
 ui.Render(view, 400, 300, 1)`
 	speedCode = `rate := 1.0
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.PlaybackSpeedControl(c, &rate, mujica.PlaybackSpeedControlOptions{})
+	core.Use(c, core.Settings{})
+	media.PlaybackSpeedControl(c, &rate, media.PlaybackSpeedControlOptions{})
 }
 ui.Render(view, 400, 300, 1)`
-	mediaControlsCode = `st := mujica.MediaControlsState{}
+	mediaControlsCode = `st := media.MediaControlsState{}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.MediaControls(c, st, mujica.MediaControlsOptions{
+	core.Use(c, core.Settings{})
+	media.MediaControls(c, st, media.MediaControlsOptions{
 		OnPrevious: func() {}, OnNext: func() {},
 		OnPlay: func() { st.Playing = true }, OnPause: func() { st.Playing = false },
-		OnLoop: func(m mujica.LoopMode) { st.Loop = m }, OnShuffle: func(on bool) { st.Shuffle = on },
+		OnLoop: func(m media.LoopMode) { st.Loop = m }, OnShuffle: func(on bool) { st.Shuffle = on },
 	})
 }
 ui.Render(view, 400, 300, 1)`
-	playlistCode = `items := []mujica.PlaylistItem{{ID: "a", Title: "Overture"}, {ID: "b", Title: "Masquerade"}}
+	playlistCode = `items := []media.PlaylistItem{{ID: "a", Title: "Overture"}, {ID: "b", Title: "Masquerade"}}
 current := "a"
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if r := mujica.Playlist(c, &items, mujica.PlaylistOptions{Current: current}); r.Played != "" {
+	core.Use(c, core.Settings{})
+	if r := media.Playlist(c, &items, media.PlaylistOptions{Current: current}); r.Played != "" {
 		current = r.Played
 	}
 }
 ui.Render(view, 400, 300, 1)`
-	subtitleCode = `cues := []mujica.SubtitleCue{{Start: 0, End: 2 * time.Second, Text: "The curtain rises."}}
+	subtitleCode = `cues := []media.SubtitleCue{{Start: 0, End: 2 * time.Second, Text: "The curtain rises."}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.SubtitleEditor(c, &cues, mujica.SubtitleEditorOptions{})
-	if len(mujica.CheckSubtitles(cues)) > 0 {
+	core.Use(c, core.Settings{})
+	media.SubtitleEditor(c, &cues, media.SubtitleEditorOptions{})
+	if len(media.CheckSubtitles(cues)) > 0 {
 		_ = cues // block saving until the issues are fixed
 	}
 }
 ui.Render(view, 400, 300, 1)`
-	recorderCode = `st := mujica.RecorderState{}
+	recorderCode = `st := media.RecorderState{}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ScreenRecorderControls(c, st, mujica.ScreenRecorderControlsOptions{
-		OnStart:  func() { st.Status = mujica.RecorderRecording },
-		OnPause:  func() { st.Status = mujica.RecorderPaused },
-		OnResume: func() { st.Status = mujica.RecorderRecording },
-		OnStop:   func() { st = mujica.RecorderState{} },
+	core.Use(c, core.Settings{})
+	media.ScreenRecorderControls(c, st, media.ScreenRecorderControlsOptions{
+		OnStart:  func() { st.Status = media.RecorderRecording },
+		OnPause:  func() { st.Status = media.RecorderPaused },
+		OnResume: func() { st.Status = media.RecorderRecording },
+		OnStop:   func() { st = media.RecorderState{} },
 	})
 }
 ui.Render(view, 400, 300, 1)`
-	cameraCode = `frame := mujica.CameraFrame{Image: examplePhoto, Seq: 1} // a new Seq for each captured frame
+	cameraCode = `frame := media.CameraFrame{Image: examplePhoto, Seq: 1} // a new Seq for each captured frame
 mirror := true
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.CameraPreview(c, frame, &mirror, mujica.CameraPreviewOptions{})
+	core.Use(c, core.Settings{})
+	media.CameraPreview(c, frame, &mirror, media.CameraPreviewOptions{})
 }
 ui.Render(view, 400, 300, 1)`
 	micCode = `level := float32(0.4) // the input's peak, 0 to 1 of full scale
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.MicLevelMeter(c, level, mujica.MicLevelMeterOptions{})
+	core.Use(c, core.Settings{})
+	media.MicLevelMeter(c, level, media.MicLevelMeterOptions{})
 }
 ui.Render(view, 400, 300, 1)`
-	deviceCode = `devices := mujica.MediaDevices{
-	Microphones: []mujica.MediaDevice{{ID: "mic-1", Name: "Built-in Microphone"}},
-	Speakers:    []mujica.MediaDevice{{ID: "out-1", Name: "Headphones"}},
+	deviceCode = `devices := media.MediaDevices{
+	Microphones: []media.MediaDevice{{ID: "mic-1", Name: "Built-in Microphone"}},
+	Speakers:    []media.MediaDevice{{ID: "out-1", Name: "Headphones"}},
 }
-sel := mujica.DeviceSelection{Microphone: "mic-1"}
+sel := media.DeviceSelection{Microphone: "mic-1"}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.DeviceSelector(c, &sel, devices, mujica.DeviceSelectorOptions{})
+	core.Use(c, core.Settings{})
+	media.DeviceSelector(c, &sel, devices, media.DeviceSelectorOptions{})
 }
 ui.Render(view, 400, 300, 1)`
 	compareCode = `before, after := ui.NewBitmap(examplePhoto), ui.NewBitmap(examplePhoto)
 split := 0.5
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ImageCompare(c, before, after, &split, mujica.ImageCompareOptions{})
+	core.Use(c, core.Settings{})
+	media.ImageCompare(c, before, after, &split, media.ImageCompareOptions{})
 }
 ui.Render(view, 400, 300, 1)`
 )

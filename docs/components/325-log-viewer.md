@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-lines := []mujica.LogLine{{Level: mujica.LogInfo, Text: "court opened"}, {Level: mujica.LogError, Text: "seal missing"}}
-var state mujica.LogViewerState
+lines := []code.LogLine{{Level: code.LogInfo, Text: "court opened"}, {Level: code.LogError, Text: "seal missing"}}
+var state code.LogViewerState
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.LogViewer(c, lines, &state, mujica.LogViewerOptions{}).Element.Height(240)
+	core.Use(c, core.Settings{})
+	code.LogViewer(c, lines, &state, code.LogViewerOptions{}).Element.Height(240)
 }
 ui.Render(view, 400, 300, 1)
 ```

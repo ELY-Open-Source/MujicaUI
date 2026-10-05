@@ -1,6 +1,8 @@
 package main
 
-import "github.com/egoist/mygo/ui"
+import (
+	"github.com/egoist/mygo/ui"
+)
 
 // keyCodes maps KeyboardEvent.code to MyGo keys.
 var keyCodes = map[string]ui.Key{

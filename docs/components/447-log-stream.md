@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-lines := []mujica.LogLine{{Level: mujica.LogInfo, Text: "server ready"}, {Level: mujica.LogWarn, Text: "slow query"}}
-var state mujica.LogStreamState
+lines := []code.LogLine{{Level: code.LogInfo, Text: "server ready"}, {Level: code.LogWarn, Text: "slow query"}}
+var state devtools.LogStreamState
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.LogStream(c, lines, &state, mujica.LogStreamOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if devtools.LogStream(c, lines, &state, devtools.LogStreamOptions{}).Changed() {
 		fmt.Println("filter changed")
 	}
 }

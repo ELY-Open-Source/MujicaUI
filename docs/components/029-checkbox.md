@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-mujica.CheckboxGroup(c, "Notifications", []mujica.CheckboxItem{
+input.CheckboxGroup(c, "Notifications", []input.CheckboxItem{
 	{Label: "Mail", Value: &mail},
 	{Label: "Calendar", Value: &calendar},
-}, mujica.CheckboxGroupOptions{})
+}, input.CheckboxGroupOptions{})
 ```
 
 签名：

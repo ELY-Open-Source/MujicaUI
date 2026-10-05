@@ -7,14 +7,14 @@
 ## 最小示例
 
 ```go
-text, mentions := "", []mujica.Mention(nil)
-people := []mujica.MentionCandidate{{ID: "u1", Name: "Alice"}, {ID: "u2", Name: "Bob"}}
+text, mentions := "", []input.Mention(nil)
+people := []input.MentionCandidate{{ID: "u1", Name: "Alice"}, {ID: "u2", Name: "Bob"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.MentionInput(c, &text, &mentions, mujica.MentionInputOptions{
+	core.Use(c, core.Settings{})
+	input.MentionInput(c, &text, &mentions, input.MentionInputOptions{
 		Label: "Comment",
-		Candidates: func(q string) []mujica.MentionCandidate {
-			var out []mujica.MentionCandidate
+		Candidates: func(q string) []input.MentionCandidate {
+			var out []input.MentionCandidate
 			for _, p := range people {
 				if strings.HasPrefix(strings.ToLower(p.Name), strings.ToLower(q)) {
 					out = append(out, p)

@@ -9,10 +9,10 @@
 ```go
 hidden := map[string]bool{}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	k := mujica.Tokens(c)
-	items := []mujica.ChartLegendItem{{Name: "Pews", Color: k.Info}, {Name: "Candles", Color: k.Success, Shape: 1}}
-	mujica.ChartLegend(c, &hidden, items, mujica.ChartLegendOptions{MaxItems: 1})
+	core.Use(c, core.Settings{})
+	k := core.Tokens(c)
+	items := []chart.ChartLegendItem{{Name: "Pews", Color: k.Info}, {Name: "Candles", Color: k.Success, Shape: 1}}
+	chart.ChartLegend(c, &hidden, items, chart.ChartLegendOptions{MaxItems: 1})
 }
 ui.Render(view, 400, 200, 1)
 ```

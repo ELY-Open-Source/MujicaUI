@@ -8,10 +8,10 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	data, err := mujica.ChartExport(c, func(c *ui.Context) {
-		mujica.SparkBar(c, []float64{3, -2, 5}, mujica.SparkBarOptions{Frame: mujica.ChartFrame{Label: "Alms"}})
-	}, mujica.ChartExportOptions{Width: 300, Height: 100, Scale: 2})
+	core.Use(c, core.Settings{})
+	data, err := chart.ChartExport(c, func(c *ui.Context) {
+		chart.SparkBar(c, []float64{3, -2, 5}, chart.SparkBarOptions{Frame: chart.ChartFrame{Label: "Alms"}})
+	}, chart.ChartExportOptions{Width: 300, Height: 100, Scale: 2})
 	if err != nil {
 		panic(err)
 	}

@@ -9,11 +9,11 @@
 ```go
 open := true
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.Button(c, "Delete archive", mujica.ButtonOptions{Variant: mujica.Danger}).Clicked() {
+	core.Use(c, core.Settings{})
+	if input.Button(c, "Delete archive", input.ButtonOptions{Variant: input.Danger}).Clicked() {
 		open = true
 	}
-	r := mujica.AlertDialog(c, &open, mujica.AlertDialogOptions{
+	r := overlay.AlertDialog(c, &open, overlay.AlertDialogOptions{
 		Title:       "Delete the archive?",
 		Description: "Twelve letters will be destroyed.",
 		ConfirmText: "archive",

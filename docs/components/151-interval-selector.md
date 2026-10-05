@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-	value := mujica.Interval("1h")
-	favorites := []mujica.Interval{"1m", "1h", "1D"}
+	value := chart.Interval("1h")
+	favorites := []chart.Interval{"1m", "1h", "1D"}
 	view := func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{})
-		mujica.IntervalSelector(c, &value, &favorites, mujica.IntervalSelectorOptions{})
+		core.Use(c, core.Settings{})
+		chart.IntervalSelector(c, &value, &favorites, chart.IntervalSelectorOptions{})
 	}
 	ui.Render(view, 640, 400, 1)
 ```

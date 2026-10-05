@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-items := []mujica.ContextItem{{ID: "f1", Label: "guests.csv", Kind: mujica.ContextFile}}
+items := []chat.ContextItem{{ID: "f1", Label: "guests.csv", Kind: chat.ContextFile}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if id, ok := mujica.ContextChips(c, items, mujica.ContextChipsOptions{}).Removed(); ok {
+	core.Use(c, core.Settings{})
+	if id, ok := chat.ContextChips(c, items, chat.ContextChipsOptions{}).Removed(); ok {
 		fmt.Println("detach", id)
 	}
 }

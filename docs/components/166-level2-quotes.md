@@ -9,13 +9,13 @@
 ## 最小示例
 
 ```go
-data := mujica.Level2Data{
-	Bids: []mujica.L2Level{{Price: 100.00, Size: 500, Orders: 12}},
-	Asks: []mujica.L2Level{{Price: 100.01, Size: 200, Orders: 3}},
+data := finance.Level2Data{
+	Bids: []finance.L2Level{{Price: 100.00, Size: 500, Orders: 12}},
+	Asks: []finance.L2Level{{Price: 100.01, Size: 200, Orders: 3}},
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Level2Quotes(c, data, mujica.Level2QuotesOptions{})
+	core.Use(c, core.Settings{})
+	finance.Level2Quotes(c, data, finance.Level2QuotesOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-alarm := mujica.TimeOfDay{Hour: 7, Minute: 30}
+alarm := datetime.TimeOfDay{Hour: 7, Minute: 30}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	opts := mujica.TimePickerOptions{Label: "Alarm", Hour12: true, MinuteStep: 5}
-	if mujica.TimePicker(c, &alarm, opts).Changed() {
+	core.Use(c, core.Settings{})
+	opts := datetime.TimePickerOptions{Label: "Alarm", Hour12: true, MinuteStep: 5}
+	if datetime.TimePicker(c, &alarm, opts).Changed() {
 		fmt.Println("alarm", alarm)
 	}
 }

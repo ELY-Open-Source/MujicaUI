@@ -7,8 +7,8 @@
 ## 最小示例
 
 ```go
-split := mujica.SplitPaneState{Size: 160}
-mujica.SplitPane(c, &split, mujica.SplitPaneOptions{MinFirst: 120, Collapsible: mujica.SplitPaneFirst},
+split := layout.SplitPaneState{Size: 160}
+layout.SplitPane(c, &split, layout.SplitPaneOptions{MinFirst: 120, Collapsible: layout.SplitPaneFirst},
 	func() { ui.Text(c, "Files") },
 	func() { ui.Text(c, "Editor") },
 ).Element.Fill()

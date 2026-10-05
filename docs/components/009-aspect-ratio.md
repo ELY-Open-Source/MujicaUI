@@ -8,7 +8,7 @@
 
 ```go
 ui.Box(c).Size(320, 240).Children(func() {
-	mujica.AspectRatio(c, mujica.AspectRatioOptions{Ratio: 16.0 / 9}, func() {
+	layout.AspectRatio(c, layout.AspectRatioOptions{Ratio: 16.0 / 9}, func() {
 		ui.Text(c, "16 : 9")
 	})
 })

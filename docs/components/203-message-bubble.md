@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-mujica.MessageBubble(c, mujica.MessageAssistant, mujica.MessageBubbleOptions{Name: "Herald"}, func() {
+chat.MessageBubble(c, chat.MessageAssistant, chat.MessageBubbleOptions{Name: "Herald"}, func() {
 	ui.Text(c, "The ball begins at nine.")
 })
 ```

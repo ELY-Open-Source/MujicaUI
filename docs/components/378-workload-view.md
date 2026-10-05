@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-loads := []mujica.Workload{{Member: mujica.ProjectMember{ID: "ann", Name: "Ann"}, Assigned: 46, Capacity: 40}}
+loads := []project.Workload{{Member: project.ProjectMember{ID: "ann", Name: "Ann"}, Assigned: 46, Capacity: 40}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.WorkloadView(c, loads, mujica.WorkloadViewOptions{})
+	core.Use(c, core.Settings{})
+	project.WorkloadView(c, loads, project.WorkloadViewOptions{})
 }
 ui.Render(view, 1000, 700, 1)
 ```

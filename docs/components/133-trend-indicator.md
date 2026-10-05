@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.TrendIndicator(c, 12.5, mujica.TrendIndicatorOptions{Precision: 1, Unit: "%", Note: "vs Lent"})
+	core.Use(c, core.Settings{})
+	chart.TrendIndicator(c, 12.5, chart.TrendIndicatorOptions{Precision: 1, Unit: "%", Note: "vs Lent"})
 }
 ui.Render(view, 400, 100, 1)
 ```

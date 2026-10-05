@@ -8,10 +8,10 @@
 
 ```go
 year := 2026
-values := map[mujica.Date]float64{{Year: 2026, Month: time.March, Day: 4}: 5}
+values := map[core.Date]float64{{Year: 2026, Month: time.March, Day: 4}: 5}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.CalendarHeatmap(c, &year, values, mujica.CalendarHeatmapOptions{Frame: mujica.ChartFrame{Label: "Prayers"}})
+	core.Use(c, core.Settings{})
+	chart.CalendarHeatmap(c, &year, values, chart.CalendarHeatmapOptions{Frame: chart.ChartFrame{Label: "Prayers"}})
 }
 ui.Render(view, 400, 300, 1)
 ```

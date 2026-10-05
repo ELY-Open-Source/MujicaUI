@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-var term mujica.TerminalState
+var term code.TerminalState
 term.Write("\x1b[1m~/court\x1b[0m $ ls\r\n\x1b[34mdecrees\x1b[0m  ledger.txt\r\n$ ")
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Terminal(c, &term, mujica.TerminalOptions{
+	core.Use(c, core.Settings{})
+	code.Terminal(c, &term, code.TerminalOptions{
 		Input:   func(data string) { fmt.Printf("to pty: %q\n", data) },
 		Resized: func(cols, rows int) { fmt.Println("pty size", cols, rows) },
 	}).Size(380, 200)

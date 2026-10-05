@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-response := &mujica.ApiResponse{Status: 200, Duration: 182 * time.Millisecond, Size: 32, Body: `{"ready":true}`, Headers: []mujica.KeyValue{{Key: "Content-Type", Value: "application/json"}}}
+response := &devtools.ApiResponse{Status: 200, Duration: 182 * time.Millisecond, Size: 32, Body: `{"ready":true}`, Headers: []devtools.KeyValue{{Key: "Content-Type", Value: "application/json"}}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.ResponseViewer(c, response, mujica.ResponseViewerOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if devtools.ResponseViewer(c, response, devtools.ResponseViewerOptions{}).Changed() {
 		fmt.Println("retry")
 	}
 }

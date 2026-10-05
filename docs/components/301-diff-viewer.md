@@ -7,12 +7,12 @@
 ## 最小示例
 
 ```go
-var state mujica.DiffViewerState
+var state git.DiffViewerState
 from := "func main() {\n\tprintln(\"hi\")\n}\n"
 to := "func main() {\n\tprintln(\"hello\")\n}\n"
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.DiffViewer(c, &state, from, to, mujica.DiffViewerOptions{Language: "go", SideBySide: true}).Height(240)
+	core.Use(c, core.Settings{})
+	git.DiffViewer(c, &state, from, to, git.DiffViewerOptions{Language: "go", SideBySide: true}).Height(240)
 }
 ui.Render(view, 400, 300, 1)
 ```

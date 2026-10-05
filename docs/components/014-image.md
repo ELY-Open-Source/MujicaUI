@@ -10,8 +10,8 @@
 var photo *ui.Bitmap // decode once with ui.DecodeBitmap, outside the view
 loading, loadErr := false, errors.New("timeout")
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	img := mujica.Image(c, photo, mujica.ImageOptions{
+	core.Use(c, core.Settings{})
+	img := display.Image(c, photo, display.ImageOptions{
 		Width: 160, Height: 120, Crop: true, Alt: "Hall of mirrors",
 		Loading: loading, Err: loadErr,
 	})

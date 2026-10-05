@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-shift := mujica.TimeRange{Start: mujica.TimeOfDay{Hour: 22}, End: mujica.TimeOfDay{Hour: 6}}
+shift := datetime.TimeRange{Start: datetime.TimeOfDay{Hour: 22}, End: datetime.TimeOfDay{Hour: 6}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	opts := mujica.TimeRangePickerOptions{Label: "Night shift", AllowOvernight: true}
-	if mujica.TimeRangePicker(c, &shift, opts).Changed() {
+	core.Use(c, core.Settings{})
+	opts := datetime.TimeRangePickerOptions{Label: "Night shift", AllowOvernight: true}
+	if datetime.TimeRangePicker(c, &shift, opts).Changed() {
 		fmt.Println("shift", shift.Start, shift.End, shift.Overnight())
 	}
 }

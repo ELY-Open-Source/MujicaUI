@@ -9,13 +9,13 @@
 ## 最小示例
 
 ```go
-var state mujica.FormState
+var state input.FormState
 name := ""
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	res := mujica.Form(c, &state, mujica.FormOptions{}, func(f *mujica.FormScope) {
-		mujica.FormItem(c, f, "name", &name, mujica.FormItemOptions[string]{Label: "Name", Required: true}, func() *ui.Element {
-			return mujica.InputGroup(c, &name, mujica.InputGroupOptions{Invalid: state.Error("name") != ""}).Input
+	core.Use(c, core.Settings{})
+	res := input.Form(c, &state, input.FormOptions{}, func(f *input.FormScope) {
+		input.FormItem(c, f, "name", &name, input.FormItemOptions[string]{Label: "Name", Required: true}, func() *ui.Element {
+			return input.InputGroup(c, &name, input.InputGroupOptions{Invalid: state.Error("name") != ""}).Input
 		})
 	})
 	if res.Submitted() {

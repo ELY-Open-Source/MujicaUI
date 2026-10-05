@@ -9,9 +9,9 @@
 ```go
 details := false
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Link(c, "Read the charter", mujica.LinkOptions{URL: "https://example.com/charter"})
-	if mujica.Link(c, "Show details", mujica.LinkOptions{}).Clicked() {
+	core.Use(c, core.Settings{})
+	display.Link(c, "Read the charter", display.LinkOptions{URL: "https://example.com/charter"})
+	if display.Link(c, "Show details", display.LinkOptions{}).Clicked() {
 		details = !details
 	}
 }

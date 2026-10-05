@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-items := []mujica.AllocationItem{{Name: "Stocks", Value: 60, Target: 50}, {Name: "Bonds", Value: 30, Target: 40}, {Name: "Cash", Value: 10, Target: 10}}
+items := []finance.AllocationItem{{Name: "Stocks", Value: 60, Target: 50}, {Name: "Bonds", Value: 30, Target: 40}, {Name: "Cash", Value: 10, Target: 10}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.AssetAllocationChart(c, items, mujica.AssetAllocationChartOptions{Frame: mujica.ChartFrame{Label: "Allocation"}})
+	core.Use(c, core.Settings{})
+	r := finance.AssetAllocationChart(c, items, finance.AssetAllocationChartOptions{Frame: chart.ChartFrame{Label: "Allocation"}})
 	if r.Changed() || r.Retried() {
 		fmt.Println(r.Point)
 	}

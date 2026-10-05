@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-cues := []mujica.SubtitleCue{{Start: 0, End: 2 * time.Second, Text: "The curtain rises."}}
+cues := []media.SubtitleCue{{Start: 0, End: 2 * time.Second, Text: "The curtain rises."}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.SubtitleEditor(c, &cues, mujica.SubtitleEditorOptions{})
-	if len(mujica.CheckSubtitles(cues)) > 0 {
+	core.Use(c, core.Settings{})
+	media.SubtitleEditor(c, &cues, media.SubtitleEditorOptions{})
+	if len(media.CheckSubtitles(cues)) > 0 {
 		_ = cues // block saving until the issues are fixed
 	}
 }

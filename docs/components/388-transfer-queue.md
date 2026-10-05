@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-items := []mujica.QueuedTransfer{{ID: "a", Name: "ledger.zip", Upload: true, Status: mujica.TransferActive, Done: 25, Total: 100}}
-var state mujica.TransferQueueState
+items := []files.QueuedTransfer{{ID: "a", Name: "ledger.zip", Upload: true, Status: files.TransferActive, Done: 25, Total: 100}}
+var state files.TransferQueueState
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.TransferQueue(c, items, &state, mujica.TransferQueueOptions{}).Element.Height(240)
+	core.Use(c, core.Settings{})
+	files.TransferQueue(c, items, &state, files.TransferQueueOptions{}).Element.Height(240)
 }
 ui.Render(view, 500, 300, 1)
 ```

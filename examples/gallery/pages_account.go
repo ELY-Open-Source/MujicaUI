@@ -5,7 +5,9 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/account"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
 )
 
 const accountCategory = "Settings & Account"
@@ -58,9 +60,9 @@ type accountSettingsState struct {
 	sound, digest, report bool
 }
 
-var accountSettingPages = []mujica.SettingsPage{{ID: "general", Label: "General"}, {ID: "privacy", Label: "Privacy"}}
+var accountSettingPages = []account.SettingsPage{{ID: "general", Label: "General"}, {ID: "privacy", Label: "Privacy"}}
 
-var accountSettingEntries = []mujica.SettingEntry{
+var accountSettingEntries = []account.SettingEntry{
 	{ID: "sound", Page: "general", Label: "Sound", Description: "Chime on new messages.", Keywords: []string{"audio", "notification"}},
 	{ID: "digest", Page: "general", Label: "Weekly digest", Description: "A summary every Monday.", Keywords: []string{"email"}},
 	{ID: "report", Page: "privacy", Label: "Usage reports", Description: "Send anonymous usage."},
@@ -69,15 +71,15 @@ var accountSettingEntries = []mujica.SettingEntry{
 // accountSettingsPage builds the demo pages shared by 461 and 462.
 func accountSettingsPage(c *ui.Context, d *accountSettingsState, log func(string)) {
 	ui.Box(c).Width(900).Height(320).Children(func() {
-		if mujica.SettingsLayout(c, &d.page, accountSettingPages, mujica.SettingsLayoutOptions{}, func(id string) {
+		if account.SettingsLayout(c, &d.page, accountSettingPages, account.SettingsLayoutOptions{}, func(id string) {
 			switch id {
 			case "general":
-				mujica.SettingsSection(c, "Notifications", func() {
+				account.SettingsSection(c, "Notifications", func() {
 					accountSwitchRow(c, "sound", "Sound", "Chime on new messages.", &d.sound, log)
 					accountSwitchRow(c, "digest", "Weekly digest", "A summary every Monday.", &d.digest, log)
 				})
 			case "privacy":
-				mujica.SettingsSection(c, "Data", func() {
+				account.SettingsSection(c, "Data", func() {
 					accountSwitchRow(c, "report", "Usage reports", "Send anonymous usage.", &d.report, log)
 				})
 			}
@@ -89,8 +91,8 @@ func accountSettingsPage(c *ui.Context, d *accountSettingsState, log func(string
 
 // accountSwitchRow is a settings row with a switch.
 func accountSwitchRow(c *ui.Context, id, label, desc string, v *bool, log func(string)) {
-	mujica.SettingsRow(c, label, mujica.SettingsRowOptions{ID: id, Description: desc}, func() *ui.Element {
-		sw := mujica.Switch(c, v, "", mujica.SwitchOptions{})
+	account.SettingsRow(c, label, account.SettingsRowOptions{ID: id, Description: desc}, func() *ui.Element {
+		sw := input.Switch(c, v, "", input.SwitchOptions{})
 		if sw.Changed() {
 			log(fmt.Sprintf("%s %v", label, *v))
 		}
@@ -106,7 +108,7 @@ func accountSettingsDemo(c *ui.Context, log func(string)) {
 func accountSearchDemo(c *ui.Context, log func(string)) {
 	d := ui.Local(c.Root(), "462", func() accountSettingsState { return accountSettingsState{sound: true} })
 	ui.Box(c).Width(320).Children(func() {
-		if e, ok := mujica.SettingsSearch(c, &d.query, accountSettingEntries, mujica.SettingsSearchOptions{}).Chosen(); ok {
+		if e, ok := account.SettingsSearch(c, &d.query, accountSettingEntries, account.SettingsSearchOptions{}).Chosen(); ok {
 			d.page = e.Page
 			log("jump to " + e.ID)
 		}
@@ -115,14 +117,14 @@ func accountSearchDemo(c *ui.Context, log func(string)) {
 }
 
 type accountThemeState struct {
-	mode     mujica.Mode
+	mode     core.Mode
 	disabled bool
 }
 
 func accountThemeDemo(c *ui.Context, log func(string)) {
 	d := ui.Local(c.Root(), "463", func() accountThemeState { return accountThemeState{} })
 	accountToggles(c, log, []string{"Disabled"}, &d.disabled)
-	if mujica.ThemeSelector(c, &d.mode, mujica.ThemeSelectorOptions{Disabled: d.disabled}).Changed() {
+	if account.ThemeSelector(c, &d.mode, account.ThemeSelectorOptions{Disabled: d.disabled}).Changed() {
 		log("theme " + d.mode.String())
 	}
 }
@@ -135,10 +137,10 @@ type accountAccentState struct {
 func accountAccentDemo(c *ui.Context, log func(string)) {
 	d := ui.Local(c.Root(), "464", func() accountAccentState { return accountAccentState{color: ui.Hex("#7D2034")} })
 	accountToggles(c, log, []string{"Disabled"}, &d.disabled)
-	if mujica.AccentColorPicker(c, &d.color, mujica.AccentColorPickerOptions{Disabled: d.disabled}).Changed() {
+	if account.AccentColorPicker(c, &d.color, account.AccentColorPickerOptions{Disabled: d.disabled}).Changed() {
 		log(fmt.Sprintf("accent %v", d.color))
 	}
-	mujica.Button(c, "Preview button", mujica.ButtonOptions{}).Background(d.color)
+	input.Button(c, "Preview button", input.ButtonOptions{}).Background(d.color)
 }
 
 func accountToggles(c *ui.Context, log func(string), labels []string, values ...*bool) {

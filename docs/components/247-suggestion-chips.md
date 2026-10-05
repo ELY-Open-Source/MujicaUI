@@ -9,8 +9,8 @@
 ```go
 input := ""
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.SuggestionChips(c, &input, []string{"Plan a ball", "Write a sonnet"}, mujica.SuggestionChipsOptions{})
+	core.Use(c, core.Settings{})
+	chat.SuggestionChips(c, &input, []string{"Plan a ball", "Write a sonnet"}, chat.SuggestionChipsOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

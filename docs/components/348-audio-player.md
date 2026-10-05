@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-st := mujica.AudioState{Title: "Overture", Duration: 3 * time.Minute}
+st := media.AudioState{Title: "Overture", Duration: 3 * time.Minute}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.AudioPlayer(c, st, mujica.AudioPlayerOptions{
+	core.Use(c, core.Settings{})
+	media.AudioPlayer(c, st, media.AudioPlayerOptions{
 		OnPlay:  func() { st.Playing = true },
 		OnPause: func() { st.Playing = false },
 		OnSeek:  func(d time.Duration) { st.Position = d },

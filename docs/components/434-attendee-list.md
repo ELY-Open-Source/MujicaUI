@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-people := []mujica.Attendee{{Name: "Sakiko", Status: mujica.AttendeeAccepted, Organizer: true}, {Name: "Mutsumi"}}
+people := []datetime.Attendee{{Name: "Sakiko", Status: datetime.AttendeeAccepted, Organizer: true}, {Name: "Mutsumi"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if i, ok := mujica.AttendeeList(c, people, mujica.AttendeeListOptions{Removable: true}).Removed(); ok {
+	core.Use(c, core.Settings{})
+	if i, ok := datetime.AttendeeList(c, people, datetime.AttendeeListOptions{Removable: true}).Removed(); ok {
 		people = append(people[:i], people[i+1:]...)
 	}
 }

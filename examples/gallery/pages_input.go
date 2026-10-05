@@ -7,22 +7,23 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
-	"mujicaui/icons"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ZacharyZhang-NY/MujicaUI/icons"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
 )
 
 const inputCategory = "Inputs"
 
 // inputVariants lists the button variants for variant pickers.
-var inputVariants = []mujica.RadioItem[mujica.ButtonVariant]{
-	{Value: mujica.Primary, Label: "Primary"}, {Value: mujica.Secondary, Label: "Secondary"},
-	{Value: mujica.Outline, Label: "Outline"}, {Value: mujica.Ghost, Label: "Ghost"}, {Value: mujica.Danger, Label: "Danger"},
+var inputVariants = []input.RadioItem[input.ButtonVariant]{
+	{Value: input.Primary, Label: "Primary"}, {Value: input.Secondary, Label: "Secondary"},
+	{Value: input.Outline, Label: "Outline"}, {Value: input.Ghost, Label: "Ghost"}, {Value: input.Danger, Label: "Danger"},
 }
 
 // inputSection titles one part of a demo.
 func inputSection(c *ui.Context, title string, fn func()) {
 	ui.Column(c).Gap(8).Children(func() {
-		ui.Text(c, title).FontWeight(600).TextColor(mujica.Tokens(c).TextMuted)
+		ui.Text(c, title).FontWeight(600).TextColor(core.Tokens(c).TextMuted)
 		fn()
 	})
 }
@@ -31,7 +32,7 @@ func inputSection(c *ui.Context, title string, fn func()) {
 func inputFlags(c *ui.Context, log func(string), flags map[string]*bool, order ...string) {
 	ui.Row(c).Gap(16).Wrap().Children(func() {
 		for _, name := range order {
-			if mujica.Checkbox(c, flags[name], name, mujica.CheckboxOptions{}).Changed() {
+			if input.Checkbox(c, flags[name], name, input.CheckboxOptions{}).Changed() {
 				log(fmt.Sprintf("option %s = %v", name, *flags[name]))
 			}
 		}
@@ -39,7 +40,7 @@ func inputFlags(c *ui.Context, log func(string), flags map[string]*bool, order .
 }
 
 type inputButtonDemo struct {
-	variant                 mujica.ButtonVariant
+	variant                 input.ButtonVariant
 	icon, loading, disabled bool
 }
 
@@ -81,22 +82,22 @@ type inputRadioDemo struct {
 
 var inputPages = []page{
 	{ID: "021", Name: "Button", ZhName: "按钮", Category: inputCategory, Keys: "Tab 聚焦；Enter 或 Space 触发。",
-		Code: `if mujica.Button(c, "Save", mujica.ButtonOptions{Icon: icons.Must("check")}).Clicked() {
+		Code: `if input.Button(c, "Save", input.ButtonOptions{Icon: icons.Must("check")}).Clicked() {
 	fmt.Println("saved")
 }`,
 		Demo: func(c *ui.Context, log func(string)) {
 			s := ui.Local(c.Root(), "021", func() inputButtonDemo { return inputButtonDemo{} })
 			inputSection(c, "Parameters", func() {
-				mujica.RadioGroup(c, &s.variant, inputVariants, mujica.RadioGroupOptions{Horizontal: true, Label: "Variant"})
+				input.RadioGroup(c, &s.variant, inputVariants, input.RadioGroupOptions{Horizontal: true, Label: "Variant"})
 				inputFlags(c, log, map[string]*bool{"Icon": &s.icon, "Loading": &s.loading, "Disabled": &s.disabled}, "Icon", "Loading", "Disabled")
 			})
 			inputSection(c, "Live", func() {
-				opts := mujica.ButtonOptions{Variant: s.variant, Loading: s.loading, Disabled: s.disabled}
+				opts := input.ButtonOptions{Variant: s.variant, Loading: s.loading, Disabled: s.disabled}
 				if s.icon {
 					opts.Icon = icons.Must("check")
 				}
 				ui.Row(c).Children(func() {
-					if mujica.Button(c, "Save changes", opts).Clicked() {
+					if input.Button(c, "Save changes", opts).Clicked() {
 						log("Button clicked")
 					}
 				})
@@ -104,30 +105,30 @@ var inputPages = []page{
 			inputSection(c, "Variants", func() {
 				ui.Row(c).Gap(12).Wrap().Children(func() {
 					for _, v := range inputVariants {
-						if mujica.Button(c, v.Label, mujica.ButtonOptions{Variant: v.Value}).Clicked() {
+						if input.Button(c, v.Label, input.ButtonOptions{Variant: v.Value}).Clicked() {
 							log(v.Label + " clicked")
 						}
 					}
-					mujica.Button(c, "Loading", mujica.ButtonOptions{Loading: true})
-					mujica.Button(c, "Disabled", mujica.ButtonOptions{Disabled: true})
+					input.Button(c, "Loading", input.ButtonOptions{Loading: true})
+					input.Button(c, "Disabled", input.ButtonOptions{Disabled: true})
 				})
 			})
 		}},
 	{ID: "022", Name: "IconButton", ZhName: "图标按钮", Category: inputCategory, Keys: "Tab 聚焦；Enter 或 Space 触发；悬停显示提示。",
-		Code: `if mujica.IconButton(c, icons.Must("settings"), "Settings", mujica.IconButtonOptions{Variant: mujica.Ghost}).Clicked() {
+		Code: `if input.IconButton(c, icons.Must("settings"), "Settings", input.IconButtonOptions{Variant: input.Ghost}).Clicked() {
 	fmt.Println("open settings")
 }`,
 		Demo: func(c *ui.Context, log func(string)) {
-			s := ui.Local(c.Root(), "022", func() inputButtonDemo { return inputButtonDemo{variant: mujica.Ghost} })
+			s := ui.Local(c.Root(), "022", func() inputButtonDemo { return inputButtonDemo{variant: input.Ghost} })
 			inputSection(c, "Parameters", func() {
-				mujica.RadioGroup(c, &s.variant, inputVariants, mujica.RadioGroupOptions{Horizontal: true, Label: "Variant"})
+				input.RadioGroup(c, &s.variant, inputVariants, input.RadioGroupOptions{Horizontal: true, Label: "Variant"})
 				inputFlags(c, log, map[string]*bool{"Loading": &s.loading, "Disabled": &s.disabled}, "Loading", "Disabled")
 			})
 			inputSection(c, "Live", func() {
 				ui.Row(c).Gap(8).Children(func() {
 					for _, n := range []string{"bold", "italic", "underline", "copy", "trash-2"} {
-						opts := mujica.IconButtonOptions{Variant: s.variant, Loading: s.loading, Disabled: s.disabled}
-						if mujica.IconButton(c, icons.Must(n), n, opts).Clicked() {
+						opts := input.IconButtonOptions{Variant: s.variant, Loading: s.loading, Disabled: s.disabled}
+						if input.IconButton(c, icons.Must(n), n, opts).Clicked() {
 							log("IconButton " + n + " clicked")
 						}
 					}
@@ -135,8 +136,8 @@ var inputPages = []page{
 			})
 		}},
 	{ID: "023", Name: "ButtonGroup", ZhName: "按钮组", Category: inputCategory, Keys: "Tab 进入组；方向键在组内移动并跳过禁用项；Enter 或 Space 触发。",
-		Code: `items := []mujica.ButtonGroupItem{{Label: "Day"}, {Label: "Week"}, {Label: "Month"}}
-if i := mujica.ButtonGroup(c, items, mujica.ButtonGroupOptions{Label: "Range"}).ClickedItem(); i >= 0 {
+		Code: `items := []input.ButtonGroupItem{{Label: "Day"}, {Label: "Week"}, {Label: "Month"}}
+if i := input.ButtonGroup(c, items, input.ButtonGroupOptions{Label: "Range"}).ClickedItem(); i >= 0 {
 	fmt.Println("chose", items[i].Label)
 }`,
 		Demo: func(c *ui.Context, log func(string)) {
@@ -145,15 +146,15 @@ if i := mujica.ButtonGroup(c, items, mujica.ButtonGroupOptions{Label: "Range"}).
 				inputFlags(c, log, map[string]*bool{"Vertical": &s.vertical, "Disable group": &s.disabled}, "Vertical", "Disable group")
 			})
 			inputSection(c, "Live", func() {
-				items := []mujica.ButtonGroupItem{{Label: "Day"}, {Label: "Week", Disabled: true}, {Label: "Month"}, {Icon: icons.Must("calendar"), Name: "Pick a date"}}
-				r := mujica.ButtonGroup(c, items, mujica.ButtonGroupOptions{Vertical: s.vertical, Disabled: s.disabled, Label: "Range"})
+				items := []input.ButtonGroupItem{{Label: "Day"}, {Label: "Week", Disabled: true}, {Label: "Month"}, {Icon: icons.Must("calendar"), Name: "Pick a date"}}
+				r := input.ButtonGroup(c, items, input.ButtonGroupOptions{Vertical: s.vertical, Disabled: s.disabled, Label: "Range"})
 				if i := r.ClickedItem(); i >= 0 {
 					log(fmt.Sprintf("ButtonGroup item %d clicked", i))
 				}
 			})
 		}},
 	{ID: "024", Name: "TextInput", ZhName: "文本输入框", Category: inputCategory, Keys: "Tab 聚焦；Enter 提交；Escape 清空（可清空时）；Cmd/Ctrl+Z 撤销、+C/X/V 剪贴板；支持输入法组合。",
-		Code: `r := mujica.TextInput(c, &name, mujica.TextInputOptions{Label: "Name", Placeholder: "Your name", Clearable: true})
+		Code: `r := input.TextInput(c, &name, input.TextInputOptions{Label: "Name", Placeholder: "Your name", Clearable: true})
 if r.Submitted() {
 	fmt.Println("hello", name)
 }`,
@@ -161,15 +162,15 @@ if r.Submitted() {
 			s := ui.Local(c.Root(), "024", func() inputTextDemo { return inputTextDemo{clearable: true, sl: true} })
 			inputSection(c, "Parameters", func() {
 				inputFlags(c, log, map[string]*bool{"Clearable": &s.clearable, "Slots": &s.sl, "ReadOnly": &s.readOnly, "Disabled": &s.disabled}, "Clearable", "Slots", "ReadOnly", "Disabled")
-				mujica.TextInput(c, &s.err, mujica.TextInputOptions{Label: "Error message", Placeholder: "Error message (empty for none)"})
+				input.TextInput(c, &s.err, input.TextInputOptions{Label: "Error message", Placeholder: "Error message (empty for none)"})
 			})
 			inputSection(c, "Live", func() {
-				opts := mujica.TextInputOptions{Label: "Name", Placeholder: "Your name", Clearable: s.clearable, ReadOnly: s.readOnly, Disabled: s.disabled, Error: s.err}
+				opts := input.TextInputOptions{Label: "Name", Placeholder: "Your name", Clearable: s.clearable, ReadOnly: s.readOnly, Disabled: s.disabled, Error: s.err}
 				if s.sl {
-					opts.Leading = func() { ui.Icon(c, icons.Must("user")).Size(16, 16).TextColor(mujica.Tokens(c).TextMuted) }
-					opts.Trailing = func() { ui.Text(c, fmt.Sprintf("%d", len([]rune(s.value)))).TextColor(mujica.Tokens(c).TextMuted) }
+					opts.Leading = func() { ui.Icon(c, icons.Must("user")).Size(16, 16).TextColor(core.Tokens(c).TextMuted) }
+					opts.Trailing = func() { ui.Text(c, fmt.Sprintf("%d", len([]rune(s.value)))).TextColor(core.Tokens(c).TextMuted) }
 				}
-				r := mujica.TextInput(c, &s.value, opts)
+				r := input.TextInput(c, &s.value, opts)
 				if r.Changed() {
 					log(fmt.Sprintf("TextInput changed: %q", s.value))
 				}
@@ -180,14 +181,14 @@ if r.Submitted() {
 			inputSection(c, "States", func() {
 				ui.Row(c).Gap(12).Children(func() {
 					e, ro, off := "1789-13-01", "Read only", "Disabled"
-					mujica.TextInput(c, &e, mujica.TextInputOptions{Label: "Error state", Error: "No such date"}).Element.Grow(1)
-					mujica.TextInput(c, &ro, mujica.TextInputOptions{Label: "Read-only state", ReadOnly: true}).Element.Grow(1)
-					mujica.TextInput(c, &off, mujica.TextInputOptions{Label: "Disabled state", Disabled: true}).Element.Grow(1)
+					input.TextInput(c, &e, input.TextInputOptions{Label: "Error state", Error: "No such date"}).Element.Grow(1)
+					input.TextInput(c, &ro, input.TextInputOptions{Label: "Read-only state", ReadOnly: true}).Element.Grow(1)
+					input.TextInput(c, &off, input.TextInputOptions{Label: "Disabled state", Disabled: true}).Element.Grow(1)
 				})
 			})
 		}},
 	{ID: "025", Name: "TextArea", ZhName: "多行文本框", Category: inputCategory, Keys: "Enter 换行；Cmd/Ctrl+Enter 提交（可配置）；滚轮与方向键滚动；撤销、剪贴板与输入法同 TextInput。",
-		Code: `r := mujica.TextArea(c, &notes, mujica.TextAreaOptions{Label: "Notes", MaxHeight: 160, MaxLength: 200})
+		Code: `r := input.TextArea(c, &notes, input.TextAreaOptions{Label: "Notes", MaxHeight: 160, MaxLength: 200})
 if r.Submitted() {
 	fmt.Println("send", notes)
 }`,
@@ -195,12 +196,12 @@ if r.Submitted() {
 			s := ui.Local(c.Root(), "025", func() inputAreaDemo { return inputAreaDemo{max: 120} })
 			inputSection(c, "Parameters", func() {
 				inputFlags(c, log, map[string]*bool{"ReadOnly": &s.readOnly, "Disabled": &s.disabled}, "ReadOnly", "Disabled")
-				if mujica.NumberInput(c, &s.max, mujica.NumberInputOptions{Min: 0, Max: 1000, Step: 10, Label: "MaxLength"}).Changed() {
+				if input.NumberInput(c, &s.max, input.NumberInputOptions{Min: 0, Max: 1000, Step: 10, Label: "MaxLength"}).Changed() {
 					log(fmt.Sprintf("option MaxLength = %v", s.max))
 				}
 			})
 			inputSection(c, "Live", func() {
-				r := mujica.TextArea(c, &s.value, mujica.TextAreaOptions{Label: "Notes", Placeholder: "Write a dedication…", MinHeight: 80, MaxHeight: 160,
+				r := input.TextArea(c, &s.value, input.TextAreaOptions{Label: "Notes", Placeholder: "Write a dedication…", MinHeight: 80, MaxHeight: 160,
 					MaxLength: int(s.max), ReadOnly: s.readOnly, Disabled: s.disabled})
 				if r.Changed() {
 					log(fmt.Sprintf("TextArea changed: %d characters", len([]rune(s.value))))
@@ -211,15 +212,15 @@ if r.Submitted() {
 			})
 		}},
 	{ID: "026", Name: "NumberInput", ZhName: "数字输入框", Category: inputCategory, Keys: "Up/Down 按步长增减；步进模式下 Up/Down/Left/Right、Home、End。",
-		Code: `if mujica.NumberInput(c, &copies, mujica.NumberInputOptions{Min: 1, Max: 99, Label: "Copies"}).Changed() {
+		Code: `if input.NumberInput(c, &copies, input.NumberInputOptions{Min: 1, Max: 99, Label: "Copies"}).Changed() {
 	fmt.Println("copies", copies)
 }`,
 		Demo: func(c *ui.Context, log func(string)) {
 			s := ui.Local(c.Root(), "026", func() inputNumberDemo { return inputNumberDemo{value: 3, step: 1} })
 			inputSection(c, "Parameters", func() {
 				inputFlags(c, log, map[string]*bool{"AllowEmpty": &s.empty, "StepperOnly": &s.stepper, "Disabled": &s.disabled, "Error": &s.fail}, "AllowEmpty", "StepperOnly", "Disabled", "Error")
-				steps := []mujica.RadioItem[float64]{{Value: 1, Label: "Step 1"}, {Value: 0.5, Label: "Step 0.5"}, {Value: 0.01, Label: "Step 0.01"}}
-				if mujica.RadioGroup(c, &s.step, steps, mujica.RadioGroupOptions{Horizontal: true, Label: "Step"}).Changed() {
+				steps := []input.RadioItem[float64]{{Value: 1, Label: "Step 1"}, {Value: 0.5, Label: "Step 0.5"}, {Value: 0.01, Label: "Step 0.01"}}
+				if input.RadioGroup(c, &s.step, steps, input.RadioGroupOptions{Horizontal: true, Label: "Step"}).Changed() {
 					log(fmt.Sprintf("option Step = %v", s.step))
 				}
 			})
@@ -230,12 +231,12 @@ if r.Submitted() {
 				s.value = 0
 			}
 			inputSection(c, "Live", func() {
-				opts := mujica.NumberInputOptions{Min: 0, Max: 10, Step: s.step, AllowEmpty: s.empty, StepperOnly: s.stepper, Disabled: s.disabled, Label: "Quantity", Placeholder: "Empty"}
+				opts := input.NumberInputOptions{Min: 0, Max: 10, Step: s.step, AllowEmpty: s.empty, StepperOnly: s.stepper, Disabled: s.disabled, Label: "Quantity", Placeholder: "Empty"}
 				if s.fail {
 					opts.Error = "Not in stock"
 				}
 				ui.Box(c).Width(240).Children(func() {
-					if mujica.NumberInput(c, &s.value, opts).Changed() {
+					if input.NumberInput(c, &s.value, opts).Changed() {
 						log(fmt.Sprintf("NumberInput changed: %v", s.value))
 					}
 				})
@@ -243,14 +244,14 @@ if r.Submitted() {
 			inputSection(c, "States", func() {
 				ui.Row(c).Gap(12).AlignItems(ui.Start).Children(func() {
 					a, b, e := 4.0, 2.0, 7.5
-					mujica.NumberInput(c, &a, mujica.NumberInputOptions{Min: 1, Max: 8, StepperOnly: true, Label: "Stepper state"})
-					mujica.NumberInput(c, &b, mujica.NumberInputOptions{Label: "Disabled state", Disabled: true}).Element.Width(160)
-					mujica.NumberInput(c, &e, mujica.NumberInputOptions{Step: 0.5, Label: "Error state", Error: "Must be whole"}).Element.Width(160)
+					input.NumberInput(c, &a, input.NumberInputOptions{Min: 1, Max: 8, StepperOnly: true, Label: "Stepper state"})
+					input.NumberInput(c, &b, input.NumberInputOptions{Label: "Disabled state", Disabled: true}).Element.Width(160)
+					input.NumberInput(c, &e, input.NumberInputOptions{Step: 0.5, Label: "Error state", Error: "Must be whole"}).Element.Width(160)
 				})
 			})
 		}},
 	{ID: "027", Name: "PasswordInput", ZhName: "密码输入框", Category: inputCategory, Keys: "Tab 依次聚焦输入框与显隐按钮；Space 或 Enter 切换显隐；Enter 在输入框中提交；粘贴可用，遮蔽时不可复制。",
-		Code: `if mujica.PasswordInput(c, &password, mujica.PasswordInputOptions{Label: "Password"}).Submitted() {
+		Code: `if input.PasswordInput(c, &password, input.PasswordInputOptions{Label: "Password"}).Submitted() {
 	fmt.Println("signing in")
 }`,
 		Demo: func(c *ui.Context, log func(string)) {
@@ -259,11 +260,11 @@ if r.Submitted() {
 				inputFlags(c, log, map[string]*bool{"Disabled": &s.disabled, "Error": &s.fail}, "Disabled", "Error")
 			})
 			inputSection(c, "Live", func() {
-				opts := mujica.PasswordInputOptions{Label: "Password", Placeholder: "Password", Disabled: s.disabled}
+				opts := input.PasswordInputOptions{Label: "Password", Placeholder: "Password", Disabled: s.disabled}
 				if s.fail {
 					opts.Error = "At least 8 characters"
 				}
-				r := mujica.PasswordInput(c, &s.value, opts)
+				r := input.PasswordInput(c, &s.value, opts)
 				if r.Changed() {
 					// The contents never reach the log.
 					log(fmt.Sprintf("PasswordInput changed: %d characters", len([]rune(s.value))))
@@ -278,7 +279,7 @@ if r.Submitted() {
 if query != "" {
 	matches = strings.Count(text, query)
 }
-r := mujica.SearchInput(c, &query, mujica.SearchInputOptions{Find: true, Matches: matches, Current: &current})
+r := input.SearchInput(c, &query, input.SearchInputOptions{Find: true, Matches: matches, Current: &current})
 if r.Moved() {
 	fmt.Println("show match", current)
 }`,
@@ -289,7 +290,7 @@ if r.Moved() {
 				inputFlags(c, log, map[string]*bool{"Disabled": &s.disabled}, "Disabled")
 			})
 			inputSection(c, "Search mode", func() {
-				r := mujica.SearchInput(c, &s.query, mujica.SearchInputOptions{Disabled: s.disabled})
+				r := input.SearchInput(c, &s.query, input.SearchInputOptions{Disabled: s.disabled})
 				if r.Changed() {
 					log(fmt.Sprintf("SearchInput changed: %q", s.query))
 				}
@@ -302,45 +303,45 @@ if r.Moved() {
 				if s.find != "" {
 					n = strings.Count(text, s.find)
 				}
-				r := mujica.SearchInput(c, &s.find, mujica.SearchInputOptions{Find: true, Matches: n, Current: &s.current, Disabled: s.disabled})
+				r := input.SearchInput(c, &s.find, input.SearchInputOptions{Find: true, Matches: n, Current: &s.current, Disabled: s.disabled})
 				if r.Changed() {
 					log(fmt.Sprintf("find query: %q, %d matches", s.find, n))
 				}
 				if r.Moved() {
 					log(fmt.Sprintf("find moved to match %d", s.current+1))
 				}
-				ui.Text(c, text).TextColor(mujica.Tokens(c).TextMuted)
+				ui.Text(c, text).TextColor(core.Tokens(c).TextMuted)
 			})
 		}},
 	{ID: "029", Name: "Checkbox", ZhName: "复选框", Category: inputCategory, Keys: "Tab 聚焦；Space 切换；点击标签同样切换；全选框在组内勾选全部或清空。",
-		Code: `mujica.CheckboxGroup(c, "Notifications", []mujica.CheckboxItem{
+		Code: `input.CheckboxGroup(c, "Notifications", []input.CheckboxItem{
 	{Label: "Mail", Value: &mail},
 	{Label: "Calendar", Value: &calendar},
-}, mujica.CheckboxGroupOptions{})`,
+}, input.CheckboxGroupOptions{})`,
 		Demo: func(c *ui.Context, log func(string)) {
 			s := ui.Local(c.Root(), "029", func() inputCheckDemo { return inputCheckDemo{items: [4]bool{true, false, false, true}} })
 			inputSection(c, "Parameters", func() {
 				inputFlags(c, log, map[string]*bool{"Indeterminate": &s.mixed, "Disabled": &s.disabled}, "Indeterminate", "Disabled")
 			})
 			inputSection(c, "Live", func() {
-				if mujica.Checkbox(c, &s.single, "Accept the terms", mujica.CheckboxOptions{Indeterminate: s.mixed, Disabled: s.disabled}).Changed() {
+				if input.Checkbox(c, &s.single, "Accept the terms", input.CheckboxOptions{Indeterminate: s.mixed, Disabled: s.disabled}).Changed() {
 					s.mixed = false
 					log(fmt.Sprintf("Checkbox changed: %v", s.single))
 				}
 			})
 			inputSection(c, "Group with select all", func() {
-				items := []mujica.CheckboxItem{
+				items := []input.CheckboxItem{
 					{Label: "Mail", Value: &s.items[0]}, {Label: "Calendar", Value: &s.items[1]},
 					{Label: "Messages", Value: &s.items[2]}, {Label: "Security alerts (required)", Value: &s.items[3], Disabled: true},
 				}
-				if mujica.CheckboxGroup(c, "Notifications", items, mujica.CheckboxGroupOptions{Disabled: s.disabled}).Changed() {
+				if input.CheckboxGroup(c, "Notifications", items, input.CheckboxGroupOptions{Disabled: s.disabled}).Changed() {
 					log(fmt.Sprintf("CheckboxGroup changed: %v", s.items))
 				}
 			})
 		}},
 	{ID: "030", Name: "RadioGroup", ZhName: "单选组", Category: inputCategory, Keys: "Tab 进入组并落在已选项；方向键选择并跳过禁用项；Home、End 选择首末项。",
-		Code: `items := []mujica.RadioItem[string]{{Value: "s", Label: "Small"}, {Value: "m", Label: "Medium"}, {Value: "l", Label: "Large"}}
-if mujica.RadioGroup(c, &size, items, mujica.RadioGroupOptions{Label: "Size"}).Changed() {
+		Code: `items := []input.RadioItem[string]{{Value: "s", Label: "Small"}, {Value: "m", Label: "Medium"}, {Value: "l", Label: "Large"}}
+if input.RadioGroup(c, &size, items, input.RadioGroupOptions{Label: "Size"}).Changed() {
 	fmt.Println("size", size)
 }`,
 		Demo: func(c *ui.Context, log func(string)) {
@@ -349,8 +350,8 @@ if mujica.RadioGroup(c, &size, items, mujica.RadioGroupOptions{Label: "Size"}).C
 				inputFlags(c, log, map[string]*bool{"Horizontal": &s.horizontal, "Disabled": &s.disabledAll}, "Horizontal", "Disabled")
 			})
 			inputSection(c, "Live", func() {
-				items := []mujica.RadioItem[string]{{Value: "s", Label: "Small"}, {Value: "m", Label: "Medium"}, {Value: "l", Label: "Large"}, {Value: "xl", Label: "Sold out", Disabled: true}}
-				if mujica.RadioGroup(c, &s.value, items, mujica.RadioGroupOptions{Horizontal: s.horizontal, Disabled: s.disabledAll, Label: "Size"}).Changed() {
+				items := []input.RadioItem[string]{{Value: "s", Label: "Small"}, {Value: "m", Label: "Medium"}, {Value: "l", Label: "Large"}, {Value: "xl", Label: "Sold out", Disabled: true}}
+				if input.RadioGroup(c, &s.value, items, input.RadioGroupOptions{Horizontal: s.horizontal, Disabled: s.disabledAll, Label: "Size"}).Changed() {
 					log("RadioGroup chose " + s.value)
 				}
 			})

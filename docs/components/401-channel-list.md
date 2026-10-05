@@ -7,14 +7,14 @@
 ## 最小示例
 
 ```go
-groups := []mujica.ChannelGroup{{ID: "ch", Title: "Channels", Channels: []mujica.Channel{
+groups := []messaging.ChannelGroup{{ID: "ch", Title: "Channels", Channels: []messaging.Channel{
 	{ID: "general", Name: "general", Unread: 3},
 	{ID: "rehearsal", Name: "rehearsal", Pinned: true},
 }}}
 selected := "general"
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.ChannelList(c, &selected, groups, mujica.ChannelListOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if messaging.ChannelList(c, &selected, groups, messaging.ChannelListOptions{}).Changed() {
 		_ = selected // show that channel
 	}
 }

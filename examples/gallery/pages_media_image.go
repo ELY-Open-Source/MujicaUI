@@ -8,12 +8,15 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/data"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
+	"github.com/ZacharyZhang-NY/MujicaUI/media"
+	"github.com/ZacharyZhang-NY/MujicaUI/navigation"
 )
 
 func imageCropperDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		crop     mujica.ImageCrop
+		crop     media.ImageCrop
 		aspect   int
 		disabled bool
 	}
@@ -22,7 +25,7 @@ func imageCropperDemo(c *ui.Context, log func(string)) {
 	mediaSection(c, "Parameters", func() {
 		ui.Row(c).Gap(16).AlignItems(ui.Center).Children(func() {
 			before := s.aspect
-			mujica.SegmentedControl(c, &s.aspect, []mujica.Segment{{Label: "Free"}, {Label: "1:1"}, {Label: "16:9"}, {Label: "4:3"}}, mujica.SegmentedControlOptions{Label: "Aspect"})
+			navigation.SegmentedControl(c, &s.aspect, []navigation.Segment{{Label: "Free"}, {Label: "1:1"}, {Label: "16:9"}, {Label: "4:3"}}, navigation.SegmentedControlOptions{Label: "Aspect"})
 			if s.aspect != before {
 				s.crop.Rect = image.Rectangle{} // refit to the new ratio
 				log(fmt.Sprintf("aspect = %v", aspects[s.aspect]))
@@ -31,7 +34,7 @@ func imageCropperDemo(c *ui.Context, log func(string)) {
 		})
 	})
 	mediaSection(c, "Live", func() {
-		if mujica.ImageCropper(c, mediaPhotos[0], &s.crop, mujica.ImageCropperOptions{Aspect: aspects[s.aspect], Disabled: s.disabled}).Changed() {
+		if media.ImageCropper(c, mediaPhotos[0], &s.crop, media.ImageCropperOptions{Aspect: aspects[s.aspect], Disabled: s.disabled}).Changed() {
 			log(fmt.Sprintf("crop %v rotated %d°", s.crop.Rect, s.crop.Rotation))
 		}
 	})
@@ -39,17 +42,17 @@ func imageCropperDemo(c *ui.Context, log func(string)) {
 
 func imageAnnotatorDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		notes    []mujica.Annotation
+		notes    []media.Annotation
 		disabled bool
 	}
 	s := ui.Local(c.Root(), "342", func() state {
-		return state{notes: []mujica.Annotation{{Kind: mujica.AnnotateRect, From: image.Pt(150, 60), To: image.Pt(330, 230)}}}
+		return state{notes: []media.Annotation{{Kind: media.AnnotateRect, From: image.Pt(150, 60), To: image.Pt(330, 230)}}}
 	})
 	mediaSection(c, "Parameters", func() {
 		ui.Row(c).Gap(16).AlignItems(ui.Center).Children(func() {
 			mediaCheck(c, log, &s.disabled, "Disabled")
-			if mujica.Button(c, "Export JSON", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
-				data, err := mujica.ExportAnnotations(s.notes)
+			if input.Button(c, "Export JSON", input.ButtonOptions{Variant: input.Secondary}).Clicked() {
+				data, err := media.ExportAnnotations(s.notes)
 				if err != nil {
 					log("export failed: " + err.Error())
 				} else {
@@ -60,7 +63,7 @@ func imageAnnotatorDemo(c *ui.Context, log func(string)) {
 		})
 	})
 	mediaSection(c, "Live", func() {
-		if mujica.ImageAnnotator(c, mediaBitmaps[1], &s.notes, mujica.ImageAnnotatorOptions{Disabled: s.disabled}).Changed() {
+		if media.ImageAnnotator(c, mediaBitmaps[1], &s.notes, media.ImageAnnotatorOptions{Disabled: s.disabled}).Changed() {
 			log(fmt.Sprintf("annotations: %d", len(s.notes)))
 		}
 	})
@@ -86,9 +89,9 @@ func imageThumbnailDemo(c *ui.Context, log func(string)) {
 				if s.failed && i == 2 {
 					err = errors.New("the file could not be read")
 				}
-				o := mujica.ImageThumbnailOptions{Alt: fmt.Sprintf("Scene %d", i+1), Aspect: 4.0 / 3, Width: 120,
+				o := media.ImageThumbnailOptions{Alt: fmt.Sprintf("Scene %d", i+1), Aspect: 4.0 / 3, Width: 120,
 					Selected: s.selected == i, Loading: s.loading && i == 1, Err: err, Disabled: s.disabled}
-				if mujica.ImageThumbnail(c, b, o).Changed() {
+				if media.ImageThumbnail(c, b, o).Changed() {
 					s.selected = i
 					log(fmt.Sprintf("selected scene %d", i+1))
 				}
@@ -103,7 +106,7 @@ func lightboxDemo(c *ui.Context, log func(string)) {
 		index int
 	}
 	s := ui.Local(c.Root(), "344", func() state { return state{} })
-	images := []mujica.ViewerImage{
+	images := []data.ViewerImage{
 		{Source: mediaBitmaps[0], Alt: "The grand hall at dusk"},
 		{Source: mediaBitmaps[1], Alt: "The ivory gallery"},
 		{Source: mediaBitmaps[2], Alt: "The blue chapel"},
@@ -111,14 +114,14 @@ func lightboxDemo(c *ui.Context, log func(string)) {
 	mediaSection(c, "Live", func() {
 		ui.Row(c).Gap(12).Children(func() {
 			for i, im := range images {
-				if mujica.ImageThumbnail(c, im.Source, mujica.ImageThumbnailOptions{Alt: im.Alt, Aspect: 4.0 / 3}).Changed() {
+				if media.ImageThumbnail(c, im.Source, media.ImageThumbnailOptions{Alt: im.Alt, Aspect: 4.0 / 3}).Changed() {
 					s.open, s.index = true, i
 					log(fmt.Sprintf("open at %d", i+1))
 				}
 			}
 		})
 		was := s.open
-		if mujica.Lightbox(c, &s.open, &s.index, images).Changed() {
+		if media.Lightbox(c, &s.open, &s.index, images).Changed() {
 			log(fmt.Sprintf("image %d", s.index+1))
 		}
 		if was && !s.open {
@@ -133,13 +136,13 @@ func videoStripDemo(c *ui.Context, log func(string)) {
 		disabled bool
 	}
 	s := ui.Local(c.Root(), "347", func() state { return state{} })
-	frames := make([]mujica.StripFrame, 240)
+	frames := make([]media.StripFrame, 240)
 	for i := range frames {
-		frames[i] = mujica.StripFrame{Image: mediaBitmaps[i%3], At: time.Duration(i) * 5 * time.Second}
+		frames[i] = media.StripFrame{Image: mediaBitmaps[i%3], At: time.Duration(i) * 5 * time.Second}
 	}
 	mediaSection(c, "Parameters", func() { mediaCheck(c, log, &s.disabled, "Disabled") })
 	mediaSection(c, "Live", func() {
-		if mujica.VideoThumbnailStrip(c, &s.current, frames, mujica.VideoThumbnailStripOptions{Disabled: s.disabled}).Changed() {
+		if media.VideoThumbnailStrip(c, &s.current, frames, media.VideoThumbnailStripOptions{Disabled: s.disabled}).Changed() {
 			log("jump to " + mediaClockLabel(frames[s.current].At))
 		}
 	})
@@ -154,7 +157,7 @@ func compareDemo(c *ui.Context, log func(string)) {
 	mediaSection(c, "Parameters", func() { mediaCheck(c, log, &s.disabled, "Disabled") })
 	mediaSection(c, "Live", func() {
 		ui.Column(c).MaxWidth(560).Children(func() {
-			if mujica.ImageCompare(c, mediaBitmaps[0], mediaBitmaps[1], &s.split, mujica.ImageCompareOptions{Disabled: s.disabled}).Changed() {
+			if media.ImageCompare(c, mediaBitmaps[0], mediaBitmaps[1], &s.split, media.ImageCompareOptions{Disabled: s.disabled}).Changed() {
 				log(fmt.Sprintf("split %.0f%%", s.split*100))
 			}
 		})

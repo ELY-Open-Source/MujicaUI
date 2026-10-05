@@ -8,10 +8,10 @@
 
 ```go
 var to []string
-contacts := []mujica.Contact{{Name: "Uika Misumi", Email: "uika@example.com"}}
+contacts := []messaging.Contact{{Name: "Uika Misumi", Email: "uika@example.com"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.RecipientInput(c, &to, mujica.RecipientInputOptions{Contacts: contacts, Label: "To"})
+	core.Use(c, core.Settings{})
+	messaging.RecipientInput(c, &to, messaging.RecipientInputOptions{Contacts: contacts, Label: "To"})
 }
 ui.Render(view, 400, 300, 1)
 ```

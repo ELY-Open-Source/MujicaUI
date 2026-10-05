@@ -9,8 +9,8 @@
 ```go
 low, high := 20.0, 80.0
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.RangeSlider(c, &low, &high, mujica.RangeSliderOptions{Step: 10, Label: "Price"})
+	core.Use(c, core.Settings{})
+	input.RangeSlider(c, &low, &high, input.RangeSliderOptions{Step: 10, Label: "Price"})
 }
 ui.Render(view, 400, 300, 1)
 ```

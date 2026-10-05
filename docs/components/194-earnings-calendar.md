@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-var state mujica.DataTableState[string]
-rows := []mujica.EarningsEvent{{ID: "a", Symbol: "AAPL", Name: "Apple", Date: mujica.Date{Year: 2026, Month: 10, Day: 30}, Timing: mujica.EarningsAfterClose, EPSEstimate: 1.6, EPSActual: 1.64}}
+var state data.DataTableState[string]
+rows := []finance.EarningsEvent{{ID: "a", Symbol: "AAPL", Name: "Apple", Date: core.Date{Year: 2026, Month: 10, Day: 30}, Timing: finance.EarningsAfterClose, EPSEstimate: 1.6, EPSActual: 1.64}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.EarningsCalendar(c, &state, rows, mujica.EarningsCalendarOptions{})
+	core.Use(c, core.Settings{})
+	r := finance.EarningsCalendar(c, &state, rows, finance.EarningsCalendarOptions{})
 	if r.Changed() || r.Submitted() || r.SortChanged() || r.Retried() {
 		fmt.Println(state.Selected())
 	}

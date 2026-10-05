@@ -5,12 +5,12 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
 )
 
-func devPageTester(p page, mode mujica.Mode, events *[]string) *ui.Tester {
+func devPageTester(p page, mode core.Mode, events *[]string) *ui.Tester {
 	return ui.NewTester(func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{Mode: mode})
+		core.Use(c, core.Settings{Mode: mode})
 		ui.Column(c).Padding(16).Children(func() { p.Demo(c, func(s string) { *events = append(*events, s) }) })
 	}, 1000, 800)
 }
@@ -21,7 +21,7 @@ func TestDevtoolsPagesControlsAndThemes(t *testing.T) {
 	}
 	for _, p := range devtoolsPages {
 		t.Run(p.Name, func(t *testing.T) {
-			for _, mode := range []mujica.Mode{mujica.Light, mujica.Dark} {
+			for _, mode := range []core.Mode{core.Light, core.Dark} {
 				var events []string
 				tt := devPageTester(p, mode, &events)
 				if p.Category != "Dashboards & Dev Tools" || p.Code == "" || p.Keys == "" {
@@ -70,7 +70,7 @@ func TestDevtoolsDemoEvents(t *testing.T) {
 					continue
 				}
 				var events []string
-				tt := devPageTester(p, mujica.Light, &events)
+				tt := devPageTester(p, core.Light, &events)
 				if err := tt.Click(tc.label); err != nil {
 					t.Fatal(err)
 				}

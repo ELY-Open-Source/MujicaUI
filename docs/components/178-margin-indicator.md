@@ -10,8 +10,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.MarginIndicator(c, 0.86, mujica.MarginIndicatorOptions{})
+	core.Use(c, core.Settings{})
+	finance.MarginIndicator(c, 0.86, finance.MarginIndicatorOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-labels := []mujica.TaskLabel{{ID: "ui", Name: "UI", Color: mujica.EventInfo}}
+labels := []project.TaskLabel{{ID: "ui", Name: "UI", Color: datetime.EventInfo}}
 selected := []string{}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.LabelManager(c, &labels, &selected, mujica.LabelManagerOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if project.LabelManager(c, &labels, &selected, project.LabelManagerOptions{}).Changed() {
 		log.Println("labels changed", len(labels), selected)
 	}
 }

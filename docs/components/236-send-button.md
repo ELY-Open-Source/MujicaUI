@@ -9,8 +9,8 @@
 ```go
 streaming := false
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.SendButton(c, mujica.SendButtonOptions{Streaming: streaming, Shortcut: "Enter"})
+	core.Use(c, core.Settings{})
+	r := chat.SendButton(c, chat.SendButtonOptions{Streaming: streaming, Shortcut: "Enter"})
 	if r.Sent() || r.Stopped() {
 		streaming = r.Sent()
 	}

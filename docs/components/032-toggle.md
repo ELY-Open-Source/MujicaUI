@@ -9,8 +9,8 @@
 ```go
 bold := false
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Toggle(c, &bold, "", mujica.ToggleOptions{Icon: icons.Must("bold"), Label: "Bold"})
+	core.Use(c, core.Settings{})
+	input.Toggle(c, &bold, "", input.ToggleOptions{Icon: icons.Must("bold"), Label: "Bold"})
 }
 ui.Render(view, 400, 300, 1)
 ```

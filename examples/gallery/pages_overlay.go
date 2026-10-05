@@ -6,7 +6,9 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
+	"github.com/ZacharyZhang-NY/MujicaUI/overlay"
 )
 
 const overlayCategory = "Overlays"
@@ -48,19 +50,19 @@ func overlayCheck(c *ui.Context, log func(string), v *bool, label string) {
 const dialogCode = `open := true
 name := "Ophelia"
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.Button(c, "Rename…", mujica.ButtonOptions{}).Clicked() {
+	core.Use(c, core.Settings{})
+	if input.Button(c, "Rename…", input.ButtonOptions{}).Clicked() {
 		open = true
 	}
-	mujica.Dialog(c, &open, mujica.DialogOptions{
+	overlay.Dialog(c, &open, overlay.DialogOptions{
 		Title:       "Rename the chamber",
 		Description: "The new name shows in every hall.",
 		Decorated:   true,
 		Actions: func() {
-			if mujica.Button(c, "Cancel", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+			if input.Button(c, "Cancel", input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 				open = false
 			}
-			if mujica.Button(c, "Rename", mujica.ButtonOptions{}).Clicked() {
+			if input.Button(c, "Rename", input.ButtonOptions{}).Clicked() {
 				open = false
 			}
 		},
@@ -83,19 +85,19 @@ func dialogDemo(c *ui.Context, log func(string)) {
 		overlayCheck(c, log, &s.keepEscape, "KeepOnEscape")
 		overlayCheck(c, log, &s.hideClose, "HideClose")
 	})
-	if mujica.Button(c, "Rename…", mujica.ButtonOptions{}).Clicked() {
+	if input.Button(c, "Rename…", input.ButtonOptions{}).Clicked() {
 		s.open = true
 		log("open")
 	}
 	was := s.open
-	mujica.Dialog(c, &s.open, mujica.DialogOptions{
+	overlay.Dialog(c, &s.open, overlay.DialogOptions{
 		Title: "Rename the chamber", Description: "The new name shows in every hall.", Decorated: s.decorated,
 		KeepOnBackdrop: s.keepBackdrop, KeepOnEscape: s.keepEscape, HideClose: s.hideClose,
 		Actions: func() {
-			if mujica.Button(c, "Cancel", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+			if input.Button(c, "Cancel", input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 				s.open = false
 			}
-			if mujica.Button(c, "Rename", mujica.ButtonOptions{}).Clicked() {
+			if input.Button(c, "Rename", input.ButtonOptions{}).Clicked() {
 				log("renamed to " + s.name)
 				s.open = false
 			}
@@ -108,11 +110,11 @@ func dialogDemo(c *ui.Context, log func(string)) {
 
 const alertDialogCode = `open := true
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.Button(c, "Delete archive", mujica.ButtonOptions{Variant: mujica.Danger}).Clicked() {
+	core.Use(c, core.Settings{})
+	if input.Button(c, "Delete archive", input.ButtonOptions{Variant: input.Danger}).Clicked() {
 		open = true
 	}
-	r := mujica.AlertDialog(c, &open, mujica.AlertDialogOptions{
+	r := overlay.AlertDialog(c, &open, overlay.AlertDialogOptions{
 		Title:       "Delete the archive?",
 		Description: "Twelve letters will be destroyed.",
 		ConfirmText: "archive",
@@ -128,15 +130,15 @@ type alertDialogDemoState struct{ open, typed bool }
 func alertDialogDemo(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "082", func() alertDialogDemoState { return alertDialogDemoState{} })
 	overlayControls(c, func() { overlayCheck(c, log, &s.typed, "ConfirmText") })
-	if mujica.Button(c, "Delete archive", mujica.ButtonOptions{Variant: mujica.Danger}).Clicked() {
+	if input.Button(c, "Delete archive", input.ButtonOptions{Variant: input.Danger}).Clicked() {
 		s.open = true
 		log("open")
 	}
-	opts := mujica.AlertDialogOptions{Title: "Delete the archive?", Description: "Twelve letters will be destroyed. This cannot be undone."}
+	opts := overlay.AlertDialogOptions{Title: "Delete the archive?", Description: "Twelve letters will be destroyed. This cannot be undone."}
 	if s.typed {
 		opts.ConfirmText = "archive"
 	}
-	r := mujica.AlertDialog(c, &s.open, opts)
+	r := overlay.AlertDialog(c, &s.open, opts)
 	if r.Confirmed {
 		log("confirmed")
 	}
@@ -147,11 +149,11 @@ func alertDialogDemo(c *ui.Context, log func(string)) {
 
 const drawerCode = `open := true
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.Button(c, "Filters", mujica.ButtonOptions{}).Clicked() {
+	core.Use(c, core.Settings{})
+	if input.Button(c, "Filters", input.ButtonOptions{}).Clicked() {
 		open = true
 	}
-	mujica.Drawer(c, &open, mujica.DrawerOptions{Title: "Filters", Side: mujica.DrawerRight, Size: 320}, func() {
+	overlay.Drawer(c, &open, overlay.DrawerOptions{Title: "Filters", Side: overlay.DrawerRight, Size: 320}, func() {
 		ui.Text(c, "Guests are placed by rank.")
 	})
 }
@@ -165,7 +167,7 @@ type drawerDemoState struct {
 
 func drawerDemo(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "083", func() drawerDemoState { return drawerDemoState{side: "Right", size: 320} })
-	sides := map[string]mujica.DrawerSide{"Right": mujica.DrawerRight, "Left": mujica.DrawerLeft, "Top": mujica.DrawerTop, "Bottom": mujica.DrawerBottom}
+	sides := map[string]overlay.DrawerSide{"Right": overlay.DrawerRight, "Left": overlay.DrawerLeft, "Top": overlay.DrawerTop, "Bottom": overlay.DrawerBottom}
 	overlayControls(c, func() {
 		if ui.Select(c, &s.side, []string{"Right", "Left", "Top", "Bottom"}).Changed() {
 			log("side = " + s.side)
@@ -173,19 +175,19 @@ func drawerDemo(c *ui.Context, log func(string)) {
 		overlayCheck(c, log, &s.nonModal, "NonModal")
 		overlaySlider(c, log, &s.size, "Size", "DIP", 120, 900, 20)
 	})
-	if mujica.Button(c, "Open drawer", mujica.ButtonOptions{}).Clicked() {
+	if input.Button(c, "Open drawer", input.ButtonOptions{}).Clicked() {
 		s.open = true
 		log("open")
 	}
 	was := s.open
-	mujica.Drawer(c, &s.open, mujica.DrawerOptions{Title: "Seating chart", Side: sides[s.side], Size: float32(s.size), NonModal: s.nonModal,
+	overlay.Drawer(c, &s.open, overlay.DrawerOptions{Title: "Seating chart", Side: sides[s.side], Size: float32(s.size), NonModal: s.nonModal,
 		Actions: func() {
-			if mujica.Button(c, "Apply", mujica.ButtonOptions{}).Clicked() {
+			if input.Button(c, "Apply", input.ButtonOptions{}).Clicked() {
 				log("applied")
 				s.open = false
 			}
 		}}, func() {
-		ui.Text(c, "Guests are placed by rank, then by arrival.").TextColor(mujica.Tokens(c).TextMuted)
+		ui.Text(c, "Guests are placed by rank, then by arrival.").TextColor(core.Tokens(c).TextMuted)
 	})
 	if was && !s.open {
 		log("closed")
@@ -194,12 +196,12 @@ func drawerDemo(c *ui.Context, log func(string)) {
 
 const popoverCode = `open := true
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	b := mujica.Button(c, "Guests", mujica.ButtonOptions{Variant: mujica.Secondary})
+	core.Use(c, core.Settings{})
+	b := input.Button(c, "Guests", input.ButtonOptions{Variant: input.Secondary})
 	if b.Clicked() {
 		open = !open
 	}
-	mujica.Popover(c, b, &open, mujica.PopoverOptions{Title: "Guest list"}, func() {
+	overlay.Popover(c, b, &open, overlay.PopoverOptions{Title: "Guest list"}, func() {
 		ui.Text(c, "Twelve guests confirmed.")
 	})
 }
@@ -213,17 +215,17 @@ type popoverDemoState struct {
 func popoverDemo(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "084", func() popoverDemoState { return popoverDemoState{titled: true} })
 	overlayControls(c, func() { overlayCheck(c, log, &s.titled, "Title") })
-	b := mujica.Button(c, "Guests", mujica.ButtonOptions{Variant: mujica.Secondary})
+	b := input.Button(c, "Guests", input.ButtonOptions{Variant: input.Secondary})
 	if b.Clicked() {
 		s.open = !s.open
 		log(fmt.Sprintf("open = %v", s.open))
 	}
-	opts := mujica.PopoverOptions{Label: "Guest list"}
+	opts := overlay.PopoverOptions{Label: "Guest list"}
 	if s.titled {
 		opts.Title = "Guest list"
 	}
 	was := s.open
-	mujica.Popover(c, b, &s.open, opts, func() {
+	overlay.Popover(c, b, &s.open, opts, func() {
 		ui.Text(c, "Twelve guests confirmed; three await a reply.")
 		if ui.Checkbox(c, &s.rsvp, "Remind the others").Changed() {
 			log(fmt.Sprintf("remind = %v", s.rsvp))
@@ -235,9 +237,9 @@ func popoverDemo(c *ui.Context, log func(string)) {
 }
 
 const tooltipCode = `view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	b := mujica.Button(c, "Seal", mujica.ButtonOptions{})
-	mujica.Tooltip(c, b, "Seal the letter with wax", mujica.TooltipOptions{})
+	core.Use(c, core.Settings{})
+	b := input.Button(c, "Seal", input.ButtonOptions{})
+	overlay.Tooltip(c, b, "Seal the letter with wax", overlay.TooltipOptions{})
 }
 ui.Render(view, 400, 300, 1)`
 
@@ -246,25 +248,25 @@ func tooltipDemo(c *ui.Context, log func(string)) {
 	overlayControls(c, func() {
 		overlaySlider(c, log, delay, "Delay", "ms", 100, 1500, 100)
 	})
-	opts := mujica.TooltipOptions{Delay: time.Duration(*delay) * time.Millisecond}
+	opts := overlay.TooltipOptions{Delay: time.Duration(*delay) * time.Millisecond}
 	ui.Row(c).Gap(12).Children(func() {
-		b := mujica.Button(c, "Seal", mujica.ButtonOptions{})
+		b := input.Button(c, "Seal", input.ButtonOptions{})
 		if b.Clicked() {
 			log("seal clicked")
 		}
-		mujica.Tooltip(c, b, "Seal the letter with wax", opts)
-		d := mujica.Button(c, "Burn", mujica.ButtonOptions{Variant: mujica.Danger})
+		overlay.Tooltip(c, b, "Seal the letter with wax", opts)
+		d := input.Button(c, "Burn", input.ButtonOptions{Variant: input.Danger})
 		if d.Clicked() {
 			log("burn clicked")
 		}
-		mujica.Tooltip(c, d, "Burn every copy of the letter; nothing is kept", opts)
+		overlay.Tooltip(c, d, "Burn every copy of the letter; nothing is kept", opts)
 	})
 }
 
 const hoverCardCode = `view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	b := mujica.Button(c, "Lady Sakiko", mujica.ButtonOptions{Variant: mujica.Ghost})
-	mujica.HoverCard(c, b, mujica.HoverCardOptions{}, func() {
+	core.Use(c, core.Settings{})
+	b := input.Button(c, "Lady Sakiko", input.ButtonOptions{Variant: input.Ghost})
+	overlay.HoverCard(c, b, overlay.HoverCardOptions{}, func() {
 		ui.Text(c, "Keyboardist of the court.")
 	})
 }
@@ -284,15 +286,15 @@ func hoverCardDemo(c *ui.Context, log func(string)) {
 		overlaySlider(c, log, &s.closeDelay, "CloseDelay", "ms", 100, 1500, 100)
 		overlaySlider(c, log, &s.width, "Width", "DIP", 200, 420, 20)
 	})
-	b := mujica.Button(c, "Lady Sakiko", mujica.ButtonOptions{Variant: mujica.Ghost})
-	card := mujica.HoverCard(c, b, mujica.HoverCardOptions{
+	b := input.Button(c, "Lady Sakiko", input.ButtonOptions{Variant: input.Ghost})
+	card := overlay.HoverCard(c, b, overlay.HoverCardOptions{
 		OpenDelay:  time.Duration(s.openDelay) * time.Millisecond,
 		CloseDelay: time.Duration(s.closeDelay) * time.Millisecond,
 		Width:      float32(s.width),
 	}, func() {
 		ui.Text(c, "Lady Sakiko").FontWeight(600)
-		ui.Text(c, "Keyboardist of the court; writes the masquerade's score.").TextColor(mujica.Tokens(c).TextMuted)
-		if mujica.Button(c, "Follow", mujica.ButtonOptions{Variant: mujica.Outline}).Clicked() {
+		ui.Text(c, "Keyboardist of the court; writes the masquerade's score.").TextColor(core.Tokens(c).TextMuted)
+		if input.Button(c, "Follow", input.ButtonOptions{Variant: input.Outline}).Clicked() {
 			log("follow")
 		}
 	})
@@ -312,19 +314,19 @@ func overlaySlider(c *ui.Context, log func(string), v *float64, name, unit strin
 
 const dropdownMenuCode = `pinned := false
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.DropdownMenu(c, "Actions", mujica.DropdownMenuOptions{}, func(m *mujica.PopupMenu) {
+	core.Use(c, core.Settings{})
+	overlay.DropdownMenu(c, "Actions", overlay.DropdownMenuOptions{}, func(m *overlay.PopupMenu) {
 		m.Group("Letter", func() {
-			if m.Item("Rename", mujica.PopupMenuItemOptions{}) {
+			if m.Item("Rename", overlay.PopupMenuItemOptions{}) {
 				fmt.Println("rename")
 			}
-			m.Check("Pinned", &pinned, mujica.PopupMenuItemOptions{KeepOpen: true})
+			m.Check("Pinned", &pinned, overlay.PopupMenuItemOptions{KeepOpen: true})
 		})
-		m.Submenu("Move to", mujica.PopupMenuItemOptions{}, func(m *mujica.PopupMenu) {
-			m.Item("Archive", mujica.PopupMenuItemOptions{})
+		m.Submenu("Move to", overlay.PopupMenuItemOptions{}, func(m *overlay.PopupMenu) {
+			m.Item("Archive", overlay.PopupMenuItemOptions{})
 		})
 		m.Separator()
-		m.Item("Burn", mujica.PopupMenuItemOptions{Disabled: true})
+		m.Item("Burn", overlay.PopupMenuItemOptions{Disabled: true})
 	})
 }
 ui.Render(view, 400, 300, 1)`
@@ -332,30 +334,30 @@ ui.Render(view, 400, 300, 1)`
 type menuDemoState struct{ pinned, sealed, locked, disabled bool }
 
 // overlayMenu fills the shared demo menu, logging every choice.
-func overlayMenu(s *menuDemoState, log func(string)) func(m *mujica.PopupMenu) {
-	return func(m *mujica.PopupMenu) {
+func overlayMenu(s *menuDemoState, log func(string)) func(m *overlay.PopupMenu) {
+	return func(m *overlay.PopupMenu) {
 		m.Group("Letter", func() {
-			if m.Item("Rename", mujica.PopupMenuItemOptions{}) {
+			if m.Item("Rename", overlay.PopupMenuItemOptions{}) {
 				log("rename")
 			}
-			if m.Check("Pinned", &s.pinned, mujica.PopupMenuItemOptions{KeepOpen: true}) {
+			if m.Check("Pinned", &s.pinned, overlay.PopupMenuItemOptions{KeepOpen: true}) {
 				log(fmt.Sprintf("pinned = %v", s.pinned))
 			}
-			if m.Check("Sealed", &s.sealed, mujica.PopupMenuItemOptions{}) {
+			if m.Check("Sealed", &s.sealed, overlay.PopupMenuItemOptions{}) {
 				log(fmt.Sprintf("sealed = %v", s.sealed))
 			}
 		})
 		m.Group("Move", func() {
-			m.Submenu("Move to", mujica.PopupMenuItemOptions{}, func(m *mujica.PopupMenu) {
+			m.Submenu("Move to", overlay.PopupMenuItemOptions{}, func(m *overlay.PopupMenu) {
 				for _, f := range []string{"Archive", "Drafts", "Vault"} {
-					if m.Item(f, mujica.PopupMenuItemOptions{}) {
+					if m.Item(f, overlay.PopupMenuItemOptions{}) {
 						log("move to " + f)
 					}
 				}
 			})
 		})
 		m.Separator()
-		if m.Item("Burn", mujica.PopupMenuItemOptions{Disabled: s.locked}) {
+		if m.Item("Burn", overlay.PopupMenuItemOptions{Disabled: s.locked}) {
 			log("burn")
 		}
 	}
@@ -367,19 +369,19 @@ func dropdownMenuDemo(c *ui.Context, log func(string)) {
 		overlayCheck(c, log, &s.locked, "Burn disabled")
 		overlayCheck(c, log, &s.disabled, "Disabled")
 	})
-	mujica.DropdownMenu(c, "Actions", mujica.DropdownMenuOptions{Disabled: s.disabled}, overlayMenu(s, log))
+	overlay.DropdownMenu(c, "Actions", overlay.DropdownMenuOptions{Disabled: s.disabled}, overlayMenu(s, log))
 }
 
 const contextMenuCode = `view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
+	core.Use(c, core.Settings{})
 	row := ui.Row(c).Padding(12).Children(func() {
 		ui.Text(c, "Letter to the Countess")
 	})
-	mujica.ContextMenu(c, row, mujica.ContextMenuOptions{}, func(m *mujica.PopupMenu) {
-		if m.Item("Reply", mujica.PopupMenuItemOptions{}) {
+	overlay.ContextMenu(c, row, overlay.ContextMenuOptions{}, func(m *overlay.PopupMenu) {
+		if m.Item("Reply", overlay.PopupMenuItemOptions{}) {
 			fmt.Println("reply")
 		}
-		m.Item("Delete", mujica.PopupMenuItemOptions{})
+		m.Item("Delete", overlay.PopupMenuItemOptions{})
 	})
 }
 ui.Render(view, 400, 300, 1)`
@@ -390,25 +392,25 @@ func contextMenuDemo(c *ui.Context, log func(string)) {
 		overlayCheck(c, log, &s.locked, "Burn disabled")
 		overlayCheck(c, log, &s.disabled, "Disabled")
 	})
-	k := mujica.Tokens(c)
+	k := core.Tokens(c)
 	row := ui.Column(c).Height(160).FillWidth().Padding(16).Gap(8).Background(k.Surface).Border(1, k.Border).Radius(4)
 	row.Children(func() {
 		ui.Text(c, "Right-click anywhere here, or focus the button and press Shift+F10.").TextColor(k.TextMuted)
-		if mujica.Button(c, "Letter to the Countess", mujica.ButtonOptions{Variant: mujica.Ghost}).Clicked() {
+		if input.Button(c, "Letter to the Countess", input.ButtonOptions{Variant: input.Ghost}).Clicked() {
 			log("letter clicked")
 		}
 	})
-	mujica.ContextMenu(c, row, mujica.ContextMenuOptions{Disabled: s.disabled}, overlayMenu(s, log))
+	overlay.ContextMenu(c, row, overlay.ContextMenuOptions{Disabled: s.disabled}, overlayMenu(s, log))
 }
 
 const popconfirmCode = `open := false
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	b := mujica.Button(c, "Archive", mujica.ButtonOptions{Variant: mujica.Secondary})
+	core.Use(c, core.Settings{})
+	b := input.Button(c, "Archive", input.ButtonOptions{Variant: input.Secondary})
 	if b.Clicked() {
 		open = true
 	}
-	if mujica.Popconfirm(c, b, &open, mujica.PopconfirmOptions{Title: "Archive this letter?"}).Confirmed {
+	if overlay.Popconfirm(c, b, &open, overlay.PopconfirmOptions{Title: "Archive this letter?"}).Confirmed {
 		fmt.Println("archived")
 	}
 }
@@ -419,12 +421,12 @@ type popconfirmDemoState struct{ open, danger bool }
 func popconfirmDemo(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "089", func() popconfirmDemoState { return popconfirmDemoState{} })
 	overlayControls(c, func() { overlayCheck(c, log, &s.danger, "Danger") })
-	b := mujica.Button(c, "Archive", mujica.ButtonOptions{Variant: mujica.Secondary})
+	b := input.Button(c, "Archive", input.ButtonOptions{Variant: input.Secondary})
 	if b.Clicked() {
 		s.open = true
 		log("open")
 	}
-	r := mujica.Popconfirm(c, b, &s.open, mujica.PopconfirmOptions{Title: "Archive this letter?", Description: "It leaves the inbox.", Danger: s.danger})
+	r := overlay.Popconfirm(c, b, &s.open, overlay.PopconfirmOptions{Title: "Archive this letter?", Description: "It leaves the inbox.", Danger: s.danger})
 	if r.Confirmed {
 		log("confirmed")
 	}
@@ -435,8 +437,8 @@ func popconfirmDemo(c *ui.Context, log func(string)) {
 
 const overlayCode = `open := true
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Overlay(c, &open, mujica.OverlayOptions{Place: mujica.OverlayBottomRight, Label: "Now playing"}, func() {
+	core.Use(c, core.Settings{})
+	overlay.Overlay(c, &open, overlay.OverlayOptions{Place: overlay.OverlayBottomRight, Label: "Now playing"}, func() {
 		ui.Text(c, "Symbol I: △")
 	})
 }
@@ -450,10 +452,10 @@ type overlayDemoState struct {
 func overlayDemo(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "090", func() overlayDemoState { return overlayDemoState{place: "BottomRight"} })
 	names := []string{"Center", "Top", "Bottom", "Left", "Right", "TopLeft", "TopRight", "BottomLeft", "BottomRight"}
-	place := mujica.OverlayCenter
+	place := overlay.OverlayCenter
 	for i, n := range names {
 		if n == s.place {
-			place = mujica.OverlayPlace(i)
+			place = overlay.OverlayPlace(i)
 		}
 	}
 	overlayControls(c, func() {
@@ -465,15 +467,15 @@ func overlayDemo(c *ui.Context, log func(string)) {
 			overlayCheck(c, log, &s.dim, "Dim")
 		}
 	})
-	if mujica.Button(c, "Show overlay", mujica.ButtonOptions{}).Clicked() {
+	if input.Button(c, "Show overlay", input.ButtonOptions{}).Clicked() {
 		s.open = true
 		log("open")
 	}
 	was := s.open
-	mujica.Overlay(c, &s.open, mujica.OverlayOptions{Place: place, Modal: s.modal, Dim: s.modal && s.dim, Label: "Now playing"}, func() {
+	overlay.Overlay(c, &s.open, overlay.OverlayOptions{Place: place, Modal: s.modal, Dim: s.modal && s.dim, Label: "Now playing"}, func() {
 		ui.Text(c, "Now playing").FontWeight(600)
-		ui.Text(c, "Symbol I: △").TextColor(mujica.Tokens(c).TextMuted)
-		if mujica.Button(c, "Close", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+		ui.Text(c, "Symbol I: △").TextColor(core.Tokens(c).TextMuted)
+		if input.Button(c, "Close", input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 			s.open = false
 		}
 	})

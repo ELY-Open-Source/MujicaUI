@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-if mujica.Pagination(c, &page, &size, mujica.PaginationOptions{Total: 420, PageSizes: []int{10, 20, 50}, Jump: true}).Changed() {
+if navigation.Pagination(c, &page, &size, navigation.PaginationOptions{Total: 420, PageSizes: []int{10, 20, 50}, Jump: true}).Changed() {
 	fmt.Println("load page", page, "of size", size)
 }
 ```

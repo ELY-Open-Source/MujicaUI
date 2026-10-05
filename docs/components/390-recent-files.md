@@ -8,11 +8,11 @@
 
 ```go
 now := time.Date(2026, 10, 5, 12, 0, 0, 0, time.UTC)
-files := []mujica.RecentFile{{Path: "/court/seal.go", Opened: now}}
-var state mujica.RecentFilesState
+recent := []files.RecentFile{{Path: "/court/seal.go", Opened: now}}
+var state files.RecentFilesState
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.RecentFiles(c, files, &state, mujica.RecentFilesOptions{Now: now}).Element.Height(240)
+	core.Use(c, core.Settings{})
+	files.RecentFiles(c, recent, &state, files.RecentFilesOptions{Now: now}).Element.Height(240)
 }
 ui.Render(view, 500, 300, 1)
 ```

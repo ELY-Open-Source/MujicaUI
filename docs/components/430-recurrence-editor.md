@@ -7,12 +7,12 @@
 ## 最小示例
 
 ```go
-rule := mujica.Recurrence{Unit: mujica.RepeatWeekly, Interval: 1, Weekdays: []time.Weekday{time.Monday}}
+rule := datetime.Recurrence{Unit: datetime.RepeatWeekly, Interval: 1, Weekdays: []time.Weekday{time.Monday}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.RecurrenceEditor(c, &rule, mujica.RecurrenceEditorOptions{Start: mujica.Date{Year: 2026, Month: time.October, Day: 5}})
+	core.Use(c, core.Settings{})
+	r := datetime.RecurrenceEditor(c, &rule, datetime.RecurrenceEditorOptions{Start: core.Date{Year: 2026, Month: time.October, Day: 5}})
 	if r.Changed() && r.Problem() == "" {
-		fmt.Println(mujica.RecurrenceSummary(c, rule))
+		fmt.Println(datetime.RecurrenceSummary(c, rule))
 	}
 }
 ui.Render(view, 400, 300, 1)

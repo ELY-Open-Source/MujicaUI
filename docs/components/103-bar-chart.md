@@ -8,10 +8,10 @@
 
 ```go
 categories := []string{"Nave", "Choir", "Crypt"}
-series := []mujica.ChartSeries{{Name: "Gold", Values: []float64{4, -2, 3}}, {Name: "Silver", Values: []float64{2, 5, 1}}}
+series := []chart.ChartSeries{{Name: "Gold", Values: []float64{4, -2, 3}}, {Name: "Silver", Values: []float64{2, 5, 1}}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.BarChart(c, categories, series, mujica.BarChartOptions{Frame: mujica.ChartFrame{Label: "Tithes"}, Labels: true})
+	core.Use(c, core.Settings{})
+	chart.BarChart(c, categories, series, chart.BarChartOptions{Frame: chart.ChartFrame{Label: "Tithes"}, Labels: true})
 }
 ui.Render(view, 400, 300, 1)
 ```

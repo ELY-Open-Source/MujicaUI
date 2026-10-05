@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-mujica.CodeBlock(c, "func bow() {}", mujica.CodeBlockOptions{Language: "go", LineNumbers: true})
+chat.CodeBlock(c, "func bow() {}", chat.CodeBlockOptions{Language: "go", LineNumbers: true})
 ```
 
 签名：`func CodeBlock(c *ui.Context, code string, opts CodeBlockOptions) CopyResult`

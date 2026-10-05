@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-msg := mujica.CommitMessage{}
+msg := git.CommitMessage{}
 busy := false
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.CommitInput(c, &msg, mujica.CommitInputOptions{Busy: busy})
+	core.Use(c, core.Settings{})
+	r := git.CommitInput(c, &msg, git.CommitInputOptions{Busy: busy})
 	if r.Committed() || r.Amended() {
 		busy = true // run git commit, then clear busy
 	}

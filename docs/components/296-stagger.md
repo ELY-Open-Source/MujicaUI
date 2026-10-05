@@ -9,8 +9,8 @@
 ```go
 guests := []string{"Sakiko", "Uika", "Mutsumi"}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Stagger(c, len(guests), mujica.StaggerOptions{}, func(i int) {
+	core.Use(c, core.Settings{})
+	feedback.Stagger(c, len(guests), feedback.StaggerOptions{}, func(i int) {
 		ui.Text(c, guests[i])
 	})
 }

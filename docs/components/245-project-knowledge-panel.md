@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-files := []mujica.KnowledgeFile{{ID: "1", Name: "etiquette.pdf", Tokens: 12000}}
+files := []chat.KnowledgeFile{{ID: "1", Name: "etiquette.pdf", Tokens: 12000}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	v := mujica.ProjectKnowledgePanel(c, files, mujica.ProjectKnowledgePanelOptions{Capacity: 200000})
+	core.Use(c, core.Settings{})
+	v := chat.ProjectKnowledgePanel(c, files, chat.ProjectKnowledgePanelOptions{Capacity: 200000})
 	if v.Add {
 		log.Println("pick files")
 	}

@@ -8,7 +8,9 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/chart"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ZacharyZhang-NY/MujicaUI/datetime"
 )
 
 func c1CalendarDemo(c *ui.Context, log func(string)) {
@@ -20,17 +22,17 @@ func c1CalendarDemo(c *ui.Context, log func(string)) {
 	c1Section(c, "CalendarHeatmap", func() { ui.Select(c, &s.start, []string{"Locale", "Sunday", "Monday", "Saturday"}) }, func() {
 		frame, show := c1Frame(c, "Prayers", &s.status)
 		frame.Height = 160
-		values := map[mujica.Date]float64{}
+		values := map[core.Date]float64{}
 		if show {
-			d := mujica.Date{Year: s.year, Month: time.January, Day: 1}
+			d := core.Date{Year: s.year, Month: time.January, Day: 1}
 			for i := range 366 {
 				if (i*37)%5 != 0 {
 					values[d.AddDays(i)] = float64((i * 13) % 9)
 				}
 			}
 		}
-		start := map[string]mujica.WeekStart{"Locale": mujica.WeekStartLocale, "Sunday": mujica.WeekStartSunday, "Monday": mujica.WeekStartMonday, "Saturday": mujica.WeekStartSaturday}[s.start]
-		r := mujica.CalendarHeatmap(c, &s.year, values, mujica.CalendarHeatmapOptions{Frame: frame, WeekStart: start})
+		start := map[string]datetime.WeekStart{"Locale": datetime.WeekStartLocale, "Sunday": datetime.WeekStartSunday, "Monday": datetime.WeekStartMonday, "Saturday": datetime.WeekStartSaturday}[s.start]
+		r := chart.CalendarHeatmap(c, &s.year, values, chart.CalendarHeatmapOptions{Frame: frame, WeekStart: start})
 		c1Log(log, "CalendarHeatmap", r)
 		if r.ValueChanged() {
 			log("CalendarHeatmap: year " + strconv.Itoa(s.year))
@@ -62,7 +64,7 @@ func c1HistogramDemo(c *ui.Context, log func(string)) {
 		if !show {
 			values = nil
 		}
-		c1Log(log, "Histogram", mujica.Histogram(c, values, mujica.HistogramOptions{Frame: frame, Bins: int(s.bins), Cumulative: s.cumulative}))
+		c1Log(log, "Histogram", chart.Histogram(c, values, chart.HistogramOptions{Frame: frame, Bins: int(s.bins), Cumulative: s.cumulative}))
 	})
 }
 
@@ -71,7 +73,7 @@ func c1BoxDemo(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "110", func() state { return state{status: "Ready"} })
 	c1Section(c, "BoxPlot", func() {}, func() {
 		frame, show := c1Frame(c, "Hymns", &s.status)
-		groups := []mujica.BoxGroup{
+		groups := []chart.BoxGroup{
 			{Name: "Choir", Values: []float64{1, 2, 3, 4, 5, 6, 7, 8, 9, 24}},
 			{Name: "Nave", Values: []float64{4, 5, 5, 6, 7, 8}},
 			{Name: "Crypt", Values: []float64{12, 14, 15, 18, 22, 25}},
@@ -79,7 +81,7 @@ func c1BoxDemo(c *ui.Context, log func(string)) {
 		if !show {
 			groups = nil
 		}
-		c1Log(log, "BoxPlot", mujica.BoxPlot(c, groups, mujica.BoxPlotOptions{Frame: frame}))
+		c1Log(log, "BoxPlot", chart.BoxPlot(c, groups, chart.BoxPlotOptions{Frame: frame}))
 	})
 }
 
@@ -88,14 +90,14 @@ func c1WaterfallDemo(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "111", func() state { return state{status: "Ready"} })
 	c1Section(c, "WaterfallChart", func() {}, func() {
 		frame, show := c1Frame(c, "Ledger", &s.status)
-		steps := []mujica.WaterfallStep{
-			{Label: "Tithes", Value: 12}, {Label: "Repairs", Value: -5}, {Label: "Q1", Kind: mujica.WaterfallSubtotal},
-			{Label: "Alms", Value: 4}, {Label: "Bread", Value: -2}, {Label: "Year", Kind: mujica.WaterfallTotal},
+		steps := []chart.WaterfallStep{
+			{Label: "Tithes", Value: 12}, {Label: "Repairs", Value: -5}, {Label: "Q1", Kind: chart.WaterfallSubtotal},
+			{Label: "Alms", Value: 4}, {Label: "Bread", Value: -2}, {Label: "Year", Kind: chart.WaterfallTotal},
 		}
 		if !show {
 			steps = nil
 		}
-		c1Log(log, "WaterfallChart", mujica.WaterfallChart(c, steps, mujica.WaterfallChartOptions{Frame: frame}))
+		c1Log(log, "WaterfallChart", chart.WaterfallChart(c, steps, chart.WaterfallChartOptions{Frame: frame}))
 	})
 }
 
@@ -104,11 +106,11 @@ func c1FunnelDemo(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "112", func() state { return state{status: "Ready"} })
 	c1Section(c, "FunnelChart", func() {}, func() {
 		frame, show := c1Frame(c, "Order", &s.status)
-		stages := []mujica.ChartSlice{{Label: "Visitors", Value: 1000}, {Label: "Novices", Value: 400}, {Label: "Vows", Value: 100}, {Label: "Priors", Value: 12}}
+		stages := []chart.ChartSlice{{Label: "Visitors", Value: 1000}, {Label: "Novices", Value: 400}, {Label: "Vows", Value: 100}, {Label: "Priors", Value: 12}}
 		if !show {
 			stages = nil
 		}
-		c1Log(log, "FunnelChart", mujica.FunnelChart(c, stages, mujica.FunnelChartOptions{Frame: frame}))
+		c1Log(log, "FunnelChart", chart.FunnelChart(c, stages, chart.FunnelChartOptions{Frame: frame}))
 	})
 }
 
@@ -129,7 +131,7 @@ func c1BulletDemo(c *ui.Context, log func(string)) {
 			frame.Height = 200
 		}
 		target := s.target
-		c1Log(log, "BulletChart", mujica.BulletChart(c, s.value, mujica.BulletChartOptions{Frame: frame, Target: &target, Bands: []float64{150, 225, 300}, Vertical: s.vertical}))
+		c1Log(log, "BulletChart", chart.BulletChart(c, s.value, chart.BulletChartOptions{Frame: frame, Target: &target, Bands: []float64{150, 225, 300}, Vertical: s.vertical}))
 	})
 }
 
@@ -143,10 +145,10 @@ func c1SparkDemo(c *ui.Context, log func(string)) {
 			values = nil
 		}
 		ui.Row(c).Gap(24).Wrap().Children(func() {
-			for _, k := range []mujica.SparklineKind{mujica.SparklineLine, mujica.SparklineBar, mujica.SparklineArea} {
+			for _, k := range []chart.SparklineKind{chart.SparklineLine, chart.SparklineBar, chart.SparklineArea} {
 				f := frame
 				f.Label = fmt.Sprintf("Bells %d", k+1)
-				c1Log(log, f.Label, mujica.Sparkline(c, values, mujica.SparklineOptions{Frame: f, Kind: k}))
+				c1Log(log, f.Label, chart.Sparkline(c, values, chart.SparklineOptions{Frame: f, Kind: k}))
 			}
 		})
 	})
@@ -165,7 +167,7 @@ func c1GaugeDemo(c *ui.Context, log func(string)) {
 		ui.Checkbox(c, &s.full, "Full circle")
 	}, func() {
 		frame, _ := c1Frame(c, "Nave", &s.status)
-		segments := []mujica.GaugeSegment{{To: 60, Label: "Calm", Tone: mujica.GaugeGood}, {To: 85, Label: "Busy", Tone: mujica.GaugeWarning}, {To: 100, Label: "Crowded", Tone: mujica.GaugeDanger}}
-		c1Log(log, "Gauge", mujica.Gauge(c, s.value, mujica.GaugeOptions{Frame: frame, Max: 100, Unit: "%", Segments: segments, Full: s.full}))
+		segments := []chart.GaugeSegment{{To: 60, Label: "Calm", Tone: chart.GaugeGood}, {To: 85, Label: "Busy", Tone: chart.GaugeWarning}, {To: 100, Label: "Crowded", Tone: chart.GaugeDanger}}
+		c1Log(log, "Gauge", chart.Gauge(c, s.value, chart.GaugeOptions{Frame: frame, Max: 100, Unit: "%", Segments: segments, Full: s.full}))
 	})
 }

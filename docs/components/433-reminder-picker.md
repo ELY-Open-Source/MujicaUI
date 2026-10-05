@@ -9,8 +9,8 @@
 ```go
 reminders := []time.Duration{15 * time.Minute}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.ReminderPicker(c, &reminders, mujica.ReminderPickerOptions{Max: 3}).Changed() {
+	core.Use(c, core.Settings{})
+	if datetime.ReminderPicker(c, &reminders, datetime.ReminderPickerOptions{Max: 3}).Changed() {
 		fmt.Println("reminders", reminders)
 	}
 }

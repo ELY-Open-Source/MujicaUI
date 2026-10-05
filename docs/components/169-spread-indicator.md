@@ -10,8 +10,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.SpreadIndicator(c, 99.95, 100.05, mujica.SpreadIndicatorOptions{WarnPercent: 0.5})
+	core.Use(c, core.Settings{})
+	finance.SpreadIndicator(c, 99.95, 100.05, finance.SpreadIndicatorOptions{WarnPercent: 0.5})
 }
 ui.Render(view, 400, 300, 1)
 ```

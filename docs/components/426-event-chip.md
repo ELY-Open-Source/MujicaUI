@@ -10,8 +10,8 @@
 loc := time.Local
 ev := exampleEvents(loc)[0]
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.EventChip(c, ev, mujica.EventChipOptions{Location: loc}).Clicked() {
+	core.Use(c, core.Settings{})
+	if datetime.EventChip(c, ev, datetime.EventChipOptions{Location: loc}).Clicked() {
 		fmt.Println("open", ev.ID)
 	}
 }

@@ -8,10 +8,10 @@
 
 ```go
 text := "the seal and the seal"
-state := mujica.FindState{Query: "seal", Replacement: "signet", ShowReplace: true}
+state := code.FindState{Query: "seal", Replacement: "signet", ShowReplace: true}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.FindWidget(c, &text, &state, mujica.FindWidgetOptions{}).Replaced > 0 {
+	core.Use(c, core.Settings{})
+	if code.FindWidget(c, &text, &state, code.FindWidgetOptions{}).Replaced > 0 {
 		fmt.Println(text)
 	}
 }

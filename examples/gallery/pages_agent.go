@@ -6,7 +6,8 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/agent"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
 )
 
 const agentCategory = "Agent"
@@ -58,13 +59,13 @@ var agentPages = []page{
 var agentStates = []string{"Pending", "Planning", "Running", "Waiting", "Done", "Failed", "Skipped"}
 
 // agentStatePick is a select over agentStates, logging changes.
-func agentStatePick(c *ui.Context, log func(string), v *string) mujica.AgentState {
+func agentStatePick(c *ui.Context, log func(string), v *string) agent.AgentState {
 	if ui.Select(c, v, agentStates).Changed() {
 		log("state = " + *v)
 	}
 	for i, s := range agentStates {
 		if s == *v {
-			return mujica.AgentState(i)
+			return agent.AgentState(i)
 		}
 	}
 	panic("gallery: unknown state " + *v)
@@ -78,41 +79,41 @@ type toolCallDemoState struct {
 
 func toolCallCardDemo(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "261", func() toolCallDemoState { return toolCallDemoState{state: "Done"} })
-	var st mujica.AgentState
+	var st agent.AgentState
 	overlayControls(c, func() {
 		st = agentStatePick(c, log, &s.state)
 		overlayCheck(c, log, &s.failed, "Error")
 		overlayCheck(c, log, &s.still, "Still")
 	})
-	call := mujica.ToolCall{ID: "1", Name: "read_file", Args: `{"path":"court/ledger.md","limit":40}`,
+	call := agent.ToolCall{ID: "1", Name: "read_file", Args: `{"path":"court/ledger.md","limit":40}`,
 		Result: `{"lines":40,"truncated":false}`, State: st, Duration: 420 * time.Millisecond}
 	if s.failed {
 		call.Error = "permission denied: court/ledger.md"
 	}
-	if mujica.ToolCallCard(c, call, mujica.ToolCallCardOptions{Still: s.still}).Changed() {
+	if agent.ToolCallCard(c, call, agent.ToolCallCardOptions{Still: s.still}).Changed() {
 		log("folded or unfolded a section")
 	}
 }
 
 func toolCallGroupDemo(c *ui.Context, log func(string)) {
 	open := ui.Local(c.Root(), "262", func() bool { return true })
-	calls := []mujica.ToolCall{
-		{ID: "a", Name: "list_dir", Args: `{"path":"court"}`, Result: `["ledger.md","menu.md"]`, State: mujica.AgentDone, Duration: 300 * time.Millisecond},
-		{ID: "b", Name: "read_file", Args: `{"path":"court/wine.md"}`, Error: "not found", State: mujica.AgentFailed, Duration: 1200 * time.Millisecond},
-		{ID: "c", Name: "grep", Args: `{"pattern":"Sakiko"}`, Result: `{"matches":3}`, State: mujica.AgentDone, Duration: 500 * time.Millisecond},
+	calls := []agent.ToolCall{
+		{ID: "a", Name: "list_dir", Args: `{"path":"court"}`, Result: `["ledger.md","menu.md"]`, State: agent.AgentDone, Duration: 300 * time.Millisecond},
+		{ID: "b", Name: "read_file", Args: `{"path":"court/wine.md"}`, Error: "not found", State: agent.AgentFailed, Duration: 1200 * time.Millisecond},
+		{ID: "c", Name: "grep", Args: `{"pattern":"Sakiko"}`, Result: `{"matches":3}`, State: agent.AgentDone, Duration: 500 * time.Millisecond},
 	}
-	if mujica.ToolCallGroup(c, open, calls, mujica.ToolCallGroupOptions{}).Changed() {
+	if agent.ToolCallGroup(c, open, calls, agent.ToolCallGroupOptions{}).Changed() {
 		log(fmt.Sprintf("group open = %v", *open))
 	}
 }
 
 func toolApprovalDemo(c *ui.Context, log func(string)) {
 	open := ui.Local(c.Root(), "263", func() bool { return false })
-	if mujica.Button(c, "Run delete_files", mujica.ButtonOptions{}).Clicked() {
+	if input.Button(c, "Run delete_files", input.ButtonOptions{}).Clicked() {
 		*open = true
 		log("asked for approval")
 	}
-	r := mujica.ToolApprovalDialog(c, open, mujica.ToolApprovalOptions{Tool: "delete_files",
+	r := agent.ToolApprovalDialog(c, open, agent.ToolApprovalOptions{Tool: "delete_files",
 		Args: `{"glob":"build/*.tmp","dry_run":false}`, Reason: "The agent wants to clean temporary files from the build folder."})
 	if r.Allowed {
 		log("allowed")
@@ -130,35 +131,35 @@ type permissionDemoState struct {
 func permissionDemo(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "264", func() permissionDemoState { return permissionDemoState{grant: "none"} })
 	ui.Row(c).Gap(12).AlignItems(ui.Center).Children(func() {
-		if mujica.Button(c, "Ask to write", mujica.ButtonOptions{}).Clicked() {
+		if input.Button(c, "Ask to write", input.ButtonOptions{}).Clicked() {
 			s.open = true
 			log("asked for permission")
 		}
 		ui.Text(c, "Grant: "+s.grant)
 	})
-	r := mujica.PermissionPrompt(c, &s.open, mujica.PermissionPromptOptions{Title: "Write to the ledger?",
+	r := agent.PermissionPrompt(c, &s.open, agent.PermissionPromptOptions{Title: "Write to the ledger?",
 		Description: "The agent wants to record tonight's guests.", Scope: "Write access to ~/court/ledger and its subfolders"})
-	if r.Choice != mujica.PermissionNone {
+	if r.Choice != agent.PermissionNone {
 		s.grant = [...]string{"none", "once", "always", "denied"}[r.Choice]
 		log("choice = " + s.grant)
 	}
 }
 
 type stepDemoState struct {
-	steps    []mujica.AgentStep
+	steps    []agent.AgentStep
 	disabled bool
 }
 
 func agentStepListDemo(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "265", func() stepDemoState {
-		return stepDemoState{steps: []mujica.AgentStep{
-			{ID: "read", Title: "Read the guest list", State: mujica.AgentDone, Duration: 800 * time.Millisecond, Detail: "42 guests, 3 arrive late."},
-			{ID: "seat", Title: "Assign the seats", State: mujica.AgentFailed, Duration: 2 * time.Second, Detail: "Table 4 is over capacity."},
-			{ID: "send", Title: "Send the invitations", State: mujica.AgentPending},
+		return stepDemoState{steps: []agent.AgentStep{
+			{ID: "read", Title: "Read the guest list", State: agent.AgentDone, Duration: 800 * time.Millisecond, Detail: "42 guests, 3 arrive late."},
+			{ID: "seat", Title: "Assign the seats", State: agent.AgentFailed, Duration: 2 * time.Second, Detail: "Table 4 is over capacity."},
+			{ID: "send", Title: "Send the invitations", State: agent.AgentPending},
 		}}
 	})
 	overlayControls(c, func() { overlayCheck(c, log, &s.disabled, "Disabled") })
-	r := mujica.AgentStepList(c, s.steps, mujica.AgentStepListOptions{Disabled: s.disabled})
+	r := agent.AgentStepList(c, s.steps, agent.AgentStepListOptions{Disabled: s.disabled})
 	if r.Toggled != "" {
 		log("toggled " + r.Toggled)
 	}
@@ -166,38 +167,38 @@ func agentStepListDemo(c *ui.Context, log func(string)) {
 		log("retry " + r.Retry)
 		for i := range s.steps {
 			if s.steps[i].ID == r.Retry {
-				s.steps[i].State, s.steps[i].Detail = mujica.AgentRunning, "Retrying with a larger table."
+				s.steps[i].State, s.steps[i].Detail = agent.AgentRunning, "Retrying with a larger table."
 			}
 		}
 	}
 }
 
 type planDemoState struct {
-	items    []mujica.PlanItem
+	items    []agent.PlanItem
 	disabled bool
 }
 
 func agentPlanDemo(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "266", func() planDemoState {
-		return planDemoState{items: []mujica.PlanItem{
-			{ID: "a", Text: "Read the guest list", State: mujica.AgentDone},
-			{ID: "b", Text: "Assign the seats", State: mujica.AgentRunning},
+		return planDemoState{items: []agent.PlanItem{
+			{ID: "a", Text: "Read the guest list", State: agent.AgentDone},
+			{ID: "b", Text: "Assign the seats", State: agent.AgentRunning},
 			{ID: "c", Text: "Order the flowers"},
 		}}
 	})
 	overlayControls(c, func() {
 		overlayCheck(c, log, &s.disabled, "Disabled")
-		if mujica.Button(c, "Agent finishes a step", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+		if input.Button(c, "Agent finishes a step", input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 			for i := range s.items {
-				if s.items[i].State != mujica.AgentDone && s.items[i].State != mujica.AgentSkipped {
-					s.items[i].State = mujica.AgentDone
+				if s.items[i].State != agent.AgentDone && s.items[i].State != agent.AgentSkipped {
+					s.items[i].State = agent.AgentDone
 					log("agent checked " + s.items[i].Text)
 					break
 				}
 			}
 		}
 	})
-	if mujica.AgentPlan(c, &s.items, mujica.AgentPlanOptions{Disabled: s.disabled}).Changed() {
+	if agent.AgentPlan(c, &s.items, agent.AgentPlanOptions{Disabled: s.disabled}).Changed() {
 		log(fmt.Sprintf("plan changed (%d items)", len(s.items)))
 	}
 }
@@ -209,15 +210,15 @@ type statusDemoState struct {
 
 func agentStatusDemo(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "267", func() statusDemoState { return statusDemoState{state: "Running"} })
-	var st mujica.AgentState
+	var st agent.AgentState
 	overlayControls(c, func() {
 		st = agentStatePick(c, log, &s.state)
 		overlayCheck(c, log, &s.still, "Still")
 	})
 	ui.Row(c).Gap(8).Wrap().Children(func() {
-		mujica.AgentStatus(c, st, mujica.AgentStatusOptions{Still: s.still})
-		for _, v := range []mujica.AgentState{mujica.AgentPlanning, mujica.AgentRunning, mujica.AgentWaiting, mujica.AgentDone, mujica.AgentFailed} {
-			mujica.AgentStatus(c, v, mujica.AgentStatusOptions{Still: s.still})
+		agent.AgentStatus(c, st, agent.AgentStatusOptions{Still: s.still})
+		for _, v := range []agent.AgentState{agent.AgentPlanning, agent.AgentRunning, agent.AgentWaiting, agent.AgentDone, agent.AgentFailed} {
+			agent.AgentStatus(c, v, agent.AgentStatusOptions{Still: s.still})
 		}
 	})
 }
@@ -239,25 +240,25 @@ func agentProgressDemo(c *ui.Context, log func(string)) {
 	if s.value > 0.5 {
 		action = "Writing the seating chart"
 	}
-	mujica.AgentProgress(c, s.value, mujica.AgentProgressOptions{Label: "Preparing the ball", Action: action, Indeterminate: s.indeterminate})
+	agent.AgentProgress(c, s.value, agent.AgentProgressOptions{Label: "Preparing the ball", Action: action, Indeterminate: s.indeterminate})
 }
 
 func subAgentTreeDemo(c *ui.Context, log func(string)) {
 	disabled := ui.Local(c.Root(), "269", func() bool { return false })
 	overlayControls(c, func() { overlayCheck(c, log, disabled, "Disabled") })
-	agents := []mujica.SubAgent{{ID: "lead", Name: "Steward", Task: "Prepare the ball", State: mujica.AgentRunning, Children: []mujica.SubAgent{
-		{ID: "music", Name: "Musician", Task: "Hire the quartet", State: mujica.AgentDone},
-		{ID: "kitchen", Name: "Cook", Task: "Plan the menu", State: mujica.AgentWaiting, Children: []mujica.SubAgent{
-			{ID: "wine", Name: "Sommelier", Task: "Choose the wine", State: mujica.AgentFailed},
+	agents := []agent.SubAgent{{ID: "lead", Name: "Steward", Task: "Prepare the ball", State: agent.AgentRunning, Children: []agent.SubAgent{
+		{ID: "music", Name: "Musician", Task: "Hire the quartet", State: agent.AgentDone},
+		{ID: "kitchen", Name: "Cook", Task: "Plan the menu", State: agent.AgentWaiting, Children: []agent.SubAgent{
+			{ID: "wine", Name: "Sommelier", Task: "Choose the wine", State: agent.AgentFailed},
 		}},
 	}}}
-	if mujica.SubAgentTree(c, agents, mujica.SubAgentTreeOptions{Disabled: *disabled}).Changed() {
+	if agent.SubAgentTree(c, agents, agent.SubAgentTreeOptions{Disabled: *disabled}).Changed() {
 		log("expanded or collapsed an agent")
 	}
 }
 
 type fileChangeDemoState struct {
-	decision mujica.FileDecision
+	decision agent.FileDecision
 	disabled bool
 	preview  float64
 }
@@ -268,7 +269,7 @@ func fileChangeCardDemo(c *ui.Context, log func(string)) {
 		overlayCheck(c, log, &s.disabled, "Disabled")
 		overlaySlider(c, log, &s.preview, "Preview", "lines", 2, 12, 1)
 	})
-	r := mujica.FileChangeCard(c, &s.decision, agentDemoChange, mujica.FileChangeCardOptions{Preview: int(s.preview), Disabled: s.disabled})
+	r := agent.FileChangeCard(c, &s.decision, agentDemoChange, agent.FileChangeCardOptions{Preview: int(s.preview), Disabled: s.disabled})
 	if r.Decided {
 		log(fmt.Sprintf("decision = %d", s.decision))
 	}
@@ -277,6 +278,6 @@ func fileChangeCardDemo(c *ui.Context, log func(string)) {
 	}
 }
 
-var agentDemoChange = mujica.FileChange{Path: "court/ledger.md",
+var agentDemoChange = agent.FileChange{Path: "court/ledger.md",
 	Old: "# Ledger\nGuests: 40\nWine: claret\nMusic: none\nHall: east wing\n",
 	New: "# Ledger\nGuests: 42\nWine: claret\nMusic: quartet\nFlowers: lilies\nHall: east wing\n"}

@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-var state mujica.ListState[string]
-commits := []mujica.Commit{{Hash: "a1b2c3d4", Author: "Sakiko", When: time.Now(), Subject: "Edit main.go"}}
+var state data.ListState[string]
+commits := []git.Commit{{Hash: "a1b2c3d4", Author: "Sakiko", When: time.Now(), Subject: "Edit main.go"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.FileHistory(c, &state, "main.go", commits, mujica.FileHistoryOptions{})
+	core.Use(c, core.Settings{})
+	r := git.FileHistory(c, &state, "main.go", commits, git.FileHistoryOptions{})
 	r.Element.Height(240)
 	if _, hash, ok := r.Action(); ok {
 		_ = hash // open the diff of main.go at hash

@@ -9,8 +9,8 @@
 ```go
 price := 101.5
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.BlinkHighlight(c, price, mujica.BlinkHighlightOptions{})
+	core.Use(c, core.Settings{})
+	feedback.BlinkHighlight(c, price, feedback.BlinkHighlightOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

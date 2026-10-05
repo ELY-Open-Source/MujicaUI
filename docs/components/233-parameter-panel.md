@@ -9,9 +9,9 @@
 ```go
 temperature := 1.0
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	params := []mujica.ModelParam{{Label: "Temperature", Value: &temperature, Min: 0, Max: 2, Step: 0.1, Default: 1}}
-	mujica.ParameterPanel(c, params)
+	core.Use(c, core.Settings{})
+	params := []chat.ModelParam{{Label: "Temperature", Value: &temperature, Min: 0, Max: 2, Step: 0.1, Default: 1}}
+	chat.ParameterPanel(c, params)
 }
 ui.Render(view, 400, 300, 1)
 ```

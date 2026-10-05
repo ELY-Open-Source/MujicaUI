@@ -7,13 +7,13 @@
 ## 最小示例
 
 ```go
-series := []mujica.ChartSeries{
+series := []chart.ChartSeries{
 	{Name: "Pews", Values: []float64{3, 5, math.NaN(), 4, 8}},
 	{Name: "Candles", Values: []float64{5, 2, 6, 7, 1}},
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.LineChart(c, series, mujica.LineChartOptions{Frame: mujica.ChartFrame{Label: "Chapel"}})
+	core.Use(c, core.Settings{})
+	chart.LineChart(c, series, chart.LineChartOptions{Frame: chart.ChartFrame{Label: "Chapel"}})
 }
 ui.Render(view, 400, 300, 1)
 ```

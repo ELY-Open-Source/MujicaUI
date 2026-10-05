@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-problems := []mujica.Problem{{Severity: mujica.ProblemError, File: "court/seal.go", Line: 12, Col: 5, Message: "undefined: Decree"}}
-var state mujica.ProblemsPanelState
+problems := []code.Problem{{Severity: code.ProblemError, File: "court/seal.go", Line: 12, Col: 5, Message: "undefined: Decree"}}
+var state code.ProblemsPanelState
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.ProblemsPanel(c, problems, &state, mujica.ProblemsPanelOptions{})
+	core.Use(c, core.Settings{})
+	r := code.ProblemsPanel(c, problems, &state, code.ProblemsPanelOptions{})
 	r.Element.Height(240)
 	if r.Opened != nil {
 		fmt.Println("go to", r.Opened.File, r.Opened.Line)

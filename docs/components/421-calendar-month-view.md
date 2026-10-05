@@ -9,10 +9,10 @@
 ```go
 loc := time.Local
 events := exampleEvents(loc)
-month := mujica.YearMonth{Year: 2026, Month: time.October}
+month := datetime.YearMonth{Year: 2026, Month: time.October}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.CalendarMonthView(c, &month, events, mujica.CalendarMonthViewOptions{Location: loc})
+	core.Use(c, core.Settings{})
+	r := datetime.CalendarMonthView(c, &month, events, datetime.CalendarMonthViewOptions{Location: loc})
 	if ch, ok := r.Changed(); ok {
 		fmt.Println("move", ch.ID, "to", ch.Start)
 	}

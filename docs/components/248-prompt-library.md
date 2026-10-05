@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-var state mujica.PromptLibraryState
-templates := []mujica.PromptTemplate{{ID: "1", Category: "Letters", Title: "Invitation", Body: "Invite {{guest}}."}}
+var state chat.PromptLibraryState
+templates := []chat.PromptTemplate{{ID: "1", Category: "Letters", Title: "Invitation", Body: "Invite {{guest}}."}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if v := mujica.PromptLibrary(c, &state, templates, mujica.PromptLibraryOptions{}); v.Inserted != "" {
+	core.Use(c, core.Settings{})
+	if v := chat.PromptLibrary(c, &state, templates, chat.PromptLibraryOptions{}); v.Inserted != "" {
 		log.Println("insert", v.Inserted)
 	}
 }

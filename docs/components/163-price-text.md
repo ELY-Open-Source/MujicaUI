@@ -10,9 +10,9 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.UseTrend(c, mujica.RedUp)
-	mujica.PriceText(c, 18234.5, mujica.PriceTextOptions{Compare: true, Reference: 18000})
+	core.Use(c, core.Settings{})
+	core.UseTrend(c, core.RedUp)
+	finance.PriceText(c, 18234.5, finance.PriceTextOptions{Compare: true, Reference: 18000})
 }
 ui.Render(view, 400, 300, 1)
 ```

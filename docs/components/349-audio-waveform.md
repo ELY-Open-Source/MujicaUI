@@ -8,10 +8,10 @@
 
 ```go
 samples := make([]float32, 48000) // from your decoder, -1 to 1
-pos, sel := time.Duration(0), mujica.MediaRange{}
+pos, sel := time.Duration(0), media.MediaRange{}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.AudioWaveform(c, samples, mujica.AudioWaveformOptions{
+	core.Use(c, core.Settings{})
+	media.AudioWaveform(c, samples, media.AudioWaveformOptions{
 		Duration: time.Second, Position: pos, Selection: &sel,
 		OnSeek: func(d time.Duration) { pos = d },
 	})

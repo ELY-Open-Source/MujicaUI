@@ -1,6 +1,8 @@
 package main
 
-import "github.com/egoist/mygo/ui"
+import (
+	"github.com/egoist/mygo/ui"
+)
 
 // page is one component's gallery entry.
 type page struct {

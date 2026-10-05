@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-items := []mujica.Reaction{{Emoji: "\U0001f44d", Count: 3, Mine: true}}
+items := []files.Reaction{{Emoji: "\U0001f44d", Count: 3, Mine: true}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Reactions(c, items, mujica.ReactionsOptions{Choices: []string{"\U0001f44d", "\U0001f389"}})
+	core.Use(c, core.Settings{})
+	files.Reactions(c, items, files.ReactionsOptions{Choices: []string{"\U0001f44d", "\U0001f389"}})
 }
 ui.Render(view, 400, 100, 1)
 ```

@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.HoldToConfirm(c, "Delete project", mujica.HoldToConfirmOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if input.HoldToConfirm(c, "Delete project", input.HoldToConfirmOptions{}).Changed() {
 		// delete the project
 	}
 }

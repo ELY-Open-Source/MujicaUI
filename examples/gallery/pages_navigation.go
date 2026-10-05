@@ -6,8 +6,10 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
-	"mujicaui/icons"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ZacharyZhang-NY/MujicaUI/icons"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
+	"github.com/ZacharyZhang-NY/MujicaUI/navigation"
 )
 
 var navigationPages = []page{
@@ -63,11 +65,11 @@ func navigationDemo(c *ui.Context, controls, body func()) {
 	})
 }
 
-const navigationTabsCode = `mujica.Tabs(c, &tab, []mujica.Tab{
+const navigationTabsCode = `navigation.Tabs(c, &tab, []navigation.Tab{
 	{Label: "General", Panel: func() { ui.Text(c, "General settings") }},
 	{Label: "Fonts", Icon: icons.Must("italic"), Panel: func() { ui.Text(c, "Fonts") }},
 	{Label: "Archive", Disabled: true},
-}, mujica.TabsOptions{Label: "Settings"})`
+}, navigation.TabsOptions{Label: "Settings"})`
 
 func navigationTabsDemo(c *ui.Context, log func(string)) {
 	type state struct {
@@ -84,9 +86,9 @@ func navigationTabsDemo(c *ui.Context, log func(string)) {
 		if s.many {
 			names = append(names, "Seals", "Heraldry", "Ledgers", "Envoys", "Banquets", "Chapel")
 		}
-		var tabs []mujica.Tab
+		var tabs []navigation.Tab
 		for i, n := range names {
-			tabs = append(tabs, mujica.Tab{Label: n, Disabled: n == "Archive" && s.archive, Panel: func() {
+			tabs = append(tabs, navigation.Tab{Label: n, Disabled: n == "Archive" && s.archive, Panel: func() {
 				ui.Text(c, fmt.Sprintf("The %s panel (tab %d).", n, i+1))
 			}})
 		}
@@ -96,17 +98,17 @@ func navigationTabsDemo(c *ui.Context, log func(string)) {
 			s.tab = 0
 		}
 		ui.Column(c).Width(420).Children(func() {
-			if mujica.Tabs(c, &s.tab, tabs, mujica.TabsOptions{Vertical: s.vertical, Label: "Settings"}).Changed() {
+			if navigation.Tabs(c, &s.tab, tabs, navigation.TabsOptions{Vertical: s.vertical, Label: "Settings"}).Changed() {
 				log("Changed: tab " + names[s.tab])
 			}
 		})
 	})
 }
 
-const navigationSegmentedCode = `mujica.SegmentedControl(c, &view, []mujica.Segment{
+const navigationSegmentedCode = `navigation.SegmentedControl(c, &view, []navigation.Segment{
 	{Label: "List", Icon: icons.Must("list"), HideLabel: true},
 	{Label: "Grid", Icon: icons.Must("layout-grid"), HideLabel: true},
-}, mujica.SegmentedControlOptions{Label: "View"})`
+}, navigation.SegmentedControlOptions{Label: "View"})`
 
 func navigationSegmentedDemo(c *ui.Context, log func(string)) {
 	type state struct {
@@ -119,13 +121,13 @@ func navigationSegmentedDemo(c *ui.Context, log func(string)) {
 		navigationCheck(c, &s.iconOnly, "Icons only", log)
 		navigationCheck(c, &s.disab, "Disabled", log)
 	}, func() {
-		opts := mujica.SegmentedControlOptions{Equal: s.equal, Disabled: s.disab, Label: "Range"}
+		opts := navigation.SegmentedControlOptions{Equal: s.equal, Disabled: s.disab, Label: "Range"}
 		ui.Row(c).Gap(24).AlignItems(ui.Center).Children(func() {
-			if mujica.SegmentedControl(c, &s.text, []mujica.Segment{{Label: "Day"}, {Label: "Week"}, {Label: "Fortnight"}}, opts).Changed() {
+			if navigation.SegmentedControl(c, &s.text, []navigation.Segment{{Label: "Day"}, {Label: "Week"}, {Label: "Fortnight"}}, opts).Changed() {
 				log(fmt.Sprintf("Changed: range %d", s.text))
 			}
 			opts.Label = "View"
-			if mujica.SegmentedControl(c, &s.icon, []mujica.Segment{
+			if navigation.SegmentedControl(c, &s.icon, []navigation.Segment{
 				{Label: "List", Icon: icons.Must("list"), HideLabel: s.iconOnly},
 				{Label: "Grid", Icon: icons.Must("layout-grid"), HideLabel: s.iconOnly},
 			}, opts).Changed() {
@@ -135,7 +137,7 @@ func navigationSegmentedDemo(c *ui.Context, log func(string)) {
 	})
 }
 
-const navigationBreadcrumbCode = `if i, ok := mujica.Breadcrumb(c, path, mujica.BreadcrumbOptions{}).Chosen(); ok {
+const navigationBreadcrumbCode = `if i, ok := navigation.Breadcrumb(c, path, navigation.BreadcrumbOptions{}).Chosen(); ok {
 	path = path[:i+1]
 }`
 
@@ -148,22 +150,22 @@ func navigationBreadcrumbDemo(c *ui.Context, log func(string)) {
 		navigationSlider(c, &s.depth, "Depth", 1, 7, log)
 		navigationSlider(c, &s.max, "MaxItems", 3, 7, log)
 	}, func() {
-		var path []mujica.BreadcrumbItem
+		var path []navigation.BreadcrumbItem
 		for i, n := range navigationBreadcrumbNames[:int(s.depth)] {
-			it := mujica.BreadcrumbItem{Label: n}
+			it := navigation.BreadcrumbItem{Label: n}
 			if i == 0 {
 				it.Icon = icons.Must("house")
 			}
 			path = append(path, it)
 		}
-		if i, ok := mujica.Breadcrumb(c, path, mujica.BreadcrumbOptions{MaxItems: int(s.max)}).Chosen(); ok {
+		if i, ok := navigation.Breadcrumb(c, path, navigation.BreadcrumbOptions{MaxItems: int(s.max)}).Chosen(); ok {
 			log("Chosen: " + path[i].Label)
 			s.depth = float64(i + 1)
 		}
 	})
 }
 
-const navigationPaginationCode = `if mujica.Pagination(c, &page, &size, mujica.PaginationOptions{Total: 420, PageSizes: []int{10, 20, 50}, Jump: true}).Changed() {
+const navigationPaginationCode = `if navigation.Pagination(c, &page, &size, navigation.PaginationOptions{Total: 420, PageSizes: []int{10, 20, 50}, Jump: true}).Changed() {
 	load(page, size)
 }`
 
@@ -180,23 +182,23 @@ func navigationPaginationDemo(c *ui.Context, log func(string)) {
 		navigationCheck(c, &s.jump, "Jump", log)
 		navigationCheck(c, &s.disab, "Disabled", log)
 	}, func() {
-		opts := mujica.PaginationOptions{Total: int(s.total), Jump: s.jump, Disabled: s.disab}
+		opts := navigation.PaginationOptions{Total: int(s.total), Jump: s.jump, Disabled: s.disab}
 		if s.sizes {
 			opts.PageSizes = []int{10, 20, 50}
 		} else {
 			s.size = 20
 		}
-		if mujica.Pagination(c, &s.page, &s.size, opts).Changed() {
+		if navigation.Pagination(c, &s.page, &s.size, opts).Changed() {
 			log(fmt.Sprintf("Changed: page %d, size %d", s.page, s.size))
 		}
 	})
 }
 
-const navigationStepsCode = `mujica.Steps(c, &current, []mujica.Step{
+const navigationStepsCode = `navigation.Steps(c, &current, []navigation.Step{
 	{Title: "Account", Clickable: true},
 	{Title: "Profile", Description: "Name and seal"},
 	{Title: "Confirm"},
-}, mujica.StepsOptions{Label: "Sign-up"})`
+}, navigation.StepsOptions{Label: "Sign-up"})`
 
 func navigationStepsDemo(c *ui.Context, log func(string)) {
 	type state struct {
@@ -204,7 +206,7 @@ func navigationStepsDemo(c *ui.Context, log func(string)) {
 		vertical, failed, clickOK bool
 	}
 	s := ui.Local(c.Root(), "063", func() state { return state{current: 1, clickOK: true} })
-	steps := []mujica.Step{
+	steps := []navigation.Step{
 		{Title: "Account", Description: "Name and seal"},
 		{Title: "Profile", Description: "Titles and house"},
 		{Title: "Payment", Description: "Treasury"},
@@ -214,11 +216,11 @@ func navigationStepsDemo(c *ui.Context, log func(string)) {
 		navigationCheck(c, &s.vertical, "Vertical", log)
 		navigationCheck(c, &s.failed, "Payment failed", log)
 		navigationCheck(c, &s.clickOK, "Done steps clickable", log)
-		if mujica.Button(c, "Back", mujica.ButtonOptions{Variant: mujica.Secondary, Disabled: s.current == 0}).Clicked() {
+		if input.Button(c, "Back", input.ButtonOptions{Variant: input.Secondary, Disabled: s.current == 0}).Clicked() {
 			s.current--
 			log(fmt.Sprintf("Back: step %d", s.current+1))
 		}
-		if mujica.Button(c, "Next", mujica.ButtonOptions{Disabled: s.current == len(steps)}).Clicked() {
+		if input.Button(c, "Next", input.ButtonOptions{Disabled: s.current == len(steps)}).Clicked() {
 			s.current++
 			log(fmt.Sprintf("Next: step %d", s.current+1))
 		}
@@ -227,18 +229,18 @@ func navigationStepsDemo(c *ui.Context, log func(string)) {
 			steps[i].Clickable = s.clickOK && i < s.current
 		}
 		steps[2].Error = s.failed
-		if mujica.Steps(c, &s.current, steps, mujica.StepsOptions{Vertical: s.vertical, Label: "Sign-up"}).Changed() {
+		if navigation.Steps(c, &s.current, steps, navigation.StepsOptions{Vertical: s.vertical, Label: "Sign-up"}).Changed() {
 			log("Changed: step " + steps[s.current].Title)
 		}
 	})
 }
 
-const navigationSidebarCode = `mujica.Sidebar(c, &selected, []mujica.SidebarSection{
-	{Title: "Mail", Items: []mujica.SidebarItem{
+const navigationSidebarCode = `navigation.Sidebar(c, &selected, []navigation.SidebarSection{
+	{Title: "Mail", Items: []navigation.SidebarItem{
 		{ID: "inbox", Label: "Inbox", Icon: icons.Must("inbox"), Count: 3},
-		{Label: "Folders", Items: []mujica.SidebarItem{{ID: "work", Label: "Work", Icon: icons.Must("folder")}}},
+		{Label: "Folders", Items: []navigation.SidebarItem{{ID: "work", Label: "Work", Icon: icons.Must("folder")}}},
 	}},
-}, mujica.SidebarOptions{})`
+}, navigation.SidebarOptions{})`
 
 func navigationSidebarDemo(c *ui.Context, log func(string)) {
 	type state struct {
@@ -251,22 +253,22 @@ func navigationSidebarDemo(c *ui.Context, log func(string)) {
 		navigationCheck(c, &s.compact, "Compact", log)
 		navigationSlider(c, &s.unread, "Unread", 0, 1200, log)
 	}, func() {
-		sections := []mujica.SidebarSection{
-			{Title: "Library", Items: []mujica.SidebarItem{
+		sections := []navigation.SidebarSection{
+			{Title: "Library", Items: []navigation.SidebarItem{
 				{ID: "inbox", Label: "Inbox", Icon: icons.Must("inbox"), Count: int(s.unread)},
 				{ID: "starred", Label: "Starred", Icon: icons.Must("star")},
-				{Label: "Projects", Items: []mujica.SidebarItem{
+				{Label: "Projects", Items: []navigation.SidebarItem{
 					{ID: "opera", Label: "Opera", Icon: icons.Must("folder")},
 					{ID: "ballet", Label: "Ballet", Icon: icons.Must("folder")},
 				}},
 			}},
-			{Title: "System", Items: []mujica.SidebarItem{
+			{Title: "System", Items: []navigation.SidebarItem{
 				{ID: "settings", Label: "Settings", Icon: icons.Must("settings")},
 				{ID: "trash", Label: "Trash", Icon: icons.Must("trash-2")},
 			}},
 		}
-		ui.Row(c).Height(360).Border(1, mujica.Tokens(c).Border).Radius(4).Clip().Children(func() {
-			if mujica.Sidebar(c, &s.selected, sections, mujica.SidebarOptions{Compact: s.compact}).Changed() {
+		ui.Row(c).Height(360).Border(1, core.Tokens(c).Border).Radius(4).Clip().Children(func() {
+			if navigation.Sidebar(c, &s.selected, sections, navigation.SidebarOptions{Compact: s.compact}).Changed() {
 				log("Changed: " + s.selected)
 			}
 			ui.Text(c, "Showing "+s.selected).Padding(24)
@@ -274,12 +276,12 @@ func navigationSidebarDemo(c *ui.Context, log func(string)) {
 	})
 }
 
-const navigationMenuCode = `mujica.NavigationMenu(c, router, []mujica.NavigationLink{
+const navigationMenuCode = `navigation.NavigationMenu(c, router, []navigation.NavigationLink{
 	{Label: "Home", Path: "/"},
-	{Label: "Library", Items: []mujica.NavigationLink{
+	{Label: "Library", Items: []navigation.NavigationLink{
 		{Label: "Poems", Path: "/library/poems", Description: "Verse of the court"},
 	}},
-}, mujica.NavigationMenuOptions{History: true})
+}, navigation.NavigationMenuOptions{History: true})
 router.View(c, func(r *ui.Route) { ui.Text(c, r.Path()) })`
 
 func navigationMenuDemo(c *ui.Context, log func(string)) {
@@ -292,17 +294,17 @@ func navigationMenuDemo(c *ui.Context, log func(string)) {
 	navigationDemo(c, func() {
 		navigationCheck(c, &s.history, "Back and forward", log)
 	}, func() {
-		mujica.NavigationMenu(c, s.router, []mujica.NavigationLink{
+		navigation.NavigationMenu(c, s.router, []navigation.NavigationLink{
 			{Label: "Home", Path: "/", Icon: icons.Must("house")},
-			{Label: "Library", Items: []mujica.NavigationLink{
+			{Label: "Library", Items: []navigation.NavigationLink{
 				{Label: "Poems", Path: "/library/poems", Description: "Verse of the court"},
 				{Label: "Letters", Path: "/library/letters", Description: "Correspondence"},
-				{Label: "Archive", Items: []mujica.NavigationLink{
+				{Label: "Archive", Items: []navigation.NavigationLink{
 					{Label: "Older letters", Path: "/archive/letters"},
 				}},
 			}},
 			{Label: "About", Path: "/about"},
-		}, mujica.NavigationMenuOptions{History: s.history})
+		}, navigation.NavigationMenuOptions{History: s.history})
 		if p := s.router.Path(); p != s.last {
 			log(fmt.Sprintf("Path: %s → %s", s.last, p))
 			s.last = p
@@ -316,15 +318,15 @@ func navigationMenuDemo(c *ui.Context, log func(string)) {
 	})
 }
 
-const navigationMenubarCode = `res := mujica.Menubar(c, []mujica.MenubarMenu{
-	{Label: "File", Items: []mujica.MenubarItem{
-		{ID: "new", Label: "New", Shortcut: mujica.MenubarShortcut{Mods: ui.Cmd, Key: ui.KeyN}},
-		{Label: "Export", Items: []mujica.MenubarItem{{ID: "pdf", Label: "PDF"}}},
+const navigationMenubarCode = `res := navigation.Menubar(c, []navigation.MenubarMenu{
+	{Label: "File", Items: []navigation.MenubarItem{
+		{ID: "new", Label: "New", Shortcut: navigation.MenubarShortcut{Mods: ui.Cmd, Key: ui.KeyN}},
+		{Label: "Export", Items: []navigation.MenubarItem{{ID: "pdf", Label: "PDF"}}},
 	}},
-	{Label: "View", Items: []mujica.MenubarItem{
-		{ID: "wrap", Label: "Word wrap", Kind: mujica.MenubarCheck, Checked: wrap},
+	{Label: "View", Items: []navigation.MenubarItem{
+		{ID: "wrap", Label: "Word wrap", Kind: navigation.MenubarCheck, Checked: wrap},
 	}},
-}, mujica.MenubarOptions{})
+}, navigation.MenubarOptions{})
 if id, ok := res.Chosen(); ok && id == "wrap" {
 	wrap = !wrap
 }`
@@ -338,32 +340,32 @@ func navigationMenubarDemo(c *ui.Context, log func(string)) {
 	navigationDemo(c, func() {
 		navigationCheck(c, &s.locked, "Lock editing (disables Edit items)", log)
 	}, func() {
-		menus := []mujica.MenubarMenu{
-			{Label: "File", Items: []mujica.MenubarItem{
-				{ID: "new", Label: "New", Shortcut: mujica.MenubarShortcut{Mods: ui.Cmd, Key: ui.KeyN}},
-				{ID: "open", Label: "Open…", Shortcut: mujica.MenubarShortcut{Mods: ui.Cmd, Key: ui.KeyO}},
-				{Label: "Export", Items: []mujica.MenubarItem{
+		menus := []navigation.MenubarMenu{
+			{Label: "File", Items: []navigation.MenubarItem{
+				{ID: "new", Label: "New", Shortcut: navigation.MenubarShortcut{Mods: ui.Cmd, Key: ui.KeyN}},
+				{ID: "open", Label: "Open…", Shortcut: navigation.MenubarShortcut{Mods: ui.Cmd, Key: ui.KeyO}},
+				{Label: "Export", Items: []navigation.MenubarItem{
 					{ID: "pdf", Label: "PDF"},
 					{ID: "png", Label: "Image"},
-					{Label: "Archive", Items: []mujica.MenubarItem{{ID: "zip", Label: "Zip"}, {ID: "tar", Label: "Tarball"}}},
+					{Label: "Archive", Items: []navigation.MenubarItem{{ID: "zip", Label: "Zip"}, {ID: "tar", Label: "Tarball"}}},
 				}},
-				{Kind: mujica.MenubarSeparator},
-				{ID: "quit", Label: "Quit", Shortcut: mujica.MenubarShortcut{Mods: ui.Cmd, Key: ui.KeyQ}},
+				{Kind: navigation.MenubarSeparator},
+				{ID: "quit", Label: "Quit", Shortcut: navigation.MenubarShortcut{Mods: ui.Cmd, Key: ui.KeyQ}},
 			}},
-			{Label: "Edit", Items: []mujica.MenubarItem{
-				{ID: "undo", Label: "Undo", Disabled: s.locked, Shortcut: mujica.MenubarShortcut{Mods: ui.Cmd, Key: ui.KeyZ}},
-				{ID: "redo", Label: "Redo", Disabled: s.locked, Shortcut: mujica.MenubarShortcut{Mods: ui.Cmd | ui.Shift, Key: ui.KeyZ}},
+			{Label: "Edit", Items: []navigation.MenubarItem{
+				{ID: "undo", Label: "Undo", Disabled: s.locked, Shortcut: navigation.MenubarShortcut{Mods: ui.Cmd, Key: ui.KeyZ}},
+				{ID: "redo", Label: "Redo", Disabled: s.locked, Shortcut: navigation.MenubarShortcut{Mods: ui.Cmd | ui.Shift, Key: ui.KeyZ}},
 			}},
-			{Label: "View", Items: []mujica.MenubarItem{
-				{ID: "wrap", Label: "Word wrap", Kind: mujica.MenubarCheck, Checked: s.wrap},
-				{ID: "ruler", Label: "Ruler", Kind: mujica.MenubarCheck, Checked: s.ruler},
-				{Kind: mujica.MenubarSeparator},
-				{ID: "fit", Label: "Fit to window", Kind: mujica.MenubarRadio, Checked: s.zoom == "fit"},
-				{ID: "actual", Label: "Actual size", Kind: mujica.MenubarRadio, Checked: s.zoom == "actual"},
+			{Label: "View", Items: []navigation.MenubarItem{
+				{ID: "wrap", Label: "Word wrap", Kind: navigation.MenubarCheck, Checked: s.wrap},
+				{ID: "ruler", Label: "Ruler", Kind: navigation.MenubarCheck, Checked: s.ruler},
+				{Kind: navigation.MenubarSeparator},
+				{ID: "fit", Label: "Fit to window", Kind: navigation.MenubarRadio, Checked: s.zoom == "fit"},
+				{ID: "actual", Label: "Actual size", Kind: navigation.MenubarRadio, Checked: s.zoom == "actual"},
 			}},
 		}
-		ui.Column(c).Height(260).Border(1, mujica.Tokens(c).Border).Radius(4).Clip().Children(func() {
-			if id, ok := mujica.Menubar(c, menus, mujica.MenubarOptions{}).Chosen(); ok {
+		ui.Column(c).Height(260).Border(1, core.Tokens(c).Border).Radius(4).Clip().Children(func() {
+			if id, ok := navigation.Menubar(c, menus, navigation.MenubarOptions{}).Chosen(); ok {
 				switch id {
 				case "wrap":
 					s.wrap = !s.wrap
@@ -379,13 +381,13 @@ func navigationMenubarDemo(c *ui.Context, log func(string)) {
 	})
 }
 
-const navigationToolbarCode = `mujica.Toolbar(c, mujica.ToolbarOptions{Label: "Format"}, func() {
-	mujica.ToolbarGroup(c, func() {
-		mujica.ToolbarButton(c, "Bold", mujica.ToolbarButtonOptions{Icon: icons.Must("bold")})
-		mujica.ToolbarButton(c, "Italic", mujica.ToolbarButtonOptions{Icon: icons.Must("italic")})
+const navigationToolbarCode = `navigation.Toolbar(c, navigation.ToolbarOptions{Label: "Format"}, func() {
+	navigation.ToolbarGroup(c, func() {
+		navigation.ToolbarButton(c, "Bold", navigation.ToolbarButtonOptions{Icon: icons.Must("bold")})
+		navigation.ToolbarButton(c, "Italic", navigation.ToolbarButtonOptions{Icon: icons.Must("italic")})
 	})
-	mujica.ToolbarSeparator(c)
-	if mujica.ToolbarButton(c, "Copy", mujica.ToolbarButtonOptions{Icon: icons.Must("copy"), ShowLabel: true}).Clicked() {
+	navigation.ToolbarSeparator(c)
+	if navigation.ToolbarButton(c, "Copy", navigation.ToolbarButtonOptions{Icon: icons.Must("copy"), ShowLabel: true}).Clicked() {
 		copySelection()
 	}
 })`
@@ -403,32 +405,32 @@ func navigationToolbarDemo(c *ui.Context, log func(string)) {
 		navigationCheck(c, &s.noDeletes, "Disable Delete", log)
 	}, func() {
 		ui.Column(c).Width(float32(s.width)).Children(func() {
-			mujica.Toolbar(c, mujica.ToolbarOptions{Label: "Format"}, func() {
+			navigation.Toolbar(c, navigation.ToolbarOptions{Label: "Format"}, func() {
 				button := func(label, icon string, disabled bool) {
-					if mujica.ToolbarButton(c, label, mujica.ToolbarButtonOptions{Icon: icons.Must(icon), ShowLabel: s.labels, Disabled: disabled}).Clicked() {
+					if navigation.ToolbarButton(c, label, navigation.ToolbarButtonOptions{Icon: icons.Must(icon), ShowLabel: s.labels, Disabled: disabled}).Clicked() {
 						log("Clicked: " + label)
 					}
 				}
-				mujica.ToolbarGroup(c, func() {
+				navigation.ToolbarGroup(c, func() {
 					button("Bold", "bold", false)
 					button("Italic", "italic", false)
 					button("Underline", "underline", false)
 				})
-				mujica.ToolbarSeparator(c)
+				navigation.ToolbarSeparator(c)
 				button("Copy", "copy", false)
 				button("Image", "image", false)
 				button("Delete", "trash-2", s.noDeletes)
-				mujica.ToolbarSeparator(c)
+				navigation.ToolbarSeparator(c)
 				button("Settings", "settings", false)
 			})
 		})
 	})
 }
 
-const navigationPaletteCode = `res := mujica.CommandPalette(c, &open, []mujica.Command{
+const navigationPaletteCode = `res := navigation.CommandPalette(c, &open, []navigation.Command{
 	{ID: "new", Label: "New document", Group: "File"},
 	{ID: "theme", Label: "Toggle dark mode", Group: "View", Keywords: []string{"night"}},
-}, mujica.CommandPaletteOptions{})
+}, navigation.CommandPaletteOptions{})
 if id, ok := res.Chosen(); ok {
 	run(id)
 }`
@@ -437,12 +439,12 @@ func navigationPaletteDemo(c *ui.Context, log func(string)) {
 	type state struct{ open, wasOpen bool }
 	s := ui.Local(c.Root(), "068", func() state { return state{} })
 	navigationDemo(c, func() {
-		if mujica.Button(c, "Open command palette", mujica.ButtonOptions{Icon: icons.Must("command")}).Clicked() {
+		if input.Button(c, "Open command palette", input.ButtonOptions{Icon: icons.Must("command")}).Clicked() {
 			s.open = true
 		}
-		ui.Text(c, "or press Cmd+K / Ctrl+K").TextColor(mujica.Tokens(c).TextMuted)
+		ui.Text(c, "or press Cmd+K / Ctrl+K").TextColor(core.Tokens(c).TextMuted)
 	}, func() {
-		res := mujica.CommandPalette(c, &s.open, []mujica.Command{
+		res := navigation.CommandPalette(c, &s.open, []navigation.Command{
 			{ID: "new", Label: "New document", Group: "File", Icon: icons.Must("file")},
 			{ID: "open", Label: "Open recent", Group: "File", Icon: icons.Must("folder")},
 			{ID: "save", Label: "Save all", Group: "File", Icon: icons.Must("file-text")},
@@ -450,7 +452,7 @@ func navigationPaletteDemo(c *ui.Context, log func(string)) {
 			{ID: "zoom-in", Label: "Zoom in", Group: "View", Icon: icons.Must("zoom-in")},
 			{ID: "zoom-out", Label: "Zoom out", Group: "View", Icon: icons.Must("zoom-out")},
 			{ID: "settings", Label: "Open settings", Group: "Application", Keywords: []string{"preferences"}, Icon: icons.Must("settings")},
-		}, mujica.CommandPaletteOptions{})
+		}, navigation.CommandPaletteOptions{})
 		if s.open != s.wasOpen {
 			log(fmt.Sprintf("Open: %v", s.open))
 			s.wasOpen = s.open

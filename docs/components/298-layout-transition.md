@@ -9,8 +9,8 @@
 ```go
 open := false
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.LayoutTransition(c, mujica.LayoutTransitionOptions{Clip: true}, func() {
+	core.Use(c, core.Settings{})
+	feedback.LayoutTransition(c, feedback.LayoutTransitionOptions{Clip: true}, func() {
 		ui.Text(c, "Program")
 		if open {
 			ui.Text(c, "Overture · Masquerade · Finale")

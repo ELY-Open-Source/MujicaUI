@@ -8,10 +8,10 @@
 
 ```go
 query := "seat"
-hits := []mujica.ConversationSearchHit{{ID: "1", Title: "Ballroom seating plan"}}
+hits := []chat.ConversationSearchHit{{ID: "1", Title: "Ballroom seating plan"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	v := mujica.ConversationSearch(c, &query, hits, mujica.ConversationSearchOptions{})
+	core.Use(c, core.Settings{})
+	v := chat.ConversationSearch(c, &query, hits, chat.ConversationSearchOptions{})
 	if v.QueryChanged {
 		log.Println("search", query)
 	}

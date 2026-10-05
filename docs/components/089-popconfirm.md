@@ -9,12 +9,12 @@
 ```go
 open := false
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	b := mujica.Button(c, "Archive", mujica.ButtonOptions{Variant: mujica.Secondary})
+	core.Use(c, core.Settings{})
+	b := input.Button(c, "Archive", input.ButtonOptions{Variant: input.Secondary})
 	if b.Clicked() {
 		open = true
 	}
-	if mujica.Popconfirm(c, b, &open, mujica.PopconfirmOptions{Title: "Archive this letter?"}).Confirmed {
+	if overlay.Popconfirm(c, b, &open, overlay.PopconfirmOptions{Title: "Archive this letter?"}).Confirmed {
 		fmt.Println("archived")
 	}
 }

@@ -2,85 +2,85 @@ package main
 
 // Code snippets mirror example_calendar_test.go.
 const (
-	calCalendarMonthViewCode = `func exampleEvents(loc *time.Location) []mujica.CalendarEvent {
+	calCalendarMonthViewCode = `func exampleEvents(loc *time.Location) []datetime.CalendarEvent {
 	start := time.Date(2026, time.October, 14, 9, 0, 0, 0, loc)
-	return []mujica.CalendarEvent{
+	return []datetime.CalendarEvent{
 		{ID: "rehearsal", Title: "Rehearsal", Start: start, End: start.Add(2 * time.Hour), Location: "Hall"},
-		{ID: "fitting", Title: "Fitting", Start: start.Add(time.Hour), End: start.Add(90 * time.Minute), Color: mujica.EventInfo},
+		{ID: "fitting", Title: "Fitting", Start: start.Add(time.Hour), End: start.Add(90 * time.Minute), Color: datetime.EventInfo},
 	}
 }
 
 loc := time.Local
 events := exampleEvents(loc)
-month := mujica.YearMonth{Year: 2026, Month: time.October}
+month := datetime.YearMonth{Year: 2026, Month: time.October}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.CalendarMonthView(c, &month, events, mujica.CalendarMonthViewOptions{Location: loc})
+	core.Use(c, core.Settings{})
+	r := datetime.CalendarMonthView(c, &month, events, datetime.CalendarMonthViewOptions{Location: loc})
 	if ch, ok := r.Changed(); ok {
 		fmt.Println("move", ch.ID, "to", ch.Start)
 	}
 }
 ui.Render(view, 400, 300, 1)`
-	calCalendarWeekViewCode = `func exampleEvents(loc *time.Location) []mujica.CalendarEvent {
+	calCalendarWeekViewCode = `func exampleEvents(loc *time.Location) []datetime.CalendarEvent {
 	start := time.Date(2026, time.October, 14, 9, 0, 0, 0, loc)
-	return []mujica.CalendarEvent{
+	return []datetime.CalendarEvent{
 		{ID: "rehearsal", Title: "Rehearsal", Start: start, End: start.Add(2 * time.Hour), Location: "Hall"},
-		{ID: "fitting", Title: "Fitting", Start: start.Add(time.Hour), End: start.Add(90 * time.Minute), Color: mujica.EventInfo},
+		{ID: "fitting", Title: "Fitting", Start: start.Add(time.Hour), End: start.Add(90 * time.Minute), Color: datetime.EventInfo},
 	}
 }
 
 loc := time.Local
 events := exampleEvents(loc)
-week := mujica.Date{Year: 2026, Month: time.October, Day: 14}
+week := core.Date{Year: 2026, Month: time.October, Day: 14}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.CalendarWeekView(c, &week, events, mujica.CalendarWeekViewOptions{Location: loc, SlotMinutes: 15})
-	if ch, ok := r.Changed(); ok && ch.Kind == mujica.CalendarCreate {
+	core.Use(c, core.Settings{})
+	r := datetime.CalendarWeekView(c, &week, events, datetime.CalendarWeekViewOptions{Location: loc, SlotMinutes: 15})
+	if ch, ok := r.Changed(); ok && ch.Kind == datetime.CalendarCreate {
 		fmt.Println("new event", ch.Start, ch.End)
 	}
 }
 ui.Render(view, 400, 300, 1)`
-	calCalendarDayViewCode = `func exampleEvents(loc *time.Location) []mujica.CalendarEvent {
+	calCalendarDayViewCode = `func exampleEvents(loc *time.Location) []datetime.CalendarEvent {
 	start := time.Date(2026, time.October, 14, 9, 0, 0, 0, loc)
-	return []mujica.CalendarEvent{
+	return []datetime.CalendarEvent{
 		{ID: "rehearsal", Title: "Rehearsal", Start: start, End: start.Add(2 * time.Hour), Location: "Hall"},
-		{ID: "fitting", Title: "Fitting", Start: start.Add(time.Hour), End: start.Add(90 * time.Minute), Color: mujica.EventInfo},
+		{ID: "fitting", Title: "Fitting", Start: start.Add(time.Hour), End: start.Add(90 * time.Minute), Color: datetime.EventInfo},
 	}
 }
 
 loc := time.Local
 events := exampleEvents(loc)
-day := mujica.Date{Year: 2026, Month: time.October, Day: 14}
+day := core.Date{Year: 2026, Month: time.October, Day: 14}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if id, ok := mujica.CalendarDayView(c, &day, events, mujica.CalendarDayViewOptions{Location: loc}).Opened(); ok {
+	core.Use(c, core.Settings{})
+	if id, ok := datetime.CalendarDayView(c, &day, events, datetime.CalendarDayViewOptions{Location: loc}).Opened(); ok {
 		fmt.Println("open", id)
 	}
 }
 ui.Render(view, 400, 300, 1)`
-	calAgendaViewCode = `func exampleEvents(loc *time.Location) []mujica.CalendarEvent {
+	calAgendaViewCode = `func exampleEvents(loc *time.Location) []datetime.CalendarEvent {
 	start := time.Date(2026, time.October, 14, 9, 0, 0, 0, loc)
-	return []mujica.CalendarEvent{
+	return []datetime.CalendarEvent{
 		{ID: "rehearsal", Title: "Rehearsal", Start: start, End: start.Add(2 * time.Hour), Location: "Hall"},
-		{ID: "fitting", Title: "Fitting", Start: start.Add(time.Hour), End: start.Add(90 * time.Minute), Color: mujica.EventInfo},
+		{ID: "fitting", Title: "Fitting", Start: start.Add(time.Hour), End: start.Add(90 * time.Minute), Color: datetime.EventInfo},
 	}
 }
 
 loc := time.Local
 events := exampleEvents(loc)
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	opts := mujica.AgendaViewOptions{Location: loc, From: mujica.Date{Year: 2026, Month: time.October, Day: 12}, Days: 14}
-	if id, ok := mujica.AgendaView(c, events, opts).Opened(); ok {
+	core.Use(c, core.Settings{})
+	opts := datetime.AgendaViewOptions{Location: loc, From: core.Date{Year: 2026, Month: time.October, Day: 12}, Days: 14}
+	if id, ok := datetime.AgendaView(c, events, opts).Opened(); ok {
 		fmt.Println("open", id)
 	}
 }
 ui.Render(view, 400, 300, 1)`
-	calYearViewCode = `func exampleEvents(loc *time.Location) []mujica.CalendarEvent {
+	calYearViewCode = `func exampleEvents(loc *time.Location) []datetime.CalendarEvent {
 	start := time.Date(2026, time.October, 14, 9, 0, 0, 0, loc)
-	return []mujica.CalendarEvent{
+	return []datetime.CalendarEvent{
 		{ID: "rehearsal", Title: "Rehearsal", Start: start, End: start.Add(2 * time.Hour), Location: "Hall"},
-		{ID: "fitting", Title: "Fitting", Start: start.Add(time.Hour), End: start.Add(90 * time.Minute), Color: mujica.EventInfo},
+		{ID: "fitting", Title: "Fitting", Start: start.Add(time.Hour), End: start.Add(90 * time.Minute), Color: datetime.EventInfo},
 	}
 }
 
@@ -88,52 +88,52 @@ loc := time.Local
 events := exampleEvents(loc)
 year := 2026
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if day, ok := mujica.YearView(c, &year, events, mujica.YearViewOptions{Location: loc}).DayChosen(); ok {
+	core.Use(c, core.Settings{})
+	if day, ok := datetime.YearView(c, &year, events, datetime.YearViewOptions{Location: loc}).DayChosen(); ok {
 		fmt.Println("go to", day)
 	}
 }
 ui.Render(view, 400, 300, 1)`
-	calEventChipCode = `func exampleEvents(loc *time.Location) []mujica.CalendarEvent {
+	calEventChipCode = `func exampleEvents(loc *time.Location) []datetime.CalendarEvent {
 	start := time.Date(2026, time.October, 14, 9, 0, 0, 0, loc)
-	return []mujica.CalendarEvent{
+	return []datetime.CalendarEvent{
 		{ID: "rehearsal", Title: "Rehearsal", Start: start, End: start.Add(2 * time.Hour), Location: "Hall"},
-		{ID: "fitting", Title: "Fitting", Start: start.Add(time.Hour), End: start.Add(90 * time.Minute), Color: mujica.EventInfo},
+		{ID: "fitting", Title: "Fitting", Start: start.Add(time.Hour), End: start.Add(90 * time.Minute), Color: datetime.EventInfo},
 	}
 }
 
 loc := time.Local
 ev := exampleEvents(loc)[0]
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.EventChip(c, ev, mujica.EventChipOptions{Location: loc}).Clicked() {
+	core.Use(c, core.Settings{})
+	if datetime.EventChip(c, ev, datetime.EventChipOptions{Location: loc}).Clicked() {
 		fmt.Println("open", ev.ID)
 	}
 }
 ui.Render(view, 400, 300, 1)`
-	calEventEditorCode = `func exampleEvents(loc *time.Location) []mujica.CalendarEvent {
+	calEventEditorCode = `func exampleEvents(loc *time.Location) []datetime.CalendarEvent {
 	start := time.Date(2026, time.October, 14, 9, 0, 0, 0, loc)
-	return []mujica.CalendarEvent{
+	return []datetime.CalendarEvent{
 		{ID: "rehearsal", Title: "Rehearsal", Start: start, End: start.Add(2 * time.Hour), Location: "Hall"},
-		{ID: "fitting", Title: "Fitting", Start: start.Add(time.Hour), End: start.Add(90 * time.Minute), Color: mujica.EventInfo},
+		{ID: "fitting", Title: "Fitting", Start: start.Add(time.Hour), End: start.Add(90 * time.Minute), Color: datetime.EventInfo},
 	}
 }
 
 loc := time.Local
 ev := exampleEvents(loc)[0]
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.EventEditor(c, &ev, mujica.EventEditorOptions{Location: loc})
+	core.Use(c, core.Settings{})
+	r := datetime.EventEditor(c, &ev, datetime.EventEditorOptions{Location: loc})
 	if r.Saved() {
 		fmt.Println("saved", ev.Title, ev.Start)
 	}
 }
 ui.Render(view, 400, 300, 1)`
-	calEventPopoverCode = `func exampleEvents(loc *time.Location) []mujica.CalendarEvent {
+	calEventPopoverCode = `func exampleEvents(loc *time.Location) []datetime.CalendarEvent {
 	start := time.Date(2026, time.October, 14, 9, 0, 0, 0, loc)
-	return []mujica.CalendarEvent{
+	return []datetime.CalendarEvent{
 		{ID: "rehearsal", Title: "Rehearsal", Start: start, End: start.Add(2 * time.Hour), Location: "Hall"},
-		{ID: "fitting", Title: "Fitting", Start: start.Add(time.Hour), End: start.Add(90 * time.Minute), Color: mujica.EventInfo},
+		{ID: "fitting", Title: "Fitting", Start: start.Add(time.Hour), End: start.Add(90 * time.Minute), Color: datetime.EventInfo},
 	}
 }
 
@@ -141,88 +141,88 @@ loc := time.Local
 ev := exampleEvents(loc)[0]
 open := false
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	chip := mujica.EventChip(c, ev, mujica.EventChipOptions{Location: loc})
+	core.Use(c, core.Settings{})
+	chip := datetime.EventChip(c, ev, datetime.EventChipOptions{Location: loc})
 	if chip.Clicked() {
 		open = true
 	}
-	r := mujica.EventPopover(c, chip, &open, ev, mujica.EventPopoverOptions{Location: loc})
+	r := datetime.EventPopover(c, chip, &open, ev, datetime.EventPopoverOptions{Location: loc})
 	if r.Delete() {
 		fmt.Println("delete", ev.ID)
 	}
 }
 ui.Render(view, 400, 300, 1)`
 	calCurrentTimeIndicatorCode = `view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
+	core.Use(c, core.Settings{})
 	ui.Box(c).Size(200, 240).Children(func() {
-		mujica.CurrentTimeIndicator(c, mujica.CurrentTimeIndicatorOptions{Location: time.Local})
+		datetime.CurrentTimeIndicator(c, datetime.CurrentTimeIndicatorOptions{Location: time.Local})
 	})
 }
 ui.Render(view, 400, 300, 1)`
-	calRecurrenceEditorCode = `rule := mujica.Recurrence{Unit: mujica.RepeatWeekly, Interval: 1, Weekdays: []time.Weekday{time.Monday}}
+	calRecurrenceEditorCode = `rule := datetime.Recurrence{Unit: datetime.RepeatWeekly, Interval: 1, Weekdays: []time.Weekday{time.Monday}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.RecurrenceEditor(c, &rule, mujica.RecurrenceEditorOptions{Start: mujica.Date{Year: 2026, Month: time.October, Day: 5}})
+	core.Use(c, core.Settings{})
+	r := datetime.RecurrenceEditor(c, &rule, datetime.RecurrenceEditorOptions{Start: core.Date{Year: 2026, Month: time.October, Day: 5}})
 	if r.Changed() && r.Problem() == "" {
-		fmt.Println(mujica.RecurrenceSummary(c, rule))
+		fmt.Println(datetime.RecurrenceSummary(c, rule))
 	}
 }
 ui.Render(view, 400, 300, 1)`
-	calAvailabilityPickerCode = `days := []mujica.Date{{Year: 2026, Month: time.October, Day: 12}, {Year: 2026, Month: time.October, Day: 13}}
+	calAvailabilityPickerCode = `days := []core.Date{{Year: 2026, Month: time.October, Day: 12}, {Year: 2026, Month: time.October, Day: 13}}
 mine := [][]bool{make([]bool, 18), make([]bool, 18)}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.AvailabilityPicker(c, &mine, mujica.AvailabilityPickerOptions{Days: days}).Changed() {
+	core.Use(c, core.Settings{})
+	if datetime.AvailabilityPicker(c, &mine, datetime.AvailabilityPickerOptions{Days: days}).Changed() {
 		fmt.Println("availability changed")
 	}
 }
 ui.Render(view, 400, 300, 1)`
 	calTimezoneSelectCode = `zone := "Asia/Shanghai"
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.TimezoneSelect(c, &zone, mujica.TimezoneSelectOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if datetime.TimezoneSelect(c, &zone, datetime.TimezoneSelectOptions{}).Changed() {
 		fmt.Println("zone", zone)
 	}
 }
 ui.Render(view, 400, 300, 1)`
 	calReminderPickerCode = `reminders := []time.Duration{15 * time.Minute}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.ReminderPicker(c, &reminders, mujica.ReminderPickerOptions{Max: 3}).Changed() {
+	core.Use(c, core.Settings{})
+	if datetime.ReminderPicker(c, &reminders, datetime.ReminderPickerOptions{Max: 3}).Changed() {
 		fmt.Println("reminders", reminders)
 	}
 }
 ui.Render(view, 400, 300, 1)`
-	calAttendeeListCode = `people := []mujica.Attendee{{Name: "Sakiko", Status: mujica.AttendeeAccepted, Organizer: true}, {Name: "Mutsumi"}}
+	calAttendeeListCode = `people := []datetime.Attendee{{Name: "Sakiko", Status: datetime.AttendeeAccepted, Organizer: true}, {Name: "Mutsumi"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if i, ok := mujica.AttendeeList(c, people, mujica.AttendeeListOptions{Removable: true}).Removed(); ok {
+	core.Use(c, core.Settings{})
+	if i, ok := datetime.AttendeeList(c, people, datetime.AttendeeListOptions{Removable: true}).Removed(); ok {
 		people = append(people[:i], people[i+1:]...)
 	}
 }
 ui.Render(view, 400, 300, 1)`
-	calWeekPickerCode = `var week mujica.Date
+	calWeekPickerCode = `var week core.Date
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.WeekPicker(c, &week, mujica.WeekPickerOptions{WeekStart: mujica.WeekStartMonday, Clearable: true}).Changed() {
+	core.Use(c, core.Settings{})
+	if datetime.WeekPicker(c, &week, datetime.WeekPickerOptions{WeekStart: datetime.WeekStartMonday, Clearable: true}).Changed() {
 		fmt.Println("week of", week)
 	}
 }
 ui.Render(view, 400, 300, 1)`
 	calDurationPickerCode = `length := 90 * time.Minute
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	opts := mujica.DurationPickerOptions{Min: 15 * time.Minute, Max: 8 * time.Hour}
-	if mujica.DurationPicker(c, &length, opts).Changed() {
+	core.Use(c, core.Settings{})
+	opts := datetime.DurationPickerOptions{Min: 15 * time.Minute, Max: 8 * time.Hour}
+	if datetime.DurationPicker(c, &length, opts).Changed() {
 		fmt.Println("length", length)
 	}
 }
 ui.Render(view, 400, 300, 1)`
 	calCronEditorCode = `expr := "0 9 * * MON-FRI"
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.CronEditor(c, &expr, mujica.CronEditorOptions{Location: time.Local}).Changed() {
-		if _, err := mujica.ParseCron(expr); err == nil {
+	core.Use(c, core.Settings{})
+	if datetime.CronEditor(c, &expr, datetime.CronEditorOptions{Location: time.Local}).Changed() {
+		if _, err := datetime.ParseCron(expr); err == nil {
 			fmt.Println("schedule", expr)
 		}
 	}
@@ -230,22 +230,22 @@ view := func(c *ui.Context) {
 ui.Render(view, 400, 300, 1)`
 	calRelativeTimeCode = `posted := time.Date(2026, time.October, 5, 9, 0, 0, 0, time.Local)
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.RelativeTime(c, posted, mujica.RelativeTimeOptions{Location: time.Local})
+	core.Use(c, core.Settings{})
+	datetime.RelativeTime(c, posted, datetime.RelativeTimeOptions{Location: time.Local})
 }
 ui.Render(view, 400, 300, 1)`
 	calCountdownCode = `deadline := time.Date(2026, time.December, 31, 23, 59, 59, 0, time.Local)
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.Countdown(c, deadline, mujica.CountdownOptions{}).Finished() {
+	core.Use(c, core.Settings{})
+	if datetime.Countdown(c, deadline, datetime.CountdownOptions{}).Finished() {
 		fmt.Println("happy new year")
 	}
 }
 ui.Render(view, 400, 300, 1)`
-	calStopwatchCode = `var sw mujica.StopwatchState
+	calStopwatchCode = `var sw datetime.StopwatchState
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.Stopwatch(c, &sw, mujica.StopwatchOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if datetime.Stopwatch(c, &sw, datetime.StopwatchOptions{}).Changed() {
 		fmt.Println("laps", len(sw.Laps))
 	}
 }

@@ -13,10 +13,10 @@ type relic struct {
 	Age  int
 }
 rows := []relic{{1, "Censer", 300}, {2, "Altar", 120}, {3, "Bell", 80}}
-var state mujica.DataTableState[int]
-opts := mujica.DataTableOptions[relic, int]{
+var state data.DataTableState[int]
+opts := data.DataTableOptions[relic, int]{
 	Key: func(r relic) int { return r.ID },
-	Columns: []mujica.DataColumn[relic]{
+	Columns: []data.DataColumn[relic]{
 		{ID: "name", Title: "Name", Sortable: true,
 			Text:    func(r relic) string { return r.Name },
 			Compare: func(a, b relic) int { return cmp.Compare(a.Name, b.Name) }},
@@ -26,8 +26,8 @@ opts := mujica.DataTableOptions[relic, int]{
 	},
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.DataTable(c, &state, rows, opts).Element.Size(360, 240)
+	core.Use(c, core.Settings{})
+	data.DataTable(c, &state, rows, opts).Element.Size(360, 240)
 }
 ui.Render(view, 400, 300, 1)
 ```

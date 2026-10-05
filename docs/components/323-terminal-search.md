@@ -7,14 +7,14 @@
 ## 最小示例
 
 ```go
-var term mujica.TerminalState
+var term code.TerminalState
 term.Write("build ok\r\nerror: missing seal\r\n")
-var search mujica.TerminalSearchState
+var search code.TerminalSearchState
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
+	core.Use(c, core.Settings{})
 	ui.Column(c).Gap(8).Children(func() {
-		mujica.TerminalSearch(c, &term, &search, mujica.TerminalSearchOptions{})
-		mujica.Terminal(c, &term, mujica.TerminalOptions{}).Height(160)
+		code.TerminalSearch(c, &term, &search, code.TerminalSearchOptions{})
+		code.Terminal(c, &term, code.TerminalOptions{}).Height(160)
 	})
 }
 ui.Render(view, 400, 300, 1)

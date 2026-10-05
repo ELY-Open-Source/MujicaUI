@@ -7,9 +7,9 @@
 ## 最小示例
 
 ```go
-r := mujica.LoadingOverlay(c, loading, mujica.LoadingOverlayOptions{Cancel: "Cancel"}, func() {
+r := feedback.LoadingOverlay(c, loading, feedback.LoadingOverlayOptions{Cancel: "Cancel"}, func() {
 	ui.Text(c, "Quarterly report")
-	mujica.Button(c, "Export", mujica.ButtonOptions{})
+	input.Button(c, "Export", input.ButtonOptions{})
 })
 if r.Canceled {
 	loading = false

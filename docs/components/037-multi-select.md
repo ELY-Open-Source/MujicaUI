@@ -8,14 +8,14 @@
 
 ```go
 tags := []int{1}
-options := []mujica.SelectOption[int]{
+options := []input.SelectOption[int]{
 	{Value: 1, Label: "Rose"},
 	{Value: 2, Label: "Lily"},
 	{Value: 3, Label: "Iris"},
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.MultiSelect(c, &tags, options, mujica.MultiSelectOptions{Max: 2, Label: "Flowers"})
+	core.Use(c, core.Settings{})
+	input.MultiSelect(c, &tags, options, input.MultiSelectOptions{Max: 2, Label: "Flowers"})
 }
 ui.Render(view, 400, 300, 1)
 ```

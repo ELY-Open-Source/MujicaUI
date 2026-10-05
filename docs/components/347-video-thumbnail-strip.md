@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-frames := []mujica.StripFrame{{At: 0}, {At: 10 * time.Second}, {At: 20 * time.Second}}
+frames := []media.StripFrame{{At: 0}, {At: 10 * time.Second}, {At: 20 * time.Second}}
 current := 0
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.VideoThumbnailStrip(c, &current, frames, mujica.VideoThumbnailStripOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if media.VideoThumbnailStrip(c, &current, frames, media.VideoThumbnailStripOptions{}).Changed() {
 		_ = frames[current].At // seek the player there
 	}
 }

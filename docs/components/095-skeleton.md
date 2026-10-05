@@ -8,9 +8,9 @@
 
 ```go
 ui.Row(c).Padding(16).Gap(12).Children(func() {
-	mujica.Skeleton(c, mujica.SkeletonOptions{Shape: mujica.SkeletonCircle})
+	feedback.Skeleton(c, feedback.SkeletonOptions{Shape: feedback.SkeletonCircle})
 	ui.Column(c).Grow(1).Children(func() {
-		mujica.Skeleton(c, mujica.SkeletonOptions{Lines: 2})
+		feedback.Skeleton(c, feedback.SkeletonOptions{Lines: 2})
 	})
 })
 ```

@@ -8,7 +8,7 @@
 
 ```go
 ui.Box(c).Fill().Children(func() {
-	if mujica.ScrollToBottomButton(c, !list.AtEnd(), 3).Clicked() {
+	if chat.ScrollToBottomButton(c, !list.AtEnd(), 3).Clicked() {
 		list.ScrollToEnd()
 	}
 })

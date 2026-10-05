@@ -9,9 +9,9 @@
 ```go
 selected := 3
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.BulkActionBar(c, selected, mujica.BulkActionBarOptions{}, func() {
-		mujica.Button(c, "Archive", mujica.ButtonOptions{Variant: mujica.Secondary})
+	core.Use(c, core.Settings{})
+	r := input.BulkActionBar(c, selected, input.BulkActionBarOptions{}, func() {
+		input.Button(c, "Archive", input.ButtonOptions{Variant: input.Secondary})
 	})
 	if r.Changed() {
 		selected = 0

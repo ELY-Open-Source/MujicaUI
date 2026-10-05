@@ -9,10 +9,10 @@
 ```go
 pos := 30 * time.Second
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.VideoScrubber(c, &pos, mujica.VideoScrubberOptions{
+	core.Use(c, core.Settings{})
+	media.VideoScrubber(c, &pos, media.VideoScrubberOptions{
 		Duration: 2 * time.Minute,
-		Buffered: []mujica.MediaRange{{Start: 0, End: time.Minute}},
+		Buffered: []media.MediaRange{{Start: 0, End: time.Minute}},
 	})
 }
 ui.Render(view, 400, 300, 1)

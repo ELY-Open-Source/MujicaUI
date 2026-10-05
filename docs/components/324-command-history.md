@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-history := []mujica.HistoryEntry{{Command: "git status"}, {Command: "go test ./...", ExitCode: 1}}
-var state mujica.CommandHistoryState
+history := []code.HistoryEntry{{Command: "git status"}, {Command: "go test ./...", ExitCode: 1}}
+var state code.CommandHistoryState
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.CommandHistory(c, history, &state, mujica.CommandHistoryOptions{})
+	core.Use(c, core.Settings{})
+	r := code.CommandHistory(c, history, &state, code.CommandHistoryOptions{})
 	r.Element.Height(240)
 	if r.Replayed != nil {
 		fmt.Println("run", r.Replayed.Command)

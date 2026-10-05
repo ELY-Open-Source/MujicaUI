@@ -9,10 +9,10 @@
 ## 最小示例
 
 ```go
-var state mujica.OrderEntryState
+var state finance.OrderEntryState
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if order, ok := mujica.OrderEntry(c, &state, mujica.OrderEntryOptions{Symbol: "MUJC", Last: 100.2}).Submitted(); ok {
+	core.Use(c, core.Settings{})
+	if order, ok := finance.OrderEntry(c, &state, finance.OrderEntryOptions{Symbol: "MUJC", Last: 100.2}).Submitted(); ok {
 		fmt.Println("place", order.Quantity)
 		state.EndSubmit("")
 	}

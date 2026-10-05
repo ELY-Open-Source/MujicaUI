@@ -7,12 +7,12 @@
 ## 最小示例
 
 ```go
-var state mujica.ListState[string]
-tools := []mujica.AgentTool{{Name: "web_search", Description: "Search the web", Enabled: true,
-	Params: []mujica.ToolParam{{Name: "query", Type: "string", Required: true}}}}
+var state data.ListState[string]
+tools := []feedback.AgentTool{{Name: "web_search", Description: "Search the web", Enabled: true,
+	Params: []feedback.ToolParam{{Name: "query", Type: "string", Required: true}}}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.ToolRegistryPanel(c, &state, tools, mujica.ToolRegistryPanelOptions{})
+	core.Use(c, core.Settings{})
+	r := feedback.ToolRegistryPanel(c, &state, tools, feedback.ToolRegistryPanelOptions{})
 	r.Element.Height(260)
 	if name, on, ok := r.Toggled(); ok && name == tools[0].Name {
 		tools[0].Enabled = on

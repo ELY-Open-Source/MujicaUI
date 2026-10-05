@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-var strokes [][]mujica.SignaturePoint
+var strokes [][]input.SignaturePoint
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.SignaturePad(c, &strokes, mujica.SignaturePadOptions{}).Changed() {
-		_ = mujica.SignaturePath(strokes) // SVG path data to store
+	core.Use(c, core.Settings{})
+	if input.SignaturePad(c, &strokes, input.SignaturePadOptions{}).Changed() {
+		_ = input.SignaturePath(strokes) // SVG path data to store
 	}
 }
 ```

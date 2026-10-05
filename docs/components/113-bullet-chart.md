@@ -9,8 +9,8 @@
 ```go
 target := 250.0
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.BulletChart(c, 270, mujica.BulletChartOptions{Frame: mujica.ChartFrame{Label: "Alms"}, Target: &target, Bands: []float64{150, 225, 300}})
+	core.Use(c, core.Settings{})
+	chart.BulletChart(c, 270, chart.BulletChartOptions{Frame: chart.ChartFrame{Label: "Alms"}, Target: &target, Bands: []float64{150, 225, 300}})
 }
 ui.Render(view, 400, 300, 1)
 ```

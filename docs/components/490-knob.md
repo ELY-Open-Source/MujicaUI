@@ -9,8 +9,8 @@
 ```go
 gain := 35.0
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Knob(c, &gain, mujica.KnobOptions{Label: "Gain", Ticks: 11})
+	core.Use(c, core.Settings{})
+	input.Knob(c, &gain, input.KnobOptions{Label: "Gain", Ticks: 11})
 }
 ```
 

@@ -6,7 +6,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
 )
 
 func TestMotionPagesControlsAndEvents(t *testing.T) {
@@ -21,7 +21,7 @@ func TestMotionPagesControlsAndEvents(t *testing.T) {
 			}
 			var events []string
 			tt := ui.NewTester(func(c *ui.Context) {
-				mujica.Use(c, mujica.Settings{})
+				core.Use(c, core.Settings{})
 				ui.Column(c).Padding(16).Children(func() { p.Demo(c, func(s string) { events = append(events, s) }) })
 			}, 1000, 700)
 			tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})
@@ -43,7 +43,7 @@ func TestMotionPagesControlsAndEvents(t *testing.T) {
 func TestMotionTypewriterRestartReplays(t *testing.T) {
 	finished := 0
 	tt := ui.NewTester(func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{})
+		core.Use(c, core.Settings{})
 		motionTypewriterDemo(c, func(s string) {
 			if s == "Finished" {
 				finished++

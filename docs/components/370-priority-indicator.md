@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-priority := mujica.PriorityHigh
+priority := project.PriorityHigh
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.PriorityIndicator(c, priority, mujica.PriorityIndicatorOptions{})
+	core.Use(c, core.Settings{})
+	project.PriorityIndicator(c, priority, project.PriorityIndicatorOptions{})
 }
 ui.Render(view, 1000, 700, 1)
 ```

@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.WaveLoader(c, mujica.LoaderOptions{Label: "Speaking", ShowLabel: true})
+	core.Use(c, core.Settings{})
+	feedback.WaveLoader(c, feedback.LoaderOptions{Label: "Speaking", ShowLabel: true})
 }
 ui.Render(view, 400, 300, 1)
 ```

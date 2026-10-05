@@ -7,8 +7,8 @@
 ## 最小示例
 
 ```go
-r := mujica.Result(c, mujica.ResultOptions{
-	Kind:        mujica.ResultForbidden,
+r := feedback.Result(c, feedback.ResultOptions{
+	Kind:        feedback.ResultForbidden,
 	Description: "You need the Editor role to change billing.",
 	Actions:     []string{"Request access", "Go back"},
 })

@@ -7,8 +7,8 @@
 ## 最小示例
 
 ```go
-p := mujica.LinkPreview{URL: "https://example.com", Title: "The Palace", Site: "example.com"}
-if mujica.LinkPreviewCard(c, p).Clicked() {
+p := chat.LinkPreview{URL: "https://example.com", Title: "The Palace", Site: "example.com"}
+if chat.LinkPreviewCard(c, p).Clicked() {
 	fmt.Println("open", p.URL)
 }
 ```

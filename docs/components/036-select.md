@@ -8,14 +8,14 @@
 
 ```go
 plan := ""
-options := []mujica.SelectOption[string]{
+options := []input.SelectOption[string]{
 	{Value: "free", Label: "Free"},
 	{Value: "pro", Label: "Pro"},
 	{Value: "team", Label: "Team", Disabled: true},
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Select(c, &plan, options, mujica.SelectOptions{Clearable: true, Label: "Plan"})
+	core.Use(c, core.Settings{})
+	input.Select(c, &plan, options, input.SelectOptions{Clearable: true, Label: "Plan"})
 }
 ui.Render(view, 400, 300, 1)
 ```

@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-frame := mujica.CameraFrame{Image: examplePhoto, Seq: 1} // a new Seq for each captured frame
+frame := media.CameraFrame{Image: examplePhoto, Seq: 1} // a new Seq for each captured frame
 mirror := true
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.CameraPreview(c, frame, &mirror, mujica.CameraPreviewOptions{})
+	core.Use(c, core.Settings{})
+	media.CameraPreview(c, frame, &mirror, media.CameraPreviewOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

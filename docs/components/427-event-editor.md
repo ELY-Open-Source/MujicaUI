@@ -10,8 +10,8 @@
 loc := time.Local
 ev := exampleEvents(loc)[0]
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.EventEditor(c, &ev, mujica.EventEditorOptions{Location: loc})
+	core.Use(c, core.Settings{})
+	r := datetime.EventEditor(c, &ev, datetime.EventEditorOptions{Location: loc})
 	if r.Saved() {
 		fmt.Println("saved", ev.Title, ev.Start)
 	}

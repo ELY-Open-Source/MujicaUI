@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-	var drawings mujica.DrawingTools
+	var drawings chart.DrawingTools
 	view := func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{})
-		mujica.DrawingToolbar(c, &drawings, mujica.DrawingToolbarOptions{Horizontal: true})
+		core.Use(c, core.Settings{})
+		chart.DrawingToolbar(c, &drawings, chart.DrawingToolbarOptions{Horizontal: true})
 	}
 	ui.Render(view, 640, 400, 1)
 ```

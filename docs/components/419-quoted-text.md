@@ -9,8 +9,8 @@
 ```go
 open := false
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.QuotedText(c, "> Can you send the score?", &open)
+	core.Use(c, core.Settings{})
+	messaging.QuotedText(c, "> Can you send the score?", &open)
 }
 ui.Render(view, 400, 300, 1)
 ```

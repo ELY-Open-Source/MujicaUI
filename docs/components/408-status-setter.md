@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-status := mujica.CustomStatus{Emoji: "🎻", Text: "Rehearsing"}
+status := messaging.CustomStatus{Emoji: "🎻", Text: "Rehearsing"}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.StatusSetter(c, &status, mujica.StatusSetterOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if messaging.StatusSetter(c, &status, messaging.StatusSetterOptions{}).Changed() {
 		_ = status // publish it; clear it once status.Until passes
 	}
 }

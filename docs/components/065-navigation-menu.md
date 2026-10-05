@@ -7,12 +7,12 @@
 ## 最小示例
 
 ```go
-mujica.NavigationMenu(c, router, []mujica.NavigationLink{
+navigation.NavigationMenu(c, router, []navigation.NavigationLink{
 	{Label: "Home", Path: "/"},
-	{Label: "Library", Items: []mujica.NavigationLink{
+	{Label: "Library", Items: []navigation.NavigationLink{
 		{Label: "Poems", Path: "/library/poems", Description: "Verse of the court"},
 	}},
-}, mujica.NavigationMenuOptions{History: true})
+}, navigation.NavigationMenuOptions{History: true})
 router.View(c, func(r *ui.Route) { ui.Text(c, r.Path()) })
 ```
 
@@ -58,6 +58,6 @@ router.View(c, func(r *ui.Route) { ui.Text(c, r.Path()) })
 ## 限制
 
 - MyGo 历史按钮的提示文字固定为英文 “Back” / “Forward”（`ui/router.go:713`）；本组件覆盖了无障碍名称，但提示仍为英文。
-- 历史按钮的外观来自 MyGo 主题按钮样式（经 `mujica.Use` 映射为 MujicaUI 颜色）。
+- 历史按钮的外观来自 MyGo 主题按钮样式（经 `core.Use` 映射为 MujicaUI 颜色）。
 - 弹层打开时在 160 ms 内淡入，减少动画时直接显示。关闭时立即消失：弹层关闭后 MyGo 不再构建其元素，公开接口无法为已移除的浮层做淡出。
 - 下拉面板最高为锚点上方或下方可用空间，超出时在面板内滚动；方向键移动焦点时自动滚入视野。

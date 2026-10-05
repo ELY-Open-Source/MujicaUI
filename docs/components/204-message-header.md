@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-mujica.MessageHeader(c, mujica.MessageHeaderOptions{Model: "herald-2", Time: time.Now(), Status: mujica.MessageSent})
+chat.MessageHeader(c, chat.MessageHeaderOptions{Model: "herald-2", Time: time.Now(), Status: chat.MessageSent})
 ```
 
 签名：`func MessageHeader(c *ui.Context, opts MessageHeaderOptions) *ui.Element`

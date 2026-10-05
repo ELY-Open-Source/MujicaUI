@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-var state mujica.WatchlistState
-groups := []mujica.WatchGroup{{Name: "Technology", Items: []mujica.WatchItem{{Symbol: "AAPL", Name: "Apple", Price: 227.5, Change: 2.7, ChangePercent: 1.2}}}, {Name: "Energy", Items: []mujica.WatchItem{{Symbol: "XOM", Price: 117.4}}}}
+var state finance.WatchlistState
+groups := []finance.WatchGroup{{Name: "Technology", Items: []finance.WatchItem{{Symbol: "AAPL", Name: "Apple", Price: 227.5, Change: 2.7, ChangePercent: 1.2}}}, {Name: "Energy", Items: []finance.WatchItem{{Symbol: "XOM", Price: 117.4}}}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.Watchlist(c, &state, groups, mujica.WatchlistOptions{})
+	core.Use(c, core.Settings{})
+	r := finance.Watchlist(c, &state, groups, finance.WatchlistOptions{})
 	if r.Changed || r.Submitted || r.Moved {
 		fmt.Println(state.Selected, r.Rows, r.To)
 	}

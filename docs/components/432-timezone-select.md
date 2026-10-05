@@ -9,8 +9,8 @@
 ```go
 zone := "Asia/Shanghai"
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.TimezoneSelect(c, &zone, mujica.TimezoneSelectOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if datetime.TimezoneSelect(c, &zone, datetime.TimezoneSelectOptions{}).Changed() {
 		fmt.Println("zone", zone)
 	}
 }

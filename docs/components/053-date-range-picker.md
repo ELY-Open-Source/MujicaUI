@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-var stay mujica.DateRange
+var stay datetime.DateRange
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.DateRangePicker(c, &stay, mujica.DateRangePickerOptions{Label: "Stay"})
+	core.Use(c, core.Settings{})
+	r := datetime.DateRangePicker(c, &stay, datetime.DateRangePickerOptions{Label: "Stay"})
 	if r.Changed() {
 		fmt.Println("stay", stay.Start, stay.End, stay.Days())
 	}

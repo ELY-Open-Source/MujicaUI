@@ -9,8 +9,8 @@
 ```go
 posted := time.Date(2026, time.October, 5, 9, 0, 0, 0, time.Local)
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.RelativeTime(c, posted, mujica.RelativeTimeOptions{Location: time.Local})
+	core.Use(c, core.Settings{})
+	datetime.RelativeTime(c, posted, datetime.RelativeTimeOptions{Location: time.Local})
 }
 ui.Render(view, 400, 300, 1)
 ```

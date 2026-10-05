@@ -2,44 +2,47 @@ package main
 
 import (
 	"fmt"
-	"github.com/egoist/mygo/ui"
-	mujica "mujicaui"
 	"time"
+
+	"github.com/egoist/mygo/ui"
+
+	"github.com/ZacharyZhang-NY/MujicaUI/chat"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
 )
 
 func chatinputDemoTokenCounter(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "234", func() float64 { return 1234 })
 	choiceDemo(c, func() {
-		if mujica.NumberInput(c, s, mujica.NumberInputOptions{Min: 0, Max: 12000, Step: 100, Label: "Estimated tokens"}).Changed() {
+		if input.NumberInput(c, s, input.NumberInputOptions{Min: 0, Max: 12000, Step: 100, Label: "Estimated tokens"}).Changed() {
 			log(fmt.Sprint("estimate ", *s))
 		}
 	}, func() {
-		mujica.TokenCounter(c, int(*s), 8000)
-		mujica.TokenCounter(c, 7500, 8000)
-		mujica.TokenCounter(c, 9100, 8000)
+		chat.TokenCounter(c, int(*s), 8000)
+		chat.TokenCounter(c, 7500, 8000)
+		chat.TokenCounter(c, 9100, 8000)
 	})
 }
 
 func chatinputDemoContextWindowMeter(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "235", func() float64 { return 58000 })
 	choiceDemo(c, func() {
-		if mujica.NumberInput(c, s, mujica.NumberInputOptions{Min: 0, Max: 150000, Step: 1000, Label: "History tokens"}).Changed() {
+		if input.NumberInput(c, s, input.NumberInputOptions{Min: 0, Max: 150000, Step: 1000, Label: "History tokens"}).Changed() {
 			log(fmt.Sprint("history ", *s))
 		}
 	}, func() {
 		ui.Column(c).Width(520).Children(func() {
-			mujica.ContextWindowMeter(c, []mujica.ContextSegment{{Label: "System", Tokens: 1200}, {Label: "History", Tokens: int(*s)}, {Label: "Attachments", Tokens: 24000}}, 128000, mujica.ContextWindowMeterOptions{})
+			chat.ContextWindowMeter(c, []chat.ContextSegment{{Label: "System", Tokens: 1200}, {Label: "History", Tokens: int(*s)}, {Label: "Attachments", Tokens: 24000}}, 128000, chat.ContextWindowMeterOptions{})
 		})
 	})
 }
 
 func chatinputDemoSendButton(c *ui.Context, log func(string)) {
-	s := ui.Local(c.Root(), "236", func() mujica.SendButtonOptions { return mujica.SendButtonOptions{Shortcut: "Enter"} })
+	s := ui.Local(c.Root(), "236", func() chat.SendButtonOptions { return chat.SendButtonOptions{Shortcut: "Enter"} })
 	choiceDemo(c, func() {
 		choiceFlag(c, &s.Streaming, "Streaming", log)
 		choiceFlag(c, &s.Disabled, "Disabled send", log)
 	}, func() {
-		r := mujica.SendButton(c, *s)
+		r := chat.SendButton(c, *s)
 		if r.Sent() {
 			s.Streaming = true
 			log("send")
@@ -51,13 +54,13 @@ func chatinputDemoSendButton(c *ui.Context, log func(string)) {
 	})
 }
 
-func chatinputSources() []mujica.Source {
-	return []mujica.Source{{Title: "The Palace of Versailles", URL: "https://example.com/versailles", Site: "example.com", Snippet: "Seat of the court from 1682.", Published: time.Date(2025, 5, 4, 0, 0, 0, 0, time.UTC)}, {Title: "Hall of Mirrors", URL: "https://example.org/hall", Site: "example.org", Snippet: "Seventeen arches face the garden."}, {Title: "Court etiquette", URL: "https://example.net/etiquette", Snippet: "The ranks of the court."}}
+func chatinputSources() []chat.Source {
+	return []chat.Source{{Title: "The Palace of Versailles", URL: "https://example.com/versailles", Site: "example.com", Snippet: "Seat of the court from 1682.", Published: time.Date(2025, 5, 4, 0, 0, 0, 0, time.UTC)}, {Title: "Hall of Mirrors", URL: "https://example.org/hall", Site: "example.org", Snippet: "Seventeen arches face the garden."}, {Title: "Court etiquette", URL: "https://example.net/etiquette", Snippet: "The ranks of the court."}}
 }
 
 func chatinputDemoCitationBadge(c *ui.Context, log func(string)) {
 	type state struct {
-		cites    mujica.CitationState
+		cites    chat.CitationState
 		disabled bool
 	}
 	s := ui.Local(c.Root(), "237", func() state { return state{} })
@@ -65,13 +68,13 @@ func chatinputDemoCitationBadge(c *ui.Context, log func(string)) {
 		ui.Row(c).Disabled(s.disabled).Gap(8).AlignItems(ui.Center).Children(func() {
 			ui.Text(c, "The court moved in 1682")
 			for i, src := range chatinputSources() {
-				if mujica.CitationBadge(c, i+1, src, &s.cites).Changed() {
+				if chat.CitationBadge(c, i+1, src, &s.cites).Changed() {
 					log(fmt.Sprint("locate source ", s.cites.Active))
 				}
 			}
 		})
 		ui.Column(c).Width(360).Height(260).Disabled(s.disabled).Children(func() {
-			if n, ok := mujica.SourcesPanel(c, chatinputSources(), &s.cites).Opened(); ok {
+			if n, ok := chat.SourcesPanel(c, chatinputSources(), &s.cites).Opened(); ok {
 				log(fmt.Sprint("open source ", n))
 			}
 		})
@@ -80,7 +83,7 @@ func chatinputDemoCitationBadge(c *ui.Context, log func(string)) {
 
 func chatinputDemoSourceCard(c *ui.Context, log func(string)) {
 	type state struct {
-		cites              mujica.CitationState
+		cites              chat.CitationState
 		selected, disabled bool
 	}
 	s := ui.Local(c.Root(), "238", func() state { return state{} })
@@ -90,7 +93,7 @@ func chatinputDemoSourceCard(c *ui.Context, log func(string)) {
 			s.cites.Active = 1
 		}
 		ui.Column(c).Width(400).Disabled(s.disabled).Children(func() {
-			if mujica.SourceCard(c, 1, chatinputSources()[0], &s.cites).Clicked() {
+			if chat.SourceCard(c, 1, chatinputSources()[0], &s.cites).Clicked() {
 				log("open source 1")
 			}
 		})
@@ -99,26 +102,26 @@ func chatinputDemoSourceCard(c *ui.Context, log func(string)) {
 
 func chatinputDemoSourcesPanel(c *ui.Context, log func(string)) {
 	type state struct {
-		cites                 mujica.CitationState
-		sources               []mujica.Source
+		cites                 chat.CitationState
+		sources               []chat.Source
 		disabled, empty, many bool
 	}
 	s := ui.Local(c.Root(), "239", func() state { return state{sources: chatinputSources()} })
 	choiceDemo(c, func() {
 		choiceFlag(c, &s.disabled, "Disabled", log)
 		choiceFlag(c, &s.empty, "Empty", log)
-		if mujica.Switch(c, &s.many, "100,000 sources", mujica.SwitchOptions{}).Changed() {
+		if input.Switch(c, &s.many, "100,000 sources", input.SwitchOptions{}).Changed() {
 			s.sources = chatinputSources()
 			s.cites.Active = 0
 			if s.many {
-				s.sources = make([]mujica.Source, 100000)
+				s.sources = make([]chat.Source, 100000)
 				for i := range s.sources {
-					s.sources[i] = mujica.Source{Title: fmt.Sprintf("Archive %d", i+1), URL: "https://example.com/archive"}
+					s.sources[i] = chat.Source{Title: fmt.Sprintf("Archive %d", i+1), URL: "https://example.com/archive"}
 				}
 			}
 			log(fmt.Sprint("sources ", len(s.sources)))
 		}
-		if mujica.Button(c, "Locate last source", mujica.ButtonOptions{Disabled: s.empty}).Clicked() {
+		if input.Button(c, "Locate last source", input.ButtonOptions{Disabled: s.empty}).Clicked() {
 			s.cites.Active = len(s.sources)
 			log("locate last source")
 		}
@@ -129,7 +132,7 @@ func chatinputDemoSourcesPanel(c *ui.Context, log func(string)) {
 			s.cites.Active = 0
 		}
 		ui.Column(c).Width(400).Height(320).Disabled(s.disabled).Children(func() {
-			if n, ok := mujica.SourcesPanel(c, sources, &s.cites).Opened(); ok {
+			if n, ok := chat.SourcesPanel(c, sources, &s.cites).Opened(); ok {
 				log(fmt.Sprint("open source ", n))
 			}
 		})
@@ -145,12 +148,12 @@ func chatinputDemoSearchProgress(c *ui.Context, log func(string)) {
 	choiceDemo(c, func() {
 		choiceFlag(c, &s.done, "Done", log)
 		choiceFlag(c, &s.disabled, "Disabled", log)
-		if mujica.NumberInput(c, &s.read, mujica.NumberInputOptions{Min: 0, Max: 8, Step: 1, Label: "Read sources"}).Changed() {
+		if input.NumberInput(c, &s.read, input.NumberInputOptions{Min: 0, Max: 8, Step: 1, Label: "Read sources"}).Changed() {
 			log(fmt.Sprint("read ", s.read))
 		}
 	}, func() {
 		ui.Column(c).Width(440).Disabled(s.disabled).Children(func() {
-			if mujica.SearchProgress(c, mujica.SearchProgressOptions{Query: "Versailles 1682", Read: int(s.read), Total: 8, Done: s.done, Stages: []mujica.SearchStage{{Label: "Planning queries", Done: true}, {Label: "Searching the web", Done: true}, {Label: "Reading sources", Done: s.done}}}).Changed() {
+			if chat.SearchProgress(c, chat.SearchProgressOptions{Query: "Versailles 1682", Read: int(s.read), Total: 8, Done: s.done, Stages: []chat.SearchStage{{Label: "Planning queries", Done: true}, {Label: "Searching the web", Done: true}, {Label: "Reading sources", Done: s.done}}}).Changed() {
 				log("toggle search details")
 			}
 		})

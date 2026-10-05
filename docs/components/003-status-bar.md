@@ -7,9 +7,9 @@
 ## 最小示例
 
 ```go
-bar := mujica.StatusBar(c, mujica.StatusBarOptions{
-	Left:  []mujica.StatusItem{{ID: "sync", Text: "Syncing", ShowProgress: true, Progress: 0.4}},
-	Right: []mujica.StatusItem{{ID: "bell", Label: "Notifications", Icon: icons.Must("bell"), Action: true}},
+bar := layout.StatusBar(c, layout.StatusBarOptions{
+	Left:  []layout.StatusItem{{ID: "sync", Text: "Syncing", ShowProgress: true, Progress: 0.4}},
+	Right: []layout.StatusItem{{ID: "bell", Label: "Notifications", Icon: icons.Must("bell"), Action: true}},
 })
 if bar.Clicked == "bell" {
 	opened++

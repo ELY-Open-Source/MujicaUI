@@ -9,9 +9,9 @@
 ```go
 web := true
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	tools := []mujica.ToolItem{{ID: "web", Label: "Web search", On: &web}}
-	if id, ok := mujica.ToolToggleMenu(c, tools).Changed(); ok {
+	core.Use(c, core.Settings{})
+	tools := []chat.ToolItem{{ID: "web", Label: "Web search", On: &web}}
+	if id, ok := chat.ToolToggleMenu(c, tools).Changed(); ok {
 		fmt.Println("toggled", id)
 	}
 }

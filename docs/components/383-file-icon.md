@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.FileIcon(c, "seal.go", mujica.FileIconOptions{Size: 32})
+	core.Use(c, core.Settings{})
+	files.FileIcon(c, "seal.go", files.FileIconOptions{Size: 32})
 }
 ui.Render(view, 100, 80, 1)
 ```

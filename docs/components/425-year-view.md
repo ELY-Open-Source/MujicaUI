@@ -11,8 +11,8 @@ loc := time.Local
 events := exampleEvents(loc)
 year := 2026
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if day, ok := mujica.YearView(c, &year, events, mujica.YearViewOptions{Location: loc}).DayChosen(); ok {
+	core.Use(c, core.Settings{})
+	if day, ok := datetime.YearView(c, &year, events, datetime.YearViewOptions{Location: loc}).DayChosen(); ok {
 		fmt.Println("go to", day)
 	}
 }

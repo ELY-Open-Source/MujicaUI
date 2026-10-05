@@ -11,8 +11,8 @@
 ```go
 var paths []string
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.FilePicker(c, &paths, mujica.FilePickerOptions{
+	core.Use(c, core.Settings{})
+	input.FilePicker(c, &paths, input.FilePickerOptions{
 		Multiple: true,
 		Filters:  []mygo.FileFilter{{Name: "Scores", Extensions: []string{"pdf", "mid"}}},
 	})

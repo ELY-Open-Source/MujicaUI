@@ -9,11 +9,11 @@
 ## 最小示例
 
 ```go
-var state mujica.DepthLadderState
-book := mujica.OrderBookData{Bids: []mujica.BookLevel{{Price: 100, Size: 5}}, Asks: []mujica.BookLevel{{Price: 100.01, Size: 2}}}
+var state finance.DepthLadderState
+book := finance.OrderBookData{Bids: []finance.BookLevel{{Price: 100, Size: 5}}, Asks: []finance.BookLevel{{Price: 100.01, Size: 2}}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if price, side, ok := mujica.DepthLadder(c, &state, 100, book, mujica.DepthLadderOptions{TickSize: 0.01}).Clicked(); ok {
+	core.Use(c, core.Settings{})
+	if price, side, ok := finance.DepthLadder(c, &state, 100, book, finance.DepthLadderOptions{TickSize: 0.01}).Clicked(); ok {
 		fmt.Println("place", side, "at", price)
 	}
 }

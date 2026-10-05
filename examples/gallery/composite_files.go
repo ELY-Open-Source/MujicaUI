@@ -11,9 +11,15 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
-	"mujicaui/icons"
-	"mujicaui/theme"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ZacharyZhang-NY/MujicaUI/data"
+	"github.com/ZacharyZhang-NY/MujicaUI/feedback"
+	"github.com/ZacharyZhang-NY/MujicaUI/icons"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
+	"github.com/ZacharyZhang-NY/MujicaUI/layout"
+	"github.com/ZacharyZhang-NY/MujicaUI/navigation"
+	"github.com/ZacharyZhang-NY/MujicaUI/overlay"
+	"github.com/ZacharyZhang-NY/MujicaUI/theme"
 )
 
 const filesID = "c-files"
@@ -30,8 +36,8 @@ type filesDemo struct {
 	next     int
 	version  int
 	query    string
-	table    mujica.DataTableState[int]
-	dropped  []mujica.DroppedFile
+	table    data.DataTableState[int]
+	dropped  []input.DroppedFile
 	picked   []string
 	renaming bool
 	renameID int
@@ -68,14 +74,14 @@ func fileSize(n int64) string {
 	}
 }
 
-func (g *gallery) fileColumns(c *ui.Context) []mujica.DataColumn[fileEntry] {
-	return []mujica.DataColumn[fileEntry]{
+func (g *gallery) fileColumns(c *ui.Context) []data.DataColumn[fileEntry] {
+	return []data.DataColumn[fileEntry]{
 		{ID: "name", Title: g.t("Name", "名称"), MinWidth: 200, Sortable: true,
 			Text:    func(f fileEntry) string { return f.Name },
 			Compare: func(a, b fileEntry) int { return cmp.Compare(a.Name, b.Name) },
 			Cell: func(f fileEntry) {
 				ui.Row(c).Gap(8).AlignItems(ui.Center).MinWidth(0).Children(func() {
-					ui.Icon(c, icons.Must("file")).Size(16, 16).TextColor(mujica.Tokens(c).TextMuted)
+					ui.Icon(c, icons.Must("file")).Size(16, 16).TextColor(core.Tokens(c).TextMuted)
 					ui.Text(c, f.Name).SingleLine()
 				})
 			}},
@@ -121,39 +127,39 @@ func (s *filesDemo) add(path string, size int64, at time.Time) bool {
 
 func (g *gallery) filesView(c *ui.Context, log func(string)) {
 	s := &g.cFiles
-	k := mujica.Tokens(c)
+	k := core.Tokens(c)
 	cols := g.fileColumns(c)
 	targets := s.targets()
 	ui.Row(c).FillWidth().Gap(12).AlignItems(ui.Center).Children(func() {
-		mujica.Toolbar(c, mujica.ToolbarOptions{Label: g.t("File actions", "文件操作")}, func() {
-			g.fileActions(c, log, targets, func(m *mujica.PopupMenu) { g.fileMenu(m, log, targets) })
+		navigation.Toolbar(c, navigation.ToolbarOptions{Label: g.t("File actions", "文件操作")}, func() {
+			g.fileActions(c, log, targets, func(m *overlay.PopupMenu) { g.fileMenu(m, log, targets) })
 		}).Grow(1)
 		before := s.query
-		mujica.SearchInput(c, &s.query, mujica.SearchInputOptions{Placeholder: g.t("Filter files", "筛选文件")}).Element.Width(240)
+		input.SearchInput(c, &s.query, input.SearchInputOptions{Placeholder: g.t("Filter files", "筛选文件")}).Element.Width(240)
 		if s.query != before {
 			log(fmt.Sprintf("filter %q", s.query))
 		}
 	})
 	s.table.Filter = s.query
-	shown := len(mujica.DataTableRows(s.entries, cols, s.table.Sort, s.query))
+	shown := len(data.DataTableRows(s.entries, cols, s.table.Sort, s.query))
 	switch {
 	case len(s.entries) == 0:
-		if mujica.EmptyState(c, mujica.EmptyStateOptions{Kind: mujica.EmptyNoData, Title: g.t("No files", "没有文件"),
+		if feedback.EmptyState(c, feedback.EmptyStateOptions{Kind: feedback.EmptyNoData, Title: g.t("No files", "没有文件"),
 			Description: g.t("Drop files below or choose some to add them.", "将文件拖到下方，或选取文件以添加。"),
 			Action:      g.t("Restore samples", "恢复示例")}).Action {
 			g.restoreFiles(log)
 		}
 	case shown == 0:
-		if mujica.EmptyState(c, mujica.EmptyStateOptions{Kind: mujica.EmptyNoResults, Query: s.query, Action: g.t("Clear filter", "清除筛选")}).Action {
+		if feedback.EmptyState(c, feedback.EmptyStateOptions{Kind: feedback.EmptyNoResults, Query: s.query, Action: g.t("Clear filter", "清除筛选")}).Action {
 			s.query = ""
 			log("filter cleared")
 		}
 	default:
-		v := mujica.DataTable(c, &s.table, s.entries, mujica.DataTableOptions[fileEntry, int]{
+		v := data.DataTable(c, &s.table, s.entries, data.DataTableOptions[fileEntry, int]{
 			Columns: cols, Key: func(f fileEntry) int { return f.ID }, Multiple: true, Version: s.version,
 		})
 		v.Element.FillWidth().Height(430)
-		mujica.ContextMenu(c, v.Element, mujica.ContextMenuOptions{}, func(m *mujica.PopupMenu) { g.fileMenu(m, log, targets) })
+		overlay.ContextMenu(c, v.Element, overlay.ContextMenuOptions{}, func(m *overlay.PopupMenu) { g.fileMenu(m, log, targets) })
 		if v.Changed() {
 			log(fmt.Sprintf("selection %d checked", s.table.Selection.Len()))
 		}
@@ -168,12 +174,12 @@ func (g *gallery) filesView(c *ui.Context, log func(string)) {
 	for _, f := range s.entries {
 		size += f.Size
 	}
-	mujica.StatusBar(c, mujica.StatusBarOptions{
-		Left: []mujica.StatusItem{
+	layout.StatusBar(c, layout.StatusBarOptions{
+		Left: []layout.StatusItem{
 			{ID: "count", Icon: icons.Must("folder"), Text: fmt.Sprintf(g.t("%d files · %s", "%d 个文件 · %s"), len(s.entries), fileSize(size))},
 			{ID: "shown", Text: fmt.Sprintf(g.t("%d shown", "显示 %d 个"), shown), Secondary: true},
 		},
-		Right: []mujica.StatusItem{{ID: "selected", Text: fmt.Sprintf(g.t("%d selected", "已选 %d 个"), s.table.Selection.Len())}},
+		Right: []layout.StatusItem{{ID: "selected", Text: fmt.Sprintf(g.t("%d selected", "已选 %d 个"), s.table.Selection.Len())}},
 	}).Element.Radius(theme.CardRadius).Border(theme.BorderWidth, k.Border)
 	g.fileAdders(c, log)
 	g.renameDialog(c, log)
@@ -181,39 +187,39 @@ func (g *gallery) filesView(c *ui.Context, log func(string)) {
 }
 
 // fileActions fills the toolbar; menu fills the More dropdown, shared with the context menu.
-func (g *gallery) fileActions(c *ui.Context, log func(string), targets []int, menu func(m *mujica.PopupMenu)) {
-	mujica.ToolbarGroup(c, func() {
-		if mujica.ToolbarButton(c, g.t("Rename", "重命名"), mujica.ToolbarButtonOptions{Icon: icons.Must("file-text"), ShowLabel: true, Disabled: len(targets) != 1}).Clicked() {
+func (g *gallery) fileActions(c *ui.Context, log func(string), targets []int, menu func(m *overlay.PopupMenu)) {
+	navigation.ToolbarGroup(c, func() {
+		if navigation.ToolbarButton(c, g.t("Rename", "重命名"), navigation.ToolbarButtonOptions{Icon: icons.Must("file-text"), ShowLabel: true, Disabled: len(targets) != 1}).Clicked() {
 			g.startRename(log, targets[0])
 		}
-		if mujica.ToolbarButton(c, g.t("Delete", "删除"), mujica.ToolbarButtonOptions{Icon: icons.Must("trash-2"), ShowLabel: true, Disabled: len(targets) == 0}).Clicked() {
+		if navigation.ToolbarButton(c, g.t("Delete", "删除"), navigation.ToolbarButtonOptions{Icon: icons.Must("trash-2"), ShowLabel: true, Disabled: len(targets) == 0}).Clicked() {
 			g.startDelete(log, targets)
 		}
 	})
-	mujica.ToolbarSeparator(c)
-	mujica.DropdownMenu(c, g.t("Actions", "操作"), mujica.DropdownMenuOptions{Icon: icons.Must("ellipsis")}, menu)
+	navigation.ToolbarSeparator(c)
+	overlay.DropdownMenu(c, g.t("Actions", "操作"), overlay.DropdownMenuOptions{Icon: icons.Must("ellipsis")}, menu)
 }
 
 // fileMenu holds every file action; the dropdown and the context menu share it.
-func (g *gallery) fileMenu(m *mujica.PopupMenu, log func(string), targets []int) {
+func (g *gallery) fileMenu(m *overlay.PopupMenu, log func(string), targets []int) {
 	s := &g.cFiles
-	if m.Item(g.t("Rename…", "重命名…"), mujica.PopupMenuItemOptions{Disabled: len(targets) != 1}) {
+	if m.Item(g.t("Rename…", "重命名…"), overlay.PopupMenuItemOptions{Disabled: len(targets) != 1}) {
 		g.startRename(log, targets[0])
 	}
-	if m.Item(g.t("Delete…", "删除…"), mujica.PopupMenuItemOptions{Disabled: len(targets) == 0}) {
+	if m.Item(g.t("Delete…", "删除…"), overlay.PopupMenuItemOptions{Disabled: len(targets) == 0}) {
 		g.startDelete(log, targets)
 	}
-	if m.Item(g.t("Select all", "全选"), mujica.PopupMenuItemOptions{Disabled: len(s.entries) == 0}) {
+	if m.Item(g.t("Select all", "全选"), overlay.PopupMenuItemOptions{Disabled: len(s.entries) == 0}) {
 		for _, f := range s.entries {
 			s.table.Selection.Add(f.ID)
 		}
 		log(fmt.Sprintf("selected all %d", len(s.entries)))
 	}
-	if m.Item(g.t("Clear selection", "清除选择"), mujica.PopupMenuItemOptions{Disabled: s.table.Selection.Len() == 0}) {
+	if m.Item(g.t("Clear selection", "清除选择"), overlay.PopupMenuItemOptions{Disabled: s.table.Selection.Len() == 0}) {
 		s.table.Selection.Clear()
 		log("selection cleared")
 	}
-	if m.Item(g.t("Restore samples", "恢复示例"), mujica.PopupMenuItemOptions{}) {
+	if m.Item(g.t("Restore samples", "恢复示例"), overlay.PopupMenuItemOptions{}) {
 		g.restoreFiles(log)
 	}
 }
@@ -229,16 +235,16 @@ func (g *gallery) restoreFiles(log func(string)) {
 // fileAdders are the drop zone and the picker; both only list files, nothing is uploaded.
 func (g *gallery) fileAdders(c *ui.Context, log func(string)) {
 	s := &g.cFiles
-	mujica.Card(c, mujica.CardOptions{Title: g.t("Add files", "添加文件")}, func() {
-		ui.Text(c, g.t("Files are checked and listed, never read or uploaded.", "文件只做校验并列出，不会读取或上传。")).TextColor(mujica.Tokens(c).TextMuted)
-		if mujica.FileDropZone(c, &s.dropped, mujica.FileDropZoneOptions{MaxFiles: 8, MaxSize: 50 << 20,
+	data.Card(c, data.CardOptions{Title: g.t("Add files", "添加文件")}, func() {
+		ui.Text(c, g.t("Files are checked and listed, never read or uploaded.", "文件只做校验并列出，不会读取或上传。")).TextColor(core.Tokens(c).TextMuted)
+		if input.FileDropZone(c, &s.dropped, input.FileDropZoneOptions{MaxFiles: 8, MaxSize: 50 << 20,
 			Hint: g.t("Drop files here to list them", "将文件拖到此处以列出")}).Changed() {
 			for _, f := range s.dropped {
 				g.addFile(c, log, f.Path, f.Size, time.Now())
 			}
 			s.dropped = nil
 		}
-		p := mujica.FilePicker(c, &s.picked, mujica.FilePickerOptions{Multiple: true, Label: g.t("Choose files…", "选取文件…")})
+		p := input.FilePicker(c, &s.picked, input.FilePickerOptions{Multiple: true, Label: g.t("Choose files…", "选取文件…")})
 		if p.Canceled() {
 			log("picker canceled")
 		}
@@ -246,7 +252,7 @@ func (g *gallery) fileAdders(c *ui.Context, log func(string)) {
 			for _, path := range s.picked {
 				info, err := os.Stat(path)
 				if err != nil {
-					mujica.ShowToast(c, mujica.ToastMessage{Severity: mujica.SeverityError, Message: err.Error()})
+					feedback.ShowToast(c, feedback.ToastMessage{Severity: core.SeverityError, Message: err.Error()})
 					log("stat failed: " + err.Error())
 					continue
 				}
@@ -263,7 +269,7 @@ func (g *gallery) addFile(c *ui.Context, log func(string), path string, size int
 		return
 	}
 	log("skipped duplicate " + filepath.Base(path))
-	mujica.ShowToast(c, mujica.ToastMessage{ID: "dup-" + path, Severity: mujica.SeverityWarning,
+	feedback.ShowToast(c, feedback.ToastMessage{ID: "dup-" + path, Severity: core.SeverityWarning,
 		Message: fmt.Sprintf(g.t("%s is already listed", "%s 已在列表中"), filepath.Base(path))})
 }
 
@@ -304,17 +310,17 @@ func (g *gallery) renameDialog(c *ui.Context, log func(string)) {
 		s.version++
 		s.renaming = false
 	}
-	mujica.Dialog(c, &s.renaming, mujica.DialogOptions{Title: g.t("Rename file", "重命名文件"), Actions: func() {
-		if mujica.Button(c, g.t("Cancel", "取消"), mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+	overlay.Dialog(c, &s.renaming, overlay.DialogOptions{Title: g.t("Rename file", "重命名文件"), Actions: func() {
+		if input.Button(c, g.t("Cancel", "取消"), input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 			s.renaming = false
 			log("rename canceled")
 		}
-		if mujica.Button(c, g.t("Rename", "重命名"), mujica.ButtonOptions{Disabled: bad != ""}).Clicked() {
+		if input.Button(c, g.t("Rename", "重命名"), input.ButtonOptions{Disabled: bad != ""}).Clicked() {
 			commit()
 		}
 	}}, func() {
-		mujica.FormField(c, g.t("New name", "新名称"), mujica.FormFieldOptions{Error: bad}, func() *ui.Element {
-			r := mujica.TextInput(c, &s.newName, mujica.TextInputOptions{Error: bad})
+		input.FormField(c, g.t("New name", "新名称"), input.FormFieldOptions{Error: bad}, func() *ui.Element {
+			r := input.TextInput(c, &s.newName, input.TextInputOptions{Error: bad})
 			if r.Submitted() {
 				commit()
 			}
@@ -338,7 +344,7 @@ func (g *gallery) deleteDialog(c *ui.Context, log func(string)) {
 	if len(s.doomed) == 1 {
 		desc = fmt.Sprintf(g.t("“%s” will be removed from the list.", "将从列表中移除“%s”。"), s.entry(s.doomed[0]).Name)
 	}
-	r := mujica.AlertDialog(c, &s.deleting, mujica.AlertDialogOptions{Title: g.t("Delete files?", "删除文件？"), Description: desc,
+	r := overlay.AlertDialog(c, &s.deleting, overlay.AlertDialogOptions{Title: g.t("Delete files?", "删除文件？"), Description: desc,
 		ConfirmLabel: g.t("Delete permanently", "永久删除")})
 	switch {
 	case r.Confirmed:
@@ -348,7 +354,7 @@ func (g *gallery) deleteDialog(c *ui.Context, log func(string)) {
 		}
 		s.version++
 		log(fmt.Sprintf("deleted %d", len(s.doomed)))
-		mujica.ShowToast(c, mujica.ToastMessage{ID: "files-deleted", Severity: mujica.SeveritySuccess,
+		feedback.ShowToast(c, feedback.ToastMessage{ID: "files-deleted", Severity: core.SeveritySuccess,
 			Message: fmt.Sprintf(g.t("Deleted %d files", "已删除 %d 个文件"), len(s.doomed))})
 		s.doomed = nil
 	case r.Canceled:

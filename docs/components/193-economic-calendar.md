@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-var state mujica.EconomicCalendarState
-rows := []mujica.EconomicEvent{{ID: "jobs", Country: "US", Title: "Payrolls", Time: time.Date(2026, 10, 5, 14, 30, 0, 0, time.UTC), Importance: 3, Forecast: "150K", Previous: "142K", Actual: "254K"}}
+var state finance.EconomicCalendarState
+rows := []finance.EconomicEvent{{ID: "jobs", Country: "US", Title: "Payrolls", Time: time.Date(2026, 10, 5, 14, 30, 0, 0, time.UTC), Importance: 3, Forecast: "150K", Previous: "142K", Actual: "254K"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.EconomicCalendar(c, &state, rows, mujica.EconomicCalendarOptions{})
+	core.Use(c, core.Settings{})
+	r := finance.EconomicCalendar(c, &state, rows, finance.EconomicCalendarOptions{})
 	if r.Changed() || r.Submitted() || r.SortChanged() || r.Retried() {
 		fmt.Println(state.Table.Selected())
 	}

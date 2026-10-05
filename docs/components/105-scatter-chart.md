@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-var selected []mujica.ScatterKey
-groups := []mujica.ScatterGroup{{Name: "Monks", Points: []mujica.ScatterPoint{{X: 1, Y: 2, Size: 4}, {X: 3, Y: 5, Size: 9}}}}
+var selected []chart.ScatterKey
+groups := []chart.ScatterGroup{{Name: "Monks", Points: []chart.ScatterPoint{{X: 1, Y: 2, Size: 4}, {X: 3, Y: 5, Size: 9}}}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ScatterChart(c, &selected, groups, mujica.ScatterChartOptions{Frame: mujica.ChartFrame{Label: "Choir"}, Bubbles: true})
+	core.Use(c, core.Settings{})
+	chart.ScatterChart(c, &selected, groups, chart.ScatterChartOptions{Frame: chart.ChartFrame{Label: "Choir"}, Bubbles: true})
 }
 ui.Render(view, 400, 300, 1)
 ```

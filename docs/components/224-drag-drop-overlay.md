@@ -8,9 +8,9 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
+	core.Use(c, core.Settings{})
 	images := func(path string) bool { return strings.HasSuffix(path, ".png") }
-	r := mujica.DragDropOverlay(c, mujica.DragDropOverlayOptions{Accept: images}, func() {
+	r := chat.DragDropOverlay(c, chat.DragDropOverlayOptions{Accept: images}, func() {
 		ui.Text(c, "Drag images into the chat")
 	})
 	for _, path := range r.Accepted() {

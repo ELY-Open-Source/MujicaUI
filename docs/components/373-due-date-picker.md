@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-var due mujica.Date
+var due core.Date
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.DueDatePicker(c, &due, mujica.DueDatePickerOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if project.DueDatePicker(c, &due, project.DueDatePickerOptions{}).Changed() {
 		log.Println("due", due)
 	}
 }

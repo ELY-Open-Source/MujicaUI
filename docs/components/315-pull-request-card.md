@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-pr := mujica.PullRequest{Number: 42, Title: "Add git components", Author: "Sakiko", Head: "feature", Base: "main",
-	ChecksPassed: 3, Reviewers: []mujica.Reviewer{{Name: "Uika", State: mujica.ReviewApproved}}, Added: 120, Deleted: 8, Files: 6}
+pr := git.PullRequest{Number: 42, Title: "Add git components", Author: "Sakiko", Head: "feature", Base: "main",
+	ChecksPassed: 3, Reviewers: []git.Reviewer{{Name: "Uika", State: git.ReviewApproved}}, Added: 120, Deleted: 8, Files: 6}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.PullRequestCard(c, pr, mujica.PullRequestCardOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if git.PullRequestCard(c, pr, git.PullRequestCardOptions{}).Changed() {
 		// open the pull request
 	}
 }

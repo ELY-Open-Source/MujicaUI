@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.OnlineStatus(c, mujica.PresenceAway, mujica.OnlineStatusOptions{})
+	core.Use(c, core.Settings{})
+	messaging.OnlineStatus(c, messaging.PresenceAway, messaging.OnlineStatusOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

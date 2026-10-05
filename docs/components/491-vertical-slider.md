@@ -9,8 +9,8 @@
 ```go
 level := 40.0
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.VerticalSlider(c, &level, mujica.VerticalSliderOptions{Step: 10, Label: "Level"})
+	core.Use(c, core.Settings{})
+	input.VerticalSlider(c, &level, input.VerticalSliderOptions{Step: 10, Label: "Level"})
 }
 ```
 

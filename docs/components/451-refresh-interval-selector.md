@@ -9,8 +9,8 @@
 ```go
 interval := 30 * time.Second
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.RefreshIntervalSelector(c, &interval, mujica.RefreshIntervalSelectorOptions{})
+	core.Use(c, core.Settings{})
+	r := devtools.RefreshIntervalSelector(c, &interval, devtools.RefreshIntervalSelectorOptions{})
 	if r.Refresh {
 		fmt.Println("refresh")
 	}

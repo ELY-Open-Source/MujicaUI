@@ -8,10 +8,10 @@
 
 ```go
 current := 1
-versions := []mujica.ArtifactVersion{{Label: "v1", Note: "First draft"}, {Label: "v2", Note: "Added music"}}
+versions := []agent.ArtifactVersion{{Label: "v1", Note: "First draft"}, {Label: "v2", Note: "Added music"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.ArtifactVersionSwitcher(c, &current, versions, mujica.ArtifactVersionSwitcherOptions{}).Compare {
+	core.Use(c, core.Settings{})
+	if agent.ArtifactVersionSwitcher(c, &current, versions, agent.ArtifactVersionSwitcherOptions{}).Compare {
 		fmt.Println("diff v1 and v2")
 	}
 }

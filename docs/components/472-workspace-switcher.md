@@ -10,10 +10,10 @@
 
 ```go
 current := "ave"
-spaces := []mujica.Workspace{{ID: "ave", Name: "Ave Mujica"}, {ID: "mygo", Name: "MyGO!!!!!"}}
+spaces := []account.Workspace{{ID: "ave", Name: "Ave Mujica"}, {ID: "mygo", Name: "MyGO!!!!!"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.WorkspaceSwitcher(c, &current, spaces, mujica.WorkspaceSwitcherOptions{})
+	core.Use(c, core.Settings{})
+	account.WorkspaceSwitcher(c, &current, spaces, account.WorkspaceSwitcherOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

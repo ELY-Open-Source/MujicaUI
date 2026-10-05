@@ -11,7 +11,7 @@ matches := 0
 if query != "" {
 	matches = strings.Count(text, query)
 }
-r := mujica.SearchInput(c, &query, mujica.SearchInputOptions{Find: true, Matches: matches, Current: &current})
+r := input.SearchInput(c, &query, input.SearchInputOptions{Find: true, Matches: matches, Current: &current})
 if r.Moved() {
 	fmt.Println("show match", current)
 }

@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-m := mujica.Mail{From: "Sakiko", Subject: "Second act", Body: "The score is attached.\n> Can you send it?",
-	Attachments: []mujica.MailAttachment{{Name: "score.pdf", Size: 2048}}}
+m := messaging.Mail{From: "Sakiko", Subject: "Second act", Body: "The score is attached.\n> Can you send it?",
+	Attachments: []messaging.MailAttachment{{Name: "score.pdf", Size: 2048}}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if r := mujica.MailReader(c, m); r.Link != "" {
+	core.Use(c, core.Settings{})
+	if r := messaging.MailReader(c, m); r.Link != "" {
 		c.OpenURL(r.Link)
 	}
 }

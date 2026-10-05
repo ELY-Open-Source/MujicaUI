@@ -7,8 +7,8 @@
 ## 最小示例
 
 ```go
-items := []mujica.ButtonGroupItem{{Label: "Day"}, {Label: "Week"}, {Label: "Month"}}
-if i := mujica.ButtonGroup(c, items, mujica.ButtonGroupOptions{Label: "Range"}).ClickedItem(); i >= 0 {
+items := []input.ButtonGroupItem{{Label: "Day"}, {Label: "Week"}, {Label: "Month"}}
+if i := input.ButtonGroup(c, items, input.ButtonGroupOptions{Label: "Range"}).ClickedItem(); i >= 0 {
 	fmt.Println("chose", items[i].Label)
 }
 ```

@@ -9,9 +9,9 @@
 ```go
 length := 90 * time.Minute
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	opts := mujica.DurationPickerOptions{Min: 15 * time.Minute, Max: 8 * time.Hour}
-	if mujica.DurationPicker(c, &length, opts).Changed() {
+	core.Use(c, core.Settings{})
+	opts := datetime.DurationPickerOptions{Min: 15 * time.Minute, Max: 8 * time.Hour}
+	if datetime.DurationPicker(c, &length, opts).Changed() {
 		fmt.Println("length", length)
 	}
 }

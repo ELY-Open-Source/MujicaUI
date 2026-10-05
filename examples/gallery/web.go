@@ -33,7 +33,7 @@ type mirror struct {
 	copied bool
 	probes int
 	cursor ui.Cursor
-	down   *input
+	down   *webEvent
 	enc    png.Encoder
 }
 

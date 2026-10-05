@@ -7,8 +7,8 @@
 ## 最小示例
 
 ```go
-mujica.ChatContainer(c, &chat, len(msgs), mujica.ChatContainerOptions{
-	List:  mujica.MessageListOptions{ID: func(i int) string { return msgs[i] }},
+chat.ChatContainer(c, &thread, len(msgs), chat.ChatContainerOptions{
+	List:  chat.MessageListOptions{ID: func(i int) string { return msgs[i] }},
 	Input: func() { ui.Text(c, "Composer goes here") },
 }, func(i int) { ui.Text(c, msgs[i]) })
 ```

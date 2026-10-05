@@ -8,13 +8,13 @@
 
 ```go
 var path []string
-root := mujica.ChartNode{Name: "Abbey", Children: []mujica.ChartNode{
-	{Name: "Library", Children: []mujica.ChartNode{{Name: "Psalters", Value: 30}, {Name: "Maps", Value: 10}}},
+root := chart.ChartNode{Name: "Abbey", Children: []chart.ChartNode{
+	{Name: "Library", Children: []chart.ChartNode{{Name: "Psalters", Value: 30}, {Name: "Maps", Value: 10}}},
 	{Name: "Kitchen", Value: 25},
 }}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Treemap(c, &path, root, mujica.TreemapOptions{Frame: mujica.ChartFrame{Label: "Rooms"}})
+	core.Use(c, core.Settings{})
+	chart.Treemap(c, &path, root, chart.TreemapOptions{Frame: chart.ChartFrame{Label: "Rooms"}})
 }
 ui.Render(view, 400, 300, 1)
 ```

@@ -9,8 +9,8 @@ import (
 	"github.com/egoist/mygo/ui"
 )
 
-// input is one browser event.
-type input struct {
+// webEvent is one browser event.
+type webEvent struct {
 	Type   string  `json:"type"`
 	X      float32 `json:"x"`
 	Y      float32 `json:"y"`
@@ -30,7 +30,7 @@ type input struct {
 }
 
 func (m *mirror) serveInput(w http.ResponseWriter, r *http.Request) {
-	var in input
+	var in webEvent
 	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -51,7 +51,7 @@ func (m *mirror) serveInput(w http.ResponseWriter, r *http.Request) {
 }
 
 // apply sends one event to the tester; the caller holds mu.
-func (m *mirror) apply(in input) error {
+func (m *mirror) apply(in webEvent) error {
 	mods := modifiers(in.Mods)
 	switch in.Type {
 	case "down":
@@ -127,7 +127,7 @@ func modifiers(m []bool) ui.Modifiers {
 }
 
 // applyWatchingClipboard applies in and notes any clipboard write it caused, even of equal text.
-func (m *mirror) applyWatchingClipboard(in input) error {
+func (m *mirror) applyWatchingClipboard(in webEvent) error {
 	if in.Type == "paste" || in.Type == "command" && in.Text == "paste" {
 		return m.apply(in)
 	}

@@ -8,14 +8,14 @@
 
 ```go
 align := []string{"left"}
-items := []mujica.ToggleItem[string]{
+items := []input.ToggleItem[string]{
 	{Value: "left", Label: "Left"},
 	{Value: "center", Label: "Center"},
 	{Value: "right", Label: "Right"},
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ToggleGroup(c, &align, items, mujica.ToggleGroupOptions{Label: "Align"})
+	core.Use(c, core.Settings{})
+	input.ToggleGroup(c, &align, items, input.ToggleGroupOptions{Label: "Align"})
 }
 ui.Render(view, 400, 300, 1)
 ```

@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-var state mujica.ThreeWayMergeState
+var state git.ThreeWayMergeState
 base, local, remote := "a\nb\nc", "a\nB1\nc", "a\nB2\nc"
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.ThreeWayMerge(c, &state, base, local, remote, mujica.ThreeWayMergeOptions{})
+	core.Use(c, core.Settings{})
+	r := git.ThreeWayMerge(c, &state, base, local, remote, git.ThreeWayMergeOptions{})
 	r.Element.Height(280)
 	if done, total := state.Resolved(); r.Changed() && done == total {
 		_ = state.Result() // write the merged file

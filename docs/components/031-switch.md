@@ -9,8 +9,8 @@
 ```go
 wifi := true
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.Switch(c, &wifi, "Wi-Fi", mujica.SwitchOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if input.Switch(c, &wifi, "Wi-Fi", input.SwitchOptions{}).Changed() {
 		log.Println("Wi-Fi:", wifi)
 	}
 }

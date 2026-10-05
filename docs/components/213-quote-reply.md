@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-if mujica.QuoteReply(c, "Marie", "Let them eat cake.").Clicked() {
+if chat.QuoteReply(c, "Marie", "Let them eat cake.").Clicked() {
 	fmt.Println("jump to the quoted message")
 }
 ```

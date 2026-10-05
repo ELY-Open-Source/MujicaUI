@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-servers := []mujica.MCPServer{{ID: "fs", Name: "filesystem", Transport: "stdio", State: mujica.MCPConnected, Tools: 12}}
+servers := []agent.MCPServer{{ID: "fs", Name: "filesystem", Transport: "stdio", State: agent.MCPConnected, Tools: 12}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if r := mujica.MCPServerList(c, servers, mujica.MCPServerListOptions{}); r.Action == mujica.MCPStop {
+	core.Use(c, core.Settings{})
+	if r := agent.MCPServerList(c, servers, agent.MCPServerListOptions{}); r.Action == agent.MCPStop {
 		fmt.Println("stop", r.Server)
 	}
 }

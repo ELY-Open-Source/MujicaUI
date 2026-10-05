@@ -7,12 +7,12 @@
 ## 最小示例
 
 ```go
-mujica.Sidebar(c, &selected, []mujica.SidebarSection{
-	{Title: "Mail", Items: []mujica.SidebarItem{
+navigation.Sidebar(c, &selected, []navigation.SidebarSection{
+	{Title: "Mail", Items: []navigation.SidebarItem{
 		{ID: "inbox", Label: "Inbox", Icon: icons.Must("inbox"), Count: 3},
-		{Label: "Folders", Items: []mujica.SidebarItem{{ID: "work", Label: "Work", Icon: icons.Must("folder")}}},
+		{Label: "Folders", Items: []navigation.SidebarItem{{ID: "work", Label: "Work", Icon: icons.Must("folder")}}},
 	}},
-}, mujica.SidebarOptions{})
+}, navigation.SidebarOptions{})
 ```
 
 签名：`func Sidebar(c *ui.Context, selected *string, sections []SidebarSection, opts SidebarOptions) ChoiceResult`

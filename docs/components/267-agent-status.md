@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.AgentStatus(c, mujica.AgentWaiting, mujica.AgentStatusOptions{})
+	core.Use(c, core.Settings{})
+	agent.AgentStatus(c, agent.AgentWaiting, agent.AgentStatusOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

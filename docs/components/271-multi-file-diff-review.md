@@ -7,14 +7,14 @@
 ## 最小示例
 
 ```go
-files := []mujica.FileChange{
+files := []agent.FileChange{
 	{Path: "ledger.md", Old: "Guests: 40\n", New: "Guests: 42\n"},
 	{Path: "menu.md", Old: "soup\n", New: "soup\ntart\n"},
 }
-decisions := make([]mujica.FileDecision, len(files))
+decisions := make([]agent.FileDecision, len(files))
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.MultiFileDiffReview(c, &decisions, files, mujica.MultiFileDiffReviewOptions{})
+	core.Use(c, core.Settings{})
+	agent.MultiFileDiffReview(c, &decisions, files, agent.MultiFileDiffReviewOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

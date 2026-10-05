@@ -7,7 +7,10 @@ import (
 	"strings"
 
 	"github.com/egoist/mygo/ui"
-	mujica "mujicaui"
+
+	"github.com/ZacharyZhang-NY/MujicaUI/chat"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
 )
 
 func chatinputDemoPromptComposer(c *ui.Context, log func(string)) {
@@ -23,20 +26,20 @@ func chatinputDemoPromptComposer(c *ui.Context, log func(string)) {
 		choiceFlag(c, &s.attached, "Attachment", log)
 	}, func() {
 		ui.Column(c).Width(520).Children(func() {
-			r := mujica.PromptComposer(c, &s.text, mujica.PromptComposerOptions{Label: "Prompt", Placeholder: "Ask the herald", Disabled: s.disabled, CmdEnterSends: s.cmd, Composing: s.composing,
+			r := chat.PromptComposer(c, &s.text, chat.PromptComposerOptions{Label: "Prompt", Placeholder: "Ask the herald", Disabled: s.disabled, CmdEnterSends: s.cmd, Composing: s.composing,
 				Attachments: func() {
-					if s.attached && mujica.AttachmentChip(c, mujica.Attachment{Name: "guests.csv", Size: 4096}).Removed() {
+					if s.attached && chat.AttachmentChip(c, chat.Attachment{Name: "guests.csv", Size: 4096}).Removed() {
 						s.attached = false
 						log("remove attachment")
 					}
 				},
 				Tools: func() {
-					if _, ok := mujica.ToolToggleMenu(c, []mujica.ToolItem{{ID: "web", Label: "Web search", On: &s.web}}).Changed(); ok {
+					if _, ok := chat.ToolToggleMenu(c, []chat.ToolItem{{ID: "web", Label: "Web search", On: &s.web}}).Changed(); ok {
 						log("toggle web search")
 					}
 				},
 				Actions: func() {
-					r := mujica.SendButton(c, mujica.SendButtonOptions{Streaming: s.streaming, Disabled: strings.TrimSpace(s.text) == "" || s.composing, Shortcut: "Enter"})
+					r := chat.SendButton(c, chat.SendButtonOptions{Streaming: s.streaming, Disabled: strings.TrimSpace(s.text) == "" || s.composing, Shortcut: "Enter"})
 					if r.Sent() {
 						s.streaming = true
 						s.text = ""
@@ -70,10 +73,10 @@ func chatinputDemoAttachmentChip(c *ui.Context, log func(string)) {
 		choiceFlag(c, &s.upload, "Uploading", log)
 		choiceFlag(c, &s.fail, "Failed", log)
 		choiceFlag(c, &s.disabled, "Disabled", log)
-		if mujica.Slider(c, &s.progress, mujica.SliderOptions{Min: 0, Max: 1, Step: 0.1, Label: "Upload progress"}).Changed() {
+		if input.Slider(c, &s.progress, input.SliderOptions{Min: 0, Max: 1, Step: 0.1, Label: "Upload progress"}).Changed() {
 			log(fmt.Sprint("progress ", s.progress))
 		}
-		if mujica.Button(c, "Restore attachment", mujica.ButtonOptions{}).Clicked() {
+		if input.Button(c, "Restore attachment", input.ButtonOptions{}).Clicked() {
 			s.removed = false
 			log("restore")
 		}
@@ -83,11 +86,11 @@ func chatinputDemoAttachmentChip(c *ui.Context, log func(string)) {
 				ui.Text(c, "Attachment removed")
 				return
 			}
-			a := mujica.Attachment{Name: "guests.csv", Size: 4096, Uploading: s.upload, Progress: s.progress}
+			a := chat.Attachment{Name: "guests.csv", Size: 4096, Uploading: s.upload, Progress: s.progress}
 			if s.fail {
 				a.Err = errors.New("upload rejected")
 			}
-			r := mujica.AttachmentChip(c, a)
+			r := chat.AttachmentChip(c, a)
 			if r.Removed() {
 				s.removed = true
 				log("remove")
@@ -102,30 +105,30 @@ func chatinputDemoAttachmentChip(c *ui.Context, log func(string)) {
 	})
 }
 
-func chatinputPictures() []mujica.PastedImage {
-	var out []mujica.PastedImage
+func chatinputPictures() []chat.PastedImage {
+	var out []chat.PastedImage
 	for i, col := range []string{"#7D2034", "#355E80"} {
 		svg := fmt.Sprintf(`<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72"><rect width="72" height="72" fill="%s"/><circle cx="36" cy="36" r="18" fill="#F2EBDD"/></svg>`, col)
-		out = append(out, mujica.PastedImage{ID: fmt.Sprint(i), Name: fmt.Sprintf("Picture %d", i+1), Source: ui.MustParseSVG([]byte(svg))})
+		out = append(out, chat.PastedImage{ID: fmt.Sprint(i), Name: fmt.Sprintf("Picture %d", i+1), Source: ui.MustParseSVG([]byte(svg))})
 	}
 	return out
 }
 
 func chatinputDemoPasteImagePreview(c *ui.Context, log func(string)) {
 	type state struct {
-		images   []mujica.PastedImage
+		images   []chat.PastedImage
 		disabled bool
 	}
 	s := ui.Local(c.Root(), "223", func() state { return state{images: chatinputPictures()} })
 	choiceDemo(c, func() {
 		choiceFlag(c, &s.disabled, "Disabled", log)
-		if mujica.Button(c, "Restore images", mujica.ButtonOptions{}).Clicked() {
+		if input.Button(c, "Restore images", input.ButtonOptions{}).Clicked() {
 			s.images = chatinputPictures()
 			log("restore images")
 		}
 	}, func() {
 		ui.Column(c).Padding(12).Disabled(s.disabled).Children(func() {
-			if id, ok := mujica.PasteImagePreview(c, s.images).Removed(); ok {
+			if id, ok := chat.PasteImagePreview(c, s.images).Removed(); ok {
 				for i, im := range s.images {
 					if im.ID == id {
 						s.images = append(s.images[:i], s.images[i+1:]...)
@@ -150,8 +153,8 @@ func chatinputDemoDragDropOverlay(c *ui.Context, log func(string)) {
 		choiceFlag(c, &s.disabled, "Disabled", log)
 	}, func() {
 		ui.Column(c).Width(520).Height(180).Disabled(s.disabled).Children(func() {
-			r := mujica.DragDropOverlay(c, mujica.DragDropOverlayOptions{Accept: func(p string) bool { return !s.imagesOnly || strings.EqualFold(filepath.Ext(p), ".png") }}, func() {
-				ui.Box(c).Fill().Border(1, mujica.Tokens(c).ControlBorder).Center().Children(func() { ui.Text(c, "Drop files here") })
+			r := chat.DragDropOverlay(c, chat.DragDropOverlayOptions{Accept: func(p string) bool { return !s.imagesOnly || strings.EqualFold(filepath.Ext(p), ".png") }}, func() {
+				ui.Box(c).Fill().Border(1, core.Tokens(c).ControlBorder).Center().Children(func() { ui.Text(c, "Drop files here") })
 			})
 			r.Element.Fill()
 			if n := len(r.Accepted()); n > 0 {
@@ -168,16 +171,16 @@ func chatinputDemoDragDropOverlay(c *ui.Context, log func(string)) {
 }
 
 func chatinputDemoVoiceInputButton(c *ui.Context, log func(string)) {
-	s := ui.Local(c.Root(), "225", func() mujica.VoiceInputOptions { return mujica.VoiceInputOptions{} })
+	s := ui.Local(c.Root(), "225", func() chat.VoiceInputOptions { return chat.VoiceInputOptions{} })
 	choiceDemo(c, func() {
 		choiceFlag(c, &s.Disabled, "Disabled", log)
-		if mujica.Button(c, "Permission failure", mujica.ButtonOptions{}).Clicked() {
+		if input.Button(c, "Permission failure", input.ButtonOptions{}).Clicked() {
 			s.Recording = false
 			s.Denied = true
 			log("permission denied")
 		}
 	}, func() {
-		if mujica.VoiceInputButton(c, *s).Changed() {
+		if chat.VoiceInputButton(c, *s).Changed() {
 			s.Recording = !s.Recording
 			s.Denied = false
 			s.Started = c.Now()
@@ -195,7 +198,7 @@ func chatinputDemoVoiceWaveform(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "226", func() state { return state{level: 0.6} })
 	choiceDemo(c, func() {
 		choiceFlag(c, &s.silent, "Silent", log)
-		if mujica.Slider(c, &s.level, mujica.SliderOptions{Min: 0, Max: 1, Step: 0.1, Label: "Input level"}).Changed() {
+		if input.Slider(c, &s.level, input.SliderOptions{Min: 0, Max: 1, Step: 0.1, Label: "Input level"}).Changed() {
 			log(fmt.Sprint("level ", s.level))
 		}
 	}, func() {
@@ -205,6 +208,6 @@ func chatinputDemoVoiceWaveform(c *ui.Context, log func(string)) {
 				levels[i] = float32(s.level) * float32(i%7+1) / 7
 			}
 		}
-		mujica.VoiceWaveform(c, levels, mujica.VoiceWaveformOptions{})
+		chat.VoiceWaveform(c, levels, chat.VoiceWaveformOptions{})
 	})
 }

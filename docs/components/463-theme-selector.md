@@ -9,10 +9,10 @@
 ## 最小示例
 
 ```go
-mode := mujica.System
+mode := core.System
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{Mode: mode})
-	mujica.ThemeSelector(c, &mode, mujica.ThemeSelectorOptions{})
+	core.Use(c, core.Settings{Mode: mode})
+	account.ThemeSelector(c, &mode, account.ThemeSelectorOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

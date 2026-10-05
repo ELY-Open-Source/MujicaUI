@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-mujica.Container(c, mujica.ContainerOptions{MaxWidth: 320, Center: true}, func() {
+layout.Container(c, layout.ContainerOptions{MaxWidth: 320, Center: true}, func() {
 	ui.Text(c, "A centered column of prose.")
 })
 ```

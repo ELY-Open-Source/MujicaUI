@@ -8,11 +8,11 @@
 
 ```go
 var prompt string
-commands := []mujica.SlashCommand{{Name: "summarize", Description: "Summarize the thread"}}
+commands := []chat.SlashCommand{{Name: "summarize", Description: "Summarize the thread"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	composer := mujica.PromptComposer(c, &prompt, mujica.PromptComposerOptions{})
-	if cmd, ok := mujica.SlashCommandMenu(c, composer, &prompt, commands).Chosen(); ok {
+	core.Use(c, core.Settings{})
+	composer := chat.PromptComposer(c, &prompt, chat.PromptComposerOptions{})
+	if cmd, ok := chat.SlashCommandMenu(c, composer, &prompt, commands).Chosen(); ok {
 		fmt.Println("run", cmd.Name)
 	}
 }

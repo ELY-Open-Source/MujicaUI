@@ -7,14 +7,14 @@
 ## 最小示例
 
 ```go
-prev := mujica.ChatEntry{ID: "1", Author: "Uika", Time: time.Now(), Text: "Rehearsal at nine."}
-m := mujica.ChatEntry{ID: "2", Author: "Uika", Time: time.Now(), Text: "Bring the masks.", Edited: true}
+prev := messaging.ChatEntry{ID: "1", Author: "Uika", Time: time.Now(), Text: "Rehearsal at nine."}
+m := messaging.ChatEntry{ID: "2", Author: "Uika", Time: time.Now(), Text: "Bring the masks.", Edited: true}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ChatMessage(c, prev, mujica.ChatMessageOptions{})
-	mujica.ChatMessage(c, m, mujica.ChatMessageOptions{
-		Continued: mujica.ChatContinues(prev, m),
-		Reactions: func() { mujica.Tag(c, "👍 2", mujica.TagOptions{}) },
+	core.Use(c, core.Settings{})
+	messaging.ChatMessage(c, prev, messaging.ChatMessageOptions{})
+	messaging.ChatMessage(c, m, messaging.ChatMessageOptions{
+		Continued: messaging.ChatContinues(prev, m),
+		Reactions: func() { display.Tag(c, "👍 2", display.TagOptions{}) },
 	})
 }
 ui.Render(view, 400, 300, 1)

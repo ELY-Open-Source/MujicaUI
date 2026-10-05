@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.ChatEmptyState(c, mujica.ChatEmptyStateOptions{Kind: mujica.ChatEmptyOffline}).Action {
+	core.Use(c, core.Settings{})
+	if chat.ChatEmptyState(c, chat.ChatEmptyStateOptions{Kind: chat.ChatEmptyOffline}).Action {
 		log.Println("reconnect")
 	}
 }

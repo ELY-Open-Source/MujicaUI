@@ -10,9 +10,9 @@
 loc := time.Local
 events := exampleEvents(loc)
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	opts := mujica.AgendaViewOptions{Location: loc, From: mujica.Date{Year: 2026, Month: time.October, Day: 12}, Days: 14}
-	if id, ok := mujica.AgendaView(c, events, opts).Opened(); ok {
+	core.Use(c, core.Settings{})
+	opts := datetime.AgendaViewOptions{Location: loc, From: core.Date{Year: 2026, Month: time.October, Day: 12}, Days: 14}
+	if id, ok := datetime.AgendaView(c, events, opts).Opened(); ok {
 		fmt.Println("open", id)
 	}
 }

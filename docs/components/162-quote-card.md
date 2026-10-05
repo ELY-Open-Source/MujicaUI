@@ -9,10 +9,10 @@
 ## 最小示例
 
 ```go
-quote := mujica.Quote{Symbol: "MUJC", Name: "Ave Mujica Holdings", Price: 412.08, Change: -5.62, ChangePercent: -1.35}
+quote := finance.Quote{Symbol: "MUJC", Name: "Ave Mujica Holdings", Price: 412.08, Change: -5.62, ChangePercent: -1.35}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.QuoteCard(c, quote, mujica.QuoteCardOptions{})
+	core.Use(c, core.Settings{})
+	finance.QuoteCard(c, quote, finance.QuoteCardOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

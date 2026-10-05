@@ -7,7 +7,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
 )
 
 func c2Demo(t *testing.T, id string) (*ui.Tester, *[]string) {
@@ -18,7 +18,7 @@ func c2Demo(t *testing.T, id string) (*ui.Tester, *[]string) {
 	}
 	events := &[]string{}
 	tt := ui.NewTester(func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{})
+		core.Use(c, core.Settings{})
 		ui.Scroll(c).Fill().Padding(24).Children(func() { charts2Pages[i].Demo(c, func(s string) { *events = append(*events, s) }) })
 	}, 900, 760)
 	tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})

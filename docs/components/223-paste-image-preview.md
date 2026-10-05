@@ -8,10 +8,10 @@
 
 ```go
 pic := ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" width="4" height="3"/>`))
-images := []mujica.PastedImage{{ID: "p1", Source: pic, Name: "screenshot"}}
+images := []chat.PastedImage{{ID: "p1", Source: pic, Name: "screenshot"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if id, ok := mujica.PasteImagePreview(c, images).Removed(); ok {
+	core.Use(c, core.Settings{})
+	if id, ok := chat.PasteImagePreview(c, images).Removed(); ok {
 		fmt.Println("remove", id)
 	}
 }

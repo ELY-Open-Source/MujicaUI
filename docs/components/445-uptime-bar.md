@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-days := []mujica.UptimeDay{{Date: mujica.Date{Year: 2026, Month: 10, Day: 1}, Uptime: 1}, {Date: mujica.Date{Year: 2026, Month: 10, Day: 2}, Uptime: 0.91, Note: "Recovery"}}
+days := []devtools.UptimeDay{{Date: core.Date{Year: 2026, Month: 10, Day: 1}, Uptime: 1}, {Date: core.Date{Year: 2026, Month: 10, Day: 2}, Uptime: 0.91, Note: "Recovery"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.UptimeBar(c, days, mujica.UptimeBarOptions{Frame: mujica.ChartFrame{Label: "API uptime"}})
+	core.Use(c, core.Settings{})
+	r := devtools.UptimeBar(c, days, devtools.UptimeBarOptions{Frame: chart.ChartFrame{Label: "API uptime"}})
 	if r.Changed() {
 		fmt.Println("day", r.Point)
 	}

@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-info := mujica.SandboxInfo{Name: "sandbox-7", State: mujica.SandboxRunning,
-	Resources: []mujica.SandboxResource{{Name: "CPU", Used: 1.5, Limit: 2, Unit: "cores"}}}
+info := agent.SandboxInfo{Name: "sandbox-7", State: agent.SandboxRunning,
+	Resources: []agent.SandboxResource{{Name: "CPU", Used: 1.5, Limit: 2, Unit: "cores"}}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.SandboxStatus(c, info, mujica.SandboxStatusOptions{})
+	core.Use(c, core.Settings{})
+	agent.SandboxStatus(c, info, agent.SandboxStatusOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

@@ -8,8 +8,8 @@
 
 ```go
 ui.Column(c).Padding(16).Gap(12).Children(func() {
-	mujica.Divider(c, mujica.DividerOptions{Ornament: true})
-	mujica.Divider(c, mujica.DividerOptions{Label: "Chapter II"})
+	layout.Divider(c, layout.DividerOptions{Ornament: true})
+	layout.Divider(c, layout.DividerOptions{Label: "Chapter II"})
 })
 ```
 

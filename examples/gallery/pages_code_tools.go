@@ -6,28 +6,30 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/code"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
 )
 
 func codeProcessListDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		procs    []mujica.Process
-		s        mujica.ProcessListState
+		procs    []code.Process
+		s        code.ProcessListState
 		disabled bool
 	}
 	s := ui.Local(c.Root(), "326", func() *state {
-		return &state{procs: []mujica.Process{
+		return &state{procs: []code.Process{
 			{PID: 101, Name: "chancellor", CPU: 3.5, Memory: 200 << 20}, {PID: 7, Name: "archivist", CPU: 42.1, Memory: 50 << 20},
 			{PID: 330, Name: "herald", CPU: 0.2, Memory: 2 << 30}, {PID: 412, Name: "scribe", CPU: 12.8, Memory: 96 << 20},
 		}}
 	})
 	st := *s
 	codeDemoControls(c, func() { codeDemoCheck(c, &st.disabled, "Disabled", log) })
-	r := mujica.ProcessList(c, st.procs, &st.s, mujica.ProcessListOptions{Disabled: st.disabled})
+	r := code.ProcessList(c, st.procs, &st.s, code.ProcessListOptions{Disabled: st.disabled})
 	r.Element.Size(560, 260)
 	if r.End != nil {
 		log(fmt.Sprintf("end %s (PID %d)", r.End.Name, r.End.PID))
-		var kept []mujica.Process
+		var kept []code.Process
 		for _, p := range st.procs {
 			if p.PID != r.End.PID {
 				kept = append(kept, p)
@@ -71,7 +73,7 @@ func Herald(ds []Decree) int {
 
 func codeCodeViewerDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		s        mujica.CodeViewerState
+		s        code.CodeViewerState
 		lang     string
 		disabled bool
 	}
@@ -79,16 +81,16 @@ func codeCodeViewerDemo(c *ui.Context, log func(string)) {
 	st := *s
 	codeDemoControls(c, func() {
 		codeDemoCheck(c, &st.disabled, "Disabled", log)
-		langs := []mujica.SelectOption[string]{{Value: "go", Label: "Go"}, {Value: "", Label: "Plain"}}
-		if mujica.Select(c, &st.lang, langs, mujica.SelectOptions{Label: "Language"}).Changed() {
+		langs := []input.SelectOption[string]{{Value: "go", Label: "Go"}, {Value: "", Label: "Plain"}}
+		if input.Select(c, &st.lang, langs, input.SelectOptions{Label: "Language"}).Changed() {
 			log("language " + st.lang)
 		}
-		if mujica.Button(c, "Go to line 20", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+		if input.Button(c, "Go to line 20", input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 			st.s.GoTo(19)
 			log("go to 20")
 		}
 	})
-	r := mujica.CodeViewer(c, codeDemoSource, &st.s, mujica.CodeViewerOptions{Language: st.lang, Label: "Source", Disabled: st.disabled})
+	r := code.CodeViewer(c, codeDemoSource, &st.s, code.CodeViewerOptions{Language: st.lang, Label: "Source", Disabled: st.disabled})
 	r.Element.Size(600, 360)
 	if r.Changed() {
 		log(fmt.Sprintf("line %d", st.s.Line()+1))
@@ -97,8 +99,8 @@ func codeCodeViewerDemo(c *ui.Context, log func(string)) {
 
 func codeMinimapDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		s        mujica.CodeViewerState
-		view     mujica.MinimapView
+		s        code.CodeViewerState
+		view     code.MinimapView
 		lines    []string
 		disabled bool
 	}
@@ -112,10 +114,10 @@ func codeMinimapDemo(c *ui.Context, log func(string)) {
 	st := *s
 	codeDemoControls(c, func() { codeDemoCheck(c, &st.disabled, "Disabled", log) })
 	first, last := st.s.Visible()
-	st.view = mujica.MinimapView{Top: first, Visible: max(last-first+1, 1)}
+	st.view = code.MinimapView{Top: first, Visible: max(last-first+1, 1)}
 	ui.Row(c).Gap(8).Height(360).AlignItems(ui.Stretch).Children(func() {
-		mujica.CodeViewer(c, st.lines, &st.s, mujica.CodeViewerOptions{Language: "go"}).Element.Width(520)
-		if mujica.Minimap(c, st.lines, &st.view, mujica.MinimapOptions{Language: "go", Disabled: st.disabled}).Changed() {
+		code.CodeViewer(c, st.lines, &st.s, code.CodeViewerOptions{Language: "go"}).Element.Width(520)
+		if code.Minimap(c, st.lines, &st.view, code.MinimapOptions{Language: "go", Disabled: st.disabled}).Changed() {
 			st.s.ScrollTo(st.view.Top)
 			log(fmt.Sprintf("jump to line %d", st.view.Top+1))
 		}
@@ -125,11 +127,11 @@ func codeMinimapDemo(c *ui.Context, log func(string)) {
 func codeFindWidgetDemo(c *ui.Context, log func(string)) {
 	type state struct {
 		text               string
-		s                  mujica.FindState
+		s                  code.FindState
 		readOnly, disabled bool
 	}
 	s := ui.Local(c.Root(), "329", func() *state {
-		return &state{text: "The seal of the court; seals are kept sealed. Seal 42 and seal 7.", s: mujica.FindState{Query: "seal"}}
+		return &state{text: "The seal of the court; seals are kept sealed. Seal 42 and seal 7.", s: code.FindState{Query: "seal"}}
 	})
 	st := *s
 	codeDemoControls(c, func() {
@@ -137,7 +139,7 @@ func codeFindWidgetDemo(c *ui.Context, log func(string)) {
 		codeDemoCheck(c, &st.disabled, "Disabled", log)
 	})
 	ui.Column(c).Width(620).Gap(12).Children(func() {
-		r := mujica.FindWidget(c, &st.text, &st.s, mujica.FindWidgetOptions{ReadOnly: st.readOnly, Disabled: st.disabled})
+		r := code.FindWidget(c, &st.text, &st.s, code.FindWidgetOptions{ReadOnly: st.readOnly, Disabled: st.disabled})
 		if r.Moved {
 			log(fmt.Sprintf("%d matches, at %d", len(st.s.Matches()), st.s.Current+1))
 		}
@@ -148,7 +150,7 @@ func codeFindWidgetDemo(c *ui.Context, log func(string)) {
 		at := 0
 		for i, m := range st.s.Matches() {
 			spans = append(spans, ui.Span{Text: st.text[at:m[0]]})
-			sp := ui.Span{Text: st.text[m[0]:m[1]], Background: mujica.Tokens(c).Selection, Underline: true}
+			sp := ui.Span{Text: st.text[m[0]:m[1]], Background: core.Tokens(c).Selection, Underline: true}
 			if i == st.s.Current {
 				sp.Weight = 700
 			}
@@ -162,11 +164,11 @@ func codeFindWidgetDemo(c *ui.Context, log func(string)) {
 
 func codeSearchPanelDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		s        mujica.SearchPanelState
-		results  []mujica.SearchFileResult
+		s        code.SearchPanelState
+		results  []code.SearchFileResult
 		disabled bool
 	}
-	s := ui.Local(c.Root(), "330", func() *state { return &state{s: mujica.SearchPanelState{Query: "seal"}} })
+	s := ui.Local(c.Root(), "330", func() *state { return &state{s: code.SearchPanelState{Query: "seal"}} })
 	st := *s
 	codeDemoControls(c, func() { codeDemoCheck(c, &st.disabled, "Disabled", log) })
 	// The demo searches its own two files.
@@ -174,7 +176,7 @@ func codeSearchPanelDemo(c *ui.Context, log func(string)) {
 	if st.results == nil || st.s.Query != "" && len(st.results) == 0 {
 		st.results = codeDemoSearch(files, st.s.Query, st.s.Include, st.s.Exclude)
 	}
-	r := mujica.SearchPanel(c, st.results, &st.s, mujica.SearchPanelOptions{Disabled: st.disabled})
+	r := code.SearchPanel(c, st.results, &st.s, code.SearchPanelOptions{Disabled: st.disabled})
 	r.Element.Size(560, 380)
 	if r.Changed {
 		st.results = codeDemoSearch(files, st.s.Query, st.s.Include, st.s.Exclude)
@@ -186,8 +188,8 @@ func codeSearchPanelDemo(c *ui.Context, log func(string)) {
 }
 
 // codeDemoSearch finds q in the demo files.
-func codeDemoSearch(files map[string][]string, q, include, exclude string) []mujica.SearchFileResult {
-	out := []mujica.SearchFileResult{}
+func codeDemoSearch(files map[string][]string, q, include, exclude string) []code.SearchFileResult {
+	out := []code.SearchFileResult{}
 	if q == "" {
 		return out
 	}
@@ -195,10 +197,10 @@ func codeDemoSearch(files map[string][]string, q, include, exclude string) []muj
 		if include != "" && !strings.Contains(path, strings.Trim(include, "*")) || exclude != "" && strings.Contains(path, strings.Trim(exclude, "*")) {
 			continue
 		}
-		f := mujica.SearchFileResult{Path: path}
+		f := code.SearchFileResult{Path: path}
 		for i, line := range files[path] {
 			if at := strings.Index(strings.ToLower(line), strings.ToLower(q)); at >= 0 {
-				f.Matches = append(f.Matches, mujica.SearchMatch{Line: i + 1, Text: line, Start: at, End: at + len(q)})
+				f.Matches = append(f.Matches, code.SearchMatch{Line: i + 1, Text: line, Start: at, End: at + len(q)})
 			}
 		}
 		if len(f.Matches) > 0 {
@@ -210,19 +212,19 @@ func codeDemoSearch(files map[string][]string, q, include, exclude string) []muj
 
 func codeProblemsDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		s        mujica.ProblemsPanelState
+		s        code.ProblemsPanelState
 		disabled bool
 	}
 	s := ui.Local(c.Root(), "331", func() *state { return &state{} })
 	st := *s
 	codeDemoControls(c, func() { codeDemoCheck(c, &st.disabled, "Disabled", log) })
-	problems := []mujica.Problem{
-		{Severity: mujica.ProblemError, File: "court/seal.go", Line: 12, Col: 5, Message: "undefined: Decree", Source: "compiler"},
-		{Severity: mujica.ProblemWarning, File: "court/seal.go", Line: 30, Col: 2, Message: "unused variable wax", Source: "vet"},
-		{Severity: mujica.ProblemInfo, File: "docs/ledger.md", Line: 4, Col: 1, Message: "line is longer than 80", Source: "lint"},
-		{Severity: mujica.ProblemError, File: "main.go", Line: 9, Col: 14, Message: "missing return", Source: "compiler"},
+	problems := []code.Problem{
+		{Severity: code.ProblemError, File: "court/seal.go", Line: 12, Col: 5, Message: "undefined: Decree", Source: "compiler"},
+		{Severity: code.ProblemWarning, File: "court/seal.go", Line: 30, Col: 2, Message: "unused variable wax", Source: "vet"},
+		{Severity: code.ProblemInfo, File: "docs/ledger.md", Line: 4, Col: 1, Message: "line is longer than 80", Source: "lint"},
+		{Severity: code.ProblemError, File: "main.go", Line: 9, Col: 14, Message: "missing return", Source: "compiler"},
 	}
-	r := mujica.ProblemsPanel(c, problems, &st.s, mujica.ProblemsPanelOptions{Disabled: st.disabled})
+	r := code.ProblemsPanel(c, problems, &st.s, code.ProblemsPanelOptions{Disabled: st.disabled})
 	r.Element.Size(620, 320)
 	if r.Opened != nil {
 		log(fmt.Sprintf("go to %s:%d:%d", r.Opened.File, r.Opened.Line, r.Opened.Col))
@@ -231,8 +233,8 @@ func codeProblemsDemo(c *ui.Context, log func(string)) {
 
 func codeOutputDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		channels []mujica.OutputChannel
-		s        mujica.OutputPanelState
+		channels []code.OutputChannel
+		s        code.OutputPanelState
 		disabled bool
 	}
 	s := ui.Local(c.Root(), "332", func() *state {
@@ -240,19 +242,19 @@ func codeOutputDemo(c *ui.Context, log func(string)) {
 		for i := range 300 {
 			build = append(build, fmt.Sprintf("compiling unit %d of 300", i+1))
 		}
-		return &state{channels: []mujica.OutputChannel{{Name: "Build", Lines: build},
+		return &state{channels: []code.OutputChannel{{Name: "Build", Lines: build},
 			{Name: "Tests", Lines: []string{"\x1b[32mPASS\x1b[0m court/seal", "\x1b[31mFAIL\x1b[0m court/ledger: expected 3 seals", "\x1b[1mok\x1b[0m  2 of 3 packages"}}}}
 	})
 	st := *s
 	codeDemoControls(c, func() {
 		codeDemoCheck(c, &st.disabled, "Disabled", log)
-		if mujica.Button(c, "Write line", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+		if input.Button(c, "Write line", input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 			ch := &st.channels[st.s.Channel]
 			ch.Lines = append(ch.Lines, fmt.Sprintf("line %d", len(ch.Lines)+1))
 			log("write to " + ch.Name)
 		}
 	})
-	r := mujica.OutputPanel(c, st.channels, &st.s, mujica.OutputPanelOptions{Disabled: st.disabled})
+	r := code.OutputPanel(c, st.channels, &st.s, code.OutputPanelOptions{Disabled: st.disabled})
 	r.Element.Size(560, 300)
 	if r.Changed {
 		log("channel " + st.channels[st.s.Channel].Name)

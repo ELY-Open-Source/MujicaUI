@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-request := mujica.ApiRequest{Method: "POST", URL: "https://example.com/api", Headers: []mujica.KeyValue{{Key: "Accept", Value: "application/json", Enabled: true}}}
+request := devtools.ApiRequest{Method: "POST", URL: "https://example.com/api", Headers: []devtools.KeyValue{{Key: "Accept", Value: "application/json", Enabled: true}}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.ApiRequestBuilder(c, &request, mujica.ApiRequestBuilderOptions{})
+	core.Use(c, core.Settings{})
+	r := devtools.ApiRequestBuilder(c, &request, devtools.ApiRequestBuilderOptions{})
 	if r.Send {
 		fmt.Println("send", request.Method)
 	}

@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-decision := mujica.FilePending
-change := mujica.FileChange{Path: "ledger.md", Old: "Guests: 40\n", New: "Guests: 42\n"}
+decision := agent.FilePending
+change := agent.FileChange{Path: "ledger.md", Old: "Guests: 40\n", New: "Guests: 42\n"}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.FileChangeCard(c, &decision, change, mujica.FileChangeCardOptions{}).OpenDiff {
+	core.Use(c, core.Settings{})
+	if agent.FileChangeCard(c, &decision, change, agent.FileChangeCardOptions{}).OpenDiff {
 		fmt.Println("open the full diff")
 	}
 }

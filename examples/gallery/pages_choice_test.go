@@ -6,7 +6,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
 )
 
 // choiceDemoTester runs the demo of page id at text scale and returns its tester and event log.
@@ -18,7 +18,7 @@ func choiceDemoTester(t *testing.T, id string, scale float32) (*ui.Tester, *[]st
 	}
 	events := &[]string{}
 	tt := ui.NewTester(func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{Mode: mujica.Light})
+		core.Use(c, core.Settings{Mode: core.Light})
 		ui.Scroll(c).Fill().Padding(24).Children(func() {
 			choicePages[i].Demo(c, func(s string) { *events = append(*events, s) })
 		})

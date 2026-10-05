@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-entries := []mujica.MemoryEntry{{ID: "1", Text: "Lady Sakiko prefers the east wing.", Source: "Chat"}}
+entries := []agent.MemoryEntry{{ID: "1", Text: "Lady Sakiko prefers the east wing.", Source: "Chat"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if r := mujica.MemoryPanel(c, &entries, mujica.MemoryPanelOptions{}); r.Deleted != "" {
+	core.Use(c, core.Settings{})
+	if r := agent.MemoryPanel(c, &entries, agent.MemoryPanelOptions{}); r.Deleted != "" {
 		fmt.Println("forget", r.Deleted)
 	}
 }

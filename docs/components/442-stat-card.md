@@ -8,10 +8,10 @@
 
 ```go
 value := "12,480"
-opts := mujica.StatCardOptions{Label: "Requests", Change: 0.12, HasChange: true, Trend: []float64{3, 5, 4, 8}}
+opts := devtools.StatCardOptions{Label: "Requests", Change: 0.12, HasChange: true, Trend: []float64{3, 5, 4, 8}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.StatCard(c, value, opts).Changed() {
+	core.Use(c, core.Settings{})
+	if devtools.StatCard(c, value, opts).Changed() {
 		fmt.Println("retry")
 	}
 }

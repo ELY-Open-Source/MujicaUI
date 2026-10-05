@@ -11,8 +11,8 @@
 ```go
 quantity := 10.0
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if side, q, ok := mujica.QuickTradeButtons(c, &quantity, mujica.QuickTradeButtonsOptions{Symbol: "MUJC", Confirm: true}).Traded(); ok {
+	core.Use(c, core.Settings{})
+	if side, q, ok := finance.QuickTradeButtons(c, &quantity, finance.QuickTradeButtonsOptions{Symbol: "MUJC", Confirm: true}).Traded(); ok {
 		fmt.Println(side, q)
 	}
 }

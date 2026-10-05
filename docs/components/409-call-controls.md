@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-st := mujica.CallState{}
+st := messaging.CallState{}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.CallControls(c, st, mujica.CallControlsOptions{
+	core.Use(c, core.Settings{})
+	messaging.CallControls(c, st, messaging.CallControlsOptions{
 		OnMute:   func(on bool) { st.Muted = on },
 		OnCamera: func(off bool) { st.CameraOff = off },
 		OnShare:  func(on bool) { st.Sharing = on },

@@ -10,8 +10,8 @@
 before, after := ui.NewBitmap(examplePhoto), ui.NewBitmap(examplePhoto)
 split := 0.5
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ImageCompare(c, before, after, &split, mujica.ImageCompareOptions{})
+	core.Use(c, core.Settings{})
+	media.ImageCompare(c, before, after, &split, media.ImageCompareOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

@@ -8,9 +8,10 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
-	"mujicaui/icons"
-	"mujicaui/theme"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ZacharyZhang-NY/MujicaUI/icons"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
+	"github.com/ZacharyZhang-NY/MujicaUI/theme"
 )
 
 const choiceCategory = "Choices"
@@ -18,104 +19,104 @@ const choiceCategory = "Choices"
 var choicePages = []page{
 	{ID: "031", Name: "Switch", ZhName: "开关", Category: choiceCategory, Demo: switchDemo, Code: `wifi := true
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.Switch(c, &wifi, "Wi-Fi", mujica.SwitchOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if input.Switch(c, &wifi, "Wi-Fi", input.SwitchOptions{}).Changed() {
 		log.Println("Wi-Fi:", wifi)
 	}
 }`, Keys: "Tab focuses the switch; Space turns it over."},
 	{ID: "032", Name: "Toggle", ZhName: "切换按钮", Category: choiceCategory, Demo: toggleDemo, Code: `bold := false
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Toggle(c, &bold, "", mujica.ToggleOptions{Icon: icons.Must("bold"), Label: "Bold"})
+	core.Use(c, core.Settings{})
+	input.Toggle(c, &bold, "", input.ToggleOptions{Icon: icons.Must("bold"), Label: "Bold"})
 }`, Keys: "Tab focuses the toggle; Space or Enter presses or releases it."},
 	{ID: "033", Name: "ToggleGroup", ZhName: "切换按钮组", Category: choiceCategory, Demo: toggleGroupDemo, Code: `align := []string{"left"}
-items := []mujica.ToggleItem[string]{
+items := []input.ToggleItem[string]{
 	{Value: "left", Label: "Left"},
 	{Value: "center", Label: "Center"},
 	{Value: "right", Label: "Right"},
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ToggleGroup(c, &align, items, mujica.ToggleGroupOptions{Label: "Align"})
+	core.Use(c, core.Settings{})
+	input.ToggleGroup(c, &align, items, input.ToggleGroupOptions{Label: "Align"})
 }`, Keys: "Tab enters the group at the first enabled item, later at the last focused one; Left/Right (Up/Down when vertical), Home and End move; Space presses."},
 	{ID: "034", Name: "Slider", ZhName: "滑块", Category: choiceCategory, Demo: sliderDemo, Code: `volume := 40.0
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Slider(c, &volume, mujica.SliderOptions{Step: 5, ShowValue: true, Label: "Volume"})
+	core.Use(c, core.Settings{})
+	input.Slider(c, &volume, input.SliderOptions{Step: 5, ShowValue: true, Label: "Volume"})
 }`, Keys: "Arrows move one step, Home and End go to the ends; the move applies when the key is released."},
 	{ID: "035", Name: "RangeSlider", ZhName: "范围滑块", Category: choiceCategory, Demo: rangeSliderDemo, Code: `low, high := 20.0, 80.0
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.RangeSlider(c, &low, &high, mujica.RangeSliderOptions{Step: 10, Label: "Price"})
+	core.Use(c, core.Settings{})
+	input.RangeSlider(c, &low, &high, input.RangeSliderOptions{Step: 10, Label: "Price"})
 }`, Keys: "Tab moves between the two thumbs; arrows move one step; Home and End go as far as the other thumb allows."},
 	{ID: "036", Name: "Select", ZhName: "选择器", Category: choiceCategory, Demo: selectDemo, Code: `plan := ""
-options := []mujica.SelectOption[string]{
+options := []input.SelectOption[string]{
 	{Value: "free", Label: "Free"},
 	{Value: "pro", Label: "Pro"},
 	{Value: "team", Label: "Team", Disabled: true},
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Select(c, &plan, options, mujica.SelectOptions{Clearable: true, Label: "Plan"})
+	core.Use(c, core.Settings{})
+	input.Select(c, &plan, options, input.SelectOptions{Clearable: true, Label: "Plan"})
 }`, Keys: "Enter, Space, Up or Down open; arrows, Home, End move; Enter chooses; Escape closes; typing letters on the closed select jumps to a match; Backspace/Delete clear when Clearable."},
 	{ID: "037", Name: "MultiSelect", ZhName: "多选选择器", Category: choiceCategory, Demo: multiSelectDemo, Code: `tags := []int{1}
-options := []mujica.SelectOption[int]{
+options := []input.SelectOption[int]{
 	{Value: 1, Label: "Rose"},
 	{Value: 2, Label: "Lily"},
 	{Value: 3, Label: "Iris"},
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.MultiSelect(c, &tags, options, mujica.MultiSelectOptions{Max: 2, Label: "Flowers"})
+	core.Use(c, core.Settings{})
+	input.MultiSelect(c, &tags, options, input.MultiSelectOptions{Max: 2, Label: "Flowers"})
 }`, Keys: "Enter, Space or Down open with the search focused; Down enters the list; Up/Down move; Space checks; Escape closes; Backspace on the field removes the last tag."},
 	{ID: "038", Name: "Combobox", ZhName: "组合框", Category: choiceCategory, Demo: comboboxDemo, Code: `font := ""
 fonts := []string{"Garamond", "Georgia", "Didot"}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.Combobox(c, &font, fonts, mujica.ComboboxOptions{AllowCustom: true, Label: "Font"})
+	core.Use(c, core.Settings{})
+	r := input.Combobox(c, &font, fonts, input.ComboboxOptions{AllowCustom: true, Label: "Font"})
 	if r.QueryChanged() {
 		log.Println("search:", r.Query())
 	}
 }`, Keys: "Typing filters; Down opens or moves; Up moves; Enter chooses; Escape closes; Tab leaves (keeping typed text with AllowCustom)."},
 	{ID: "039", Name: "Cascader", ZhName: "级联选择", Category: choiceCategory, Demo: cascaderDemo, Code: `var path []string
-level := func(p []string) mujica.CascaderLevel {
+level := func(p []string) input.CascaderLevel {
 	if len(p) == 0 {
-		return mujica.CascaderLevel{Nodes: []mujica.CascaderNode{{Value: "fr", Label: "France"}}}
+		return input.CascaderLevel{Nodes: []input.CascaderNode{{Value: "fr", Label: "France"}}}
 	}
-	return mujica.CascaderLevel{Nodes: []mujica.CascaderNode{{Value: "paris", Label: "Paris", Leaf: true}}}
+	return input.CascaderLevel{Nodes: []input.CascaderNode{{Value: "paris", Label: "Paris", Leaf: true}}}
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Cascader(c, &path, mujica.CascaderOptions{Level: level, Label: "City"})
+	core.Use(c, core.Settings{})
+	input.Cascader(c, &path, input.CascaderOptions{Level: level, Label: "City"})
 }`, Keys: "Enter, Space or Down open; Up/Down move in a column; Right opens a branch; Left goes back; Enter chooses; Escape closes."},
 	{ID: "040", Name: "TreeSelect", ZhName: "树选择", Category: choiceCategory, Demo: treeSelectDemo, Code: `var roles []string
-nodes := []mujica.TreeSelectNode{
-	{ID: "court", Label: "Court", Children: []mujica.TreeSelectNode{
+nodes := []input.TreeSelectNode{
+	{ID: "court", Label: "Court", Children: []input.TreeSelectNode{
 		{ID: "king", Label: "King"},
 		{ID: "queen", Label: "Queen"},
 	}},
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.TreeSelect(c, &roles, nodes, mujica.TreeSelectOptions{Multiple: true, Label: "Roles"})
+	core.Use(c, core.Settings{})
+	input.TreeSelect(c, &roles, nodes, input.TreeSelectOptions{Multiple: true, Label: "Roles"})
 }`, Keys: "Enter, Space or Down open with the search focused; Down enters the tree; Up/Down move; Right expands or enters; Left collapses or goes to the parent; Space checks; Escape closes."},
 }
 
 // choiceDemo lays out a demo: parameter controls, then the samples.
 func choiceDemo(c *ui.Context, controls, samples func()) {
-	k := mujica.Tokens(c)
+	k := core.Tokens(c)
 	ui.Column(c).Gap(20).AlignItems(ui.Start).Children(func() {
-		ui.Text(c, "Parameters").Font(theme.SerifFont).FontSize(mujica.FontSize(c, theme.H3Size)).TextColor(k.Text)
+		ui.Text(c, "Parameters").Font(theme.SerifFont).FontSize(core.FontSize(c, theme.H3Size)).TextColor(k.Text)
 		ui.Row(c).Gap(20).Wrap().AlignItems(ui.Center).Children(controls)
 		ui.Box(c).Height(1).FillWidth().Background(k.Ornament)
-		ui.Text(c, "States").Font(theme.SerifFont).FontSize(mujica.FontSize(c, theme.H3Size)).TextColor(k.Text)
+		ui.Text(c, "States").Font(theme.SerifFont).FontSize(core.FontSize(c, theme.H3Size)).TextColor(k.Text)
 		ui.Column(c).Gap(16).AlignItems(ui.Start).Children(samples)
 	})
 }
 
 // choiceFlag is a parameter switch that logs its change.
 func choiceFlag(c *ui.Context, on *bool, label string, log func(string)) {
-	if mujica.Switch(c, on, label, mujica.SwitchOptions{}).Changed() {
+	if input.Switch(c, on, label, input.SwitchOptions{}).Changed() {
 		log(fmt.Sprintf("%s = %v", label, *on))
 	}
 }
@@ -123,7 +124,7 @@ func choiceFlag(c *ui.Context, on *bool, label string, log func(string)) {
 // choiceLabeled shows a caption above a sample.
 func choiceLabeled(c *ui.Context, caption string, fn func()) {
 	ui.Column(c).Gap(6).Children(func() {
-		ui.Text(c, caption).FontSize(mujica.FontSize(c, theme.CaptionSize)).TextColor(mujica.Tokens(c).TextMuted)
+		ui.Text(c, caption).FontSize(core.FontSize(c, theme.CaptionSize)).TextColor(core.Tokens(c).TextMuted)
 		fn()
 	})
 }
@@ -136,12 +137,12 @@ func switchDemo(c *ui.Context, log func(string)) {
 		choiceFlag(c, &s.disabled, "Disabled", log)
 		choiceFlag(c, &s.loading, "Loading", log)
 	}, func() {
-		if mujica.Switch(c, &s.wifi, "Wi-Fi", mujica.SwitchOptions{Disabled: s.disabled, Loading: s.loading}).Changed() {
+		if input.Switch(c, &s.wifi, "Wi-Fi", input.SwitchOptions{Disabled: s.disabled, Loading: s.loading}).Changed() {
 			log(fmt.Sprintf("Wi-Fi changed: %v", s.wifi))
 		}
 		// A caller applying the change: loading for a moment, then done.
 		at := ui.Local(c.Root(), "031-at", func() time.Time { return time.Time{} })
-		if mujica.Switch(c, &s.pending, "Backup (saves for 1 s)", mujica.SwitchOptions{Loading: !at.IsZero()}).Changed() {
+		if input.Switch(c, &s.pending, "Backup (saves for 1 s)", input.SwitchOptions{Loading: !at.IsZero()}).Changed() {
 			*at = c.Now()
 			log(fmt.Sprintf("Backup requested: %v", s.pending))
 		}
@@ -155,8 +156,8 @@ func switchDemo(c *ui.Context, log func(string)) {
 		}
 		off, on := false, true
 		ui.Row(c).Gap(24).Children(func() {
-			mujica.Switch(c, &off, "Disabled off", mujica.SwitchOptions{Disabled: true})
-			mujica.Switch(c, &on, "Disabled on", mujica.SwitchOptions{Disabled: true})
+			input.Switch(c, &off, "Disabled off", input.SwitchOptions{Disabled: true})
+			input.Switch(c, &on, "Disabled on", input.SwitchOptions{Disabled: true})
 		})
 	})
 }
@@ -173,12 +174,12 @@ func toggleDemo(c *ui.Context, log func(string)) {
 				on         *bool
 				label, ico string
 			}{{&s.bold, "Bold", "bold"}, {&s.italic, "Italic", "italic"}, {&s.underline, "Underline", "underline"}} {
-				if mujica.Toggle(c, t.on, "", mujica.ToggleOptions{Icon: icons.Must(t.ico), Label: t.label, Disabled: s.disabled}).Changed() {
+				if input.Toggle(c, t.on, "", input.ToggleOptions{Icon: icons.Must(t.ico), Label: t.label, Disabled: s.disabled}).Changed() {
 					log(fmt.Sprintf("%s: %v", t.label, *t.on))
 				}
 			}
 		})
-		if mujica.Toggle(c, &s.bold, "Bold text", mujica.ToggleOptions{Disabled: s.disabled}).Changed() {
+		if input.Toggle(c, &s.bold, "Bold text", input.ToggleOptions{Disabled: s.disabled}).Changed() {
 			log(fmt.Sprintf("Bold: %v", s.bold))
 		}
 	})
@@ -190,12 +191,12 @@ func toggleGroupDemo(c *ui.Context, log func(string)) {
 		multiple, allowEmpty, vertical, disabled bool
 	}
 	s := *ui.Local(c.Root(), "033", func() *state { return &state{value: []string{"left"}} })
-	items := []mujica.ToggleItem[string]{
+	items := []input.ToggleItem[string]{
 		{Value: "left", Label: "Left"}, {Value: "center", Label: "Center"},
 		{Value: "right", Label: "Right"}, {Value: "justify", Label: "Justify", Disabled: true},
 	}
 	choiceDemo(c, func() {
-		if mujica.Switch(c, &s.multiple, "Multiple", mujica.SwitchOptions{}).Changed() {
+		if input.Switch(c, &s.multiple, "Multiple", input.SwitchOptions{}).Changed() {
 			s.value = s.value[:min(len(s.value), 1)]
 			log(fmt.Sprintf("Multiple = %v", s.multiple))
 		}
@@ -203,11 +204,11 @@ func toggleGroupDemo(c *ui.Context, log func(string)) {
 		choiceFlag(c, &s.vertical, "Vertical", log)
 		choiceFlag(c, &s.disabled, "Disabled", log)
 	}, func() {
-		opts := mujica.ToggleGroupOptions{Multiple: s.multiple, AllowEmpty: s.allowEmpty, Vertical: s.vertical, Disabled: s.disabled, Label: "Align"}
-		if mujica.ToggleGroup(c, &s.value, items, opts).Changed() {
+		opts := input.ToggleGroupOptions{Multiple: s.multiple, AllowEmpty: s.allowEmpty, Vertical: s.vertical, Disabled: s.disabled, Label: "Align"}
+		if input.ToggleGroup(c, &s.value, items, opts).Changed() {
 			log(fmt.Sprintf("value: %v", s.value))
 		}
-		ui.Text(c, fmt.Sprintf("Value: %v", s.value)).TextColor(mujica.Tokens(c).TextMuted)
+		ui.Text(c, fmt.Sprintf("Value: %v", s.value)).TextColor(core.Tokens(c).TextMuted)
 	})
 }
 
@@ -222,24 +223,24 @@ func sliderDemo(c *ui.Context, log func(string)) {
 		choiceFlag(c, &s.showValue, "ShowValue", log)
 		choiceFlag(c, &s.disabled, "Disabled", log)
 		choiceLabeled(c, fmt.Sprintf("Step %v", s.step), func() {
-			if mujica.Slider(c, &s.step, mujica.SliderOptions{Max: 25, Step: 5, Label: "Step"}).Changed() {
+			if input.Slider(c, &s.step, input.SliderOptions{Max: 25, Step: 5, Label: "Step"}).Changed() {
 				log(fmt.Sprintf("Step = %v", s.step))
 			}
 		})
 	}, func() {
-		var marks []mujica.SliderMark
+		var marks []input.SliderMark
 		if s.marks {
 			for v := 0.0; v <= 100; v += 25 {
-				marks = append(marks, mujica.SliderMark{Value: v, Label: fmt.Sprint(v)})
+				marks = append(marks, input.SliderMark{Value: v, Label: fmt.Sprint(v)})
 			}
 		}
 		ui.Column(c).Width(360).Children(func() {
-			opts := mujica.SliderOptions{Step: s.step, Marks: marks, ShowValue: s.showValue, Disabled: s.disabled, Label: "Volume"}
-			if mujica.Slider(c, &s.value, opts).Changed() {
+			opts := input.SliderOptions{Step: s.step, Marks: marks, ShowValue: s.showValue, Disabled: s.disabled, Label: "Volume"}
+			if input.Slider(c, &s.value, opts).Changed() {
 				log(fmt.Sprintf("Volume: %v", s.value))
 			}
 		})
-		ui.Text(c, fmt.Sprintf("Value: %v", s.value)).TextColor(mujica.Tokens(c).TextMuted)
+		ui.Text(c, fmt.Sprintf("Value: %v", s.value)).TextColor(core.Tokens(c).TextMuted)
 	})
 }
 
@@ -254,18 +255,18 @@ func rangeSliderDemo(c *ui.Context, log func(string)) {
 		choiceFlag(c, &s.showValue, "ShowValue", log)
 		choiceFlag(c, &s.disabled, "Disabled", log)
 	}, func() {
-		var marks []mujica.SliderMark
+		var marks []input.SliderMark
 		if s.marks {
-			marks = []mujica.SliderMark{{Value: 0, Label: "£0"}, {Value: 500, Label: "£500"}, {Value: 1000, Label: "£1000"}}
+			marks = []input.SliderMark{{Value: 0, Label: "£0"}, {Value: 500, Label: "£500"}, {Value: 1000, Label: "£1000"}}
 		}
 		ui.Column(c).Width(360).Children(func() {
-			opts := mujica.RangeSliderOptions{Max: 1000, Step: 50, Marks: marks, ShowValue: s.showValue, Disabled: s.disabled, Label: "Price",
+			opts := input.RangeSliderOptions{Max: 1000, Step: 50, Marks: marks, ShowValue: s.showValue, Disabled: s.disabled, Label: "Price",
 				Format: func(v float64) string { return fmt.Sprintf("£%.0f", v) }}
-			if mujica.RangeSlider(c, &s.low, &s.high, opts).Changed() {
+			if input.RangeSlider(c, &s.low, &s.high, opts).Changed() {
 				log(fmt.Sprintf("Price: %v–%v", s.low, s.high))
 			}
 		})
-		ui.Text(c, fmt.Sprintf("Range: £%.0f – £%.0f", s.low, s.high)).TextColor(mujica.Tokens(c).TextMuted)
+		ui.Text(c, fmt.Sprintf("Range: £%.0f – £%.0f", s.low, s.high)).TextColor(core.Tokens(c).TextMuted)
 	})
 }
 
@@ -281,7 +282,7 @@ func choiceDue(c *ui.Context, at time.Time) bool {
 	return true
 }
 
-var choiceFruits = []mujica.SelectOption[string]{
+var choiceFruits = []input.SelectOption[string]{
 	{Value: "apple", Label: "Apple"}, {Value: "banana", Label: "Banana"}, {Value: "blueberry", Label: "Blueberry"},
 	{Value: "cherry", Label: "Cherry", Disabled: true}, {Value: "date", Label: "Date"}, {Value: "fig", Label: "Fig"},
 }
@@ -302,12 +303,12 @@ func selectDemo(c *ui.Context, log func(string)) {
 			options = nil
 		}
 		choiceLabeled(c, "Fruit", func() {
-			if mujica.Select(c, &s.value, options, mujica.SelectOptions{Clearable: s.clearable, Disabled: s.disabled, Label: "Fruit"}).Changed() {
+			if input.Select(c, &s.value, options, input.SelectOptions{Clearable: s.clearable, Disabled: s.disabled, Label: "Fruit"}).Changed() {
 				log(fmt.Sprintf("Fruit: %q", s.value))
 			}
 		})
 		choiceLabeled(c, "Placeholder", func() {
-			if mujica.Select(c, &s.picked, choiceFruits, mujica.SelectOptions{Placeholder: "Pick a fruit", Clearable: true}).Changed() {
+			if input.Select(c, &s.picked, choiceFruits, input.SelectOptions{Placeholder: "Pick a fruit", Clearable: true}).Changed() {
 				log(fmt.Sprintf("Picked: %q", s.picked))
 			}
 		})
@@ -329,7 +330,7 @@ func multiSelectDemo(c *ui.Context, log func(string)) {
 			limit = 3
 		}
 		choiceLabeled(c, "Fruits", func() {
-			r := mujica.MultiSelect(c, &s.values, choiceFruits, mujica.MultiSelectOptions{Max: limit, MaxTags: 2, Disabled: s.disable, Label: "Fruits"})
+			r := input.MultiSelect(c, &s.values, choiceFruits, input.MultiSelectOptions{Max: limit, MaxTags: 2, Disabled: s.disable, Label: "Fruits"})
 			r.Element.Width(320)
 			if r.Changed() {
 				log(fmt.Sprintf("Fruits: %v", s.values))
@@ -368,7 +369,7 @@ func comboboxDemo(c *ui.Context, log func(string)) {
 			options, loading = s.results, s.asked != s.query
 		}
 		choiceLabeled(c, "Typeface", func() {
-			r := mujica.Combobox(c, &s.value, options, mujica.ComboboxOptions{AllowCustom: s.custom, ExternalFilter: s.remote, Loading: loading, Label: "Typeface"})
+			r := input.Combobox(c, &s.value, options, input.ComboboxOptions{AllowCustom: s.custom, ExternalFilter: s.remote, Loading: loading, Label: "Typeface"})
 			if r.QueryChanged() {
 				s.query, s.at = r.Query(), c.Now()
 				log(fmt.Sprintf("query: %q", s.query))
@@ -379,13 +380,13 @@ func comboboxDemo(c *ui.Context, log func(string)) {
 		})
 		disabled := "Didot"
 		choiceLabeled(c, "Disabled", func() {
-			mujica.Combobox(c, &disabled, choiceFonts, mujica.ComboboxOptions{Disabled: true})
+			input.Combobox(c, &disabled, choiceFonts, input.ComboboxOptions{Disabled: true})
 		})
 	})
 }
 
 // choiceAtlas is the cascader demo's pretend server data.
-var choiceAtlas = map[string][]mujica.CascaderNode{
+var choiceAtlas = map[string][]input.CascaderNode{
 	"":      {{Value: "eu", Label: "Europe"}, {Value: "as", Label: "Asia"}, {Value: "aq", Label: "Antarctica", Disabled: true}},
 	"eu":    {{Value: "fr", Label: "France"}, {Value: "it", Label: "Italy"}},
 	"as":    {{Value: "jp", Label: "Japan"}, {Value: "cn", Label: "China"}},
@@ -398,34 +399,34 @@ var choiceAtlas = map[string][]mujica.CascaderNode{
 func cascaderDemo(c *ui.Context, log func(string)) {
 	type state struct {
 		path               []string
-		levels             map[string]mujica.CascaderLevel
+		levels             map[string]input.CascaderLevel
 		pending            map[string]time.Time
 		anyLevel, fail, ds bool
 	}
 	s := *ui.Local(c.Root(), "039", func() *state {
-		return &state{levels: map[string]mujica.CascaderLevel{"": {Nodes: choiceAtlas[""]}}, pending: map[string]time.Time{}}
+		return &state{levels: map[string]input.CascaderLevel{"": {Nodes: choiceAtlas[""]}}, pending: map[string]time.Time{}}
 	})
 	for key, at := range s.pending {
 		if choiceDue(c, at) {
 			delete(s.pending, key)
 			if s.fail {
-				s.levels[key] = mujica.CascaderLevel{Status: mujica.CascaderFailed, Err: errors.New("server busy")}
+				s.levels[key] = input.CascaderLevel{Status: input.CascaderFailed, Err: errors.New("server busy")}
 				log(fmt.Sprintf("load %q failed", key))
 				continue
 			}
-			s.levels[key] = mujica.CascaderLevel{Nodes: choiceAtlas[key]}
+			s.levels[key] = input.CascaderLevel{Nodes: choiceAtlas[key]}
 			log(fmt.Sprintf("loaded %q", key))
 		}
 	}
-	level := func(p []string) mujica.CascaderLevel {
+	level := func(p []string) input.CascaderLevel {
 		if lv, ok := s.levels[strings.Join(p, "/")]; ok {
 			return lv
 		}
-		return mujica.CascaderLevel{Status: mujica.CascaderIdle}
+		return input.CascaderLevel{Status: input.CascaderIdle}
 	}
 	load := func(p []string) {
 		key := strings.Join(p, "/")
-		s.levels[key] = mujica.CascaderLevel{Status: mujica.CascaderLoading}
+		s.levels[key] = input.CascaderLevel{Status: input.CascaderLoading}
 		s.pending[key] = c.Now()
 		log(fmt.Sprintf("load %q", key))
 	}
@@ -435,8 +436,8 @@ func cascaderDemo(c *ui.Context, log func(string)) {
 		choiceFlag(c, &s.ds, "Disabled", log)
 	}, func() {
 		choiceLabeled(c, "City (children load on demand)", func() {
-			opts := mujica.CascaderOptions{Level: level, Load: load, AnyLevel: s.anyLevel, Disabled: s.ds, Label: "City"}
-			r := mujica.Cascader(c, &s.path, opts)
+			opts := input.CascaderOptions{Level: level, Load: load, AnyLevel: s.anyLevel, Disabled: s.ds, Label: "City"}
+			r := input.Cascader(c, &s.path, opts)
 			r.Element.Width(320)
 			if r.Changed() {
 				log(fmt.Sprintf("path: %v", s.path))
@@ -445,12 +446,12 @@ func cascaderDemo(c *ui.Context, log func(string)) {
 	})
 }
 
-var choiceRoles = []mujica.TreeSelectNode{
-	{ID: "court", Label: "Court", Children: []mujica.TreeSelectNode{
+var choiceRoles = []input.TreeSelectNode{
+	{ID: "court", Label: "Court", Children: []input.TreeSelectNode{
 		{ID: "king", Label: "King"}, {ID: "queen", Label: "Queen"}, {ID: "jester", Label: "Jester", Disabled: true},
-		{ID: "guard", Label: "Royal guard", Children: []mujica.TreeSelectNode{{ID: "captain", Label: "Captain"}, {ID: "archer", Label: "Archer"}}},
+		{ID: "guard", Label: "Royal guard", Children: []input.TreeSelectNode{{ID: "captain", Label: "Captain"}, {ID: "archer", Label: "Archer"}}},
 	}},
-	{ID: "church", Label: "Church", Children: []mujica.TreeSelectNode{{ID: "bishop", Label: "Bishop"}, {ID: "monk", Label: "Monk"}}},
+	{ID: "church", Label: "Church", Children: []input.TreeSelectNode{{ID: "bishop", Label: "Bishop"}, {ID: "monk", Label: "Monk"}}},
 	{ID: "merchant", Label: "Merchant"},
 }
 
@@ -461,20 +462,20 @@ func treeSelectDemo(c *ui.Context, log func(string)) {
 	}
 	s := *ui.Local(c.Root(), "040", func() *state { return &state{sel: []string{"queen", "bishop"}, multiple: true} })
 	choiceDemo(c, func() {
-		if mujica.Switch(c, &s.multiple, "Multiple", mujica.SwitchOptions{}).Changed() {
+		if input.Switch(c, &s.multiple, "Multiple", input.SwitchOptions{}).Changed() {
 			s.sel = s.sel[:min(len(s.sel), 1)]
 			log(fmt.Sprintf("Multiple = %v", s.multiple))
 		}
 		choiceFlag(c, &s.independent, "Independent rule", log)
 		choiceFlag(c, &s.disabled, "Disabled", log)
 	}, func() {
-		rule := mujica.TreeSelectCascade
+		rule := input.TreeSelectCascade
 		if s.independent {
-			rule = mujica.TreeSelectIndependent
+			rule = input.TreeSelectIndependent
 		}
 		choiceLabeled(c, "Roles", func() {
-			opts := mujica.TreeSelectOptions{Multiple: s.multiple, Rule: rule, MaxTags: 2, Disabled: s.disabled, Label: "Roles"}
-			r := mujica.TreeSelect(c, &s.sel, choiceRoles, opts)
+			opts := input.TreeSelectOptions{Multiple: s.multiple, Rule: rule, MaxTags: 2, Disabled: s.disabled, Label: "Roles"}
+			r := input.TreeSelect(c, &s.sel, choiceRoles, opts)
 			r.Element.Width(320)
 			if r.Changed() {
 				log(fmt.Sprintf("Roles: %v", s.sel))

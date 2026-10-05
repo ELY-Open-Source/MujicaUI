@@ -10,8 +10,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.PriceChangeBadge(c, -5.62, -1.35, mujica.PriceChangeBadgeOptions{})
+	core.Use(c, core.Settings{})
+	finance.PriceChangeBadge(c, -5.62, -1.35, finance.PriceChangeBadgeOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

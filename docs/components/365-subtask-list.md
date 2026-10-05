@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-subtasks := []mujica.Subtask{{ID: "one", Title: "Review", Done: true}, {ID: "two", Title: "Ship"}}
+subtasks := []project.Subtask{{ID: "one", Title: "Review", Done: true}, {ID: "two", Title: "Ship"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.SubtaskList(c, &subtasks, mujica.SubtaskListOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if project.SubtaskList(c, &subtasks, project.SubtaskListOptions{}).Changed() {
 		log.Println("subtasks changed", len(subtasks))
 	}
 }

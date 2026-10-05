@@ -5,7 +5,9 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/chart"
+	"github.com/ZacharyZhang-NY/MujicaUI/data"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
 )
 
 const c2Category = "Charts II"
@@ -29,7 +31,7 @@ var charts2Pages = []page{
 }
 
 func c2Check(c *ui.Context, value *bool, label string, log func(string)) {
-	if mujica.Checkbox(c, value, label, mujica.CheckboxOptions{}).Changed() {
+	if input.Checkbox(c, value, label, input.CheckboxOptions{}).Changed() {
 		log(fmt.Sprintf("%s = %v", label, *value))
 	}
 }
@@ -37,7 +39,7 @@ func c2Check(c *ui.Context, value *bool, label string, log func(string)) {
 func c2Number(c *ui.Context, value *float64, label string, lo, hi, step float64, log func(string)) {
 	ui.Row(c).Gap(8).AlignItems(ui.Center).Children(func() {
 		ui.Text(c, label)
-		r := mujica.NumberInput(c, value, mujica.NumberInputOptions{Label: label, Min: lo, Max: hi, Step: step})
+		r := input.NumberInput(c, value, input.NumberInputOptions{Label: label, Min: lo, Max: hi, Step: step})
 		r.Element.Width(150)
 		if r.Changed() {
 			log(fmt.Sprintf("%s = %g", label, *value))
@@ -46,25 +48,25 @@ func c2Number(c *ui.Context, value *float64, label string, lo, hi, step float64,
 }
 
 func c2Select(c *ui.Context, value *string, label string, choices []string, log func(string)) {
-	items := make([]mujica.SelectOption[string], len(choices))
+	items := make([]input.SelectOption[string], len(choices))
 	for i, s := range choices {
-		items[i] = mujica.SelectOption[string]{Value: s, Label: s}
+		items[i] = input.SelectOption[string]{Value: s, Label: s}
 	}
-	r := mujica.Select(c, value, items, mujica.SelectOptions{Label: label})
+	r := input.Select(c, value, items, input.SelectOptions{Label: label})
 	r.Element.Width(160)
 	if r.Changed() {
 		log(label + " = " + *value)
 	}
 }
 
-func c2Frame(c *ui.Context, label string, status *string, log func(string)) (mujica.ChartFrame, bool) {
+func c2Frame(c *ui.Context, label string, status *string, log func(string)) (chart.ChartFrame, bool) {
 	c2Select(c, status, "Status", c1Statuses, log)
-	f := mujica.ChartFrame{Label: label}
+	f := chart.ChartFrame{Label: label}
 	if *status == "Loading" {
-		f.Status = mujica.DataLoading
+		f.Status = data.DataLoading
 	}
 	if *status == "Failed" {
-		f.Status, f.Error = mujica.DataFailed, "The archive did not answer"
+		f.Status, f.Error = data.DataFailed, "The archive did not answer"
 	}
 	return f, *status != "Empty"
 }

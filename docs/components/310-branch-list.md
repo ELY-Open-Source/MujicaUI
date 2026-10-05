@@ -7,12 +7,12 @@
 ## 最小示例
 
 ```go
-var state mujica.ListState[string]
-branches := []mujica.Branch{{Name: "main", Current: true, Upstream: "origin/main", Ahead: 2}}
-actions := []mujica.GitAction{{ID: "delete", Label: "Delete", Icon: "trash-2"}}
+var state data.ListState[string]
+branches := []git.Branch{{Name: "main", Current: true, Upstream: "origin/main", Ahead: 2}}
+actions := []git.GitAction{{ID: "delete", Label: "Delete", Icon: "trash-2"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.BranchList(c, &state, branches, mujica.BranchListOptions{Actions: actions})
+	core.Use(c, core.Settings{})
+	r := git.BranchList(c, &state, branches, git.BranchListOptions{Actions: actions})
 	r.Element.Height(200)
 	if action, name, ok := r.Action(); ok {
 		_, _ = action, name // run the action on the branch

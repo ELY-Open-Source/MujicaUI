@@ -6,15 +6,16 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
-	"mujicaui/internal"
+	"github.com/ZacharyZhang-NY/MujicaUI/chart"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ZacharyZhang-NY/MujicaUI/internal"
 )
 
 type c2PartsState struct {
 	status, kind                          string
 	disabled, crosshair, draggable, fixed bool
 	minor                                 float64
-	notes                                 []mujica.ChartNote
+	notes                                 []chart.ChartNote
 }
 
 func c2TooltipDemo(c *ui.Context, log func(string))    { c2PartsDemo(c, log, "122", "ChartTooltip") }
@@ -25,11 +26,11 @@ func c2AnnotationDemo(c *ui.Context, log func(string)) { c2PartsDemo(c, log, "12
 
 func c2PartsDemo(c *ui.Context, log func(string), id, name string) {
 	s := ui.Local(c.Root(), id, func() c2PartsState {
-		return c2PartsState{status: "Ready", kind: "Linear", crosshair: true, minor: 2, draggable: true, notes: []mujica.ChartNote{
-			{Kind: mujica.NoteHLine, Value: 50, Text: "Goal"},
-			{Kind: mujica.NoteVLine, Value: 3, Text: "Advent"},
-			{Kind: mujica.NoteBand, Value: 6, End: 8, Text: "Lent"},
-			{Kind: mujica.NoteText, Value: 1, End: 90, Text: "Feast"},
+		return c2PartsState{status: "Ready", kind: "Linear", crosshair: true, minor: 2, draggable: true, notes: []chart.ChartNote{
+			{Kind: chart.NoteHLine, Value: 50, Text: "Goal"},
+			{Kind: chart.NoteVLine, Value: 3, Text: "Advent"},
+			{Kind: chart.NoteBand, Value: 6, End: 8, Text: "Lent"},
+			{Kind: chart.NoteText, Value: 1, End: 90, Text: "Feast"},
 		}}
 	})
 	c1Section(c, name, func() {
@@ -56,23 +57,23 @@ func c2PartsDemo(c *ui.Context, log func(string), id, name string) {
 	})
 }
 
-func c2PartsChart(c *ui.Context, frame mujica.ChartFrame, show bool, s *c2PartsState, id string, log func(string)) mujica.ChartResult {
-	xo := mujica.ChartAxisOptions{Max: 10}
-	yo := mujica.ChartAxisOptions{Side: mujica.SideLeft, Max: 100}
+func c2PartsChart(c *ui.Context, frame chart.ChartFrame, show bool, s *c2PartsState, id string, log func(string)) chart.ChartResult {
+	xo := chart.ChartAxisOptions{Max: 10}
+	yo := chart.ChartAxisOptions{Side: chart.SideLeft, Max: 100}
 	pts := [][2]float64{{2, 30}, {5, 80}, {8, 55}}
 	if id == "124" {
 		switch s.kind {
 		case "Log":
-			yo.Kind, yo.Min = mujica.AxisLog, 1
+			yo.Kind, yo.Min = chart.AxisLog, 1
 		case "Time":
-			xo.Kind = mujica.AxisTime
+			xo.Kind = chart.AxisTime
 			xo.From = time.Date(2026, 10, 5, 9, 0, 0, 0, time.UTC)
 			xo.To = xo.From.Add(10 * time.Hour)
 			for i := range pts {
 				pts[i][0] = float64(xo.From.Unix()) + pts[i][0]*3600
 			}
 		case "Category":
-			xo.Kind, xo.Categories = mujica.AxisCategory, []string{"Nave", "Choir", "Crypt"}
+			xo.Kind, xo.Categories = chart.AxisCategory, []string{"Nave", "Choir", "Crypt"}
 			for i := range pts {
 				pts[i][0] = float64(i)
 			}
@@ -81,17 +82,17 @@ func c2PartsChart(c *ui.Context, frame mujica.ChartFrame, show bool, s *c2PartsS
 			yo.Ticks = []float64{10, 50, 90}
 		}
 	}
-	x, y := mujica.ChartAxis(c, xo), mujica.ChartAxis(c, yo)
-	grid := mujica.ChartGrid(c, mujica.ChartGridOptions{Y: &y, Minor: int(s.minor)})
-	hair := mujica.ChartCrosshair(c, mujica.ChartCrosshairOptions{X: &x, Y: &y})
-	var notes []mujica.ChartNote
+	x, y := chart.ChartAxis(c, xo), chart.ChartAxis(c, yo)
+	grid := chart.ChartGrid(c, chart.ChartGridOptions{Y: &y, Minor: int(s.minor)})
+	hair := chart.ChartCrosshair(c, chart.ChartCrosshairOptions{X: &x, Y: &y})
+	var notes []chart.ChartNote
 	if id == "127" {
 		notes = s.notes
 		for i := range notes {
 			notes[i].Draggable = s.draggable
 		}
 	}
-	annotation := mujica.ChartAnnotation(c, notes, mujica.ChartAnnotationOptions{X: &x, Y: &y})
+	annotation := chart.ChartAnnotation(c, notes, chart.ChartAnnotationOptions{X: &x, Y: &y})
 	plotOf := func(r ui.Rect) ui.Rect {
 		return ui.Rect{X: r.X + 64, Y: r.Y + 16, W: max(1, r.W-100), H: max(1, r.H-56)}
 	}
@@ -103,16 +104,16 @@ func c2PartsChart(c *ui.Context, frame mujica.ChartFrame, show bool, s *c2PartsS
 	if !show {
 		marks = 0
 	}
-	colors := internal.Palette(mujica.Tokens(c))
-	return mujica.Chart(c, frame, mujica.ChartSpec{
+	colors := internal.Palette(core.Tokens(c))
+	return chart.Chart(c, frame, chart.ChartSpec{
 		Marks: marks,
 		Pick: func(r ui.Rect, px, py float32) int {
 			return hair.Snap(len(pts), func(i int) (float32, float32) { return at(r, i) }, px, py)
 		},
 		Anchor:  at,
 		Readout: func(i int) string { return fmt.Sprintf("x %s · y %s", x.Label(pts[i][0]), y.Label(pts[i][1])) },
-		Tooltip: func(i int) []mujica.ChartTooltipLine {
-			return []mujica.ChartTooltipLine{{Text: x.Label(pts[i][0])}, {Text: "Pews " + y.Label(pts[i][1]), Color: colors[0]}, {Text: "Candles " + y.Label(pts[i][1]/2), Color: colors[1], Shape: 1}}
+		Tooltip: func(i int) []chart.ChartTooltipLine {
+			return []chart.ChartTooltipLine{{Text: x.Label(pts[i][0])}, {Text: "Pews " + y.Label(pts[i][1]), Color: colors[0]}, {Text: "Candles " + y.Label(pts[i][1]/2), Color: colors[1], Shape: 1}}
 		},
 		Input: func(el *ui.Element, r ui.Rect) {
 			if annotation.Drag(el, plotOf(r)) {

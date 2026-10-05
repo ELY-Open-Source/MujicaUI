@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-	bins := []mujica.ProfileBin{{Low: 99, High: 100, Volume: 30}, {Low: 100, High: 101, Volume: 80}, {Low: 101, High: 102, Volume: 40}}
+	bins := []chart.ProfileBin{{Low: 99, High: 100, Volume: 30}, {Low: 100, High: 101, Volume: 80}, {Low: 101, High: 102, Volume: 40}}
 	view := func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{})
-		mujica.VolumeProfile(c, bins, mujica.VolumeProfileOptions{Frame: mujica.ChartFrame{Label: "BTC", Height: 200}})
+		core.Use(c, core.Settings{})
+		chart.VolumeProfile(c, bins, chart.VolumeProfileOptions{Frame: chart.ChartFrame{Label: "BTC", Height: 200}})
 	}
 	ui.Render(view, 640, 400, 1)
 ```

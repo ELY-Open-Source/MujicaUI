@@ -9,8 +9,8 @@
 ```go
 titles := []string{"Sea", "Forest", "Desert", "Glacier"}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Masonry(c, len(titles), mujica.MasonryOptions{
+	core.Use(c, core.Settings{})
+	input.Masonry(c, len(titles), input.MasonryOptions{
 		Key: func(i int) string { return titles[i] },
 	}, func(i int) {
 		ui.Text(c, titles[i])

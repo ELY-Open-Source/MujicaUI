@@ -9,7 +9,9 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ZacharyZhang-NY/MujicaUI/data"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
 )
 
 var dataOffices = []string{"Matins", "Lauds", "Prime", "Terce", "Sext", "None", "Vespers", "Compline"}
@@ -18,7 +20,7 @@ func dataListDemo(c *ui.Context, log func(string)) {
 	type state struct {
 		big, grid, multiple bool
 		status, query       string
-		list                mujica.ListState[int]
+		list                data.ListState[int]
 	}
 	s := ui.Local(c.Root(), "070", func() state { return state{status: "Ready"} })
 	n := 24
@@ -39,7 +41,7 @@ func dataListDemo(c *ui.Context, log func(string)) {
 		})
 		dataControls(c, func() {
 			ui.TextInput(c, &s.query).Width(200).Placeholder("Find by label")
-			if mujica.Button(c, "Find", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+			if input.Button(c, "Find", input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 				for i := range n {
 					if strings.Contains(strings.ToLower(label(i)), strings.ToLower(s.query)) {
 						s.list.ScrollTo(i)
@@ -49,13 +51,13 @@ func dataListDemo(c *ui.Context, log func(string)) {
 				}
 			}
 		})
-		v := mujica.List(c, &s.list, n, mujica.ListOptions[int]{
+		v := data.List(c, &s.list, n, data.ListOptions[int]{
 			Key: func(i int) int { return i }, Label: label, Grid: s.grid, Multiple: s.multiple,
 			ItemWidth: 140, ItemHeight: 72, Status: st,
 		}, func(i int) {
 			ui.Text(c, label(i)).SingleLine()
 			if s.grid {
-				ui.Text(c, "Office").TextColor(mujica.Tokens(c).TextMuted)
+				ui.Text(c, "Office").TextColor(core.Tokens(c).TextMuted)
 			}
 		})
 		v.Element.Size(480, 320)
@@ -95,7 +97,7 @@ func dataTableDemo(c *ui.Context, log func(string)) {
 		big, multiple bool
 		status        string
 		small, large  []dataRelic
-		table         mujica.DataTableState[int]
+		table         data.DataTableState[int]
 	}
 	s := ui.Local(c.Root(), "071", func() state { return state{status: "Ready", small: dataRelics(60)} })
 	rows := s.small
@@ -109,8 +111,8 @@ func dataTableDemo(c *ui.Context, log func(string)) {
 	if !show {
 		rows = nil
 	}
-	k := mujica.Tokens(c)
-	cols := []mujica.DataColumn[dataRelic]{
+	k := core.Tokens(c)
+	cols := []data.DataColumn[dataRelic]{
 		{ID: "id", Title: "ID", Width: 80, Align: ui.End, Sortable: true, Text: func(r dataRelic) string { return strconv.Itoa(r.ID) },
 			Compare: func(a, b dataRelic) int { return cmp.Compare(a.ID, b.ID) }},
 		{ID: "name", Title: "Name", MinWidth: 120, Sortable: true, Text: func(r dataRelic) string { return r.Name },
@@ -135,7 +137,7 @@ func dataTableDemo(c *ui.Context, log func(string)) {
 			ui.Select(c, &s.status, dataStatuses)
 			ui.TextInput(c, &s.table.Filter).Width(180).Placeholder("Filter")
 		})
-		v := mujica.DataTable(c, &s.table, rows, mujica.DataTableOptions[dataRelic, int]{
+		v := data.DataTable(c, &s.table, rows, data.DataTableOptions[dataRelic, int]{
 			Columns: cols, Key: func(r dataRelic) int { return r.ID }, Multiple: s.multiple, Status: st,
 		})
 		v.Element.Size(620, 360)
@@ -160,7 +162,7 @@ func dataTableDemo(c *ui.Context, log func(string)) {
 // dataLazy simulates children that arrive 600 ms after they are asked for.
 type dataLazy struct {
 	kids   map[string][]string
-	status map[string]mujica.DataStatus
+	status map[string]data.DataStatus
 	due    map[string]time.Time
 	failed map[string]bool
 }
@@ -169,14 +171,14 @@ func newDataLazy() *dataLazy {
 	return &dataLazy{
 		kids: map[string][]string{"Nave": {"Pulpit", "Pews", "Font"}, "Crypt": {}, "Archive": {},
 			"Pulpit": nil, "Pews": nil, "Font": nil, "Sacristy": nil},
-		status: map[string]mujica.DataStatus{"Crypt": mujica.DataUnloaded, "Archive": mujica.DataUnloaded},
+		status: map[string]data.DataStatus{"Crypt": data.DataUnloaded, "Archive": data.DataUnloaded},
 		due:    map[string]time.Time{}, failed: map[string]bool{},
 	}
 }
 
 func (d *dataLazy) load(c *ui.Context, log func(string)) func(string) {
 	return func(n string) {
-		d.status[n] = mujica.DataLoading
+		d.status[n] = data.DataLoading
 		d.due[n] = c.Now().Add(600 * time.Millisecond)
 		log("load " + n)
 	}
@@ -191,10 +193,10 @@ func (d *dataLazy) tick(c *ui.Context) {
 		}
 		delete(d.due, n)
 		if n == "Archive" && !d.failed[n] {
-			d.failed[n], d.status[n] = true, mujica.DataFailed
+			d.failed[n], d.status[n] = true, data.DataFailed
 			continue
 		}
-		d.status[n] = mujica.DataReady
+		d.status[n] = data.DataReady
 		d.kids[n] = []string{n + " north", n + " south"}
 	}
 }
@@ -203,14 +205,14 @@ func dataTreeDemo(c *ui.Context, log func(string)) {
 	type state struct {
 		big, multiple bool
 		lazy          *dataLazy
-		tree          mujica.TreeState[string]
-		bigTree       mujica.TreeState[string]
+		tree          data.TreeState[string]
+		bigTree       data.TreeState[string]
 	}
 	s := ui.Local(c.Root(), "072", func() state { return state{lazy: newDataLazy()} })
 	s.lazy.tick(c)
-	opts := mujica.TreeOptions[string]{
+	opts := data.TreeOptions[string]{
 		Roots: []string{"Nave", "Crypt", "Archive", "Sacristy"}, Children: func(n string) []string { return s.lazy.kids[n] },
-		Label: func(n string) string { return n }, ItemStatus: func(n string) mujica.DataStatus { return s.lazy.status[n] },
+		Label: func(n string) string { return n }, ItemStatus: func(n string) data.DataStatus { return s.lazy.status[n] },
 		Load: s.lazy.load(c, log), Multiple: s.multiple,
 	}
 	ts := &s.tree
@@ -223,7 +225,7 @@ func dataTreeDemo(c *ui.Context, log func(string)) {
 			ui.Checkbox(c, &s.big, "100,000 nodes")
 			ui.Checkbox(c, &s.multiple, "Multiple")
 		})
-		v := mujica.Tree(c, ts, opts)
+		v := data.Tree(c, ts, opts)
 		v.Element.Size(420, 340)
 		if v.Changed() {
 			n, _ := ts.Selected()
@@ -237,12 +239,12 @@ func dataTreeDemo(c *ui.Context, log func(string)) {
 }
 
 // dataBigTree has 100 roots of 999 children: 100,000 nodes, built as they open.
-func dataBigTree(multiple bool) mujica.TreeOptions[string] {
+func dataBigTree(multiple bool) data.TreeOptions[string] {
 	roots := make([]string, 100)
 	for i := range roots {
 		roots[i] = fmt.Sprintf("Wing %d", i+1)
 	}
-	return mujica.TreeOptions[string]{
+	return data.TreeOptions[string]{
 		Roots: roots, Label: func(n string) string { return n }, Multiple: multiple,
 		Children: func(n string) []string {
 			if !strings.HasPrefix(n, "Wing ") || strings.Contains(n, "·") {
@@ -271,7 +273,7 @@ func dataTreeTableDemo(c *ui.Context, log func(string)) {
 	type state struct {
 		multiple bool
 		lazy     *dataLazy
-		table    mujica.TreeTableState[string]
+		table    data.TreeTableState[string]
 	}
 	s := ui.Local(c.Root(), "073", func() state { return state{lazy: newDataLazy()} })
 	s.lazy.tick(c)
@@ -279,11 +281,11 @@ func dataTreeTableDemo(c *ui.Context, log func(string)) {
 	text := func(n string) { ui.Text(c, n).SingleLine() }
 	dataSection(c, "TreeTable", func() {
 		dataControls(c, func() { ui.Checkbox(c, &s.multiple, "Multiple") })
-		v := mujica.TreeTable(c, &s.table, mujica.TreeTableOptions[string]{
+		v := data.TreeTable(c, &s.table, data.TreeTableOptions[string]{
 			Roots: []string{"Nave", "Crypt", "Archive", "Sacristy"}, Children: func(n string) []string { return s.lazy.kids[n] },
-			Label: func(n string) string { return n }, ItemStatus: func(n string) mujica.DataStatus { return s.lazy.status[n] },
+			Label: func(n string) string { return n }, ItemStatus: func(n string) data.DataStatus { return s.lazy.status[n] },
 			Load: s.lazy.load(c, log), Multiple: s.multiple,
-			Columns: []mujica.TreeColumn[string]{
+			Columns: []data.TreeColumn[string]{
 				{ID: "name", Title: "Name", MinWidth: 160, Cell: text, Compare: cmp.Compare[string]},
 				{ID: "size", Title: "Size", Width: 90, Align: ui.End, Cell: func(n string) { ui.Text(c, fmt.Sprintf("%d m²", size(n))) },
 					Compare: func(a, b string) int { return cmp.Compare(size(a), size(b)) }},

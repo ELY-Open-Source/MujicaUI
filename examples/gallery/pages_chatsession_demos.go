@@ -7,14 +7,15 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
-	"mujicaui/icons"
+	"github.com/ZacharyZhang-NY/MujicaUI/chat"
+	"github.com/ZacharyZhang-NY/MujicaUI/icons"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
 )
 
 // chatHistory is the gallery's sample conversations, dated from now.
-func chatHistory(now time.Time) []mujica.ChatConversation {
+func chatHistory(now time.Time) []chat.ChatConversation {
 	day := 24 * time.Hour
-	return []mujica.ChatConversation{
+	return []chat.ChatConversation{
 		{ID: "a", Title: "Court etiquette notes", Updated: now.Add(-2 * time.Hour)},
 		{ID: "b", Title: "Ballroom seating plan", Updated: now.Add(-day)},
 		{ID: "c", Title: "Harpsichord repair", Updated: now.Add(-4 * day)},
@@ -24,17 +25,17 @@ func chatHistory(now time.Time) []mujica.ChatConversation {
 	}
 }
 
-func chatSampleMessages(now time.Time) []mujica.SessionMessage {
-	return []mujica.SessionMessage{
-		{Role: mujica.SessionUser, Text: "How should guests be seated at the banquet?", Time: now.Add(-10 * time.Minute)},
-		{Role: mujica.SessionAssistant, Text: "Seat by rank: the host at the head, honored guests to the right.", Time: now.Add(-9 * time.Minute)},
-		{Role: mujica.SessionUser, Author: "Lady Ann", Text: "And the musicians?", Time: now.Add(-5 * time.Minute)},
-		{Role: mujica.SessionAssistant, Text: "Place the quartet behind a screen near the gallery.", Time: now.Add(-4 * time.Minute)},
+func chatSampleMessages(now time.Time) []chat.SessionMessage {
+	return []chat.SessionMessage{
+		{Role: chat.SessionUser, Text: "How should guests be seated at the banquet?", Time: now.Add(-10 * time.Minute)},
+		{Role: chat.SessionAssistant, Text: "Seat by rank: the host at the head, honored guests to the right.", Time: now.Add(-9 * time.Minute)},
+		{Role: chat.SessionUser, Author: "Lady Ann", Text: "And the musicians?", Time: now.Add(-5 * time.Minute)},
+		{Role: chat.SessionAssistant, Text: "Place the quartet behind a screen near the gallery.", Time: now.Add(-4 * time.Minute)},
 	}
 }
 
-func chatSampleCards() []mujica.CapabilityCard {
-	return []mujica.CapabilityCard{
+func chatSampleCards() []chat.CapabilityCard {
+	return []chat.CapabilityCard{
 		{Title: "Write", Description: "Letters, speeches and verse.", Icon: icons.Must("file-text"), Examples: []string{"Draft a royal decree", "Write a sonnet"}},
 		{Title: "Plan", Description: "Banquets, seating and schedules.", Icon: icons.Must("calendar"), Examples: []string{"Plan a ball for 200 guests"}},
 		{Title: "Research", Description: "History, heraldry and music.", Icon: icons.Must("search"), Examples: []string{"Explain the minuet"}},
@@ -43,19 +44,19 @@ func chatSampleCards() []mujica.CapabilityCard {
 
 func chatDemoConversationList(c *ui.Context, log func(string)) {
 	type state struct {
-		list       mujica.ConversationListState
-		items      []mujica.ChatConversation
+		list       chat.ConversationListState
+		items      []chat.ChatConversation
 		many, rich bool
 		disabled   bool
 	}
 	s := *ui.Local(c.Root(), "241", func() *state { return &state{items: chatHistory(time.Now())} })
 	choiceDemo(c, func() {
-		if mujica.Switch(c, &s.many, "100,000 conversations", mujica.SwitchOptions{}).Changed() {
+		if input.Switch(c, &s.many, "100,000 conversations", input.SwitchOptions{}).Changed() {
 			s.items = chatHistory(time.Now())
 			if s.many {
 				now := time.Now()
 				for i := range 100000 {
-					s.items = append(s.items, mujica.ChatConversation{ID: fmt.Sprint("n", i), Title: fmt.Sprintf("Archive %d", i), Updated: now.Add(-time.Duration(i) * 7 * time.Minute)})
+					s.items = append(s.items, chat.ChatConversation{ID: fmt.Sprint("n", i), Title: fmt.Sprintf("Archive %d", i), Updated: now.Add(-time.Duration(i) * 7 * time.Minute)})
 				}
 			}
 			log(fmt.Sprintf("conversations = %d", len(s.items)))
@@ -63,17 +64,17 @@ func chatDemoConversationList(c *ui.Context, log func(string)) {
 		choiceFlag(c, &s.rich, "ConversationItem rows", log)
 		choiceFlag(c, &s.disabled, "Disabled", log)
 	}, func() {
-		var row func(conv mujica.ChatConversation)
+		var row func(conv chat.ChatConversation)
 		if s.rich {
-			row = func(conv mujica.ChatConversation) {
-				v := mujica.ConversationItem(c, &conv, mujica.ConversationItemOptions{Selected: conv.ID == s.list.Selected})
+			row = func(conv chat.ChatConversation) {
+				v := chat.ConversationItem(c, &conv, chat.ConversationItemOptions{Selected: conv.ID == s.list.Selected})
 				if v.Opened {
 					s.list.Selected = conv.ID
 					log("open " + conv.Title)
 				}
 			}
 		}
-		v := mujica.ConversationList(c, &s.list, s.items, mujica.ConversationListOptions{Label: "History", Disabled: s.disabled}, row)
+		v := chat.ConversationList(c, &s.list, s.items, chat.ConversationListOptions{Label: "History", Disabled: s.disabled}, row)
 		v.Element.Width(380).Height(380)
 		if v.Changed() {
 			log("select " + s.list.Selected)
@@ -86,7 +87,7 @@ func chatDemoConversationList(c *ui.Context, log func(string)) {
 
 func chatDemoConversationItem(c *ui.Context, log func(string)) {
 	type state struct {
-		convs              []mujica.ChatConversation
+		convs              []chat.ChatConversation
 		selected, disabled bool
 	}
 	s := *ui.Local(c.Root(), "242", func() *state { return &state{convs: chatHistory(time.Now())[:3]} })
@@ -98,7 +99,7 @@ func chatDemoConversationItem(c *ui.Context, log func(string)) {
 			for i := range s.convs {
 				conv := &s.convs[i]
 				ui.Row(c).Key(conv.ID).Children(func() {
-					v := mujica.ConversationItem(c, conv, mujica.ConversationItemOptions{Selected: s.selected && i == 0, Disabled: s.disabled})
+					v := chat.ConversationItem(c, conv, chat.ConversationItemOptions{Selected: s.selected && i == 0, Disabled: s.disabled})
 					switch {
 					case v.Opened:
 						log("open " + conv.Title)
@@ -122,7 +123,7 @@ func chatDemoConversationSearch(c *ui.Context, log func(string)) {
 	type state struct {
 		query, asked string
 		at           time.Time
-		hits         []mujica.ConversationSearchHit
+		hits         []chat.ConversationSearchHit
 		fail, slow   bool
 		disabled     bool
 	}
@@ -137,7 +138,7 @@ func chatDemoConversationSearch(c *ui.Context, log func(string)) {
 			s.asked, s.hits, loading = s.query, nil, false
 			for _, conv := range chatHistory(time.Now()) {
 				if q := strings.ToLower(s.query); q != "" && strings.Contains(strings.ToLower(conv.Title), q) {
-					s.hits = append(s.hits, mujica.ConversationSearchHit{ID: conv.ID, Title: conv.Title, Snippet: "…mentions " + strings.ToLower(conv.Title) + "…"})
+					s.hits = append(s.hits, chat.ConversationSearchHit{ID: conv.ID, Title: conv.Title, Snippet: "…mentions " + strings.ToLower(conv.Title) + "…"})
 				}
 			}
 			log(fmt.Sprintf("results for %q: %d", s.query, len(s.hits)))
@@ -147,7 +148,7 @@ func chatDemoConversationSearch(c *ui.Context, log func(string)) {
 			errText = "The archive did not answer."
 		}
 		ui.Column(c).Width(420).Children(func() {
-			v := mujica.ConversationSearch(c, &s.query, s.hits, mujica.ConversationSearchOptions{Loading: loading, Error: errText, Disabled: s.disabled, Label: "Search conversations"})
+			v := chat.ConversationSearch(c, &s.query, s.hits, chat.ConversationSearchOptions{Loading: loading, Error: errText, Disabled: s.disabled, Label: "Search conversations"})
 			if v.QueryChanged {
 				s.at = c.Now()
 				log(fmt.Sprintf("query %q", s.query))
@@ -165,21 +166,21 @@ func chatDemoConversationSearch(c *ui.Context, log func(string)) {
 
 func chatDemoProjectList(c *ui.Context, log func(string)) {
 	type state struct {
-		list     mujica.ProjectListState
+		list     chat.ProjectListState
 		owner    map[string]string
 		disabled bool
 	}
 	s := *ui.Local(c.Root(), "244", func() *state {
 		return &state{owner: map[string]string{"a": "p1", "b": "p1", "c": "p3", "f": "p2"}}
 	})
-	projects := []mujica.ChatProject{{ID: "p1", Name: "Coronation", Folder: "Court"}, {ID: "p2", Name: "Gardens", Folder: "Court"}, {ID: "p3", Name: "Music"}}
+	projects := []chat.ChatProject{{ID: "p1", Name: "Coronation", Folder: "Court"}, {ID: "p2", Name: "Gardens", Folder: "Court"}, {ID: "p3", Name: "Music"}}
 	choiceDemo(c, func() {
 		choiceFlag(c, &s.disabled, "Disabled", log)
 	}, func() {
 		ui.Row(c).Gap(24).AlignItems(ui.Start).Children(func() {
 			ui.Column(c).Width(380).Children(func() {
-				convs := func(id string) []mujica.ChatConversation {
-					var out []mujica.ChatConversation
+				convs := func(id string) []chat.ChatConversation {
+					var out []chat.ChatConversation
 					for _, conv := range chatHistory(time.Now()) {
 						if s.owner[conv.ID] == id {
 							out = append(out, conv)
@@ -187,7 +188,7 @@ func chatDemoProjectList(c *ui.Context, log func(string)) {
 					}
 					return out
 				}
-				v := mujica.ProjectList(c, &s.list, projects, convs, mujica.ProjectListOptions{Label: "Projects", Disabled: s.disabled})
+				v := chat.ProjectList(c, &s.list, projects, convs, chat.ProjectListOptions{Label: "Projects", Disabled: s.disabled})
 				switch {
 				case v.Moved:
 					s.owner[v.MoveID] = v.MoveTo
@@ -200,7 +201,7 @@ func chatDemoProjectList(c *ui.Context, log func(string)) {
 			})
 			choiceLabeled(c, "Drag onto a project", func() {
 				conv := chatHistory(time.Now())[3]
-				v := mujica.ConversationItem(c, &conv, mujica.ConversationItemOptions{Draggable: true})
+				v := chat.ConversationItem(c, &conv, chat.ConversationItemOptions{Draggable: true})
 				v.Element.Width(300)
 				if v.Opened {
 					log("open " + conv.Title)
@@ -212,13 +213,13 @@ func chatDemoProjectList(c *ui.Context, log func(string)) {
 
 func chatDemoProjectKnowledgePanel(c *ui.Context, log func(string)) {
 	type state struct {
-		files    []mujica.KnowledgeFile
+		files    []chat.KnowledgeFile
 		next     int
 		small    bool
 		disabled bool
 	}
 	s := *ui.Local(c.Root(), "245", func() *state {
-		return &state{files: []mujica.KnowledgeFile{{ID: "1", Name: "etiquette.pdf", Tokens: 120000}, {ID: "2", Name: "menu.md", Tokens: 30000}}}
+		return &state{files: []chat.KnowledgeFile{{ID: "1", Name: "etiquette.pdf", Tokens: 120000}, {ID: "2", Name: "menu.md", Tokens: 30000}}}
 	})
 	choiceDemo(c, func() {
 		choiceFlag(c, &s.small, "Capacity 150,000", log)
@@ -229,10 +230,10 @@ func chatDemoProjectKnowledgePanel(c *ui.Context, log func(string)) {
 			capacity = 150000
 		}
 		ui.Column(c).Width(440).Children(func() {
-			v := mujica.ProjectKnowledgePanel(c, s.files, mujica.ProjectKnowledgePanelOptions{Capacity: capacity, Disabled: s.disabled})
+			v := chat.ProjectKnowledgePanel(c, s.files, chat.ProjectKnowledgePanelOptions{Capacity: capacity, Disabled: s.disabled})
 			if v.Add {
 				s.next++
-				s.files = append(s.files, mujica.KnowledgeFile{ID: fmt.Sprint("n", s.next), Name: fmt.Sprintf("notes-%d.txt", s.next), Tokens: 15000})
+				s.files = append(s.files, chat.KnowledgeFile{ID: fmt.Sprint("n", s.next), Name: fmt.Sprintf("notes-%d.txt", s.next), Tokens: 15000})
 				log("add (the demo invents a file)")
 			}
 			if v.Removed != "" {

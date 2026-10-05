@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.GitStatusBadge(c, mujica.GitModified, mujica.GitStatusBadgeOptions{ShowLabel: true})
+	core.Use(c, core.Settings{})
+	git.GitStatusBadge(c, git.GitModified, git.GitStatusBadgeOptions{ShowLabel: true})
 }
 ui.Render(view, 400, 300, 1)
 ```

@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-days := []mujica.Date{{Year: 2026, Month: time.October, Day: 12}, {Year: 2026, Month: time.October, Day: 13}}
+days := []core.Date{{Year: 2026, Month: time.October, Day: 12}, {Year: 2026, Month: time.October, Day: 13}}
 mine := [][]bool{make([]bool, 18), make([]bool, 18)}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.AvailabilityPicker(c, &mine, mujica.AvailabilityPickerOptions{Days: days}).Changed() {
+	core.Use(c, core.Settings{})
+	if datetime.AvailabilityPicker(c, &mine, datetime.AvailabilityPickerOptions{Days: days}).Changed() {
 		fmt.Println("availability changed")
 	}
 }

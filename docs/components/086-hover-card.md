@@ -8,9 +8,9 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	b := mujica.Button(c, "Lady Sakiko", mujica.ButtonOptions{Variant: mujica.Ghost})
-	mujica.HoverCard(c, b, mujica.HoverCardOptions{}, func() {
+	core.Use(c, core.Settings{})
+	b := input.Button(c, "Lady Sakiko", input.ButtonOptions{Variant: input.Ghost})
+	overlay.HoverCard(c, b, overlay.HoverCardOptions{}, func() {
 		ui.Text(c, "Keyboardist of the court.")
 	})
 }

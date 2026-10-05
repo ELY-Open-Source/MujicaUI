@@ -8,11 +8,11 @@
 
 ```go
 photo := ui.NewBitmap(examplePhoto)
-var notes []mujica.Annotation
+var notes []media.Annotation
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.ImageAnnotator(c, photo, &notes, mujica.ImageAnnotatorOptions{}).Changed() {
-		data, _ := mujica.ExportAnnotations(notes)
+	core.Use(c, core.Settings{})
+	if media.ImageAnnotator(c, photo, &notes, media.ImageAnnotatorOptions{}).Changed() {
+		data, _ := media.ExportAnnotations(notes)
 		_ = data // save the JSON
 	}
 }

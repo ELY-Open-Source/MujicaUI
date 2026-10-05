@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-people := []mujica.Collaborator{{ID: "ada", Name: "Ada Lovelace"}}
+people := []files.Collaborator{{ID: "ada", Name: "Ada Lovelace"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.PresenceAvatars(c, people, mujica.PresenceAvatarsOptions{})
+	core.Use(c, core.Settings{})
+	files.PresenceAvatars(c, people, files.PresenceAvatarsOptions{})
 }
 ui.Render(view, 300, 100, 1)
 ```

@@ -10,19 +10,19 @@
 open := true
 name := "Ophelia"
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.Button(c, "Rename…", mujica.ButtonOptions{}).Clicked() {
+	core.Use(c, core.Settings{})
+	if input.Button(c, "Rename…", input.ButtonOptions{}).Clicked() {
 		open = true
 	}
-	mujica.Dialog(c, &open, mujica.DialogOptions{
+	overlay.Dialog(c, &open, overlay.DialogOptions{
 		Title:       "Rename the chamber",
 		Description: "The new name shows in every hall.",
 		Decorated:   true,
 		Actions: func() {
-			if mujica.Button(c, "Cancel", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+			if input.Button(c, "Cancel", input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 				open = false
 			}
-			if mujica.Button(c, "Rename", mujica.ButtonOptions{}).Clicked() {
+			if input.Button(c, "Rename", input.ButtonOptions{}).Clicked() {
 				open = false
 			}
 		},

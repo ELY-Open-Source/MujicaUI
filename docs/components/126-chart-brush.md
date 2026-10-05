@@ -9,8 +9,8 @@
 ```go
 value := [2]float64{20, 60}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ChartBrush(c, &value, mujica.ChartBrushOptions{Label: "Months", Max: 100, Step: 1, Values: []float64{2, 4, 3, 8, 5}})
+	core.Use(c, core.Settings{})
+	chart.ChartBrush(c, &value, chart.ChartBrushOptions{Label: "Months", Max: 100, Step: 1, Values: []float64{2, 4, 3, 8, 5}})
 }
 ui.Render(view, 400, 160, 1)
 ```

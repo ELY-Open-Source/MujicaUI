@@ -9,11 +9,11 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
 )
 
 // chatmsgDemoTester runs the demo of page id and returns its tester and event log.
-func chatmsgDemoTester(t *testing.T, id string, mode mujica.Mode) (*ui.Tester, *[]string) {
+func chatmsgDemoTester(t *testing.T, id string, mode core.Mode) (*ui.Tester, *[]string) {
 	t.Helper()
 	i := slices.IndexFunc(chatmsgPages, func(p page) bool { return p.ID == id })
 	if i < 0 {
@@ -21,7 +21,7 @@ func chatmsgDemoTester(t *testing.T, id string, mode mujica.Mode) (*ui.Tester, *
 	}
 	events := &[]string{}
 	tt := ui.NewTester(func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{Mode: mode})
+		core.Use(c, core.Settings{Mode: mode})
 		ui.Scroll(c).Fill().Padding(24).Gap(16).Children(func() {
 			chatmsgPages[i].Demo(c, func(s string) { *events = append(*events, s) })
 		})
@@ -37,7 +37,7 @@ func TestChatmsgDemosRender(t *testing.T) {
 	}
 	dir := os.Getenv("CHATMSG_DEMO_DIR")
 	for _, p := range chatmsgPages {
-		for _, m := range []mujica.Mode{mujica.Light, mujica.Dark} {
+		for _, m := range []core.Mode{core.Light, core.Dark} {
 			tt, _ := chatmsgDemoTester(t, p.ID, m)
 			if len(tt.Texts()) == 0 {
 				t.Errorf("%s: demo shows nothing", p.ID)
@@ -61,7 +61,7 @@ func TestChatmsgDemosLogEvents(t *testing.T) {
 	for id, click := range map[string]string{
 		"202": "Add message", "207": "Copy code", "214": "Regenerate", "216": "Next branch", "217": "Retry",
 	} {
-		tt, events := chatmsgDemoTester(t, id, mujica.Light)
+		tt, events := chatmsgDemoTester(t, id, core.Light)
 		if err := tt.Click(click); err != nil {
 			t.Fatalf("%s: %v", id, err)
 		}

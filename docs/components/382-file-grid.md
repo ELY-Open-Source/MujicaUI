@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-entries := []mujica.FileEntry{{Path: "/court/seal.go", Name: "seal.go"}}
-var state mujica.FileGridState
+entries := []files.FileEntry{{Path: "/court/seal.go", Name: "seal.go"}}
+var state files.FileGridState
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.FileGrid(c, entries, &state, mujica.FileGridOptions{}).Element.Height(240)
+	core.Use(c, core.Settings{})
+	files.FileGrid(c, entries, &state, files.FileGridOptions{}).Element.Height(240)
 }
 ui.Render(view, 400, 300, 1)
 ```

@@ -9,8 +9,8 @@
 ```go
 show := true
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Presence(c, show, mujica.PresenceOptions{Kind: mujica.PresenceSlide}, func() {
+	core.Use(c, core.Settings{})
+	feedback.Presence(c, show, feedback.PresenceOptions{Kind: feedback.PresenceSlide}, func() {
 		ui.Text(c, "Saved")
 	})
 }

@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-art := mujica.Artifact{Title: "seating.go", Language: "go", Content: "package court\n"}
+art := agent.Artifact{Title: "seating.go", Language: "go", Content: "package court\n"}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.ArtifactPanel(c, art, mujica.ArtifactPanelOptions{}).Exported {
+	core.Use(c, core.Settings{})
+	if agent.ArtifactPanel(c, art, agent.ArtifactPanelOptions{}).Exported {
 		fmt.Println("save the file")
 	}
 }

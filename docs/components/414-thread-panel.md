@@ -8,12 +8,12 @@
 
 ```go
 open := true
-root := mujica.ChatEntry{ID: "r", Author: "Sakiko", Text: "Set list for Friday?"}
-var replies []mujica.ChatEntry
+root := messaging.ChatEntry{ID: "r", Author: "Sakiko", Text: "Set list for Friday?"}
+var replies []messaging.ChatEntry
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if r := mujica.ThreadPanel(c, &open, root, replies, mujica.ThreadPanelOptions{}); r.Sent != "" {
-		replies = append(replies, mujica.ChatEntry{ID: r.Sent, Author: "Me", Text: r.Sent, Own: true})
+	core.Use(c, core.Settings{})
+	if r := messaging.ThreadPanel(c, &open, root, replies, messaging.ThreadPanelOptions{}); r.Sent != "" {
+		replies = append(replies, messaging.ChatEntry{ID: r.Sent, Author: "Me", Text: r.Sent, Own: true})
 	}
 }
 ui.Render(view, 400, 300, 1)

@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-var filters mujica.DashboardFilters
-opts := mujica.DashboardFilterBarOptions{Envs: []string{"production", "staging"}, Tags: []string{"api", "db"}}
+var filters devtools.DashboardFilters
+opts := devtools.DashboardFilterBarOptions{Envs: []string{"production", "staging"}, Tags: []string{"api", "db"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.DashboardFilterBar(c, &filters, opts).Changed() {
+	core.Use(c, core.Settings{})
+	if devtools.DashboardFilterBar(c, &filters, opts).Changed() {
 		fmt.Println("filters changed")
 	}
 }

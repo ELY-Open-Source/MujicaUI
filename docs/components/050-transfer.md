@@ -10,10 +10,10 @@
 
 ```go
 chosen := []string{"uika"}
-items := []mujica.TransferItem{{ID: "uika", Label: "Uika"}, {ID: "mutsumi", Label: "Mutsumi"}, {ID: "nyamu", Label: "Nyamu", Disabled: true}}
+items := []input.TransferItem{{ID: "uika", Label: "Uika"}, {ID: "mutsumi", Label: "Mutsumi"}, {ID: "nyamu", Label: "Nyamu", Disabled: true}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Transfer(c, &chosen, items, mujica.TransferOptions{})
+	core.Use(c, core.Settings{})
+	input.Transfer(c, &chosen, items, input.TransferOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

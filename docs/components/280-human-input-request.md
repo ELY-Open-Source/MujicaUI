@@ -9,8 +9,8 @@ Agent 向用户提问：显示问题、可选答案与自由回答，并提示�
 ```go
 answer := ""
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.HumanInputRequest(c, &answer, mujica.HumanInputRequestOptions{
+	core.Use(c, core.Settings{})
+	r := agent.HumanInputRequest(c, &answer, agent.HumanInputRequestOptions{
 		Question: "Which hall?", Options: []string{"East wing", "Great hall"}, AllowFree: true,
 	})
 	if r.Submitted {

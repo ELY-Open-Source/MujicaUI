@@ -7,14 +7,14 @@
 ## 最小示例
 
 ```go
-steps := []mujica.WaterfallStep{
+steps := []chart.WaterfallStep{
 	{Label: "Tithes", Value: 12},
 	{Label: "Repairs", Value: -5},
-	{Label: "Year", Kind: mujica.WaterfallTotal},
+	{Label: "Year", Kind: chart.WaterfallTotal},
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.WaterfallChart(c, steps, mujica.WaterfallChartOptions{Frame: mujica.ChartFrame{Label: "Ledger"}})
+	core.Use(c, core.Settings{})
+	chart.WaterfallChart(c, steps, chart.WaterfallChartOptions{Frame: chart.ChartFrame{Label: "Ledger"}})
 }
 ui.Render(view, 400, 300, 1)
 ```

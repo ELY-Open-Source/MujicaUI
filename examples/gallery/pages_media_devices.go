@@ -7,7 +7,8 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
+	"github.com/ZacharyZhang-NY/MujicaUI/media"
 )
 
 func volumeDemo(c *ui.Context, log func(string)) {
@@ -18,7 +19,7 @@ func volumeDemo(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "351", func() state { return state{volume: 0.7} })
 	mediaSection(c, "Parameters", func() { mediaCheck(c, log, &s.disabled, "Disabled") })
 	mediaSection(c, "Live", func() {
-		if mujica.VolumeControl(c, &s.volume, &s.muted, mujica.VolumeControlOptions{Disabled: s.disabled}).Changed() {
+		if media.VolumeControl(c, &s.volume, &s.muted, media.VolumeControlOptions{Disabled: s.disabled}).Changed() {
 			log(fmt.Sprintf("volume %.0f%%, muted %v", s.volume*100, s.muted))
 		}
 	})
@@ -32,7 +33,7 @@ func speedDemo(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "352", func() state { return state{rate: 1} })
 	mediaSection(c, "Parameters", func() { mediaCheck(c, log, &s.disabled, "Disabled") })
 	mediaSection(c, "Live", func() {
-		if mujica.PlaybackSpeedControl(c, &s.rate, mujica.PlaybackSpeedControlOptions{Disabled: s.disabled}).Changed() {
+		if media.PlaybackSpeedControl(c, &s.rate, media.PlaybackSpeedControlOptions{Disabled: s.disabled}).Changed() {
 			log(fmt.Sprintf("rate %v×", s.rate))
 		}
 	})
@@ -40,7 +41,7 @@ func speedDemo(c *ui.Context, log func(string)) {
 
 func mediaControlsDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		st       mujica.MediaControlsState
+		st       media.MediaControlsState
 		track    int
 		disabled bool
 	}
@@ -50,12 +51,12 @@ func mediaControlsDemo(c *ui.Context, log func(string)) {
 	mediaSection(c, "Parameters", func() { mediaCheck(c, log, &s.disabled, "Disabled") })
 	mediaSection(c, "Live", func() {
 		ui.Text(c, fmt.Sprintf("Now: %s (%d of %d)", tracks[s.track], s.track+1, len(tracks)))
-		mujica.MediaControls(c, s.st, mujica.MediaControlsOptions{
+		media.MediaControls(c, s.st, media.MediaControlsOptions{
 			OnPrevious: func() { s.track--; log("previous") },
 			OnNext:     func() { s.track++; log("next") },
 			OnPlay:     func() { s.st.Playing = true; log("play") },
 			OnPause:    func() { s.st.Playing = false; log("pause") },
-			OnLoop:     func(m mujica.LoopMode) { s.st.Loop = m; log(fmt.Sprintf("loop mode %d", m)) },
+			OnLoop:     func(m media.LoopMode) { s.st.Loop = m; log(fmt.Sprintf("loop mode %d", m)) },
 			OnShuffle:  func(on bool) { s.st.Shuffle = on; log(fmt.Sprintf("shuffle %v", on)) },
 			Disabled:   s.disabled,
 		})
@@ -64,31 +65,31 @@ func mediaControlsDemo(c *ui.Context, log func(string)) {
 
 func playlistDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		items    []mujica.PlaylistItem
+		items    []media.PlaylistItem
 		current  string
 		disabled bool
 	}
 	s := ui.Local(c.Root(), "354", func() state {
 		titles := []string{"Ave Mujica", "Imprisoned XII", "KiLLKiSS", "Symbol I: △", "Choir 'S' Choir", "Georgette Me, Georgette You"}
-		items := make([]mujica.PlaylistItem, len(titles))
+		items := make([]media.PlaylistItem, len(titles))
 		for i, t := range titles {
-			items[i] = mujica.PlaylistItem{ID: fmt.Sprint("t", i), Title: t, Subtitle: fmt.Sprintf("Act %d", i+1), Duration: time.Duration(200+i*17) * time.Second}
+			items[i] = media.PlaylistItem{ID: fmt.Sprint("t", i), Title: t, Subtitle: fmt.Sprintf("Act %d", i+1), Duration: time.Duration(200+i*17) * time.Second}
 		}
 		return state{items: items, current: "t1"}
 	})
 	mediaSection(c, "Parameters", func() {
 		ui.Row(c).Gap(16).AlignItems(ui.Center).Children(func() {
 			mediaCheck(c, log, &s.disabled, "Disabled")
-			if mujica.Button(c, "Add track", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+			if input.Button(c, "Add track", input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 				id := fmt.Sprint("t", len(s.items)+int(time.Now().UnixNano()%1000000))
-				s.items = append(s.items, mujica.PlaylistItem{ID: id, Title: "Encore " + id, Duration: 3 * time.Minute})
+				s.items = append(s.items, media.PlaylistItem{ID: id, Title: "Encore " + id, Duration: 3 * time.Minute})
 				log("added " + id)
 			}
 		})
 	})
 	mediaSection(c, "Live", func() {
 		ui.Column(c).MaxWidth(520).Children(func() {
-			r := mujica.Playlist(c, &s.items, mujica.PlaylistOptions{Current: s.current, Disabled: s.disabled})
+			r := media.Playlist(c, &s.items, media.PlaylistOptions{Current: s.current, Disabled: s.disabled})
 			switch {
 			case r.Played != "":
 				s.current = r.Played
@@ -104,11 +105,11 @@ func playlistDemo(c *ui.Context, log func(string)) {
 
 func subtitleDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		cues     []mujica.SubtitleCue
+		cues     []media.SubtitleCue
 		disabled bool
 	}
 	s := ui.Local(c.Root(), "355", func() state {
-		return state{cues: []mujica.SubtitleCue{
+		return state{cues: []media.SubtitleCue{
 			{Start: 0, End: 2500 * time.Millisecond, Text: "The curtain rises."},
 			{Start: 2 * time.Second, End: 5 * time.Second, Text: "Welcome to the masquerade."},
 			{Start: 6 * time.Second, End: 9 * time.Second, Text: "Ave Mujica."},
@@ -117,8 +118,8 @@ func subtitleDemo(c *ui.Context, log func(string)) {
 	mediaSection(c, "Parameters", func() { mediaCheck(c, log, &s.disabled, "Disabled") })
 	mediaSection(c, "Live", func() {
 		ui.Column(c).MaxWidth(720).Children(func() {
-			if mujica.SubtitleEditor(c, &s.cues, mujica.SubtitleEditorOptions{Height: 260, Disabled: s.disabled}).Changed() {
-				log(fmt.Sprintf("%d cues, %d issues", len(s.cues), len(mujica.CheckSubtitles(s.cues))))
+			if media.SubtitleEditor(c, &s.cues, media.SubtitleEditorOptions{Height: 260, Disabled: s.disabled}).Changed() {
+				log(fmt.Sprintf("%d cues, %d issues", len(s.cues), len(media.CheckSubtitles(s.cues))))
 			}
 		})
 	})
@@ -126,27 +127,27 @@ func subtitleDemo(c *ui.Context, log func(string)) {
 
 func recorderDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		st          mujica.RecorderState
+		st          media.RecorderState
 		since       time.Time
 		disabled    bool
 		accumulated time.Duration
 	}
 	s := ui.Local(c.Root(), "356", func() state { return state{} })
-	if s.st.Status == mujica.RecorderRecording {
+	if s.st.Status == media.RecorderRecording {
 		s.st.Elapsed = s.accumulated + c.Now().Sub(s.since)
 		// The clock changes each second; ask for that frame only.
 		c.After(time.Second - s.st.Elapsed%time.Second)
 	}
 	mediaSection(c, "Parameters", func() { mediaCheck(c, log, &s.disabled, "Disabled") })
 	mediaSection(c, "Live", func() {
-		mujica.ScreenRecorderControls(c, s.st, mujica.ScreenRecorderControlsOptions{
+		media.ScreenRecorderControls(c, s.st, media.ScreenRecorderControlsOptions{
 			OnStart: func() {
-				s.st, s.since, s.accumulated = mujica.RecorderState{Status: mujica.RecorderRecording}, c.Now(), 0
+				s.st, s.since, s.accumulated = media.RecorderState{Status: media.RecorderRecording}, c.Now(), 0
 				log("start")
 			},
-			OnPause:  func() { s.st.Status, s.accumulated = mujica.RecorderPaused, s.st.Elapsed; log("pause") },
-			OnResume: func() { s.st.Status, s.since = mujica.RecorderRecording, c.Now(); log("resume") },
-			OnStop:   func() { log("stop at " + mediaClockLabel(s.st.Elapsed)); s.st = mujica.RecorderState{} },
+			OnPause:  func() { s.st.Status, s.accumulated = media.RecorderPaused, s.st.Elapsed; log("pause") },
+			OnResume: func() { s.st.Status, s.since = media.RecorderRecording, c.Now(); log("resume") },
+			OnStop:   func() { log("stop at " + mediaClockLabel(s.st.Elapsed)); s.st = media.RecorderState{} },
 			Disabled: s.disabled,
 		})
 	})
@@ -163,13 +164,13 @@ func cameraDemo(c *ui.Context, log func(string)) {
 			mediaCheck(c, log, &s.disabled, "Disabled")
 		})
 	})
-	frame := mujica.CameraFrame{}
+	frame := media.CameraFrame{}
 	if s.signal {
-		frame = mujica.CameraFrame{Image: mediaPhotos[2], Seq: 1}
+		frame = media.CameraFrame{Image: mediaPhotos[2], Seq: 1}
 	}
 	mediaSection(c, "Live", func() {
 		ui.Column(c).MaxWidth(480).Children(func() {
-			if mujica.CameraPreview(c, frame, &s.mirror, mujica.CameraPreviewOptions{Disabled: s.disabled}).Changed() {
+			if media.CameraPreview(c, frame, &s.mirror, media.CameraPreviewOptions{Disabled: s.disabled}).Changed() {
 				log(fmt.Sprintf("mirror %v", s.mirror))
 			}
 		})
@@ -187,20 +188,20 @@ func micDemo(c *ui.Context, log func(string)) {
 		c.AnimationFrame()
 	}
 	mediaSection(c, "Live", func() {
-		ui.Column(c).MaxWidth(420).Children(func() { mujica.MicLevelMeter(c, level, mujica.MicLevelMeterOptions{}) })
+		ui.Column(c).MaxWidth(420).Children(func() { media.MicLevelMeter(c, level, media.MicLevelMeterOptions{}) })
 	})
 }
 
 func deviceDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		sel                mujica.DeviceSelection
+		sel                media.DeviceSelection
 		noCamera, disabled bool
 	}
-	s := ui.Local(c.Root(), "359", func() state { return state{sel: mujica.DeviceSelection{Microphone: "m1", Speaker: "s2"}} })
-	devices := mujica.MediaDevices{
-		Microphones: []mujica.MediaDevice{{ID: "m1", Name: "Built-in Microphone"}, {ID: "m2", Name: "Studio Condenser"}},
-		Cameras:     []mujica.MediaDevice{{ID: "c1", Name: "FaceTime HD Camera"}},
-		Speakers:    []mujica.MediaDevice{{ID: "s1", Name: "Built-in Speakers"}, {ID: "s2", Name: "Headphones"}},
+	s := ui.Local(c.Root(), "359", func() state { return state{sel: media.DeviceSelection{Microphone: "m1", Speaker: "s2"}} })
+	devices := media.MediaDevices{
+		Microphones: []media.MediaDevice{{ID: "m1", Name: "Built-in Microphone"}, {ID: "m2", Name: "Studio Condenser"}},
+		Cameras:     []media.MediaDevice{{ID: "c1", Name: "FaceTime HD Camera"}},
+		Speakers:    []media.MediaDevice{{ID: "s1", Name: "Built-in Speakers"}, {ID: "s2", Name: "Headphones"}},
 	}
 	mediaSection(c, "Parameters", func() {
 		ui.Row(c).Gap(16).Children(func() {
@@ -213,11 +214,11 @@ func deviceDemo(c *ui.Context, log func(string)) {
 		})
 	})
 	if s.noCamera {
-		devices.Cameras = []mujica.MediaDevice{}
+		devices.Cameras = []media.MediaDevice{}
 	}
 	mediaSection(c, "Live", func() {
 		ui.Column(c).MaxWidth(480).Children(func() {
-			if mujica.DeviceSelector(c, &s.sel, devices, mujica.DeviceSelectorOptions{Disabled: s.disabled}).Changed() {
+			if media.DeviceSelector(c, &s.sel, devices, media.DeviceSelectorOptions{Disabled: s.disabled}).Changed() {
 				log(fmt.Sprintf("microphone %q, camera %q, speaker %q", s.sel.Microphone, s.sel.Camera, s.sel.Speaker))
 			}
 		})

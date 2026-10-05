@@ -9,8 +9,8 @@
 ```go
 volume := 40.0
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Slider(c, &volume, mujica.SliderOptions{Step: 5, ShowValue: true, Label: "Volume"})
+	core.Use(c, core.Settings{})
+	input.Slider(c, &volume, input.SliderOptions{Step: 5, ShowValue: true, Label: "Volume"})
 }
 ui.Render(view, 400, 300, 1)
 ```

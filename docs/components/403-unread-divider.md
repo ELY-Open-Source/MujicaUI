@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.UnreadDivider(c, 3)
+	core.Use(c, core.Settings{})
+	messaging.UnreadDivider(c, 3)
 }
 ui.Render(view, 400, 300, 1)
 ```

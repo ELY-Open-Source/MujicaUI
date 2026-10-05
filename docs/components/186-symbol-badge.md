@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-symbol := mujica.MarketSymbol{Code: "AAPL", Name: "Apple", Market: "NASDAQ", Type: "Stock"}
+symbol := finance.MarketSymbol{Code: "AAPL", Name: "Apple", Market: "NASDAQ", Type: "Stock"}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.SymbolBadge(c, symbol, mujica.SymbolBadgeOptions{Clickable: true})
+	core.Use(c, core.Settings{})
+	r := finance.SymbolBadge(c, symbol, finance.SymbolBadgeOptions{Clickable: true})
 	if r.Changed() {
 		fmt.Println(symbol.Code)
 	}

@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.CountUp(c, 12840, mujica.CountUpOptions{Duration: 800 * time.Millisecond})
+	core.Use(c, core.Settings{})
+	feedback.CountUp(c, 12840, feedback.CountUpOptions{Duration: 800 * time.Millisecond})
 }
 ui.Render(view, 400, 300, 1)
 ```

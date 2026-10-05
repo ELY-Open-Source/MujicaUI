@@ -6,16 +6,16 @@ MyGo 已有能力纳入下列组件，不增加计数。
 
 | MyGo 能力 | MujicaUI 组件 | 文件 |
 | --- | --- | --- |
-| Primary button、Menu button | Button 主按钮变体；DropdownMenu | `button.go`、`dropdown_menu.go` |
-| Stepper、Number input | NumberInput 仅步进模式与输入模式 | `number_input.go` |
-| Search field、Find bar | SearchInput 搜索模式与查找栏模式 | `search_input.go` |
-| Autocomplete、Combobox | Combobox 自由输入与选项选择 | `combobox.go` |
-| Token field、Editable text | TagsInput；Text 的 `EditableText` | `tags_input.go`、`text.go` |
-| List、Grid view | List 列表模式与网格模式 | `list.go` |
-| Table、Outline、Tree | DataTable；TreeTable；Tree | `data_table.go`、`tree_table.go`、`tree.go` |
-| Date input、Time input | DatePicker；TimePicker | `date_picker.go`、`time_picker.go` |
-| Back and forward buttons | NavigationMenu 历史导航 | `navigation_menu.go` |
-| Meter、Progress bar | Progress 计量模式与进度模式 | `progress.go` |
+| Primary button、Menu button | Button 主按钮变体；DropdownMenu | `input/button.go`、`overlay/dropdown_menu.go` |
+| Stepper、Number input | NumberInput 仅步进模式与输入模式 | `input/number_input.go` |
+| Search field、Find bar | SearchInput 搜索模式与查找栏模式 | `input/search_input.go` |
+| Autocomplete、Combobox | Combobox 自由输入与选项选择 | `input/combobox.go` |
+| Token field、Editable text | TagsInput；Text 的 `EditableText` | `input/tags_input.go`、`display/text.go` |
+| List、Grid view | List 列表模式与网格模式 | `data/list.go` |
+| Table、Outline、Tree | DataTable；TreeTable；Tree | `data/data_table.go`、`data/tree_table.go`、`data/tree.go` |
+| Date input、Time input | DatePicker；TimePicker | `datetime/date_picker.go`、`datetime/time_picker.go` |
+| Back and forward buttons | NavigationMenu 历史导航 | `navigation/navigation_menu.go` |
+| Meter、Progress bar | Progress 计量模式与进度模式 | `feedback/progress.go` |
 
 ## 上游缺口（待提交 MyGo）
 

@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-alerts := []mujica.AlertItem{{ID: "cpu", Title: "CPU usage high", Level: mujica.AlertWarning, Source: "worker", At: time.Date(2026, 10, 5, 9, 0, 0, 0, time.UTC)}}
+alerts := []devtools.AlertItem{{ID: "cpu", Title: "CPU usage high", Level: devtools.AlertWarning, Source: "worker", At: time.Date(2026, 10, 5, 9, 0, 0, 0, time.UTC)}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.AlertList(c, alerts, mujica.AlertListOptions{})
+	core.Use(c, core.Settings{})
+	r := devtools.AlertList(c, alerts, devtools.AlertListOptions{})
 	if r.Ack != "" {
 		fmt.Println("ack", r.Ack)
 	}

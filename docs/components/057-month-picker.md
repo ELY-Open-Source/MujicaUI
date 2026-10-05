@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-var month mujica.YearMonth
+var month datetime.YearMonth
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	opts := mujica.MonthPickerOptions{Label: "Billing month", Clearable: true}
-	if mujica.MonthPicker(c, &month, opts).Changed() {
+	core.Use(c, core.Settings{})
+	opts := datetime.MonthPickerOptions{Label: "Billing month", Clearable: true}
+	if datetime.MonthPicker(c, &month, opts).Changed() {
 		fmt.Println("month", month)
 	}
 }

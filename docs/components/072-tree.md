@@ -8,10 +8,10 @@
 
 ```go
 kids := map[string][]string{"Nave": {"Pulpit", "Pews"}}
-var state mujica.TreeState[string]
+var state data.TreeState[string]
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Tree(c, &state, mujica.TreeOptions[string]{
+	core.Use(c, core.Settings{})
+	data.Tree(c, &state, data.TreeOptions[string]{
 		Roots:    []string{"Nave", "Sacristy"},
 		Children: func(n string) []string { return kids[n] },
 		Label:    func(n string) string { return n },

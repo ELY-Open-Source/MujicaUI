@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-segments := []mujica.ContextSegment{{Label: "System", Tokens: 1200}, {Label: "History", Tokens: 58000}}
+segments := []chat.ContextSegment{{Label: "System", Tokens: 1200}, {Label: "History", Tokens: 58000}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ContextWindowMeter(c, segments, 128000, mujica.ContextWindowMeterOptions{})
+	core.Use(c, core.Settings{})
+	chat.ContextWindowMeter(c, segments, 128000, chat.ContextWindowMeterOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

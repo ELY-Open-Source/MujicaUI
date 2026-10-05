@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-services := []mujica.ServiceItem{{Name: "API", Health: mujica.ServiceOperational}, {Name: "Search", Health: mujica.ServiceDegraded, Note: "Slow queries"}}
+services := []devtools.ServiceItem{{Name: "API", Health: devtools.ServiceOperational}, {Name: "Search", Health: devtools.ServiceDegraded, Note: "Slow queries"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ServiceStatus(c, services, mujica.ServiceStatusOptions{})
+	core.Use(c, core.Settings{})
+	devtools.ServiceStatus(c, services, devtools.ServiceStatusOptions{})
 }
 ui.Render(view, 720, 480, 1)
 ```

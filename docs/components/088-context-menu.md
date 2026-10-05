@@ -8,15 +8,15 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
+	core.Use(c, core.Settings{})
 	row := ui.Row(c).Padding(12).Children(func() {
 		ui.Text(c, "Letter to the Countess")
 	})
-	mujica.ContextMenu(c, row, mujica.ContextMenuOptions{}, func(m *mujica.PopupMenu) {
-		if m.Item("Reply", mujica.PopupMenuItemOptions{}) {
+	overlay.ContextMenu(c, row, overlay.ContextMenuOptions{}, func(m *overlay.PopupMenu) {
+		if m.Item("Reply", overlay.PopupMenuItemOptions{}) {
 			fmt.Println("reply")
 		}
-		m.Item("Delete", mujica.PopupMenuItemOptions{})
+		m.Item("Delete", overlay.PopupMenuItemOptions{})
 	})
 }
 ui.Render(view, 400, 300, 1)

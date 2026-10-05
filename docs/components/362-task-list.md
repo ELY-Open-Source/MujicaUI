@@ -7,12 +7,12 @@
 ## 最小示例
 
 ```go
-statuses := []mujica.WorkflowStatus{{ID: "todo", Name: "To do", Group: mujica.StatusUnstarted}, {ID: "done", Name: "Done", Group: mujica.StatusCompleted}}
-tasks := []mujica.Task{{ID: "ENG-1", Title: "Plan the release", Status: "todo"}}
-filter := mujica.TaskShowAll
+statuses := []project.WorkflowStatus{{ID: "todo", Name: "To do", Group: project.StatusUnstarted}, {ID: "done", Name: "Done", Group: project.StatusCompleted}}
+tasks := []project.Task{{ID: "ENG-1", Title: "Plan the release", Status: "todo"}}
+filter := project.TaskShowAll
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.TaskList(c, tasks, &filter, mujica.TaskListOptions{GroupBy: mujica.TaskGroupStatus, Statuses: statuses})
+	core.Use(c, core.Settings{})
+	r := project.TaskList(c, tasks, &filter, project.TaskListOptions{GroupBy: project.TaskGroupStatus, Statuses: statuses})
 	if id, ok := r.Changed(); ok {
 		log.Println("edit", id)
 	}

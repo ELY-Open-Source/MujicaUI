@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-carets := []mujica.RemoteCaret{{ID: "ada", Name: "Ada", Offset: 4, Anchor: 4}}
+carets := []files.RemoteCaret{{ID: "ada", Name: "Ada", Offset: 4, Anchor: 4}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
+	core.Use(c, core.Settings{})
 	ui.Box(c).Size(300, 100).Children(func() {
-		mujica.RemoteCursor(c, carets, mujica.RemoteCursorOptions{
+		files.RemoteCursor(c, carets, files.RemoteCursorOptions{
 			Caret: func(offset int) ui.Rect { return ui.Rect{X: float32(offset) * 8, Y: 20, H: 20} },
 		})
 	})

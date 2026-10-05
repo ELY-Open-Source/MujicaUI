@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-var sw mujica.StopwatchState
+var sw datetime.StopwatchState
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.Stopwatch(c, &sw, mujica.StopwatchOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if datetime.Stopwatch(c, &sw, datetime.StopwatchOptions{}).Changed() {
 		fmt.Println("laps", len(sw.Laps))
 	}
 }

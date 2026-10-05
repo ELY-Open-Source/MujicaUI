@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-usage := []mujica.TokenUsage{{Label: "Plan", Input: 1200, Output: 300}, {Label: "Write", Input: 2100, Output: 2900}}
+usage := []feedback.TokenUsage{{Label: "Plan", Input: 1200, Output: 300}, {Label: "Write", Input: 2100, Output: 2900}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.TokenUsageChart(c, usage, mujica.TokenUsageChartOptions{})
+	core.Use(c, core.Settings{})
+	feedback.TokenUsageChart(c, usage, feedback.TokenUsageChartOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

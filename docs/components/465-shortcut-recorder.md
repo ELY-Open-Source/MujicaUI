@@ -9,12 +9,12 @@
 ## 最小示例
 
 ```go
-palette := mujica.Shortcut{Mods: ui.Cmd | ui.Shift, Key: ui.KeyP}
+palette := account.Shortcut{Mods: ui.Cmd | ui.Shift, Key: ui.KeyP}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ShortcutRecorder(c, &palette, mujica.ShortcutRecorderOptions{
+	core.Use(c, core.Settings{})
+	account.ShortcutRecorder(c, &palette, account.ShortcutRecorderOptions{
 		Label: "Command palette",
-		Taken: []mujica.ShortcutBinding{{Action: "Save", Shortcut: mujica.Shortcut{Mods: ui.Cmd, Key: ui.KeyS}}},
+		Taken: []account.ShortcutBinding{{Action: "Save", Shortcut: account.Shortcut{Mods: ui.Cmd, Key: ui.KeyS}}},
 	})
 }
 ui.Render(view, 400, 300, 1)

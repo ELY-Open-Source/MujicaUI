@@ -9,19 +9,19 @@
 ```go
 pinned := false
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.DropdownMenu(c, "Actions", mujica.DropdownMenuOptions{}, func(m *mujica.PopupMenu) {
+	core.Use(c, core.Settings{})
+	overlay.DropdownMenu(c, "Actions", overlay.DropdownMenuOptions{}, func(m *overlay.PopupMenu) {
 		m.Group("Letter", func() {
-			if m.Item("Rename", mujica.PopupMenuItemOptions{}) {
+			if m.Item("Rename", overlay.PopupMenuItemOptions{}) {
 				fmt.Println("rename")
 			}
-			m.Check("Pinned", &pinned, mujica.PopupMenuItemOptions{KeepOpen: true})
+			m.Check("Pinned", &pinned, overlay.PopupMenuItemOptions{KeepOpen: true})
 		})
-		m.Submenu("Move to", mujica.PopupMenuItemOptions{}, func(m *mujica.PopupMenu) {
-			m.Item("Archive", mujica.PopupMenuItemOptions{})
+		m.Submenu("Move to", overlay.PopupMenuItemOptions{}, func(m *overlay.PopupMenu) {
+			m.Item("Archive", overlay.PopupMenuItemOptions{})
 		})
 		m.Separator()
-		m.Item("Burn", mujica.PopupMenuItemOptions{Disabled: true})
+		m.Item("Burn", overlay.PopupMenuItemOptions{Disabled: true})
 	})
 }
 ui.Render(view, 400, 300, 1)

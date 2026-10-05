@@ -9,8 +9,8 @@
 ```go
 deadline := time.Date(2026, time.December, 31, 23, 59, 59, 0, time.Local)
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.Countdown(c, deadline, mujica.CountdownOptions{}).Finished() {
+	core.Use(c, core.Settings{})
+	if datetime.Countdown(c, deadline, datetime.CountdownOptions{}).Finished() {
 		fmt.Println("happy new year")
 	}
 }

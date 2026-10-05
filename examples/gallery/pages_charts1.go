@@ -5,8 +5,10 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
-	"mujicaui/theme"
+	"github.com/ZacharyZhang-NY/MujicaUI/chart"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ZacharyZhang-NY/MujicaUI/data"
+	"github.com/ZacharyZhang-NY/MujicaUI/theme"
 )
 
 const c1Category = "Charts I"
@@ -39,14 +41,14 @@ var charts1Pages = []page{
 var c1Statuses = []string{"Ready", "Loading", "Failed", "Empty"}
 
 // c1Frame shows the status picker and returns the frame.
-func c1Frame(c *ui.Context, label string, status *string) (mujica.ChartFrame, bool) {
+func c1Frame(c *ui.Context, label string, status *string) (chart.ChartFrame, bool) {
 	ui.Select(c, status, c1Statuses).Width(160).AlignSelf(ui.Start)
-	f := mujica.ChartFrame{Label: label}
+	f := chart.ChartFrame{Label: label}
 	switch *status {
 	case "Loading":
-		f.Status = mujica.DataLoading
+		f.Status = data.DataLoading
 	case "Failed":
-		f.Status, f.Error = mujica.DataFailed, "The archive did not answer"
+		f.Status, f.Error = data.DataFailed, "The archive did not answer"
 	}
 	return f, *status != "Empty"
 }
@@ -54,14 +56,14 @@ func c1Frame(c *ui.Context, label string, status *string) (mujica.ChartFrame, bo
 // c1Section lays out a title, controls, then the chart.
 func c1Section(c *ui.Context, title string, controls, body func()) {
 	ui.Column(c).Gap(12).Children(func() {
-		ui.Text(c, title).Font(theme.SerifFont).FontSize(mujica.FontSize(c, theme.H3Size))
+		ui.Text(c, title).Font(theme.SerifFont).FontSize(core.FontSize(c, theme.H3Size))
 		ui.Row(c).Gap(16).Wrap().AlignItems(ui.Center).Children(controls)
 		ui.Column(c).Width(560).Children(body)
 	})
 }
 
 // c1Log records a chart's events in the gallery log.
-func c1Log(log func(string), name string, r mujica.ChartResult) {
+func c1Log(log func(string), name string, r chart.ChartResult) {
 	if r.Changed() {
 		log(fmt.Sprintf("%s: point %d", name, r.Point))
 	}

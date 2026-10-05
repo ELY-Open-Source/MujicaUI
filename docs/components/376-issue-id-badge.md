@@ -9,8 +9,8 @@
 ```go
 id := "ENG-123"
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.IssueIdBadge(c, id, mujica.IssueIdBadgeOptions{Copyable: true}).Changed() {
+	core.Use(c, core.Settings{})
+	if project.IssueIdBadge(c, id, project.IssueIdBadgeOptions{Copyable: true}).Changed() {
 		log.Println("copied", id)
 	}
 }

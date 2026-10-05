@@ -9,8 +9,8 @@
 ```go
 now := time.Date(2026, 10, 5, 14, 30, 0, 0, time.UTC)
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.MarketStatus(c, mujica.MarketOpen, mujica.MarketStatusOptions{Market: "NYSE", Now: now, Next: now.Add(5 * time.Hour), NextPhase: mujica.MarketAfterHours})
+	core.Use(c, core.Settings{})
+	finance.MarketStatus(c, finance.MarketOpen, finance.MarketStatusOptions{Market: "NYSE", Now: now, Next: now.Add(5 * time.Hour), NextPhase: finance.MarketAfterHours})
 }
 ui.Render(view, 960, 440, 1)
 ```

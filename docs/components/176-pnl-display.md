@@ -11,8 +11,8 @@
 ```go
 hidden := false
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.PnLDisplay(c, mujica.PnL{Realized: 1200.5, Unrealized: -340.2, Today: 88}, &hidden, mujica.PnLDisplayOptions{Currency: "$"})
+	core.Use(c, core.Settings{})
+	finance.PnLDisplay(c, finance.PnL{Realized: 1200.5, Unrealized: -340.2, Today: 88}, &hidden, finance.PnLDisplayOptions{Currency: "$"})
 }
 ui.Render(view, 400, 300, 1)
 ```

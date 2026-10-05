@@ -7,15 +7,15 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/chart"
 )
 
-func c1Series(gap bool) []mujica.ChartSeries {
+func c1Series(gap bool) []chart.ChartSeries {
 	a := []float64{3, 5, 4, 6, 8, 7, 9, 11}
 	if gap {
 		a = []float64{3, 5, math.NaN(), 6, 8, 7, 9, 11}
 	}
-	return []mujica.ChartSeries{
+	return []chart.ChartSeries{
 		{Name: "Matins", Values: a},
 		{Name: "Vespers", Values: []float64{2, 3, 5, 4, 6, 9, 8, 7}},
 		{Name: "Compline", Values: []float64{1, 2, 2, 3, 2, 4, 5, 4}},
@@ -35,9 +35,9 @@ func c1LineDemo(c *ui.Context, log func(string)) {
 		ui.Checkbox(c, &s.big, "100,000 points")
 	}, func() {
 		frame, show := c1Frame(c, "Attendance", &s.status)
-		series, opts := c1Series(s.gap), mujica.LineChartOptions{Frame: frame}
+		series, opts := c1Series(s.gap), chart.LineChartOptions{Frame: frame}
 		if s.big {
-			series = []mujica.ChartSeries{{Name: "Wave", Values: c1Wave()}}
+			series = []chart.ChartSeries{{Name: "Wave", Values: c1Wave()}}
 		}
 		if s.time {
 			t0 := time.Date(2026, 10, 5, 6, 0, 0, 0, time.UTC)
@@ -50,7 +50,7 @@ func c1LineDemo(c *ui.Context, log func(string)) {
 			series = nil
 			opts.Times = nil
 		}
-		c1Log(log, "LineChart", mujica.LineChart(c, series, opts))
+		c1Log(log, "LineChart", chart.LineChart(c, series, opts))
 	})
 }
 
@@ -84,7 +84,7 @@ func c1AreaDemo(c *ui.Context, log func(string)) {
 		if !show {
 			series = nil
 		}
-		c1Log(log, "AreaChart", mujica.AreaChart(c, series, mujica.AreaChartOptions{Frame: frame, Stacked: s.stacked, Baseline: s.base}))
+		c1Log(log, "AreaChart", chart.AreaChart(c, series, chart.AreaChartOptions{Frame: frame, Stacked: s.stacked, Baseline: s.base}))
 	})
 }
 
@@ -101,11 +101,11 @@ func c1BarDemo(c *ui.Context, log func(string)) {
 	}, func() {
 		frame, show := c1Frame(c, "Tithes", &s.status)
 		cats := []string{"Nave", "Choir", "Crypt", "Bells"}
-		series := []mujica.ChartSeries{{Name: "Gold", Values: []float64{4, -2, 3, 5}}, {Name: "Silver", Values: []float64{2, 5, 1, -1}}}
+		series := []chart.ChartSeries{{Name: "Gold", Values: []float64{4, -2, 3, 5}}, {Name: "Silver", Values: []float64{2, 5, 1, -1}}}
 		if !show {
 			series = nil
 		}
-		c1Log(log, "BarChart", mujica.BarChart(c, cats, series, mujica.BarChartOptions{Frame: frame, Horizontal: s.horizontal, Stacked: s.stacked, Labels: s.labels}))
+		c1Log(log, "BarChart", chart.BarChart(c, cats, series, chart.BarChartOptions{Frame: frame, Horizontal: s.horizontal, Stacked: s.stacked, Labels: s.labels}))
 	})
 }
 
@@ -122,11 +122,11 @@ func c1PieDemo(c *ui.Context, log func(string)) {
 		ui.StepSlider(c, &s.min, 0, 40, 5).Width(140)
 	}, func() {
 		frame, show := c1Frame(c, "Stores", &s.status)
-		slices := []mujica.ChartSlice{{Label: "Wax", Value: 50}, {Label: "Oil", Value: 30}, {Label: "Myrrh", Value: 12}, {Label: "Salt", Value: 4}, {Label: "Ash", Value: 4}}
+		slices := []chart.ChartSlice{{Label: "Wax", Value: 50}, {Label: "Oil", Value: 30}, {Label: "Myrrh", Value: 12}, {Label: "Salt", Value: 4}, {Label: "Ash", Value: 4}}
 		if !show {
 			slices = nil
 		}
-		c1Log(log, "PieChart", mujica.PieChart(c, slices, mujica.PieChartOptions{Frame: frame, Donut: s.donut, MinAngle: s.min}))
+		c1Log(log, "PieChart", chart.PieChart(c, slices, chart.PieChartOptions{Frame: frame, Donut: s.donut, MinAngle: s.min}))
 	})
 }
 
@@ -134,7 +134,7 @@ func c1ScatterDemo(c *ui.Context, log func(string)) {
 	type state struct {
 		status   string
 		bubbles  bool
-		selected []mujica.ScatterKey
+		selected []chart.ScatterKey
 	}
 	s := ui.Local(c.Root(), "105", func() state { return state{status: "Ready", bubbles: true} })
 	c1Section(c, "ScatterChart", func() {
@@ -142,14 +142,14 @@ func c1ScatterDemo(c *ui.Context, log func(string)) {
 		ui.Text(c, fmt.Sprintf("%d selected", len(s.selected)))
 	}, func() {
 		frame, show := c1Frame(c, "Choir", &s.status)
-		groups := []mujica.ScatterGroup{
-			{Name: "Monks", Points: []mujica.ScatterPoint{{X: 1, Y: 2, Size: 4}, {X: 3, Y: 5, Size: 9}, {X: 6, Y: 4, Size: 1}, {X: 7, Y: 8, Size: 6}}},
-			{Name: "Nuns", Points: []mujica.ScatterPoint{{X: 2, Y: 7, Size: 16}, {X: 8, Y: 9, Size: 2}, {X: 5, Y: 2, Size: 8}}},
+		groups := []chart.ScatterGroup{
+			{Name: "Monks", Points: []chart.ScatterPoint{{X: 1, Y: 2, Size: 4}, {X: 3, Y: 5, Size: 9}, {X: 6, Y: 4, Size: 1}, {X: 7, Y: 8, Size: 6}}},
+			{Name: "Nuns", Points: []chart.ScatterPoint{{X: 2, Y: 7, Size: 16}, {X: 8, Y: 9, Size: 2}, {X: 5, Y: 2, Size: 8}}},
 		}
 		if !show {
 			groups = nil
 		}
-		r := mujica.ScatterChart(c, &s.selected, groups, mujica.ScatterChartOptions{Frame: frame, Bubbles: s.bubbles})
+		r := chart.ScatterChart(c, &s.selected, groups, chart.ScatterChartOptions{Frame: frame, Bubbles: s.bubbles})
 		c1Log(log, "ScatterChart", r)
 		if r.ValueChanged() {
 			log(fmt.Sprintf("ScatterChart: %d selected", len(s.selected)))
@@ -162,11 +162,11 @@ func c1RadarDemo(c *ui.Context, log func(string)) {
 	s := ui.Local(c.Root(), "106", func() state { return state{status: "Ready"} })
 	c1Section(c, "RadarChart", func() {}, func() {
 		frame, show := c1Frame(c, "Skills", &s.status)
-		series := []mujica.ChartSeries{{Name: "Agnès", Values: []float64{8, 6, 9, 4, 7}}, {Name: "Clare", Values: []float64{5, 9, 6, 8, 3}}}
+		series := []chart.ChartSeries{{Name: "Agnès", Values: []float64{8, 6, 9, 4, 7}}, {Name: "Clare", Values: []float64{5, 9, 6, 8, 3}}}
 		if !show {
 			series = nil
 		}
-		c1Log(log, "RadarChart", mujica.RadarChart(c, []string{"Voice", "Latin", "Chant", "Organ", "Bells"}, series, mujica.RadarChartOptions{Frame: frame}))
+		c1Log(log, "RadarChart", chart.RadarChart(c, []string{"Voice", "Latin", "Chant", "Organ", "Bells"}, series, chart.RadarChartOptions{Frame: frame}))
 	})
 }
 
@@ -192,6 +192,6 @@ func c1HeatDemo(c *ui.Context, log func(string)) {
 		if !show {
 			rows, values = nil, nil
 		}
-		c1Log(log, "HeatmapChart", mujica.HeatmapChart(c, rows, cols, values, mujica.HeatmapChartOptions{Frame: frame}))
+		c1Log(log, "HeatmapChart", chart.HeatmapChart(c, rows, cols, values, chart.HeatmapChartOptions{Frame: frame}))
 	})
 }

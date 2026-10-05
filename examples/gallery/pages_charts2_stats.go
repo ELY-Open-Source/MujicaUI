@@ -5,8 +5,10 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
-	"mujicaui/internal"
+	"github.com/ZacharyZhang-NY/MujicaUI/chart"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
+	"github.com/ZacharyZhang-NY/MujicaUI/internal"
 )
 
 func c2LegendDemo(c *ui.Context, log func(string)) {
@@ -21,14 +23,14 @@ func c2LegendDemo(c *ui.Context, log func(string)) {
 		c2Check(c, &s.disabled, "Disabled", log)
 		c2Number(c, &s.max, "Max items", 0, 6, 1, log)
 	}, func() {
-		pal := internal.Palette(mujica.Tokens(c))
+		pal := internal.Palette(core.Tokens(c))
 		names := []string{"Matins", "Lauds", "Prime", "Terce", "Sext", "None"}
-		items := make([]mujica.ChartLegendItem, len(names))
+		items := make([]chart.ChartLegendItem, len(names))
 		for i, n := range names {
-			items[i] = mujica.ChartLegendItem{Name: n, Color: pal[i], Shape: i % 5}
+			items[i] = chart.ChartLegendItem{Name: n, Color: pal[i], Shape: i % 5}
 		}
 		ui.Column(c).Disabled(s.disabled).Children(func() {
-			r := mujica.ChartLegend(c, &s.hidden, items, mujica.ChartLegendOptions{Vertical: s.vertical, MaxItems: int(s.max)})
+			r := chart.ChartLegend(c, &s.hidden, items, chart.ChartLegendOptions{Vertical: s.vertical, MaxItems: int(s.max)})
 			if expanded, ok := r.Expanded(); ok {
 				log(fmt.Sprintf("ChartLegend: expanded %v", expanded))
 			}
@@ -52,12 +54,12 @@ func c2BrushDemo(c *ui.Context, log func(string)) {
 		c2Number(c, &s.step, "Step", 1, 10, 1, log)
 	}, func() {
 		vals := []float64{1, 4, 2, 7, 3, 8, 4, 9}
-		r := mujica.ChartBrush(c, &s.value, mujica.ChartBrushOptions{Label: "Months", Max: 100, Step: s.step, Values: vals, Disabled: s.disabled})
+		r := chart.ChartBrush(c, &s.value, chart.ChartBrushOptions{Label: "Months", Max: 100, Step: s.step, Values: vals, Disabled: s.disabled})
 		if r.Changed() {
 			log(fmt.Sprintf("ChartBrush: range %g–%g", s.value[0], s.value[1]))
 		}
-		x := mujica.ChartAxis(c, mujica.ChartAxisOptions{Min: s.value[0], Max: s.value[1]})
-		y := mujica.ChartAxis(c, mujica.ChartAxisOptions{Side: mujica.SideLeft, Max: 10})
+		x := chart.ChartAxis(c, chart.ChartAxisOptions{Min: s.value[0], Max: s.value[1]})
+		y := chart.ChartAxis(c, chart.ChartAxisOptions{Side: chart.SideLeft, Max: 10})
 		xs := []float64{0, 15, 30, 45, 60, 75, 90, 100}
 		var visible []int
 		for i, v := range xs {
@@ -70,7 +72,7 @@ func c2BrushDemo(c *ui.Context, log func(string)) {
 			plot := plotOf(r)
 			return x.Map(plot, xs[visible[i]]), y.Map(plot, vals[visible[i]])
 		}
-		c1Log(log, "Zoom preview", mujica.Chart(c, mujica.ChartFrame{Label: "Zoom preview", Height: 140}, mujica.ChartSpec{
+		c1Log(log, "Zoom preview", chart.Chart(c, chart.ChartFrame{Label: "Zoom preview", Height: 140}, chart.ChartSpec{
 			Marks: len(visible), Anchor: at,
 			Pick: func(r ui.Rect, px, py float32) int {
 				return internal.Nearest(len(visible), func(i int) (float32, float32) { return at(r, i) }, px, py, 24, false)
@@ -82,7 +84,7 @@ func c2BrushDemo(c *ui.Context, log func(string)) {
 				y.Draw(p, plot)
 				for i := range visible {
 					px, py := at(r, i)
-					internal.Marker(p, 0, px, py, 8, mujica.Tokens(c).AccentText)
+					internal.Marker(p, 0, px, py, 8, core.Tokens(c).AccentText)
 				}
 			},
 		}))
@@ -104,10 +106,10 @@ func c2ExportDemo(c *ui.Context, log func(string)) {
 		c2Number(c, &s.scale, "Scale", 1, 3, 0.5, log)
 		c2Check(c, &s.disabled, "Disabled", log)
 	}, func() {
-		if mujica.Button(c, "Export PNG", mujica.ButtonOptions{Disabled: s.disabled}).Clicked() {
-			data, err := mujica.ChartExport(c, func(c *ui.Context) {
-				mujica.BarChart(c, []string{"Nave", "Choir", "Crypt"}, []mujica.ChartSeries{{Name: "Pews", Values: []float64{3, 5, 2}}}, mujica.BarChartOptions{Frame: mujica.ChartFrame{Label: "Exported chart", Height: float32(s.height) - 80}})
-			}, mujica.ChartExportOptions{Width: int(s.width), Height: int(s.height), Scale: float32(s.scale)})
+		if input.Button(c, "Export PNG", input.ButtonOptions{Disabled: s.disabled}).Clicked() {
+			data, err := chart.ChartExport(c, func(c *ui.Context) {
+				chart.BarChart(c, []string{"Nave", "Choir", "Crypt"}, []chart.ChartSeries{{Name: "Pews", Values: []float64{3, 5, 2}}}, chart.BarChartOptions{Frame: chart.ChartFrame{Label: "Exported chart", Height: float32(s.height) - 80}})
+			}, chart.ChartExportOptions{Width: int(s.width), Height: int(s.height), Scale: float32(s.scale)})
 			if err == nil {
 				s.bitmap, err = ui.DecodeBitmap(data)
 			}
@@ -121,7 +123,7 @@ func c2ExportDemo(c *ui.Context, log func(string)) {
 			}
 		}
 		if s.error != "" {
-			ui.Text(c, s.error).TextColor(mujica.Tokens(c).Danger).Role(ui.RoleStatus)
+			ui.Text(c, s.error).TextColor(core.Tokens(c).Danger).Role(ui.RoleStatus)
 		}
 		if s.bitmap != nil {
 			ui.Image(c, s.bitmap).Size(float32(s.width), float32(s.height))
@@ -147,7 +149,7 @@ func c2SparkBarDemo(c *ui.Context, log func(string)) {
 			vals = nil
 		}
 		ui.Column(c).Disabled(s.disabled).Children(func() {
-			c1Log(log, "SparkBar", mujica.SparkBar(c, vals, mujica.SparkBarOptions{Frame: f, BarWidth: float32(s.width)}))
+			c1Log(log, "SparkBar", chart.SparkBar(c, vals, chart.SparkBarOptions{Frame: f, BarWidth: float32(s.width)}))
 		})
 	})
 }
@@ -163,11 +165,11 @@ func c2TrendDemo(c *ui.Context, log func(string)) {
 		c2Number(c, &s.precision, "Precision", 0, 3, 1, log)
 		c2Check(c, &s.invert, "Invert", log)
 	}, func() {
-		mujica.TrendIndicator(c, s.change, mujica.TrendIndicatorOptions{Precision: int(s.precision), Unit: "%", Note: "vs Lent", Invert: s.invert})
+		chart.TrendIndicator(c, s.change, chart.TrendIndicatorOptions{Precision: int(s.precision), Unit: "%", Note: "vs Lent", Invert: s.invert})
 		ui.Row(c).Gap(24).Children(func() {
-			mujica.TrendIndicator(c, 3, mujica.TrendIndicatorOptions{})
-			mujica.TrendIndicator(c, -3, mujica.TrendIndicatorOptions{})
-			mujica.TrendIndicator(c, 0, mujica.TrendIndicatorOptions{})
+			chart.TrendIndicator(c, 3, chart.TrendIndicatorOptions{})
+			chart.TrendIndicator(c, -3, chart.TrendIndicatorOptions{})
+			chart.TrendIndicator(c, 0, chart.TrendIndicatorOptions{})
 		})
 	})
 }
@@ -184,8 +186,8 @@ func c2EmptyDemo(c *ui.Context, log func(string)) {
 		c2Check(c, &s.disabled, "Disabled", log)
 	}, func() {
 		f, _ := c2Frame(c, "ChartEmptyState", &s.status, log)
-		ui.Column(c).Disabled(s.disabled).Border(1, mujica.Tokens(c).Border).Children(func() {
-			if mujica.ChartEmptyState(c, f.Status, mujica.ChartEmptyStateOptions{Height: float32(s.height), Error: f.Error}).Changed() {
+		ui.Column(c).Disabled(s.disabled).Border(1, core.Tokens(c).Border).Children(func() {
+			if chart.ChartEmptyState(c, f.Status, chart.ChartEmptyStateOptions{Height: float32(s.height), Error: f.Error}).Changed() {
 				log("ChartEmptyState: retry")
 				s.status = "Loading"
 			}

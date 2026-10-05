@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-vars := []mujica.Variable{{Name: "decree", Value: "{…}", Children: []mujica.Variable{{Name: "id", Value: "42", Changed: true}}}, {Name: "count", Value: "7"}}
-var state mujica.VariablesPanelState
+vars := []code.Variable{{Name: "decree", Value: "{…}", Children: []code.Variable{{Name: "id", Value: "42", Changed: true}}}, {Name: "count", Value: "7"}}
+var state code.VariablesPanelState
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.VariablesPanel(c, vars, &state, mujica.VariablesPanelOptions{})
+	core.Use(c, core.Settings{})
+	r := code.VariablesPanel(c, vars, &state, code.VariablesPanelOptions{})
 	r.Element.Height(200)
 	if r.Edited != nil {
 		fmt.Println("set", r.Edited.Path, "=", r.Edited.Value)

@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-r := mujica.AudioMessage(c, mujica.AudioMessageOptions{Duration: time.Minute, Position: pos})
+r := chat.AudioMessage(c, chat.AudioMessageOptions{Duration: time.Minute, Position: pos})
 if d, ok := r.Seek(); ok {
 	pos = d
 }

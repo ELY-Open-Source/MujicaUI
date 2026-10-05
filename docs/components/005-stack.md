@@ -7,12 +7,12 @@
 ## 最小示例
 
 ```go
-mujica.Stack(c, mujica.StackOptions{Horizontal: true, Gap: mujica.SpaceM}, func() {
-	mujica.Button(c, "Save", mujica.ButtonOptions{})
+layout.Stack(c, layout.StackOptions{Horizontal: true, Gap: layout.SpaceM}, func() {
+	input.Button(c, "Save", input.ButtonOptions{})
 	if showDraft {
-		mujica.Button(c, "Draft", mujica.ButtonOptions{Variant: mujica.Secondary})
+		input.Button(c, "Draft", input.ButtonOptions{Variant: input.Secondary})
 	}
-	mujica.Button(c, "Cancel", mujica.ButtonOptions{Variant: mujica.Ghost})
+	input.Button(c, "Cancel", input.ButtonOptions{Variant: input.Ghost})
 })
 ```
 

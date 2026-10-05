@@ -8,9 +8,9 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Card(c, mujica.CardOptions{Title: "Archive", Decorated: true, Footer: func() {
-		mujica.Button(c, "Open", mujica.ButtonOptions{})
+	core.Use(c, core.Settings{})
+	data.Card(c, data.CardOptions{Title: "Archive", Decorated: true, Footer: func() {
+		input.Button(c, "Open", input.ButtonOptions{})
 	}}, func() {
 		ui.Text(c, "Letters of the court, sealed in wax.")
 	}).Width(280)

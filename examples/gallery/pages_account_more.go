@@ -6,33 +6,35 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/account"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
 )
 
 type accountSwitchState struct {
 	account, space string
-	accounts       []mujica.Account
+	accounts       []account.Account
 	disabled       bool
 }
 
 func accountSwitcherDemo(c *ui.Context, log func(string)) {
 	d := ui.Local(c.Root(), "471", func() accountSwitchState {
-		return accountSwitchState{account: "a", accounts: []mujica.Account{
+		return accountSwitchState{account: "a", accounts: []account.Account{
 			{ID: "a", Name: "Sakiko Togawa", Email: "sakiko@court"}, {ID: "b", Name: "Oblivionis", Email: "ob@mask"}}}
 	})
 	accountToggles(c, log, []string{"Disabled"}, &d.disabled)
-	r := mujica.AccountSwitcher(c, &d.account, d.accounts, mujica.AccountSwitcherOptions{Disabled: d.disabled})
+	r := account.AccountSwitcher(c, &d.account, d.accounts, account.AccountSwitcherOptions{Disabled: d.disabled})
 	if r.Changed() {
 		log("switched to " + d.account)
 	}
 	if r.Add() {
 		n := len(d.accounts) + 1
-		d.accounts = append(d.accounts, mujica.Account{ID: fmt.Sprint(n), Name: fmt.Sprintf("Guest %d", n)})
+		d.accounts = append(d.accounts, account.Account{ID: fmt.Sprint(n), Name: fmt.Sprintf("Guest %d", n)})
 		log("add account")
 	}
 }
 
-var accountSpaces = []mujica.Workspace{
+var accountSpaces = []account.Workspace{
 	{ID: "ave", Name: "Ave Mujica", Detail: "5 members"}, {ID: "mygo", Name: "MyGO!!!!!", Detail: "5 members"},
 	{ID: "crychic", Name: "CRYCHIC", Detail: "Archived"}, {ID: "sumimi", Name: "sumimi", Detail: "2 members"},
 }
@@ -40,20 +42,20 @@ var accountSpaces = []mujica.Workspace{
 func accountWorkspaceDemo(c *ui.Context, log func(string)) {
 	d := ui.Local(c.Root(), "472", func() accountSwitchState { return accountSwitchState{space: "ave"} })
 	accountToggles(c, log, []string{"Disabled"}, &d.disabled)
-	if mujica.WorkspaceSwitcher(c, &d.space, accountSpaces, mujica.WorkspaceSwitcherOptions{Disabled: d.disabled}).Changed() {
+	if account.WorkspaceSwitcher(c, &d.space, accountSpaces, account.WorkspaceSwitcherOptions{Disabled: d.disabled}).Changed() {
 		log("workspace " + d.space)
 	}
 }
 
 type accountUserState struct {
-	status   mujica.UserStatus
+	status   account.UserStatus
 	disabled bool
 }
 
 func accountUserMenuDemo(c *ui.Context, log func(string)) {
 	d := ui.Local(c.Root(), "473", func() accountUserState { return accountUserState{} })
 	accountToggles(c, log, []string{"Disabled"}, &d.disabled)
-	r := mujica.UserMenu(c, &d.status, mujica.UserMenuOptions{Name: "Sakiko Togawa", Email: "sakiko@court", Disabled: d.disabled})
+	r := account.UserMenu(c, &d.status, account.UserMenuOptions{Name: "Sakiko Togawa", Email: "sakiko@court", Disabled: d.disabled})
 	if r.StatusChanged() {
 		log(fmt.Sprintf("status %d", d.status))
 	}
@@ -66,20 +68,20 @@ func accountUserMenuDemo(c *ui.Context, log func(string)) {
 }
 
 type accountSessionsState struct {
-	sessions []mujica.Session
+	sessions []account.Session
 	disabled bool
 }
 
 func accountSessionsDemo(c *ui.Context, log func(string)) {
 	d := ui.Local(c.Root(), "474", func() accountSessionsState {
-		return accountSessionsState{sessions: []mujica.Session{
+		return accountSessionsState{sessions: []account.Session{
 			{ID: "s1", Device: "MacBook Pro · Safari", Location: "Tokyo", LastActive: time.Now(), Current: true},
 			{ID: "s2", Device: "iPhone · App", Location: "Osaka", LastActive: time.Now().Add(-26 * time.Hour)},
 			{ID: "s3", Device: "Windows · Edge", Location: "Kyoto"},
 		}}
 	})
 	accountToggles(c, log, []string{"Disabled"}, &d.disabled)
-	r := mujica.SessionList(c, d.sessions, mujica.SessionListOptions{Disabled: d.disabled})
+	r := account.SessionList(c, d.sessions, account.SessionListOptions{Disabled: d.disabled})
 	if id, ok := r.Revoked(); ok {
 		for i, s := range d.sessions {
 			if s.ID == id {
@@ -96,17 +98,17 @@ func accountSessionsDemo(c *ui.Context, log func(string)) {
 }
 
 type accountKeysState struct {
-	state            mujica.ApiKeyManagerState
-	keys             []mujica.APIKey
+	state            account.ApiKeyManagerState
+	keys             []account.APIKey
 	disabled, reject bool
 }
 
 func accountKeysDemo(c *ui.Context, log func(string)) {
 	d := ui.Local(c.Root(), "475", func() accountKeysState {
-		return accountKeysState{keys: []mujica.APIKey{{ID: "k1", Name: "Deploy bot", Prefix: "mk_live_9f2c", Created: time.Now().AddDate(0, -1, 0)}}}
+		return accountKeysState{keys: []account.APIKey{{ID: "k1", Name: "Deploy bot", Prefix: "mk_live_9f2c", Created: time.Now().AddDate(0, -1, 0)}}}
 	})
 	accountToggles(c, log, []string{"Disabled", "Create fails"}, &d.disabled, &d.reject)
-	r := mujica.ApiKeyManager(c, &d.state, d.keys, mujica.ApiKeyManagerOptions{Disabled: d.disabled})
+	r := account.ApiKeyManager(c, &d.state, d.keys, account.ApiKeyManagerOptions{Disabled: d.disabled})
 	if name, ok := r.Create(); ok {
 		if d.reject {
 			d.state.Fail("Key limit reached.")
@@ -116,7 +118,7 @@ func accountKeysDemo(c *ui.Context, log func(string)) {
 		// The caller supplies the generated key.
 		n := len(d.keys) + 1
 		prefix := fmt.Sprintf("mk_live_%04x", n*7919)
-		d.keys = append(d.keys, mujica.APIKey{ID: fmt.Sprint("k", n), Name: name, Prefix: prefix, Created: time.Now()})
+		d.keys = append(d.keys, account.APIKey{ID: fmt.Sprint("k", n), Name: name, Prefix: prefix, Created: time.Now()})
 		d.state.Reveal(fmt.Sprintf("%s_%x", prefix, time.Now().UnixNano()))
 		log("created key " + name)
 	}
@@ -135,18 +137,18 @@ type accountQuotaState struct{ calls float64 }
 
 func accountQuotaDemo(c *ui.Context, log func(string)) {
 	d := ui.Local(c.Root(), "476", func() accountQuotaState { return accountQuotaState{calls: 4200} })
-	if mujica.Slider(c, &d.calls, mujica.SliderOptions{Min: 0, Max: 12000, Step: 100, Label: "API calls used", ShowValue: true}).Changed() {
+	if input.Slider(c, &d.calls, input.SliderOptions{Min: 0, Max: 12000, Step: 100, Label: "API calls used", ShowValue: true}).Changed() {
 		log(fmt.Sprintf("calls %.0f", d.calls))
 	}
 	ui.Box(c).Width(440).Children(func() {
-		mujica.UsageQuota(c, []mujica.QuotaItem{{Label: "API calls", Used: d.calls, Limit: 10000}, {Label: "Storage", Used: 9, Limit: 10, Unit: "GB"}},
-			mujica.UsageQuotaOptions{ResetAt: time.Now().Add(52 * time.Hour)})
+		account.UsageQuota(c, []account.QuotaItem{{Label: "API calls", Used: d.calls, Limit: 10000}, {Label: "Storage", Used: 9, Limit: 10, Unit: "GB"}},
+			account.UsageQuotaOptions{ResetAt: time.Now().Add(52 * time.Hour)})
 	})
 }
 
 type accountWizardState struct {
 	step   int
-	theme  mujica.Mode
+	theme  core.Mode
 	name   string
 	noSkip bool
 }
@@ -154,21 +156,21 @@ type accountWizardState struct {
 func accountWizardDemo(c *ui.Context, log func(string)) {
 	d := ui.Local(c.Root(), "477", func() accountWizardState { return accountWizardState{} })
 	accountToggles(c, log, []string{"Hide Skip"}, &d.noSkip)
-	steps := []mujica.WizardStep{
+	steps := []account.WizardStep{
 		{Title: "Welcome", Description: "Three short steps to set up your court."},
 		{Title: "Your name", Ready: func() bool { return d.name != "" }, Content: func() {
-			if mujica.TextInput(c, &d.name, mujica.TextInputOptions{Label: "Name", Placeholder: "Name"}).Changed() {
+			if input.TextInput(c, &d.name, input.TextInputOptions{Label: "Name", Placeholder: "Name"}).Changed() {
 				log("name changed")
 			}
 		}},
 		{Title: "Pick a theme", Content: func() {
-			if mujica.ThemeSelector(c, &d.theme, mujica.ThemeSelectorOptions{}).Changed() {
+			if account.ThemeSelector(c, &d.theme, account.ThemeSelectorOptions{}).Changed() {
 				log("theme " + d.theme.String())
 			}
 		}},
 	}
 	from := d.step
-	r := mujica.OnboardingWizard(c, &d.step, steps, mujica.OnboardingWizardOptions{NoSkip: d.noSkip})
+	r := account.OnboardingWizard(c, &d.step, steps, account.OnboardingWizardOptions{NoSkip: d.noSkip})
 	if d.step != from {
 		log(fmt.Sprintf("step %d", d.step+1))
 	}
@@ -192,8 +194,8 @@ func accountCoachDemo(c *ui.Context, log func(string)) {
 	}
 	var compose, archive *ui.Element
 	ui.Row(c).Gap(48).Padding(8).Children(func() {
-		compose = mujica.Button(c, "Compose", mujica.ButtonOptions{Disabled: d.disabled})
-		archive = mujica.Button(c, "Archive", mujica.ButtonOptions{Variant: mujica.Secondary})
+		compose = input.Button(c, "Compose", input.ButtonOptions{Disabled: d.disabled})
+		archive = input.Button(c, "Archive", input.ButtonOptions{Variant: input.Secondary})
 	})
 	if compose.Clicked() {
 		log("compose")
@@ -202,7 +204,7 @@ func accountCoachDemo(c *ui.Context, log func(string)) {
 		log("archive")
 	}
 	from := d.step
-	r := mujica.Coachmark(c, &d.open, &d.step, []mujica.CoachmarkStep{
+	r := account.Coachmark(c, &d.open, &d.step, []account.CoachmarkStep{
 		{Anchor: compose, Title: "Write here", Body: "Start a new letter."},
 		{Anchor: archive, Title: "Keep it tidy", Body: "Archive threads you have finished."},
 	})
@@ -225,12 +227,12 @@ func accountWhatsNewDemo(c *ui.Context, log func(string)) {
 		d.open = true
 		log("open")
 	}
-	releases := []mujica.Release{
-		{Version: "1.1", Date: "2026-10-05", Changes: []mujica.ReleaseChange{{Kind: mujica.ChangeNew, Text: "400 new components."}, {Kind: mujica.ChangeFixed, Text: "Snapshots no longer drift."}}},
-		{Version: "1.0", Date: "2026-09-01", Changes: []mujica.ReleaseChange{{Kind: mujica.ChangeImproved, Text: "Court-gothic theme."}}},
+	releases := []account.Release{
+		{Version: "1.1", Date: "2026-10-05", Changes: []account.ReleaseChange{{Kind: account.ChangeNew, Text: "400 new components."}, {Kind: account.ChangeFixed, Text: "Snapshots no longer drift."}}},
+		{Version: "1.0", Date: "2026-09-01", Changes: []account.ReleaseChange{{Kind: account.ChangeImproved, Text: "Court-gothic theme."}}},
 	}
 	was := d.open
-	if mujica.WhatsNewDialog(c, &d.open, &d.hide, releases, mujica.WhatsNewDialogOptions{}).Changed() {
+	if account.WhatsNewDialog(c, &d.open, &d.hide, releases, account.WhatsNewDialogOptions{}).Changed() {
 		log(fmt.Sprintf("don't show again %v", d.hide))
 	}
 	if was && !d.open {
@@ -239,7 +241,7 @@ func accountWhatsNewDemo(c *ui.Context, log func(string)) {
 }
 
 type accountFeedbackState struct {
-	state    mujica.FeedbackWidgetState
+	state    account.FeedbackWidgetState
 	disabled bool
 }
 
@@ -254,7 +256,7 @@ func accountFeedbackDemo(c *ui.Context, log func(string)) {
 	}
 	accountToggles(c, log, []string{"Disabled"}, &d.disabled)
 	before := d.state.Draft
-	r := mujica.FeedbackWidget(c, &d.state, mujica.FeedbackWidgetOptions{Disabled: d.disabled, Attachments: func() {
+	r := account.FeedbackWidget(c, &d.state, account.FeedbackWidgetOptions{Disabled: d.disabled, Attachments: func() {
 		if tradingAction(c, "Attach screenshot") {
 			log("attach screenshot")
 		}

@@ -7,14 +7,14 @@
 ## 最小示例
 
 ```go
-steps := []mujica.AgentStep{
-	{ID: "read", Title: "Read the guest list", State: mujica.AgentDone, Duration: time.Second},
-	{ID: "seat", Title: "Assign the seats", State: mujica.AgentFailed, Detail: "Table 4 is full."},
-	{ID: "send", Title: "Send invitations", State: mujica.AgentPending},
+steps := []agent.AgentStep{
+	{ID: "read", Title: "Read the guest list", State: agent.AgentDone, Duration: time.Second},
+	{ID: "seat", Title: "Assign the seats", State: agent.AgentFailed, Detail: "Table 4 is full."},
+	{ID: "send", Title: "Send invitations", State: agent.AgentPending},
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if r := mujica.AgentStepList(c, steps, mujica.AgentStepListOptions{}); r.Retry != "" {
+	core.Use(c, core.Settings{})
+	if r := agent.AgentStepList(c, steps, agent.AgentStepListOptions{}); r.Retry != "" {
 		fmt.Println("retry", r.Retry)
 	}
 }

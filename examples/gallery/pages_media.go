@@ -9,8 +9,9 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
-	"mujicaui/theme"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
+	"github.com/ZacharyZhang-NY/MujicaUI/theme"
 )
 
 const mediaCategory = "Media"
@@ -61,7 +62,7 @@ var mediaPages = []page{
 // mediaSection titles a part of a demo.
 func mediaSection(c *ui.Context, title string, fn func()) {
 	ui.Column(c).Gap(8).FillWidth().Children(func() {
-		ui.Text(c, title).FontSize(mujica.FontSize(c, theme.CaptionSize)).TextColor(mujica.Tokens(c).TextMuted)
+		ui.Text(c, title).FontSize(core.FontSize(c, theme.CaptionSize)).TextColor(core.Tokens(c).TextMuted)
 		fn()
 	})
 }
@@ -69,7 +70,7 @@ func mediaSection(c *ui.Context, title string, fn func()) {
 // mediaCheck is a parameter checkbox that logs its changes.
 func mediaCheck(c *ui.Context, log func(string), v *bool, label string) {
 	before := *v
-	mujica.Checkbox(c, v, label, mujica.CheckboxOptions{})
+	input.Checkbox(c, v, label, input.CheckboxOptions{})
 	if *v != before {
 		log(fmt.Sprintf("%s = %v", label, *v))
 	}

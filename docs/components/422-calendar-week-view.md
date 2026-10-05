@@ -9,11 +9,11 @@
 ```go
 loc := time.Local
 events := exampleEvents(loc)
-week := mujica.Date{Year: 2026, Month: time.October, Day: 14}
+week := core.Date{Year: 2026, Month: time.October, Day: 14}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.CalendarWeekView(c, &week, events, mujica.CalendarWeekViewOptions{Location: loc, SlotMinutes: 15})
-	if ch, ok := r.Changed(); ok && ch.Kind == mujica.CalendarCreate {
+	core.Use(c, core.Settings{})
+	r := datetime.CalendarWeekView(c, &week, events, datetime.CalendarWeekViewOptions{Location: loc, SlotMinutes: 15})
+	if ch, ok := r.Changed(); ok && ch.Kind == datetime.CalendarCreate {
 		fmt.Println("new event", ch.Start, ch.End)
 	}
 }

@@ -10,10 +10,10 @@
 
 ```go
 open, hide := true, false
-releases := []mujica.Release{{Version: "1.1", Changes: []mujica.ReleaseChange{{Kind: mujica.ChangeNew, Text: "500 components."}}}}
+releases := []account.Release{{Version: "1.1", Changes: []account.ReleaseChange{{Kind: account.ChangeNew, Text: "500 components."}}}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.WhatsNewDialog(c, &open, &hide, releases, mujica.WhatsNewDialogOptions{})
+	core.Use(c, core.Settings{})
+	account.WhatsNewDialog(c, &open, &hide, releases, account.WhatsNewDialogOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

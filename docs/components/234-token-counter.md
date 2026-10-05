@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.TokenCounter(c, 1234, 8000)
+	core.Use(c, core.Settings{})
+	chat.TokenCounter(c, 1234, 8000)
 }
 ui.Render(view, 400, 300, 1)
 ```

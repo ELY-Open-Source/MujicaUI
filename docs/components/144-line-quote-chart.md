@@ -8,10 +8,10 @@
 
 ```go
 	at := time.Date(2026, 10, 5, 9, 0, 0, 0, time.UTC)
-	points := []mujica.QuotePoint{{Time: at, Price: 101, Volume: 100}, {Time: at.Add(time.Hour), Price: 103, Volume: 200}}
+	points := []chart.QuotePoint{{Time: at, Price: 101, Volume: 100}, {Time: at.Add(time.Hour), Price: 103, Volume: 200}}
 	view := func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{})
-		mujica.LineQuoteChart(c, points, mujica.LineQuoteChartOptions{Frame: mujica.ChartFrame{Label: "BTC", Height: 200}, PrevClose: 100, RegularOpen: at.Add(30 * time.Minute), RegularClose: at.Add(45 * time.Minute)})
+		core.Use(c, core.Settings{})
+		chart.LineQuoteChart(c, points, chart.LineQuoteChartOptions{Frame: chart.ChartFrame{Label: "BTC", Height: 200}, PrevClose: 100, RegularOpen: at.Add(30 * time.Minute), RegularClose: at.Add(45 * time.Minute)})
 	}
 	ui.Render(view, 640, 400, 1)
 ```

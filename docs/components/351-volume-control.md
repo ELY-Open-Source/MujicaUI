@@ -9,8 +9,8 @@
 ```go
 volume, muted := 0.8, false
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.VolumeControl(c, &volume, &muted, mujica.VolumeControlOptions{})
+	core.Use(c, core.Settings{})
+	media.VolumeControl(c, &volume, &muted, media.VolumeControlOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

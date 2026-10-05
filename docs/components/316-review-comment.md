@@ -7,15 +7,15 @@
 ## 最小示例
 
 ```go
-thread := mujica.ReviewThread{File: "main.go", Line: 12, Messages: []mujica.ReviewMessage{
+thread := git.ReviewThread{File: "main.go", Line: 12, Messages: []git.ReviewMessage{
 	{Author: "Uika", When: time.Now(), Body: "Can this return early?"},
 }}
 draft := ""
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.ReviewComment(c, thread, &draft, mujica.ReviewCommentOptions{})
+	core.Use(c, core.Settings{})
+	r := git.ReviewComment(c, thread, &draft, git.ReviewCommentOptions{})
 	if text, ok := r.Replied(); ok {
-		thread.Messages = append(thread.Messages, mujica.ReviewMessage{Author: "Sakiko", When: time.Now(), Body: text})
+		thread.Messages = append(thread.Messages, git.ReviewMessage{Author: "Sakiko", When: time.Now(), Body: text})
 	}
 	if r.Resolved() || r.Reopened() {
 		thread.Resolved = !thread.Resolved

@@ -10,8 +10,8 @@
 font := ""
 fonts := []string{"Garamond", "Georgia", "Didot"}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.Combobox(c, &font, fonts, mujica.ComboboxOptions{AllowCustom: true, Label: "Font"})
+	core.Use(c, core.Settings{})
+	r := input.Combobox(c, &font, fonts, input.ComboboxOptions{AllowCustom: true, Label: "Font"})
 	if r.QueryChanged() {
 		log.Println("search:", r.Query())
 	}

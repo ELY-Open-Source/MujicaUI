@@ -6,7 +6,10 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/agent"
+	"github.com/ZacharyZhang-NY/MujicaUI/chat"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
 )
 
 func chatDemoWelcomeScreen(c *ui.Context, log func(string)) {
@@ -19,14 +22,14 @@ func chatDemoWelcomeScreen(c *ui.Context, log func(string)) {
 		choiceFlag(c, &s.cards, "Capability cards", log)
 		choiceFlag(c, &s.disabled, "Disabled", log)
 	}, func() {
-		var cards []mujica.CapabilityCard
+		var cards []chat.CapabilityCard
 		if s.cards {
 			cards = chatSampleCards()
 		}
 		ui.Column(c).Width(860).Children(func() {
-			v := mujica.WelcomeScreen(c, mujica.WelcomeScreenOptions{Greeting: "Good afternoon", Subtitle: "How may I serve the court?", Cards: cards, Disabled: s.disabled,
+			v := chat.WelcomeScreen(c, chat.WelcomeScreenOptions{Greeting: "Good afternoon", Subtitle: "How may I serve the court?", Cards: cards, Disabled: s.disabled,
 				Prompts: func() {
-					if mujica.SuggestionChips(c, &s.input, []string{"Plan a ball", "Write a sonnet"}, mujica.SuggestionChipsOptions{Disabled: s.disabled}).Chosen != "" {
+					if chat.SuggestionChips(c, &s.input, []string{"Plan a ball", "Write a sonnet"}, chat.SuggestionChipsOptions{Disabled: s.disabled}).Chosen != "" {
 						log(fmt.Sprintf("fill %q", s.input))
 					}
 				}})
@@ -47,8 +50,8 @@ func chatDemoSuggestionChips(c *ui.Context, log func(string)) {
 		choiceFlag(c, &s.send, "Send directly", log)
 		choiceFlag(c, &s.disabled, "Disabled", log)
 	}, func() {
-		v := mujica.SuggestionChips(c, &s.input, []string{"Plan a ball", "Write a sonnet", "Explain the minuet"},
-			mujica.SuggestionChipsOptions{Send: s.send, Label: "Suggestions", Disabled: s.disabled})
+		v := chat.SuggestionChips(c, &s.input, []string{"Plan a ball", "Write a sonnet", "Explain the minuet"},
+			chat.SuggestionChipsOptions{Send: s.send, Label: "Suggestions", Disabled: s.disabled})
 		switch {
 		case v.Sent:
 			log(fmt.Sprintf("send %q", v.Chosen))
@@ -56,18 +59,18 @@ func chatDemoSuggestionChips(c *ui.Context, log func(string)) {
 			log(fmt.Sprintf("fill %q", v.Chosen))
 		}
 		ui.Column(c).Width(420).Children(func() {
-			mujica.TextInput(c, &s.input, mujica.TextInputOptions{Label: "Message", Placeholder: "Message"})
+			input.TextInput(c, &s.input, input.TextInputOptions{Label: "Message", Placeholder: "Message"})
 		})
 	})
 }
 
 func chatDemoPromptLibrary(c *ui.Context, log func(string)) {
 	type state struct {
-		lib      mujica.PromptLibraryState
+		lib      chat.PromptLibraryState
 		disabled bool
 	}
 	s := *ui.Local(c.Root(), "248", func() *state { return &state{} })
-	templates := []mujica.PromptTemplate{
+	templates := []chat.PromptTemplate{
 		{ID: "t1", Category: "Letters", Title: "Invitation", Body: "Write an invitation to {{guest}} for the {{event}}."},
 		{ID: "t2", Category: "Letters", Title: "Thank-you note", Body: "Thank {{host}} for the evening."},
 		{ID: "t3", Category: "Music", Title: "Recital program", Body: "List pieces for a {{instrument}} recital."},
@@ -77,7 +80,7 @@ func chatDemoPromptLibrary(c *ui.Context, log func(string)) {
 		choiceFlag(c, &s.disabled, "Disabled", log)
 	}, func() {
 		before := s.lib.Selected
-		v := mujica.PromptLibrary(c, &s.lib, templates, mujica.PromptLibraryOptions{Label: "Prompt library", Disabled: s.disabled})
+		v := chat.PromptLibrary(c, &s.lib, templates, chat.PromptLibraryOptions{Label: "Prompt library", Disabled: s.disabled})
 		if s.lib.Selected != before {
 			log("preview " + s.lib.Selected)
 		}
@@ -101,7 +104,7 @@ func chatDemoCapabilityCards(c *ui.Context, log func(string)) {
 			cols = 1
 		}
 		ui.Column(c).Width(860).Children(func() {
-			if v := mujica.CapabilityCards(c, chatSampleCards(), mujica.CapabilityCardsOptions{Columns: cols, Disabled: s.disabled}); v.Example != "" {
+			if v := chat.CapabilityCards(c, chatSampleCards(), chat.CapabilityCardsOptions{Columns: cols, Disabled: s.disabled}); v.Example != "" {
 				log(fmt.Sprintf("ask %q", v.Example))
 			}
 		})
@@ -110,7 +113,7 @@ func chatDemoCapabilityCards(c *ui.Context, log func(string)) {
 
 func chatDemoFeedbackForm(c *ui.Context, log func(string)) {
 	type state struct {
-		value            mujica.FeedbackValue
+		value            chat.FeedbackValue
 		down, submitting bool
 		disabled         bool
 		at               time.Time
@@ -120,22 +123,22 @@ func chatDemoFeedbackForm(c *ui.Context, log func(string)) {
 		choiceFlag(c, &s.down, "Thumbs down", log)
 		choiceFlag(c, &s.disabled, "Disabled", log)
 	}, func() {
-		rating := mujica.FeedbackUp
+		rating := chat.FeedbackUp
 		if s.down {
-			rating = mujica.FeedbackDown
+			rating = chat.FeedbackDown
 		}
 		if s.submitting && choiceDue(c, s.at) {
-			s.submitting, s.value = false, mujica.FeedbackValue{}
+			s.submitting, s.value = false, chat.FeedbackValue{}
 			log("feedback sent")
 		}
 		ui.Column(c).Width(480).Children(func() {
-			v := mujica.FeedbackForm(c, &s.value, mujica.FeedbackFormOptions{Rating: rating, Submitting: s.submitting, Disabled: s.disabled})
+			v := chat.FeedbackForm(c, &s.value, chat.FeedbackFormOptions{Rating: rating, Submitting: s.submitting, Disabled: s.disabled})
 			if v.Submitted {
 				s.submitting, s.at = true, c.Now()
 				log(fmt.Sprintf("submit reasons %q, %d characters", s.value.Reasons, len(s.value.Comment)))
 			}
 			if v.Cancelled {
-				s.value = mujica.FeedbackValue{}
+				s.value = chat.FeedbackValue{}
 				log("cancel")
 			}
 		})
@@ -143,13 +146,13 @@ func chatDemoFeedbackForm(c *ui.Context, log func(string)) {
 }
 
 func chatDemoDateSeparator(c *ui.Context, log func(string)) {
-	today := mujica.DateOf(time.Now())
+	today := core.DateOf(time.Now())
 	choiceDemo(c, func() {
 		ui.Text(c, "No parameters; the language follows the window.")
 	}, func() {
 		ui.Column(c).Width(520).Children(func() {
 			for _, d := range []int{0, -1, -12} {
-				mujica.DateSeparator(c, today.AddDays(d), mujica.DateSeparatorOptions{})
+				chat.DateSeparator(c, today.AddDays(d), chat.DateSeparatorOptions{})
 			}
 		})
 	})
@@ -160,12 +163,12 @@ func chatDemoThinkingIndicator(c *ui.Context, log func(string)) {
 	s := *ui.Local(c.Root(), "252", func() *state { return &state{} })
 	phases := []string{"", "Searching the archives", "Reading 3 letters", "Composing a reply"}
 	choiceDemo(c, func() {
-		if mujica.Button(c, "Next phase", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+		if input.Button(c, "Next phase", input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 			s.phase = (s.phase + 1) % len(phases)
 			log(fmt.Sprintf("phase %q", phases[s.phase]))
 		}
 	}, func() {
-		mujica.ThinkingIndicator(c, mujica.ThinkingIndicatorOptions{Phase: phases[s.phase]})
+		chat.ThinkingIndicator(c, chat.ThinkingIndicatorOptions{Phase: phases[s.phase]})
 	})
 }
 
@@ -176,7 +179,7 @@ func chatDemoStopGeneratingButton(c *ui.Context, log func(string)) {
 	}
 	s := *ui.Local(c.Root(), "253", func() *state { return &state{} })
 	choiceDemo(c, func() {
-		if mujica.Button(c, "Generate", mujica.ButtonOptions{Disabled: s.generating}).Clicked() {
+		if input.Button(c, "Generate", input.ButtonOptions{Disabled: s.generating}).Clicked() {
 			s.generating, s.at = true, c.Now()
 			log("generate")
 		}
@@ -188,12 +191,12 @@ func chatDemoStopGeneratingButton(c *ui.Context, log func(string)) {
 		} else if s.generating {
 			c.After(time.Second)
 		}
-		if mujica.StopGeneratingButton(c, mujica.StopGeneratingButtonOptions{Generating: s.generating, Disabled: s.disabled}).Changed() {
+		if chat.StopGeneratingButton(c, chat.StopGeneratingButtonOptions{Generating: s.generating, Disabled: s.disabled}).Changed() {
 			s.generating = false
 			log("stop")
 		}
 		if !s.generating {
-			ui.Text(c, "Idle: the button is hidden.").TextColor(mujica.Tokens(c).TextMuted)
+			ui.Text(c, "Idle: the button is hidden.").TextColor(core.Tokens(c).TextMuted)
 		}
 	})
 }
@@ -221,7 +224,7 @@ func chatDemoSystemPromptEditor(c *ui.Context, log func(string)) {
 			limit = 60
 		}
 		ui.Column(c).Width(520).Children(func() {
-			v := mujica.SystemPromptEditor(c, &s.value, mujica.SystemPromptEditorOptions{Default: "You are helpful.", Saved: s.saved,
+			v := chat.SystemPromptEditor(c, &s.value, chat.SystemPromptEditorOptions{Default: "You are helpful.", Saved: s.saved,
 				MaxLength: limit, Saving: s.saving, Disabled: s.disabled})
 			if v.Save {
 				s.saving, s.at = true, c.Now()
@@ -243,7 +246,7 @@ func chatDemoCostEstimator(c *ui.Context, log func(string)) {
 			label string
 		}{{&s.in, "Input tokens"}, {&s.out, "Output tokens"}, {&s.inPrice, "Input $/M"}, {&s.outPrice, "Output $/M"}} {
 			choiceLabeled(c, f.label, func() {
-				r := mujica.NumberInput(c, f.v, mujica.NumberInputOptions{Min: 0, Max: 1e7, Step: 100, Label: f.label})
+				r := input.NumberInput(c, f.v, input.NumberInputOptions{Min: 0, Max: 1e7, Step: 100, Label: f.label})
 				r.Element.Width(150)
 				if r.Changed() {
 					log(fmt.Sprintf("%s = %v", f.label, *f.v))
@@ -252,7 +255,7 @@ func chatDemoCostEstimator(c *ui.Context, log func(string)) {
 		}
 	}, func() {
 		ui.Column(c).Width(420).Children(func() {
-			mujica.CostEstimator(c, mujica.CostEstimatorOptions{InputTokens: int(s.in), OutputTokens: int(s.out), InputPrice: s.inPrice, OutputPrice: s.outPrice})
+			chat.CostEstimator(c, chat.CostEstimatorOptions{InputTokens: int(s.in), OutputTokens: int(s.out), InputPrice: s.inPrice, OutputPrice: s.outPrice})
 		})
 	})
 }
@@ -264,7 +267,7 @@ func chatDemoSharedConversationView(c *ui.Context, log func(string)) {
 		choiceFlag(c, &s.disabled, "Disabled", log)
 	}, func() {
 		ui.Column(c).Width(600).Height(420).Children(func() {
-			if mujica.SharedConversationView(c, chatSampleMessages(time.Now()), mujica.SharedConversationViewOptions{Title: "Banquet seating",
+			if chat.SharedConversationView(c, chatSampleMessages(time.Now()), chat.SharedConversationViewOptions{Title: "Banquet seating",
 				SharedBy: "Lady Ann", SharedAt: time.Now(), Disabled: s.disabled}).Changed() {
 				c.WriteClipboard("https://example.com/share/banquet")
 				log("copy link")
@@ -275,7 +278,7 @@ func chatDemoSharedConversationView(c *ui.Context, log func(string)) {
 
 func chatDemoConversationExport(c *ui.Context, log func(string)) {
 	type state struct {
-		export   mujica.ConversationExportState
+		export   chat.ConversationExportState
 		disabled bool
 	}
 	s := *ui.Local(c.Root(), "257", func() *state { return &state{} })
@@ -283,7 +286,7 @@ func chatDemoConversationExport(c *ui.Context, log func(string)) {
 		choiceFlag(c, &s.disabled, "Disabled", log)
 	}, func() {
 		ui.Column(c).Width(580).Children(func() {
-			v := mujica.ConversationExport(c, &s.export, chatSampleMessages(time.Now()), mujica.ConversationExportOptions{Title: "Banquet seating",
+			v := chat.ConversationExport(c, &s.export, chatSampleMessages(time.Now()), chat.ConversationExportOptions{Title: "Banquet seating",
 				Selected: []int{1, 3}, Disabled: s.disabled})
 			if v.Exported {
 				log(fmt.Sprintf("export %d bytes as format %d (the caller writes the file)", len(v.Content), v.Format))
@@ -298,7 +301,7 @@ func chatDemoRegenerateMenu(c *ui.Context, log func(string)) {
 	choiceDemo(c, func() {
 		choiceFlag(c, &s.disabled, "Disabled", log)
 	}, func() {
-		v := mujica.RegenerateMenu(c, mujica.RegenerateMenuOptions{Models: []string{"Opus", "Sonnet", "Haiku"}, Current: "Opus", Disabled: s.disabled})
+		v := chat.RegenerateMenu(c, chat.RegenerateMenuOptions{Models: []string{"Opus", "Sonnet", "Haiku"}, Current: "Opus", Disabled: s.disabled})
 		if v.Chosen {
 			log(fmt.Sprintf("retry kind %d model %q variant %q", v.Choice.Kind, v.Choice.Model, v.Choice.Variant))
 		}
@@ -312,13 +315,13 @@ func chatDemoArtifactCard(c *ui.Context, log func(string)) {
 		choiceFlag(c, &s.streaming, "Streaming", log)
 		choiceFlag(c, &s.disabled, "Disabled", log)
 	}, func() {
-		for _, a := range []mujica.ArtifactCardOptions{
-			{Kind: mujica.ArtifactCode, Title: "seating.go", Detail: "Go · 120 lines"},
-			{Kind: mujica.ArtifactDocument, Title: "Royal decree", Detail: "2 pages"},
-			{Kind: mujica.ArtifactWeb, Title: "Ball invitation"},
+		for _, a := range []chat.ArtifactCardOptions{
+			{Kind: agent.ArtifactCode, Title: "seating.go", Detail: "Go · 120 lines"},
+			{Kind: agent.ArtifactDocument, Title: "Royal decree", Detail: "2 pages"},
+			{Kind: agent.ArtifactWeb, Title: "Ball invitation"},
 		} {
 			a.Streaming, a.Disabled = s.streaming, s.disabled
-			if mujica.ArtifactCard(c, a).Changed() {
+			if chat.ArtifactCard(c, a).Changed() {
 				log("open " + a.Title)
 			}
 		}
@@ -329,11 +332,11 @@ func chatDemoChatEmptyState(c *ui.Context, log func(string)) {
 	type state struct{ kind int }
 	s := *ui.Local(c.Root(), "260", func() *state { return &state{} })
 	choiceDemo(c, func() {
-		mujica.RadioGroup(c, &s.kind, []mujica.RadioItem[int]{{Value: 0, Label: "New"}, {Value: 1, Label: "No results"}, {Value: 2, Label: "Offline"}},
-			mujica.RadioGroupOptions{Horizontal: true, Label: "Kind"})
+		input.RadioGroup(c, &s.kind, []input.RadioItem[int]{{Value: 0, Label: "New"}, {Value: 1, Label: "No results"}, {Value: 2, Label: "Offline"}},
+			input.RadioGroupOptions{Horizontal: true, Label: "Kind"})
 	}, func() {
 		ui.Column(c).Width(420).Children(func() {
-			if mujica.ChatEmptyState(c, mujica.ChatEmptyStateOptions{Kind: mujica.ChatEmptyKind(s.kind), Query: "minuet"}).Action {
+			if chat.ChatEmptyState(c, chat.ChatEmptyStateOptions{Kind: chat.ChatEmptyKind(s.kind), Query: "minuet"}).Action {
 				log(fmt.Sprintf("action for kind %d", s.kind))
 			}
 		})

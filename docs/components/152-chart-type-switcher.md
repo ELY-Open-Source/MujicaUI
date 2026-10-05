@@ -7,10 +7,10 @@ K 线、美国线、折线、面积、平均 K 线切换。
 ## 最小示例
 
 ```go
-	value := mujica.ChartCandles
+	value := chart.ChartCandles
 	view := func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{})
-		mujica.ChartTypeSwitcher(c, &value, mujica.ChartTypeSwitcherOptions{})
+		core.Use(c, core.Settings{})
+		chart.ChartTypeSwitcher(c, &value, chart.ChartTypeSwitcherOptions{})
 	}
 	ui.Render(view, 640, 400, 1)
 ```

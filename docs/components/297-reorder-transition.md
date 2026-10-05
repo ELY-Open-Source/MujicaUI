@@ -9,8 +9,8 @@
 ```go
 order := []string{"Sakiko", "Uika", "Mutsumi"}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ReorderTransition(c, order, mujica.ReorderTransitionOptions{Gap: 4}, func(name string) {
+	core.Use(c, core.Settings{})
+	feedback.ReorderTransition(c, order, feedback.ReorderTransitionOptions{Gap: 4}, func(name string) {
 		ui.Text(c, name)
 	})
 }

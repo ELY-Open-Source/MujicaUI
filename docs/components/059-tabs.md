@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-if mujica.Tabs(c, &tab, []mujica.Tab{
+if navigation.Tabs(c, &tab, []navigation.Tab{
 	{Label: "General", Panel: func() { ui.Text(c, "General settings") }},
 	{Label: "Fonts", Icon: icons.Must("italic"), Panel: func() { ui.Text(c, "Fonts") }},
 	{Label: "Archive", Disabled: true},
-}, mujica.TabsOptions{Label: "Settings"}).Changed() {
+}, navigation.TabsOptions{Label: "Settings"}).Changed() {
 	fmt.Println("tab", tab)
 }
 ```

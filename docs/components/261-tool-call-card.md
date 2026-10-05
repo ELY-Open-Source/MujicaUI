@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-call := mujica.ToolCall{ID: "1", Name: "read_file", Args: "{\"path\":\"ledger.md\"}",
-	Result: "{\"lines\":40}", State: mujica.AgentDone, Duration: 420 * time.Millisecond}
+call := agent.ToolCall{ID: "1", Name: "read_file", Args: "{\"path\":\"ledger.md\"}",
+	Result: "{\"lines\":40}", State: agent.AgentDone, Duration: 420 * time.Millisecond}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ToolCallCard(c, call, mujica.ToolCallCardOptions{OpenArgs: true})
+	core.Use(c, core.Settings{})
+	agent.ToolCallCard(c, call, agent.ToolCallCardOptions{OpenArgs: true})
 }
 ui.Render(view, 400, 300, 1)
 ```

@@ -10,8 +10,8 @@
 picture := ui.MustParseSVG([]byte(`<svg xmlns="http://www.w3.org/2000/svg" width="240" height="160"><rect width="240" height="160" fill="#AD9164"/><path d="M120 20 L200 80 L120 140 L40 80 Z" fill="#7D2034"/></svg>`))
 open, index := true, 0
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ImageViewer(c, &open, &index, []mujica.ViewerImage{{Source: picture, Alt: "Rose window"}})
+	core.Use(c, core.Settings{})
+	data.ImageViewer(c, &open, &index, []data.ViewerImage{{Source: picture, Alt: "Rose window"}})
 }
 ui.Render(view, 400, 300, 1)
 ```

@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.ArtifactCard(c, mujica.ArtifactCardOptions{Title: "seating.go", Detail: "Go · 120 lines"}).Changed() {
+	core.Use(c, core.Settings{})
+	if chat.ArtifactCard(c, chat.ArtifactCardOptions{Title: "seating.go", Detail: "Go · 120 lines"}).Changed() {
 		log.Println("open artifact panel")
 	}
 }

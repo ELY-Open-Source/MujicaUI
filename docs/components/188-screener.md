@@ -7,12 +7,12 @@
 ## 最小示例
 
 ```go
-var state mujica.ScreenerState
-fields := []mujica.ScreenerField{{ID: "pe", Label: "P/E", Decimals: 1}}
-rows := []mujica.ScreenerRow{{Symbol: "AAPL", Values: map[string]float64{"pe": 34}}, {Symbol: "XOM", Values: map[string]float64{"pe": 13}}}
+var state finance.ScreenerState
+fields := []finance.ScreenerField{{ID: "pe", Label: "P/E", Decimals: 1}}
+rows := []finance.ScreenerRow{{Symbol: "AAPL", Values: map[string]float64{"pe": 34}}, {Symbol: "XOM", Values: map[string]float64{"pe": 13}}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.Screener(c, &state, fields, rows, mujica.ScreenerOptions{})
+	core.Use(c, core.Settings{})
+	r := finance.Screener(c, &state, fields, rows, finance.ScreenerOptions{})
 	if r.Changed || r.Save || r.Table.Changed() || r.Table.Submitted() || r.Table.SortChanged() || r.Table.Retried() {
 		fmt.Println(state.Conditions)
 	}

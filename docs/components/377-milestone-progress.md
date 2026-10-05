@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-milestone := mujica.Milestone{Title: "Release", Due: mujica.Date{Year: 2026, Month: 10, Day: 14}, Done: 3, Total: 8}
+milestone := project.Milestone{Title: "Release", Due: core.Date{Year: 2026, Month: 10, Day: 14}, Done: 3, Total: 8}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.MilestoneProgress(c, milestone, mujica.MilestoneProgressOptions{})
+	core.Use(c, core.Settings{})
+	project.MilestoneProgress(c, milestone, project.MilestoneProgressOptions{})
 }
 ui.Render(view, 1000, 700, 1)
 ```

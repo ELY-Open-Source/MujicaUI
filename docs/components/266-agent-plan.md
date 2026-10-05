@@ -7,14 +7,14 @@
 ## 最小示例
 
 ```go
-items := []mujica.PlanItem{
-	{ID: "a", Text: "Read the guest list", State: mujica.AgentDone},
-	{ID: "b", Text: "Assign the seats", State: mujica.AgentRunning},
+items := []agent.PlanItem{
+	{ID: "a", Text: "Read the guest list", State: agent.AgentDone},
+	{ID: "b", Text: "Assign the seats", State: agent.AgentRunning},
 	{ID: "c", Text: "Order the flowers"},
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.AgentPlan(c, &items, mujica.AgentPlanOptions{})
+	core.Use(c, core.Settings{})
+	agent.AgentPlan(c, &items, agent.AgentPlanOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

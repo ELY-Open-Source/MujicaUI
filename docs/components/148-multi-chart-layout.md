@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-	state := mujica.MultiChartState{Count: 2}
+	state := chart.MultiChartState{Count: 2}
 	view := func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{})
-		mujica.MultiChartLayout(c, &state, mujica.MultiChartLayoutOptions{Height: 200}, func(i int, cell *mujica.ChartCell) {
-			mujica.TextInput(c, &cell.Symbol, mujica.TextInputOptions{Label: "Symbol"})
+		core.Use(c, core.Settings{})
+		chart.MultiChartLayout(c, &state, chart.MultiChartLayoutOptions{Height: 200}, func(i int, cell *chart.ChartCell) {
+			input.TextInput(c, &cell.Symbol, input.TextInputOptions{Label: "Symbol"})
 		})
 	}
 	ui.Render(view, 640, 400, 1)

@@ -10,8 +10,8 @@
 rows, cols := []string{"Mon", "Tue"}, []string{"Matins", "Lauds", "Vespers"}
 values := [][]float64{{1, 4, 9}, {3, math.NaN(), 7}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.HeatmapChart(c, rows, cols, values, mujica.HeatmapChartOptions{Frame: mujica.ChartFrame{Label: "Hours"}})
+	core.Use(c, core.Settings{})
+	chart.HeatmapChart(c, rows, cols, values, chart.HeatmapChartOptions{Frame: chart.ChartFrame{Label: "Hours"}})
 }
 ui.Render(view, 400, 300, 1)
 ```

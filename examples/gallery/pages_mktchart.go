@@ -1,6 +1,8 @@
 package main
 
-import "github.com/egoist/mygo/ui"
+import (
+	"github.com/egoist/mygo/ui"
+)
 
 var mktchartPages = []page{
 	{ID: "141", Name: "CandlestickChart", ZhName: "K 线", Category: "Market Charts", Demo: func(c *ui.Context, log func(string)) { mktDemo(c, log, "141") }, Code: mktCode141, Keys: mktKeys},

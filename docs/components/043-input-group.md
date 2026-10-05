@@ -11,10 +11,10 @@
 ```go
 site := ""
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	g := mujica.InputGroup(c, &site, mujica.InputGroupOptions{
+	core.Use(c, core.Settings{})
+	g := input.InputGroup(c, &site, input.InputGroupOptions{
 		Prefix: "https://", Label: "Site",
-		Buttons: []mujica.InputGroupButton{{Label: "Open"}},
+		Buttons: []input.InputGroupButton{{Label: "Open"}},
 	})
 	if g.Clicked == 0 {
 		c.OpenURL("https://" + site)

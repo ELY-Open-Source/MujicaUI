@@ -9,8 +9,8 @@
 ```go
 levels := []float32{0.2, 0.6, 0.9, 0.4, 0.1}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.VoiceWaveform(c, levels, mujica.VoiceWaveformOptions{})
+	core.Use(c, core.Settings{})
+	chat.VoiceWaveform(c, levels, chat.VoiceWaveformOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

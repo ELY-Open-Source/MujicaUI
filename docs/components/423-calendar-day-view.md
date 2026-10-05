@@ -9,10 +9,10 @@
 ```go
 loc := time.Local
 events := exampleEvents(loc)
-day := mujica.Date{Year: 2026, Month: time.October, Day: 14}
+day := core.Date{Year: 2026, Month: time.October, Day: 14}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if id, ok := mujica.CalendarDayView(c, &day, events, mujica.CalendarDayViewOptions{Location: loc}).Opened(); ok {
+	core.Use(c, core.Settings{})
+	if id, ok := datetime.CalendarDayView(c, &day, events, datetime.CalendarDayViewOptions{Location: loc}).Opened(); ok {
 		fmt.Println("open", id)
 	}
 }

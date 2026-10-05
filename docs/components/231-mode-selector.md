@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-mode := mujica.ModeChat
+mode := chat.ModeChat
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.ModeSelector(c, &mode, mujica.ModeSelectorOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if chat.ModeSelector(c, &mode, chat.ModeSelectorOptions{}).Changed() {
 		fmt.Println("mode", mode)
 	}
 }

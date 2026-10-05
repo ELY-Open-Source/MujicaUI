@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.AttachmentChip(c, mujica.Attachment{Name: "guests.csv", Size: 4096, Uploading: true, Progress: 0.4})
+	core.Use(c, core.Settings{})
+	r := chat.AttachmentChip(c, chat.Attachment{Name: "guests.csv", Size: 4096, Uploading: true, Progress: 0.4})
 	if r.Removed() {
 		fmt.Println("cancel the upload")
 	}

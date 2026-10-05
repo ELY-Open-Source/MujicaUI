@@ -9,11 +9,11 @@
 ## 最小示例
 
 ```go
-var state mujica.TradeHistoryTableState
-rows := []mujica.FillRow{{ID: "f1", Time: time.Now(), Symbol: "MUJC", Side: mujica.SideBuy, Price: 400, Quantity: 10, Fee: 1.2}}
+var state finance.TradeHistoryTableState
+rows := []finance.FillRow{{ID: "f1", Time: time.Now(), Symbol: "MUJC", Side: finance.SideBuy, Price: 400, Quantity: 10, Fee: 1.2}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if fills, ok := mujica.TradeHistoryTable(c, &state, rows, mujica.TradeHistoryTableOptions{}).Exported(); ok {
+	core.Use(c, core.Settings{})
+	if fills, ok := finance.TradeHistoryTable(c, &state, rows, finance.TradeHistoryTableOptions{}).Exported(); ok {
 		fmt.Println("export", len(fills))
 	}
 }

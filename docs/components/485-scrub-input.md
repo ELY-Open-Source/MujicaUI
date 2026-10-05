@@ -9,8 +9,8 @@
 ```go
 opacity := 0.6
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ScrubInput(c, "Opacity", &opacity, mujica.ScrubInputOptions{Max: 1, Step: 0.1})
+	core.Use(c, core.Settings{})
+	input.ScrubInput(c, "Opacity", &opacity, input.ScrubInputOptions{Max: 1, Step: 0.1})
 }
 ```
 

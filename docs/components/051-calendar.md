@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-day := mujica.Date{Year: 2026, Month: time.October, Day: 5}
+day := core.Date{Year: 2026, Month: time.October, Day: 5}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.Calendar(c, &day, mujica.CalendarOptions{WeekStart: mujica.WeekStartMonday}).Changed() {
+	core.Use(c, core.Settings{})
+	if datetime.Calendar(c, &day, datetime.CalendarOptions{WeekStart: datetime.WeekStartMonday}).Changed() {
 		fmt.Println("chosen", day)
 	}
 }

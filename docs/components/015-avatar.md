@@ -8,10 +8,10 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
+	core.Use(c, core.Settings{})
 	ui.Row(c).Gap(8).Children(func() {
-		mujica.Avatar(c, "Sakiko Togawa", mujica.AvatarOptions{Size: 40})
-		mujica.Avatar(c, "", mujica.AvatarOptions{})
+		display.Avatar(c, "Sakiko Togawa", display.AvatarOptions{Size: 40})
+		display.Avatar(c, "", display.AvatarOptions{})
 	})
 }
 ```

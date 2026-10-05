@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-tabs := []mujica.TerminalTab{{ID: "a", Title: "zsh"}, {ID: "b", Title: "build", Busy: true}}
+tabs := []code.TerminalTab{{ID: "a", Title: "zsh"}, {ID: "b", Title: "build", Busy: true}}
 active := "a"
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.TerminalTabs(c, &tabs, &active, mujica.TerminalTabsOptions{}, func(id string) {
+	core.Use(c, core.Settings{})
+	r := code.TerminalTabs(c, &tabs, &active, code.TerminalTabsOptions{}, func(id string) {
 		ui.Text(c, "terminal "+id)
 	})
 	if r.Closed != "" {

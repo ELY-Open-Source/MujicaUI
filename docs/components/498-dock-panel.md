@@ -7,13 +7,13 @@
 ## 最小示例
 
 ```go
-var layout mujica.DockLayout
+var layout input.DockLayout
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.DockPanel(c, &layout, []mujica.DockItem{
+	core.Use(c, core.Settings{})
+	r := input.DockPanel(c, &layout, []input.DockItem{
 		{ID: "files", Title: "Files", Build: func() { ui.Text(c, "Files") }},
 		{ID: "terminal", Title: "Terminal", Build: func() { ui.Text(c, "$") }},
-	}, mujica.DockPanelOptions{})
+	}, input.DockPanelOptions{})
 	if r.Changed() {
 		// save layout
 	}

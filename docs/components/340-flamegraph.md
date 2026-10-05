@@ -7,13 +7,13 @@
 ## 最小示例
 
 ```go
-root := &mujica.FlameNode{Name: "main", Value: 100, Children: []mujica.FlameNode{
+root := &code.FlameNode{Name: "main", Value: 100, Children: []code.FlameNode{
 	{Name: "court.Seal", Value: 60}, {Name: "ledger.Write", Value: 30},
 }}
-var state mujica.FlamegraphState
+var state code.FlamegraphState
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Flamegraph(c, root, &state, mujica.FlamegraphOptions{Unit: "ms"})
+	core.Use(c, core.Settings{})
+	code.Flamegraph(c, root, &state, code.FlamegraphOptions{Unit: "ms"})
 }
 ui.Render(view, 400, 300, 1)
 ```

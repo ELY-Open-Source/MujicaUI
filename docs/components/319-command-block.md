@@ -8,10 +8,10 @@
 
 ```go
 open := true
-run := mujica.CommandRun{Command: "go test ./...", Output: "\x1b[32mok\x1b[0m  example  0.4s", Duration: 400 * time.Millisecond}
+run := agent.CommandRun{Command: "go test ./...", Output: "\x1b[32mok\x1b[0m  example  0.4s", Duration: 400 * time.Millisecond}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.CommandBlock(c, run, &open, mujica.CommandBlockOptions{})
+	core.Use(c, core.Settings{})
+	r := git.CommandBlock(c, run, &open, git.CommandBlockOptions{})
 	if what, ok := r.Copied(); ok {
 		_ = what // "command" or "output" is on the clipboard
 	}

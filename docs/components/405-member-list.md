@@ -7,14 +7,14 @@
 ## 最小示例
 
 ```go
-var s mujica.MemberListState
-members := []mujica.Member{
-	{ID: "1", Name: "Sakiko", Presence: mujica.PresenceOnline, Role: "Leader"},
-	{ID: "2", Name: "Umiri", Presence: mujica.PresenceOffline},
+var s messaging.MemberListState
+members := []messaging.Member{
+	{ID: "1", Name: "Sakiko", Presence: messaging.PresenceOnline, Role: "Leader"},
+	{ID: "2", Name: "Umiri", Presence: messaging.PresenceOffline},
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if r := mujica.MemberList(c, &s, members, mujica.MemberListOptions{}); r.Opened != "" {
+	core.Use(c, core.Settings{})
+	if r := messaging.MemberList(c, &s, members, messaging.MemberListOptions{}); r.Opened != "" {
 		_ = r.Opened // show that member's profile
 	}
 }

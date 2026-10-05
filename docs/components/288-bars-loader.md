@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.BarsLoader(c, mujica.LoaderOptions{Size: 20, Label: "Indexing"})
+	core.Use(c, core.Settings{})
+	feedback.BarsLoader(c, feedback.LoaderOptions{Size: 20, Label: "Indexing"})
 }
 ui.Render(view, 400, 300, 1)
 ```

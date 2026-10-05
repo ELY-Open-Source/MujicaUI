@@ -7,12 +7,12 @@
 ## 最小示例
 
 ```go
-notes := []mujica.ChartNote{{Kind: mujica.NoteHLine, Value: 50, Text: "Goal", Draggable: true}, {Kind: mujica.NoteBand, Value: 6, End: 8, Text: "Lent"}}
+notes := []chart.ChartNote{{Kind: chart.NoteHLine, Value: 50, Text: "Goal", Draggable: true}, {Kind: chart.NoteBand, Value: 6, End: 8, Text: "Lent"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	x := mujica.ChartAxis(c, mujica.ChartAxisOptions{Max: 10})
-	y := mujica.ChartAxis(c, mujica.ChartAxisOptions{Side: mujica.SideLeft, Max: 100})
-	annotation := mujica.ChartAnnotation(c, notes, mujica.ChartAnnotationOptions{X: &x, Y: &y})
+	core.Use(c, core.Settings{})
+	x := chart.ChartAxis(c, chart.ChartAxisOptions{Max: 10})
+	y := chart.ChartAxis(c, chart.ChartAxisOptions{Side: chart.SideLeft, Max: 100})
+	annotation := chart.ChartAnnotation(c, notes, chart.ChartAnnotationOptions{X: &x, Y: &y})
 	box := ui.Box(c).Fill().Focusable().Label("Annotations")
 	b := box.Bounds()
 	annotation.Drag(box, ui.Rect{X: 60, Y: 20, W: b.W - 80, H: b.H - 60})

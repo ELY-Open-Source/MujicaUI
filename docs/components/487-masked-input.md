@@ -9,8 +9,8 @@
 ```go
 phone := ""
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.MaskedInput(c, &phone, mujica.MaskedInputOptions{Mask: "(999) 999-9999", Label: "Phone"})
+	core.Use(c, core.Settings{})
+	input.MaskedInput(c, &phone, input.MaskedInputOptions{Mask: "(999) 999-9999", Label: "Phone"})
 }
 ```
 

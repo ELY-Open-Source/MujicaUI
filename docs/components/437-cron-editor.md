@@ -9,9 +9,9 @@
 ```go
 expr := "0 9 * * MON-FRI"
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.CronEditor(c, &expr, mujica.CronEditorOptions{Location: time.Local}).Changed() {
-		if _, err := mujica.ParseCron(expr); err == nil {
+	core.Use(c, core.Settings{})
+	if datetime.CronEditor(c, &expr, datetime.CronEditorOptions{Location: time.Local}).Changed() {
+		if _, err := datetime.ParseCron(expr); err == nil {
 			fmt.Println("schedule", expr)
 		}
 	}

@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-r := mujica.MessageList(c, &list, len(ids), mujica.MessageListOptions{
+r := chat.MessageList(c, &list, len(ids), chat.MessageListOptions{
 	ID: func(i int) string { return ids[i] },
 }, func(i int) { ui.Text(c, "Message "+ids[i]) })
 fmt.Println("unread", r.Unread())

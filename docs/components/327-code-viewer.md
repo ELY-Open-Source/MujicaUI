@@ -8,10 +8,10 @@
 
 ```go
 lines := []string{"func Seal(d string) int {", "\treturn len(d)", "}"}
-var state mujica.CodeViewerState
+var state code.CodeViewerState
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.CodeViewer(c, lines, &state, mujica.CodeViewerOptions{Language: "go"}).Element.Height(240)
+	core.Use(c, core.Settings{})
+	code.CodeViewer(c, lines, &state, code.CodeViewerOptions{Language: "go"}).Element.Height(240)
 }
 ui.Render(view, 400, 300, 1)
 ```

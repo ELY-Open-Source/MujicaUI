@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-if mujica.TableBlock(c, []string{"Guest", "Seat"}, [][]string{{"Marie", "1"}}, mujica.TableBlockOptions{}).Copied() {
+if chat.TableBlock(c, []string{"Guest", "Seat"}, [][]string{{"Marie", "1"}}, chat.TableBlockOptions{}).Copied() {
 	fmt.Println("copied as TSV")
 }
 ```

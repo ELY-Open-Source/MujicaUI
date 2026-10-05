@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-var state mujica.NewsFeedState
-rows := []mujica.NewsItem{{ID: "a", Title: "Apple unveils new chips", Source: "Wire", Time: time.Date(2026, 10, 5, 14, 30, 0, 0, time.UTC), Symbols: []string{"AAPL"}}}
+var state finance.NewsFeedState
+rows := []finance.NewsItem{{ID: "a", Title: "Apple unveils new chips", Source: "Wire", Time: time.Date(2026, 10, 5, 14, 30, 0, 0, time.UTC), Symbols: []string{"AAPL"}}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.NewsFeed(c, &state, rows, mujica.NewsFeedOptions{})
+	core.Use(c, core.Settings{})
+	r := finance.NewsFeed(c, &state, rows, finance.NewsFeedOptions{})
 	if r.Opened != "" || r.Symbol != "" || r.Retry {
 		fmt.Println(r.Opened, r.Symbol)
 	}

@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.OrbitLoader(c, mujica.LoaderOptions{Size: 24, Label: "Connecting"})
+	core.Use(c, core.Settings{})
+	feedback.OrbitLoader(c, feedback.LoaderOptions{Size: 24, Label: "Connecting"})
 }
 ui.Render(view, 400, 300, 1)
 ```

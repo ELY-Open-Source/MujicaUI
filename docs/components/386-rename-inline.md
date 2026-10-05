@@ -9,8 +9,8 @@
 ```go
 name, editing := "seal.txt", true
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.RenameInline(c, &name, &editing, mujica.RenameInlineOptions{})
+	core.Use(c, core.Settings{})
+	files.RenameInline(c, &name, &editing, files.RenameInlineOptions{})
 }
 ui.Render(view, 400, 100, 1)
 ```

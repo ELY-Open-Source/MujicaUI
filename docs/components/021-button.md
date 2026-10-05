@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-if mujica.Button(c, "Save", mujica.ButtonOptions{Icon: icons.Must("check")}).Clicked() {
+if input.Button(c, "Save", input.ButtonOptions{Icon: icons.Must("check")}).Clicked() {
 	fmt.Println("saved")
 }
 ```

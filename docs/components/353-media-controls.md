@@ -7,13 +7,13 @@
 ## 最小示例
 
 ```go
-st := mujica.MediaControlsState{}
+st := media.MediaControlsState{}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.MediaControls(c, st, mujica.MediaControlsOptions{
+	core.Use(c, core.Settings{})
+	media.MediaControls(c, st, media.MediaControlsOptions{
 		OnPrevious: func() {}, OnNext: func() {},
 		OnPlay: func() { st.Playing = true }, OnPause: func() { st.Playing = false },
-		OnLoop: func(m mujica.LoopMode) { st.Loop = m }, OnShuffle: func(on bool) { st.Shuffle = on },
+		OnLoop: func(m media.LoopMode) { st.Loop = m }, OnShuffle: func(on bool) { st.Shuffle = on },
 	})
 }
 ui.Render(view, 400, 300, 1)

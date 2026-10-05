@@ -12,8 +12,8 @@
 code := ""
 resendAt := time.Now().Add(30 * time.Second)
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.TwoFactorInput(c, &code, mujica.TwoFactorInputOptions{ResendAt: resendAt})
+	core.Use(c, core.Settings{})
+	r := account.TwoFactorInput(c, &code, account.TwoFactorInputOptions{ResendAt: resendAt})
 	if r.Completed() {
 		fmt.Println("verify the code")
 	}

@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-if mujica.SegmentedControl(c, &view, []mujica.Segment{
+if navigation.SegmentedControl(c, &view, []navigation.Segment{
 	{Label: "List", Icon: icons.Must("list"), HideLabel: true},
 	{Label: "Grid", Icon: icons.Must("layout-grid"), HideLabel: true},
-}, mujica.SegmentedControlOptions{Label: "View"}).Changed() {
+}, navigation.SegmentedControlOptions{Label: "View"}).Changed() {
 	fmt.Println("view", view)
 }
 ```

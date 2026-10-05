@@ -8,16 +8,16 @@
 
 ```go
 	at := time.Date(2026, 10, 5, 9, 0, 0, 0, time.UTC)
-	candles := []mujica.Candle{
+	candles := []chart.Candle{
 		{Time: at, Open: 100, High: 103, Low: 99, Close: 102, Volume: 1200},
 		{Time: at.Add(time.Hour), Open: 102, High: 104, Low: 100, Close: 101, Volume: 1600},
 		{Time: at.Add(2 * time.Hour), Open: 101, High: 105, Low: 100, Close: 104, Volume: 900},
 	}
-	var window mujica.MarketView
-	panes := mujica.IndicatorPanes{Panes: []mujica.IndicatorPaneSpec{{Kind: mujica.IndicatorRSI, Params: []float64{2}}}}
+	var window chart.MarketView
+	panes := chart.IndicatorPanes{Panes: []chart.IndicatorPaneSpec{{Kind: chart.IndicatorRSI, Params: []float64{2}}}}
 	view := func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{})
-		mujica.IndicatorPane(c, candles, &window, &panes, mujica.IndicatorPaneOptions{Height: 200, Label: "BTC"})
+		core.Use(c, core.Settings{})
+		chart.IndicatorPane(c, candles, &window, &panes, chart.IndicatorPaneOptions{Height: 200, Label: "BTC"})
 	}
 	ui.Render(view, 640, 400, 1)
 ```

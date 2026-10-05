@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-stages := []mujica.ChartSlice{{Label: "Visitors", Value: 1000}, {Label: "Novices", Value: 400}, {Label: "Vows", Value: 100}}
+stages := []chart.ChartSlice{{Label: "Visitors", Value: 1000}, {Label: "Novices", Value: 400}, {Label: "Vows", Value: 100}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.FunnelChart(c, stages, mujica.FunnelChartOptions{Frame: mujica.ChartFrame{Label: "Order"}})
+	core.Use(c, core.Settings{})
+	chart.FunnelChart(c, stages, chart.FunnelChartOptions{Frame: chart.ChartFrame{Label: "Order"}})
 }
 ui.Render(view, 400, 300, 1)
 ```

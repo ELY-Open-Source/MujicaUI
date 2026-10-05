@@ -7,13 +7,13 @@
 ## 最小示例
 
 ```go
-symbols := []mujica.Symbol{{Name: "Court", Kind: mujica.SymbolType, Line: 3, EndLine: 40, Children: []mujica.Symbol{
-	{Name: "Seal", Kind: mujica.SymbolMethod, Line: 10, EndLine: 20},
+symbols := []code.Symbol{{Name: "Court", Kind: code.SymbolType, Line: 3, EndLine: 40, Children: []code.Symbol{
+	{Name: "Seal", Kind: code.SymbolMethod, Line: 10, EndLine: 20},
 }}}
-var state mujica.SymbolOutlineState
+var state code.SymbolOutlineState
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.SymbolOutline(c, symbols, &state, mujica.SymbolOutlineOptions{CursorLine: 12})
+	core.Use(c, core.Settings{})
+	r := code.SymbolOutline(c, symbols, &state, code.SymbolOutlineOptions{CursorLine: 12})
 	r.Element.Height(240)
 	if r.Jumped != nil {
 		fmt.Println("go to line", r.Jumped.Line)

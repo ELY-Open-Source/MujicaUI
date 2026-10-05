@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-var st mujica.ScreenshotStreamState
-var frames []mujica.ScreenshotFrame // appended as the agent captures them
+var st agent.ScreenshotStreamState
+var frames []agent.ScreenshotFrame // appended as the agent captures them
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ScreenshotStream(c, &st, frames, mujica.ScreenshotStreamOptions{})
+	core.Use(c, core.Settings{})
+	agent.ScreenshotStream(c, &st, frames, agent.ScreenshotStreamOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

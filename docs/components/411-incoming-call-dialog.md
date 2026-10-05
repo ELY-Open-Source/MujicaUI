@@ -9,8 +9,8 @@
 ```go
 ringing := true
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.IncomingCallDialog(c, &ringing, mujica.IncomingCall{Caller: "Sakiko", Video: true}, mujica.IncomingCallOptions{
+	core.Use(c, core.Settings{})
+	messaging.IncomingCallDialog(c, &ringing, messaging.IncomingCall{Caller: "Sakiko", Video: true}, messaging.IncomingCallOptions{
 		OnAccept:  func(video bool) {}, // join, with the camera on when video
 		OnDecline: func() {},
 	})

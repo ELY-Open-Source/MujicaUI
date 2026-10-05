@@ -9,8 +9,8 @@
 ```go
 loading := true
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Shimmer(c, loading, mujica.ShimmerOptions{Height: 48}, func() {
+	core.Use(c, core.Settings{})
+	feedback.Shimmer(c, loading, feedback.ShimmerOptions{Height: 48}, func() {
 		ui.Text(c, "Report ready")
 	})
 }

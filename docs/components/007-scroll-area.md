@@ -8,7 +8,7 @@
 
 ```go
 var offset ui.ScrollState
-mujica.ScrollArea(c, &offset, mujica.ScrollAreaOptions{Label: "Log"}, func() {
+layout.ScrollArea(c, &offset, layout.ScrollAreaOptions{Label: "Log"}, func() {
 	for range 50 {
 		ui.Text(c, "A line of the log")
 	}

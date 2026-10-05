@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-var s mujica.ListState[string]
-mails := []mujica.MailItem{{ID: "1", From: "Sakiko", Subject: "Second act", Unread: true, Attachments: 1}}
+var s data.ListState[string]
+mails := []messaging.MailItem{{ID: "1", From: "Sakiko", Subject: "Second act", Unread: true, Attachments: 1}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if r := mujica.MailList(c, &s, mails, mujica.MailListOptions{}); r.Starred != "" {
+	core.Use(c, core.Settings{})
+	if r := messaging.MailList(c, &s, mails, messaging.MailListOptions{}); r.Starred != "" {
 		mails[0].Starred = !mails[0].Starred
 	}
 }

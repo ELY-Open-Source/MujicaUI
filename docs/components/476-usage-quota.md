@@ -9,10 +9,10 @@
 ## 最小示例
 
 ```go
-items := []mujica.QuotaItem{{Label: "API calls", Used: 4200, Limit: 10000}, {Label: "Storage", Used: 9, Limit: 10, Unit: "GB"}}
+items := []account.QuotaItem{{Label: "API calls", Used: 4200, Limit: 10000}, {Label: "Storage", Used: 9, Limit: 10, Unit: "GB"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.UsageQuota(c, items, mujica.UsageQuotaOptions{ResetAt: time.Now().Add(72 * time.Hour)})
+	core.Use(c, core.Settings{})
+	account.UsageQuota(c, items, account.UsageQuotaOptions{ResetAt: time.Now().Add(72 * time.Hour)})
 }
 ui.Render(view, 400, 300, 1)
 ```

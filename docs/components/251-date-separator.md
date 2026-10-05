@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.DateSeparator(c, mujica.DateOf(time.Now()), mujica.DateSeparatorOptions{})
+	core.Use(c, core.Settings{})
+	chat.DateSeparator(c, core.DateOf(time.Now()), chat.DateSeparatorOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

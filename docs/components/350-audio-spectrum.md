@@ -9,8 +9,8 @@
 ```go
 bands := []float32{0.2, 0.6, 0.9, 0.4, 0.1} // set by your analyser, then c.Invalidate()
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.AudioSpectrum(c, bands, mujica.AudioSpectrumOptions{})
+	core.Use(c, core.Settings{})
+	media.AudioSpectrum(c, bands, media.AudioSpectrumOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

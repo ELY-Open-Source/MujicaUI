@@ -7,13 +7,13 @@
 ## 最小示例
 
 ```go
-people := []mujica.CallParticipant{
+people := []messaging.CallParticipant{
 	{ID: "1", Name: "Sakiko", Speaking: true}, // Frame: the latest decoded frame
 	{ID: "2", Name: "Uika", Muted: true},
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.VideoCallGrid(c, people, mujica.VideoCallGridOptions{})
+	core.Use(c, core.Settings{})
+	messaging.VideoCallGrid(c, people, messaging.VideoCallGridOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-roots := []mujica.SchemaNode{{Name: "app", Children: []mujica.SchemaNode{{Name: "users", Kind: mujica.SchemaTable, Children: []mujica.SchemaNode{{Name: "id", Kind: mujica.SchemaColumn, Detail: "bigint"}, {Name: "users_pk", Kind: mujica.SchemaIndex, Detail: "(id)"}}}}}}
-var state mujica.SchemaTreeState
+roots := []devtools.SchemaNode{{Name: "app", Children: []devtools.SchemaNode{{Name: "users", Kind: devtools.SchemaTable, Children: []devtools.SchemaNode{{Name: "id", Kind: devtools.SchemaColumn, Detail: "bigint"}, {Name: "users_pk", Kind: devtools.SchemaIndex, Detail: "(id)"}}}}}}
+var state devtools.SchemaTreeState
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.SchemaTree(c, &state, roots, mujica.SchemaTreeOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if devtools.SchemaTree(c, &state, roots, devtools.SchemaTreeOptions{}).Changed() {
 		path, _ := state.Selected()
 		fmt.Println("selected", path)
 	}

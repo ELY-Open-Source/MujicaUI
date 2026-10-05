@@ -9,14 +9,14 @@
 ```go
 kids := map[string][]string{"Vestry": {"Stole", "Alb"}}
 size := map[string]int{"Vestry": 9, "Stole": 2, "Alb": 5, "Organ": 7}
-var state mujica.TreeTableState[string]
+var state data.TreeTableState[string]
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.TreeTable(c, &state, mujica.TreeTableOptions[string]{
+	core.Use(c, core.Settings{})
+	data.TreeTable(c, &state, data.TreeTableOptions[string]{
 		Roots:    []string{"Vestry", "Organ"},
 		Children: func(n string) []string { return kids[n] },
 		Label:    func(n string) string { return n },
-		Columns: []mujica.TreeColumn[string]{
+		Columns: []data.TreeColumn[string]{
 			{ID: "name", Title: "Name", Cell: func(n string) { ui.Text(c, n) },
 				Compare: cmp.Compare[string]},
 			{ID: "size", Title: "Size", Width: 80, Align: ui.End,

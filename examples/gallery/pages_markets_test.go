@@ -1,11 +1,13 @@
 package main
 
 import (
-	"github.com/egoist/mygo/ui"
-	mujica "mujicaui"
 	"slices"
 	"strings"
 	"testing"
+
+	"github.com/egoist/mygo/ui"
+
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
 )
 
 func marketsDemo(t *testing.T, id string) (*ui.Tester, *[]string) {
@@ -16,7 +18,7 @@ func marketsDemo(t *testing.T, id string) (*ui.Tester, *[]string) {
 	}
 	events := &[]string{}
 	tt := ui.NewTester(func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{})
+		core.Use(c, core.Settings{})
 		ui.Scroll(c).Fill().Padding(24).Children(func() { marketsPages[i].Demo(c, func(s string) { *events = append(*events, s) }) })
 	}, 1000, 800)
 	tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})

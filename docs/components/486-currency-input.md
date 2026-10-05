@@ -9,8 +9,8 @@
 ```go
 cents := int64(123450)
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.CurrencyInput(c, &cents, mujica.CurrencyInputOptions{Symbol: "$", Label: "Price"})
+	core.Use(c, core.Settings{})
+	input.CurrencyInput(c, &cents, input.CurrencyInputOptions{Symbol: "$", Label: "Price"})
 }
 ```
 

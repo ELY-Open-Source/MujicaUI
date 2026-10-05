@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-run := mujica.CommandRun{Command: "go test ./...", Dir: "~/court", Running: true, Output: "\x1b[32mok\x1b[0m court\n"}
+run := agent.CommandRun{Command: "go test ./...", Dir: "~/court", Running: true, Output: "\x1b[32mok\x1b[0m court\n"}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.CommandExecutionCard(c, run, mujica.CommandExecutionCardOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if agent.CommandExecutionCard(c, run, agent.CommandExecutionCardOptions{}).Changed() {
 		fmt.Println("abort the process")
 	}
 }

@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-task := mujica.Task{ID: "ENG-1", Title: "Plan the release", Status: "todo", Priority: mujica.PriorityHigh}
+task := project.Task{ID: "ENG-1", Title: "Plan the release", Status: "todo", Priority: project.PriorityHigh}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.TaskItem(c, &task, mujica.TaskItemOptions{})
+	core.Use(c, core.Settings{})
+	r := project.TaskItem(c, &task, project.TaskItemOptions{})
 	if id, ok := r.Changed(); ok {
 		log.Println("edit", id)
 	}

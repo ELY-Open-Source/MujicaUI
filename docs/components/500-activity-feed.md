@@ -7,12 +7,12 @@
 ## 最小示例
 
 ```go
-events := []mujica.Activity{
+events := []feedback.Activity{
 	{ID: "1", Actor: "Lin", Action: "commented on", Object: "Quarterly report", Time: time.Now()},
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ActivityFeed(c, events, mujica.ActivityFeedOptions{}).Size(380, 280)
+	core.Use(c, core.Settings{})
+	feedback.ActivityFeed(c, events, feedback.ActivityFeedOptions{}).Size(380, 280)
 }
 ```
 

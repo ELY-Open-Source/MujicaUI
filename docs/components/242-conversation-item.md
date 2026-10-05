@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-conv := mujica.ChatConversation{ID: "1", Title: "Court etiquette", Updated: time.Now()}
+conv := chat.ChatConversation{ID: "1", Title: "Court etiquette", Updated: time.Now()}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	v := mujica.ConversationItem(c, &conv, mujica.ConversationItemOptions{})
+	core.Use(c, core.Settings{})
+	v := chat.ConversationItem(c, &conv, chat.ConversationItemOptions{})
 	if v.Deleted {
 		log.Println("delete", conv.ID)
 	}

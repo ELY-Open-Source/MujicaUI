@@ -11,8 +11,8 @@
 ```go
 accent := ui.Hex("#7D2034")
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.AccentColorPicker(c, &accent, mujica.AccentColorPickerOptions{})
+	core.Use(c, core.Settings{})
+	account.AccentColorPicker(c, &accent, account.AccentColorPickerOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

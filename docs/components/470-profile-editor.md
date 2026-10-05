@@ -9,11 +9,11 @@
 ## 最小示例
 
 ```go
-saved := mujica.Profile{Name: "Sakiko", Bio: "Keyboard."}
+saved := account.Profile{Name: "Sakiko", Bio: "Keyboard."}
 profile := saved
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.ProfileEditor(c, &profile, mujica.ProfileEditorOptions{Saved: saved}).Save() {
+	core.Use(c, core.Settings{})
+	if account.ProfileEditor(c, &profile, account.ProfileEditorOptions{Saved: saved}).Save() {
 		saved = profile
 	}
 }

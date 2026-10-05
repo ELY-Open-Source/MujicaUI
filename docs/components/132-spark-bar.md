@@ -9,8 +9,8 @@
 ```go
 values := []float64{3, -2, 4, 1, -3}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.SparkBar(c, values, mujica.SparkBarOptions{Frame: mujica.ChartFrame{Label: "Alms"}, BarWidth: 10})
+	core.Use(c, core.Settings{})
+	chart.SparkBar(c, values, chart.SparkBarOptions{Frame: chart.ChartFrame{Label: "Alms"}, BarWidth: 10})
 }
 ui.Render(view, 400, 100, 1)
 ```

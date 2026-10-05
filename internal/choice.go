@@ -3,8 +3,8 @@ package internal
 import (
 	"github.com/egoist/mygo/ui"
 
-	"mujicaui/icons"
-	"mujicaui/theme"
+	"github.com/ZacharyZhang-NY/MujicaUI/icons"
+	"github.com/ZacharyZhang-NY/MujicaUI/theme"
 )
 
 // CheckState is what a drawn check box shows.

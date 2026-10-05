@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-if url, ok := mujica.MarkdownView(c, "# Decree\n\nSee **the guide** at [the court](https://example.com).").Link(); ok {
+if url, ok := chat.MarkdownView(c, "# Decree\n\nSee **the guide** at [the court](https://example.com).").Link(); ok {
 	fmt.Println("open", url)
 }
 ```

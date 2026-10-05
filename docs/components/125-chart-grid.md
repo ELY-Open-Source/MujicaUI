@@ -8,10 +8,10 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	x := mujica.ChartAxis(c, mujica.ChartAxisOptions{Max: 10})
-	y := mujica.ChartAxis(c, mujica.ChartAxisOptions{Side: mujica.SideLeft, Max: 100})
-	grid := mujica.ChartGrid(c, mujica.ChartGridOptions{X: &x, Y: &y, Minor: 2})
+	core.Use(c, core.Settings{})
+	x := chart.ChartAxis(c, chart.ChartAxisOptions{Max: 10})
+	y := chart.ChartAxis(c, chart.ChartAxisOptions{Side: chart.SideLeft, Max: 100})
+	grid := chart.ChartGrid(c, chart.ChartGridOptions{X: &x, Y: &y, Minor: 2})
 	ui.Box(c).Fill().Draw(func(p *ui.Painter, r ui.Rect) {
 		plot := ui.Rect{X: r.X + 60, Y: r.Y + 20, W: r.W - 80, H: r.H - 60}
 		grid.Draw(p, plot)

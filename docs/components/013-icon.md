@@ -8,10 +8,10 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
+	core.Use(c, core.Settings{})
 	ui.Row(c).Gap(8).Children(func() {
-		mujica.Icon(c, "star", mujica.IconOptions{})
-		mujica.Icon(c, "circle-check", mujica.IconOptions{Size: 20, Tone: mujica.IconSuccess, Label: "Done"})
+		display.Icon(c, "star", display.IconOptions{})
+		display.Icon(c, "circle-check", display.IconOptions{Size: 20, Tone: display.IconSuccess, Label: "Done"})
 	})
 }
 ```

@@ -8,10 +8,10 @@
 
 ```go
 now := time.Date(2026, 10, 5, 14, 30, 0, 0, time.UTC)
-markets := []mujica.SessionMarket{{Name: "NYSE", Location: time.FixedZone("EDT", -4*3600), Sessions: []mujica.TradingSession{{Phase: mujica.MarketOpen, Start: 570, End: 960}}}}
+markets := []finance.SessionMarket{{Name: "NYSE", Location: time.FixedZone("EDT", -4*3600), Sessions: []finance.TradingSession{{Phase: finance.MarketOpen, Start: 570, End: 960}}}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.TradingSessionClock(c, markets, mujica.TradingSessionClockOptions{Now: now})
+	core.Use(c, core.Settings{})
+	finance.TradingSessionClock(c, markets, finance.TradingSessionClockOptions{Now: now})
 }
 ui.Render(view, 960, 440, 1)
 ```

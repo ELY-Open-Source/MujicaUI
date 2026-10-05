@@ -9,8 +9,8 @@
 ```go
 value := 72.0
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.SentimentGauge(c, value, mujica.SentimentGaugeOptions{Label: "Fear & Greed"})
+	core.Use(c, core.Settings{})
+	finance.SentimentGauge(c, value, finance.SentimentGaugeOptions{Label: "Fear & Greed"})
 }
 ui.Render(view, 960, 440, 1)
 ```

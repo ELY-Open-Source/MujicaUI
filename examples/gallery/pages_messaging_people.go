@@ -5,7 +5,9 @@ import (
 	"slices"
 
 	"github.com/egoist/mygo/ui"
-	mujica "mujicaui"
+
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
+	"github.com/ZacharyZhang-NY/MujicaUI/messaging"
 )
 
 func channelListDemo(c *ui.Context, log func(string)) {
@@ -13,15 +15,15 @@ func channelListDemo(c *ui.Context, log func(string)) {
 		selected string
 		disabled bool
 		revision int
-		groups   []mujica.ChannelGroup
+		groups   []messaging.ChannelGroup
 	}
 	s := ui.Local(c.Root(), "401", func() state {
-		return state{groups: []mujica.ChannelGroup{
-			{ID: "channels", Title: "Channels", Channels: []mujica.Channel{
+		return state{groups: []messaging.ChannelGroup{
+			{ID: "channels", Title: "Channels", Channels: []messaging.Channel{
 				{ID: "general", Name: "general", Unread: 3}, {ID: "rehearsal", Name: "rehearsal", Pinned: true},
 				{ID: "random", Name: "random", Unread: 120, Muted: true},
 			}},
-			{ID: "direct", Title: "Direct messages", Channels: []mujica.Channel{{ID: "uika", Name: "Uika", Direct: true, Presence: mujica.PresenceOnline}}},
+			{ID: "direct", Title: "Direct messages", Channels: []messaging.Channel{{ID: "uika", Name: "Uika", Direct: true, Presence: messaging.PresenceOnline}}},
 		}}
 	})
 	mediaCheck(c, log, &s.disabled, "Disabled")
@@ -31,7 +33,7 @@ func channelListDemo(c *ui.Context, log func(string)) {
 	if before != s.groups[0].Channels[0] {
 		s.revision++
 	}
-	if mujica.ChannelList(c, &s.selected, s.groups, mujica.ChannelListOptions{Disabled: s.disabled, Revision: s.revision}).Changed() {
+	if messaging.ChannelList(c, &s.selected, s.groups, messaging.ChannelListOptions{Disabled: s.disabled, Revision: s.revision}).Changed() {
 		log("channel " + s.selected)
 	}
 	ui.Text(c, "Selected: "+s.selected)
@@ -39,25 +41,25 @@ func channelListDemo(c *ui.Context, log func(string)) {
 
 func memberListDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		list            mujica.MemberListState
+		list            messaging.MemberListState
 		disabled, empty bool
-		members         []mujica.Member
+		members         []messaging.Member
 	}
 	s := ui.Local(c.Root(), "405", func() state {
-		return state{members: []mujica.Member{
-			{ID: "1", Name: "Sakiko", Presence: mujica.PresenceOnline, Role: "Leader"},
-			{ID: "2", Name: "Uika", Presence: mujica.PresenceBusy, Role: "Vocal"},
-			{ID: "3", Name: "Mutsumi", Presence: mujica.PresenceAway}, {ID: "4", Name: "Umiri", Presence: mujica.PresenceOffline},
+		return state{members: []messaging.Member{
+			{ID: "1", Name: "Sakiko", Presence: messaging.PresenceOnline, Role: "Leader"},
+			{ID: "2", Name: "Uika", Presence: messaging.PresenceBusy, Role: "Vocal"},
+			{ID: "3", Name: "Mutsumi", Presence: messaging.PresenceAway}, {ID: "4", Name: "Umiri", Presence: messaging.PresenceOffline},
 		}}
 	})
 	mediaCheck(c, log, &s.disabled, "Disabled")
 	mediaCheck(c, log, &s.empty, "Empty")
-	if mujica.Button(c, "Toggle Uika presence", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+	if input.Button(c, "Toggle Uika presence", input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 		s.members = slices.Clone(s.members)
-		if s.members[1].Presence == mujica.PresenceOffline {
-			s.members[1].Presence = mujica.PresenceOnline
+		if s.members[1].Presence == messaging.PresenceOffline {
+			s.members[1].Presence = messaging.PresenceOnline
 		} else {
-			s.members[1].Presence = mujica.PresenceOffline
+			s.members[1].Presence = messaging.PresenceOffline
 		}
 		log("Uika presence changed")
 	}
@@ -65,7 +67,7 @@ func memberListDemo(c *ui.Context, log func(string)) {
 	if s.empty {
 		members = nil
 	}
-	r := mujica.MemberList(c, &s.list, members, mujica.MemberListOptions{Disabled: s.disabled, Height: 240})
+	r := messaging.MemberList(c, &s.list, members, messaging.MemberListOptions{Disabled: s.disabled, Height: 240})
 	if r.Changed() {
 		log("member " + s.list.Selected)
 	}
@@ -76,61 +78,61 @@ func memberListDemo(c *ui.Context, log func(string)) {
 
 func userProfileCardDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		presence          mujica.PresenceStatus
+		presence          messaging.PresenceStatus
 		actions, disabled bool
 	}
-	s := ui.Local(c.Root(), "406", func() state { return state{actions: true, presence: mujica.PresenceOnline} })
+	s := ui.Local(c.Root(), "406", func() state { return state{actions: true, presence: messaging.PresenceOnline} })
 	mediaCheck(c, log, &s.actions, "Actions")
 	mediaCheck(c, log, &s.disabled, "Disable actions")
 	messagingPresence(c, log, &s.presence)
-	opts := mujica.UserProfileCardOptions{}
+	opts := messaging.UserProfileCardOptions{}
 	if s.actions {
 		opts.Actions = func() {
 			for _, action := range []string{"Message", "Call"} {
-				if mujica.Button(c, action, mujica.ButtonOptions{Disabled: s.disabled}).Clicked() {
+				if input.Button(c, action, input.ButtonOptions{Disabled: s.disabled}).Clicked() {
 					log(action)
 				}
 			}
 		}
 	}
-	mujica.UserProfileCard(c, mujica.UserProfile{Name: "Sakiko Togawa", Presence: s.presence, Role: "Keyboard", Status: "In rehearsal", About: "Founder of the masquerade."}, opts)
+	messaging.UserProfileCard(c, messaging.UserProfile{Name: "Sakiko Togawa", Presence: s.presence, Role: "Keyboard", Status: "In rehearsal", About: "Founder of the masquerade."}, opts)
 }
 
 func onlineStatusDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		presence mujica.PresenceStatus
+		presence messaging.PresenceStatus
 		hidden   bool
 	}
-	s := ui.Local(c.Root(), "407", func() state { return state{presence: mujica.PresenceOnline} })
+	s := ui.Local(c.Root(), "407", func() state { return state{presence: messaging.PresenceOnline} })
 	mediaCheck(c, log, &s.hidden, "Hide text")
 	messagingPresence(c, log, &s.presence)
-	mujica.OnlineStatus(c, s.presence, mujica.OnlineStatusOptions{HideText: s.hidden})
+	messaging.OnlineStatus(c, s.presence, messaging.OnlineStatusOptions{HideText: s.hidden})
 	inputSection(c, "States", func() {
-		for p := mujica.PresenceOffline; p <= mujica.PresenceBusy; p++ {
-			mujica.OnlineStatus(c, p, mujica.OnlineStatusOptions{})
+		for p := messaging.PresenceOffline; p <= messaging.PresenceBusy; p++ {
+			messaging.OnlineStatus(c, p, messaging.OnlineStatusOptions{})
 		}
 	})
 }
 
 func statusSetterDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		status   mujica.CustomStatus
+		status   messaging.CustomStatus
 		disabled bool
 	}
 	s := ui.Local(c.Root(), "408", func() state { return state{} })
 	mediaCheck(c, log, &s.disabled, "Disabled")
-	if mujica.StatusSetter(c, &s.status, mujica.StatusSetterOptions{Disabled: s.disabled}).Changed() {
+	if messaging.StatusSetter(c, &s.status, messaging.StatusSetterOptions{Disabled: s.disabled}).Changed() {
 		log("status changed")
 	}
 	ui.Text(c, fmt.Sprintf("Text: %s; expires: %v", s.status.Text, s.status.Until))
 }
 
-func messagingPresence(c *ui.Context, log func(string), value *mujica.PresenceStatus) {
-	items := []mujica.SelectOption[mujica.PresenceStatus]{
-		{Value: mujica.PresenceOnline, Label: "Online"}, {Value: mujica.PresenceAway, Label: "Away"},
-		{Value: mujica.PresenceBusy, Label: "Busy"}, {Value: mujica.PresenceOffline, Label: "Offline"},
+func messagingPresence(c *ui.Context, log func(string), value *messaging.PresenceStatus) {
+	items := []input.SelectOption[messaging.PresenceStatus]{
+		{Value: messaging.PresenceOnline, Label: "Online"}, {Value: messaging.PresenceAway, Label: "Away"},
+		{Value: messaging.PresenceBusy, Label: "Busy"}, {Value: messaging.PresenceOffline, Label: "Offline"},
 	}
-	if mujica.Select(c, value, items, mujica.SelectOptions{Label: "Presence"}).Changed() {
+	if input.Select(c, value, items, input.SelectOptions{Label: "Presence"}).Changed() {
 		log(fmt.Sprintf("presence %d", *value))
 	}
 }

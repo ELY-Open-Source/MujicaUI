@@ -8,13 +8,13 @@
 
 ```go
 var prompt string
-var found []mujica.ContextItem
+var found []chat.ContextItem
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	composer := mujica.PromptComposer(c, &prompt, mujica.PromptComposerOptions{})
-	r := mujica.ContextMentionMenu(c, composer, &prompt, found, mujica.ContextMentionOptions{})
+	core.Use(c, core.Settings{})
+	composer := chat.PromptComposer(c, &prompt, chat.PromptComposerOptions{})
+	r := chat.ContextMentionMenu(c, composer, &prompt, found, chat.ContextMentionOptions{})
 	if r.QueryChanged() {
-		found = []mujica.ContextItem{{ID: "f1", Label: r.Query() + ".md", Kind: mujica.ContextFile}}
+		found = []chat.ContextItem{{ID: "f1", Label: r.Query() + ".md", Kind: chat.ContextFile}}
 	}
 	if item, ok := r.Chosen(); ok {
 		fmt.Println("attach", item.ID)

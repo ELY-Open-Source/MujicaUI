@@ -8,10 +8,10 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Timeline(c, []mujica.TimelineItem{
-		{Time: "06:00", Title: "Matins sung", Status: mujica.TimelineDone},
-		{Time: "09:00", Title: "Relics moved", Content: "From the crypt to the altar.", Status: mujica.TimelineActive},
+	core.Use(c, core.Settings{})
+	data.Timeline(c, []data.TimelineItem{
+		{Time: "06:00", Title: "Matins sung", Status: data.TimelineDone},
+		{Time: "09:00", Title: "Relics moved", Content: "From the crypt to the altar.", Status: data.TimelineActive},
 		{Time: "18:00", Title: "Vespers"},
 	})
 }

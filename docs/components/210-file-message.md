@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-r := mujica.FileMessage(c, mujica.FileMessageOptions{Name: "treaty.pdf", Size: 2621440})
+r := chat.FileMessage(c, chat.FileMessageOptions{Name: "treaty.pdf", Size: 2621440})
 if r.Downloaded() {
 	fmt.Println("save treaty.pdf")
 }

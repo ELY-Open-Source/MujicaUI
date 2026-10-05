@@ -8,13 +8,13 @@
 
 ```go
 open := false
-calls := []mujica.ToolCall{
-	{ID: "a", Name: "list_dir", State: mujica.AgentDone, Duration: 300 * time.Millisecond},
-	{ID: "b", Name: "read_file", State: mujica.AgentFailed, Error: "not found"},
+calls := []agent.ToolCall{
+	{ID: "a", Name: "list_dir", State: agent.AgentDone, Duration: 300 * time.Millisecond},
+	{ID: "b", Name: "read_file", State: agent.AgentFailed, Error: "not found"},
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ToolCallGroup(c, &open, calls, mujica.ToolCallGroupOptions{})
+	core.Use(c, core.Settings{})
+	agent.ToolCallGroup(c, &open, calls, agent.ToolCallGroupOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

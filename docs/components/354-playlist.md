@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-items := []mujica.PlaylistItem{{ID: "a", Title: "Overture"}, {ID: "b", Title: "Masquerade"}}
+items := []media.PlaylistItem{{ID: "a", Title: "Overture"}, {ID: "b", Title: "Masquerade"}}
 current := "a"
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if r := mujica.Playlist(c, &items, mujica.PlaylistOptions{Current: current}); r.Played != "" {
+	core.Use(c, core.Settings{})
+	if r := media.Playlist(c, &items, media.PlaylistOptions{Current: current}); r.Played != "" {
 		current = r.Played
 	}
 }

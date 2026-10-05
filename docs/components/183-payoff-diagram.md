@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-legs := []mujica.OptionLeg{{Kind: mujica.LegCall, Strike: 100, Premium: 3, Quantity: 1}}
+legs := []finance.OptionLeg{{Kind: finance.LegCall, Strike: 100, Premium: 3, Quantity: 1}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.PayoffDiagram(c, legs, mujica.PayoffDiagramOptions{Frame: mujica.ChartFrame{Label: "Call payoff"}, Spot: 103})
+	core.Use(c, core.Settings{})
+	r := finance.PayoffDiagram(c, legs, finance.PayoffDiagramOptions{Frame: chart.ChartFrame{Label: "Call payoff"}, Spot: 103})
 	if r.Changed() || r.Retried() {
 		fmt.Println(r.Point)
 	}

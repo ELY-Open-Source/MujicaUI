@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-msgs := []mujica.SessionMessage{{Role: mujica.SessionUser, Text: "Hello"}, {Role: mujica.SessionAssistant, Text: "Good day."}}
+msgs := []chat.SessionMessage{{Role: chat.SessionUser, Text: "Hello"}, {Role: chat.SessionAssistant, Text: "Good day."}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.SharedConversationView(c, msgs, mujica.SharedConversationViewOptions{Title: "Greeting", SharedBy: "Ann"}).Changed() {
+	core.Use(c, core.Settings{})
+	if chat.SharedConversationView(c, msgs, chat.SharedConversationViewOptions{Title: "Greeting", SharedBy: "Ann"}).Changed() {
 		c.WriteClipboard("https://example.com/share/1")
 	}
 }

@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-groups := []mujica.BoxGroup{{Name: "Matins", Values: []float64{1, 2, 2, 3, 7}}, {Name: "Vespers", Values: []float64{3, 4, 5, 6, 6}}}
+groups := []chart.BoxGroup{{Name: "Matins", Values: []float64{1, 2, 2, 3, 7}}, {Name: "Vespers", Values: []float64{3, 4, 5, 6, 6}}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.DensityPlot(c, groups, mujica.DensityPlotOptions{Frame: mujica.ChartFrame{Label: "Ages"}, Bandwidth: 1, Points: 128})
+	core.Use(c, core.Settings{})
+	chart.DensityPlot(c, groups, chart.DensityPlotOptions{Frame: chart.ChartFrame{Label: "Ages"}, Bandwidth: 1, Points: 128})
 }
 ui.Render(view, 400, 300, 1)
 ```

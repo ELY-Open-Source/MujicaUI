@@ -8,17 +8,17 @@
 
 ```go
 	at := time.Date(2026, 10, 5, 9, 0, 0, 0, time.UTC)
-	candles := []mujica.Candle{
+	candles := []chart.Candle{
 		{Time: at, Open: 100, High: 103, Low: 99, Close: 102, Volume: 1200},
 		{Time: at.Add(time.Hour), Open: 102, High: 104, Low: 100, Close: 101, Volume: 1600},
 		{Time: at.Add(2 * time.Hour), Open: 101, High: 105, Low: 100, Close: 104, Volume: 900},
 	}
-	var window mujica.MarketView
-	alerts := []mujica.PriceAlertLine{{ID: "take-profit", Price: 105}}
+	var window chart.MarketView
+	alerts := []chart.PriceAlertLine{{ID: "take-profit", Price: 105}}
 	triggered := ""
 	view := func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{})
-		mujica.CandlestickChart(c, candles, &window, mujica.CandlestickOptions{Frame: mujica.ChartFrame{Label: "BTC", Height: 200}, Alerts: &alerts, OnAlert: func(alert mujica.PriceAlertLine, last mujica.Candle) {
+		core.Use(c, core.Settings{})
+		chart.CandlestickChart(c, candles, &window, chart.CandlestickOptions{Frame: chart.ChartFrame{Label: "BTC", Height: 200}, Alerts: &alerts, OnAlert: func(alert chart.PriceAlertLine, last chart.Candle) {
 			triggered = alert.ID
 		}})
 		ui.Text(c, triggered)

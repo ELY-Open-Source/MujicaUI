@@ -7,8 +7,8 @@
 ## 最小示例
 
 ```go
-mujica.TitleBar(c, "Court Records", mujica.TitleBarOptions{
-	Trailing: func() { mujica.Button(c, "Share", mujica.ButtonOptions{Variant: mujica.Ghost}) },
+layout.TitleBar(c, "Court Records", layout.TitleBarOptions{
+	Trailing: func() { input.Button(c, "Share", input.ButtonOptions{Variant: input.Ghost}) },
 })
 ```
 

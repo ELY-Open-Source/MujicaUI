@@ -7,14 +7,14 @@
 ## 最小示例
 
 ```go
-images := []mujica.ViewerImage{{Source: ui.NewBitmap(examplePhoto), Alt: "The grand hall"}}
+images := []data.ViewerImage{{Source: ui.NewBitmap(examplePhoto), Alt: "The grand hall"}}
 open, index := false, 0
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.Button(c, "View photos", mujica.ButtonOptions{}).Clicked() {
+	core.Use(c, core.Settings{})
+	if input.Button(c, "View photos", input.ButtonOptions{}).Clicked() {
 		open = true
 	}
-	mujica.Lightbox(c, &open, &index, images)
+	media.Lightbox(c, &open, &index, images)
 }
 ui.Render(view, 400, 300, 1)
 ```

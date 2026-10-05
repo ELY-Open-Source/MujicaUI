@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-if i, ok := mujica.ImageGrid(c, []mujica.GridImage{{Source: pic, Alt: "Portrait"}}).Retried(); ok {
+if i, ok := chat.ImageGrid(c, []chat.GridImage{{Source: pic, Alt: "Portrait"}}).Retried(); ok {
 	fmt.Println("reload", i)
 }
 ```

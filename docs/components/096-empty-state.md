@@ -7,8 +7,8 @@
 ## 最小示例
 
 ```go
-r := mujica.EmptyState(c, mujica.EmptyStateOptions{
-	Kind:   mujica.EmptyNoResults,
+r := feedback.EmptyState(c, feedback.EmptyStateOptions{
+	Kind:   feedback.EmptyNoResults,
 	Query:  query,
 	Action: "Clear search",
 })

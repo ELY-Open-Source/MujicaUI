@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-var state mujica.TimeTrackerState
+var state project.TimeTrackerState
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.TimeTracker(c, &state, mujica.TimeTrackerOptions{}).Changed() {
+	core.Use(c, core.Settings{})
+	if project.TimeTracker(c, &state, project.TimeTrackerOptions{}).Changed() {
 		log.Println("tracked", state.Total(c.Now()))
 	}
 }

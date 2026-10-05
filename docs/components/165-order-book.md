@@ -9,14 +9,14 @@
 ## 最小示例
 
 ```go
-var state mujica.OrderBookState
-book := mujica.OrderBookData{
-	Bids: []mujica.BookLevel{{Price: 100.00, Size: 5}, {Price: 99.99, Size: 3}},
-	Asks: []mujica.BookLevel{{Price: 100.01, Size: 1}, {Price: 100.02, Size: 2}},
+var state finance.OrderBookState
+book := finance.OrderBookData{
+	Bids: []finance.BookLevel{{Price: 100.00, Size: 5}, {Price: 99.99, Size: 3}},
+	Asks: []finance.BookLevel{{Price: 100.01, Size: 1}, {Price: 100.02, Size: 2}},
 }
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if price, side, ok := mujica.OrderBook(c, &state, book, mujica.OrderBookOptions{Groups: []float64{0.01, 0.05}}).Clicked(); ok {
+	core.Use(c, core.Settings{})
+	if price, side, ok := finance.OrderBook(c, &state, book, finance.OrderBookOptions{Groups: []float64{0.01, 0.05}}).Clicked(); ok {
 		fmt.Println("order at", price, side)
 	}
 }

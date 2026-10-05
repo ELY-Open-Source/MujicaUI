@@ -9,8 +9,8 @@
 ```go
 change := 12.5
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Statistic(c, 12840, mujica.StatisticOptions{
+	core.Use(c, core.Settings{})
+	data.Statistic(c, 12840, data.StatisticOptions{
 		Title: "Pilgrims", Unit: "souls", Precision: 0,
 		Change: &change, ChangeUnit: "%", ChangeNote: "vs last feast",
 	})

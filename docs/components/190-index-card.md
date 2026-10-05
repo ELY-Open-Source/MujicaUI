@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-quote := mujica.IndexQuote{Name: "S&P 500", Price: 5751.07, Change: 51.13, ChangePercent: 0.9, Series: []float64{5700, 5730, 5720, 5751}}
+quote := finance.IndexQuote{Name: "S&P 500", Price: 5751.07, Change: 51.13, ChangePercent: 0.9, Series: []float64{5700, 5730, 5720, 5751}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.IndexCard(c, quote, mujica.IndexCardOptions{Clickable: true})
+	core.Use(c, core.Settings{})
+	r := finance.IndexCard(c, quote, finance.IndexCardOptions{Clickable: true})
 	if r.Changed() {
 		fmt.Println(quote.Name)
 	}

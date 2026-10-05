@@ -8,10 +8,10 @@
 
 ```go
 lines := []string{"package court", "", "func Seal() {}", "func Herald() {}"}
-view := mujica.MinimapView{Top: 0, Visible: 2}
+view := code.MinimapView{Top: 0, Visible: 2}
 draw := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.Minimap(c, lines, &view, mujica.MinimapOptions{Language: "go"}).Changed() {
+	core.Use(c, core.Settings{})
+	if code.Minimap(c, lines, &view, code.MinimapOptions{Language: "go"}).Changed() {
 		fmt.Println("scroll editor to", view.Top)
 	}
 }

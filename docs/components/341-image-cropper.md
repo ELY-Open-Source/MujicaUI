@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-crop := mujica.ImageCrop{} // empty: starts fitted to the image
+crop := media.ImageCrop{} // empty: starts fitted to the image
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.ImageCropper(c, examplePhoto, &crop, mujica.ImageCropperOptions{Aspect: 1}).Changed() {
+	core.Use(c, core.Settings{})
+	if media.ImageCropper(c, examplePhoto, &crop, media.ImageCropperOptions{Aspect: 1}).Changed() {
 		_ = crop.Rect // in pixels of the photo turned by crop.Rotation
 	}
 }

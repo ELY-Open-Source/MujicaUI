@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-segments := []mujica.GaugeSegment{{To: 60, Label: "Calm", Tone: mujica.GaugeGood}, {To: 100, Label: "Crowded", Tone: mujica.GaugeDanger}}
+segments := []chart.GaugeSegment{{To: 60, Label: "Calm", Tone: chart.GaugeGood}, {To: 100, Label: "Crowded", Tone: chart.GaugeDanger}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.Gauge(c, 72, mujica.GaugeOptions{Frame: mujica.ChartFrame{Label: "Nave"}, Max: 100, Unit: "%", Segments: segments})
+	core.Use(c, core.Settings{})
+	chart.Gauge(c, 72, chart.GaugeOptions{Frame: chart.ChartFrame{Label: "Nave"}, Max: 100, Unit: "%", Segments: segments})
 }
 ui.Render(view, 400, 300, 1)
 ```

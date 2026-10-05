@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-readers := []mujica.AvatarItem{{Name: "Uika"}, {Name: "Mutsumi"}}
+readers := []display.AvatarItem{{Name: "Uika"}, {Name: "Mutsumi"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.ReadReceipt(c, mujica.ReceiptRead, mujica.ReadReceiptOptions{Readers: readers})
+	core.Use(c, core.Settings{})
+	messaging.ReadReceipt(c, messaging.ReceiptRead, messaging.ReadReceiptOptions{Readers: readers})
 }
 ui.Render(view, 400, 300, 1)
 ```

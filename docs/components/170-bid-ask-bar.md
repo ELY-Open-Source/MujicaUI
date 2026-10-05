@@ -10,8 +10,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.BidAskBar(c, 6234, 3820, mujica.BidAskBarOptions{})
+	core.Use(c, core.Settings{})
+	finance.BidAskBar(c, 6234, 3820, finance.BidAskBarOptions{})
 }
 ui.Render(view, 400, 300, 1)
 ```

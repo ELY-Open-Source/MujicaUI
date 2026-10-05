@@ -11,8 +11,8 @@
 ```go
 leverage := 5.0
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.LeverageSlider(c, &leverage, mujica.LeverageSliderOptions{Warning: 10, Danger: 50}).Changed() {
+	core.Use(c, core.Settings{})
+	if finance.LeverageSlider(c, &leverage, finance.LeverageSliderOptions{Warning: 10, Danger: 50}).Changed() {
 		fmt.Println("leverage", leverage)
 	}
 }

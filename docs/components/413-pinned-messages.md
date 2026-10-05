@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-pins := []mujica.ChatEntry{{ID: "a", Author: "Sakiko", Text: "Rehearsal moves to nine."}}
+pins := []messaging.ChatEntry{{ID: "a", Author: "Sakiko", Text: "Rehearsal moves to nine."}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.PinnedMessages(c, pins, mujica.PinnedMessagesOptions{})
+	core.Use(c, core.Settings{})
+	r := messaging.PinnedMessages(c, pins, messaging.PinnedMessagesOptions{})
 	if r.Unpinned != "" {
 		pins = pins[:0] // unpin it
 	}

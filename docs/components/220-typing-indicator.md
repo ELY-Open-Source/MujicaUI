@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-mujica.TypingIndicator(c, "Herald")
+chat.TypingIndicator(c, "Herald")
 ```
 
 签名：`func TypingIndicator(c *ui.Context, name string) *ui.Element`

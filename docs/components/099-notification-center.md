@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-r := mujica.NotificationCenter(c, &items, mujica.NotificationCenterOptions{})
+r := feedback.NotificationCenter(c, &items, feedback.NotificationCenterOptions{})
 if r.Action == "a" {
 	// open the build log
 }

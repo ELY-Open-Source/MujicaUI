@@ -9,9 +9,9 @@
 ```go
 year := 2026
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	opts := mujica.YearPickerOptions{Label: "Vintage", Min: 1990, Max: 2030}
-	if mujica.YearPicker(c, &year, opts).Changed() {
+	core.Use(c, core.Settings{})
+	opts := datetime.YearPickerOptions{Label: "Vintage", Min: 1990, Max: 2030}
+	if datetime.YearPicker(c, &year, opts).Changed() {
 		fmt.Println("year", year)
 	}
 }

@@ -6,7 +6,10 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/agent"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ZacharyZhang-NY/MujicaUI/git"
+	"github.com/ZacharyZhang-NY/MujicaUI/navigation"
 )
 
 func gitPullRequestCardDemo(c *ui.Context, log func(string)) {
@@ -16,18 +19,18 @@ func gitPullRequestCardDemo(c *ui.Context, log func(string)) {
 	}
 	s := ui.Local(c.Root(), "315", func() state { return state{} })
 	navigationDemo(c, func() {
-		mujica.SegmentedControl(c, &s.st, []mujica.Segment{{Label: "Open"}, {Label: "Draft"}, {Label: "Merged"}, {Label: "Closed"}}, mujica.SegmentedControlOptions{Label: "State"})
+		navigation.SegmentedControl(c, &s.st, []navigation.Segment{{Label: "Open"}, {Label: "Draft"}, {Label: "Merged"}, {Label: "Closed"}}, navigation.SegmentedControlOptions{Label: "State"})
 		navigationCheck(c, &s.failed, "Failing check", log)
 		navigationCheck(c, &s.disabled, "Disabled", log)
 	}, func() {
-		pr := mujica.PullRequest{Number: 318, Title: "Git components 301–320", Author: "Sakiko", State: mujica.PullRequestState(s.st),
+		pr := git.PullRequest{Number: 318, Title: "Git components 301–320", Author: "Sakiko", State: git.PullRequestState(s.st),
 			Head: "feature/git", Base: "main", ChecksPassed: 12, ChecksPending: 1,
-			Reviewers: []mujica.Reviewer{{Name: "Uika", State: mujica.ReviewApproved}, {Name: "Mutsumi", State: mujica.ReviewChangesRequested}, {Name: "Umiri"}},
+			Reviewers: []git.Reviewer{{Name: "Uika", State: git.ReviewApproved}, {Name: "Mutsumi", State: git.ReviewChangesRequested}, {Name: "Umiri"}},
 			Added:     2412, Deleted: 310, Files: 46}
 		if s.failed {
 			pr.ChecksFailed = 1
 		}
-		if mujica.PullRequestCard(c, pr, mujica.PullRequestCardOptions{Disabled: s.disabled}).Changed() {
+		if git.PullRequestCard(c, pr, git.PullRequestCardOptions{Disabled: s.disabled}).Changed() {
 			log(fmt.Sprintf("Open #%d", pr.Number))
 		}
 	})
@@ -35,12 +38,12 @@ func gitPullRequestCardDemo(c *ui.Context, log func(string)) {
 
 func gitReviewCommentDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		thread   mujica.ReviewThread
+		thread   git.ReviewThread
 		draft    string
 		disabled bool
 	}
 	s := ui.Local(c.Root(), "316", func() state {
-		return state{thread: mujica.ReviewThread{File: "commit_graph.go", Line: 88, Messages: []mujica.ReviewMessage{
+		return state{thread: git.ReviewThread{File: "commit_graph.go", Line: 88, Messages: []git.ReviewMessage{
 			{Author: "Uika", When: gitDemoTime, Body: "Should merge lanes reuse the parent's color?"},
 			{Author: "Sakiko", When: gitDemoTime.Add(time.Hour), Body: "Yes, the first parent keeps it."},
 		}}}
@@ -48,10 +51,10 @@ func gitReviewCommentDemo(c *ui.Context, log func(string)) {
 	navigationDemo(c, func() {
 		navigationCheck(c, &s.disabled, "Disabled", log)
 	}, func() {
-		r := mujica.ReviewComment(c, s.thread, &s.draft, mujica.ReviewCommentOptions{Disabled: s.disabled})
+		r := git.ReviewComment(c, s.thread, &s.draft, git.ReviewCommentOptions{Disabled: s.disabled})
 		if text, ok := r.Replied(); ok {
 			log("Reply: " + text)
-			s.thread.Messages = append(s.thread.Messages, mujica.ReviewMessage{Author: "You", When: c.Now(), Body: text})
+			s.thread.Messages = append(s.thread.Messages, git.ReviewMessage{Author: "You", When: c.Now(), Body: text})
 		}
 		if r.Resolved() {
 			log("Resolved")
@@ -72,7 +75,7 @@ func gitDiffStatDemo(c *ui.Context, log func(string)) {
 		navigationSlider(c, &s.deleted, "Deleted", 0, 500, log)
 		navigationSlider(c, &s.blocks, "Blocks", 1, 10, log)
 	}, func() {
-		mujica.DiffStat(c, int(s.added), int(s.deleted), mujica.DiffStatOptions{Blocks: int(s.blocks)})
+		git.DiffStat(c, int(s.added), int(s.deleted), git.DiffStatOptions{Blocks: int(s.blocks)})
 	})
 }
 
@@ -83,8 +86,8 @@ func gitStatusBadgeDemo(c *ui.Context, log func(string)) {
 		navigationCheck(c, &s.labels, "Show labels", log)
 	}, func() {
 		ui.Row(c).Gap(16).Wrap().Children(func() {
-			for st := mujica.GitModified; st <= mujica.GitCopied; st++ {
-				mujica.GitStatusBadge(c, st, mujica.GitStatusBadgeOptions{ShowLabel: s.labels})
+			for st := git.GitModified; st <= git.GitCopied; st++ {
+				git.GitStatusBadge(c, st, git.GitStatusBadgeOptions{ShowLabel: s.labels})
 			}
 		})
 	})
@@ -99,14 +102,14 @@ func gitCommandBlockDemo(c *ui.Context, log func(string)) {
 		navigationCheck(c, &s.failed, "Failed", log)
 		navigationCheck(c, &s.running, "Running", log)
 	}, func() {
-		run := mujica.CommandRun{Command: "go test -run Git ./...", Duration: 3214 * time.Millisecond,
+		run := agent.CommandRun{Command: "go test -run Git ./...", Duration: 3214 * time.Millisecond,
 			Output: "\x1b[32mok\x1b[0m  \tmujicaui\t3.214s\n\x1b[33mwarn\x1b[0m slow test: TestCommitGraphVirtualized"}
 		if s.failed {
 			run.ExitCode = 1
 			run.Output = "\x1b[31m--- FAIL\x1b[0m: TestDiffViewer (0.02s)\n\x1b[1mFAIL\x1b[0m\tmujicaui\t0.401s"
 		}
 		run.Running = s.running
-		r := mujica.CommandBlock(c, run, &s.open, mujica.CommandBlockOptions{})
+		r := git.CommandBlock(c, run, &s.open, git.CommandBlockOptions{})
 		if r.Toggled() {
 			log(fmt.Sprintf("Toggled: open=%v", s.open))
 		}
@@ -122,13 +125,13 @@ func gitAnsiTextDemo(c *ui.Context, log func(string)) {
 	navigationDemo(c, func() {
 		navigationCheck(c, &s.wrap, "Wrap", log)
 	}, func() {
-		ui.Column(c).Padding(12).Background(mujica.Tokens(c).Surface).Radius(4).Children(func() {
-			mujica.AnsiText(c, "\x1b[1mBuilding\x1b[0m mujica \x1b[2m(v1.1)\x1b[0m\n"+
+		ui.Column(c).Padding(12).Background(core.Tokens(c).Surface).Radius(4).Children(func() {
+			git.AnsiText(c, "\x1b[1mBuilding\x1b[0m mujica \x1b[2m(v1.1)\x1b[0m\n"+
 				"\x1b[32m✓\x1b[0m 300 passed  \x1b[31m✗\x1b[0m 2 failed  \x1b[33m!\x1b[0m 1 skipped\n"+
 				"\x1b[30m0\x1b[31m1\x1b[32m2\x1b[33m3\x1b[34m4\x1b[35m5\x1b[36m6\x1b[37m7\x1b[90m8\x1b[91m9\x1b[92mA\x1b[93mB\x1b[94mC\x1b[95mD\x1b[96mE\x1b[97mF\x1b[0m\n"+
 				"\x1b[38;5;208m256-color\x1b[0m \x1b[38;2;125;32;52mtrue color\x1b[0m \x1b[4munderline\x1b[0m \x1b[3mitalic\x1b[0m \x1b[9mstruck\x1b[0m \x1b[7m inverse \x1b[0m\n"+
 				"A long line that only breaks when wrapping is on, so the terminal layout of columns stays intact as it was printed.\n"+
-				"Unknown escapes stay as text: \x1b[2K(cleared line)", mujica.AnsiTextOptions{Wrap: s.wrap})
+				"Unknown escapes stay as text: \x1b[2K(cleared line)", git.AnsiTextOptions{Wrap: s.wrap})
 		})
 	})
 }

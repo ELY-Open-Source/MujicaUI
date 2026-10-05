@@ -9,11 +9,11 @@
 ```go
 var sizes []float32
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	r := mujica.ResizablePanelGroup(c, &sizes, []mujica.ResizablePanel{
+	core.Use(c, core.Settings{})
+	r := input.ResizablePanelGroup(c, &sizes, []input.ResizablePanel{
 		{Label: "Files", Collapsible: true, Build: func() { ui.Text(c, "Files") }},
 		{Label: "Editor", Build: func() { ui.Text(c, "Editor") }},
-	}, mujica.ResizablePanelGroupOptions{})
+	}, input.ResizablePanelGroupOptions{})
 	if r.Committed {
 		// save sizes
 	}

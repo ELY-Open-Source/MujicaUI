@@ -9,11 +9,11 @@ API 密钥管理。
 ## 最小示例
 
 ```go
-var state mujica.ApiKeyManagerState
-keys := []mujica.APIKey{{ID: "k1", Name: "Deploy bot", Prefix: "mk_live_9f2c"}}
+var state account.ApiKeyManagerState
+keys := []account.APIKey{{ID: "k1", Name: "Deploy bot", Prefix: "mk_live_9f2c"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if name, ok := mujica.ApiKeyManager(c, &state, keys, mujica.ApiKeyManagerOptions{}).Create(); ok {
+	core.Use(c, core.Settings{})
+	if name, ok := account.ApiKeyManager(c, &state, keys, account.ApiKeyManagerOptions{}).Create(); ok {
 		fmt.Println("create", name)
 		state.Reveal("secret from your key service")
 	}

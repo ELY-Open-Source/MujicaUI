@@ -1,4 +1,4 @@
-module mujicaui
+module github.com/ZacharyZhang-NY/MujicaUI
 
 go 1.27.1
 

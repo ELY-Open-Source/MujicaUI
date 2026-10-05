@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-	value := mujica.MarketRange{Preset: mujica.Range1M}
+	value := chart.MarketRange{Preset: chart.Range1M}
 	view := func(c *ui.Context) {
-		mujica.Use(c, mujica.Settings{})
-		mujica.TimeRangeSelector(c, &value, mujica.TimeRangeSelectorOptions{})
+		core.Use(c, core.Settings{})
+		chart.TimeRangeSelector(c, &value, chart.TimeRangeSelectorOptions{})
 	}
 	ui.Render(view, 640, 400, 1)
 ```

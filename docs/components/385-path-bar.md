@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.PathBar(c, "/court/chronicles/seals", mujica.PathBarOptions{})
+	core.Use(c, core.Settings{})
+	files.PathBar(c, "/court/chronicles/seals", files.PathBarOptions{})
 }
 ui.Render(view, 400, 100, 1)
 ```

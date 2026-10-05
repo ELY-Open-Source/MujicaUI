@@ -9,10 +9,10 @@
 ## 最小示例
 
 ```go
-status := mujica.UserStatusOnline
+status := account.UserStatusOnline
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.UserMenu(c, &status, mujica.UserMenuOptions{Name: "Sakiko Togawa"}).SignOut() {
+	core.Use(c, core.Settings{})
+	if account.UserMenu(c, &status, account.UserMenuOptions{Name: "Sakiko Togawa"}).SignOut() {
 		fmt.Println("sign out")
 	}
 }

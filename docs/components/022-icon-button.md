@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-if mujica.IconButton(c, icons.Must("settings"), "Settings", mujica.IconButtonOptions{Variant: mujica.Ghost}).Clicked() {
+if input.IconButton(c, icons.Must("settings"), "Settings", input.IconButtonOptions{Variant: input.Ghost}).Clicked() {
 	fmt.Println("open settings")
 }
 ```

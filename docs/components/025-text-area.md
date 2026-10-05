@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-r := mujica.TextArea(c, &notes, mujica.TextAreaOptions{Label: "Notes", MaxHeight: 160, MaxLength: 200})
+r := input.TextArea(c, &notes, input.TextAreaOptions{Label: "Notes", MaxHeight: 160, MaxLength: 200})
 if r.Submitted() {
 	fmt.Println("send", notes)
 }

@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if v := mujica.RegenerateMenu(c, mujica.RegenerateMenuOptions{Models: []string{"Opus", "Sonnet"}, Current: "Opus"}); v.Chosen {
+	core.Use(c, core.Settings{})
+	if v := chat.RegenerateMenu(c, chat.RegenerateMenuOptions{Models: []string{"Opus", "Sonnet"}, Current: "Opus"}); v.Chosen {
 		log.Println("retry", v.Choice.Kind, v.Choice.Model, v.Choice.Variant)
 	}
 }

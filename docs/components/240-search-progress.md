@@ -8,9 +8,9 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	stages := []mujica.SearchStage{{Label: "Searching the web", Done: true}, {Label: "Reading sources"}}
-	mujica.SearchProgress(c, mujica.SearchProgressOptions{Query: "Versailles", Read: 3, Total: 8, Stages: stages})
+	core.Use(c, core.Settings{})
+	stages := []chat.SearchStage{{Label: "Searching the web", Done: true}, {Label: "Reading sources"}}
+	chat.SearchProgress(c, chat.SearchProgressOptions{Query: "Versailles", Read: 3, Total: 8, Stages: stages})
 }
 ui.Render(view, 400, 300, 1)
 ```

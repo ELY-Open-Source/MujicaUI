@@ -7,11 +7,11 @@
 ## 最小示例
 
 ```go
-var state mujica.ConversationExportState
-msgs := []mujica.SessionMessage{{Role: mujica.SessionUser, Text: "Hello"}}
+var state chat.ConversationExportState
+msgs := []chat.SessionMessage{{Role: chat.SessionUser, Text: "Hello"}}
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if v := mujica.ConversationExport(c, &state, msgs, mujica.ConversationExportOptions{Title: "Greeting"}); v.Exported {
+	core.Use(c, core.Settings{})
+	if v := chat.ConversationExport(c, &state, msgs, chat.ConversationExportOptions{Title: "Greeting"}); v.Exported {
 		log.Println(len(v.Content), "bytes to save")
 	}
 }

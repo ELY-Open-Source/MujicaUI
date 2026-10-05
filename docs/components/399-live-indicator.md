@@ -8,8 +8,8 @@
 
 ```go
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	mujica.LiveIndicator(c, mujica.LiveOffline, mujica.LiveIndicatorOptions{})
+	core.Use(c, core.Settings{})
+	files.LiveIndicator(c, files.LiveOffline, files.LiveIndicatorOptions{})
 }
 ui.Render(view, 500, 100, 1)
 ```

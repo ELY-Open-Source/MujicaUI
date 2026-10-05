@@ -7,10 +7,10 @@
 ## 最小示例
 
 ```go
-var week mujica.Date
+var week core.Date
 view := func(c *ui.Context) {
-	mujica.Use(c, mujica.Settings{})
-	if mujica.WeekPicker(c, &week, mujica.WeekPickerOptions{WeekStart: mujica.WeekStartMonday, Clearable: true}).Changed() {
+	core.Use(c, core.Settings{})
+	if datetime.WeekPicker(c, &week, datetime.WeekPickerOptions{WeekStart: datetime.WeekStartMonday, Clearable: true}).Changed() {
 		fmt.Println("week of", week)
 	}
 }

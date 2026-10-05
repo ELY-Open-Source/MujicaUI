@@ -7,7 +7,9 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	mujica "mujicaui"
+	"github.com/ZacharyZhang-NY/MujicaUI/code"
+	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ZacharyZhang-NY/MujicaUI/input"
 )
 
 const codeCategory = "Terminal & Code"
@@ -57,7 +59,7 @@ var codePages = []page{
 
 // codeDemoCheck is a switch that logs its changes.
 func codeDemoCheck(c *ui.Context, v *bool, label string, log func(string)) {
-	if mujica.Switch(c, v, label, mujica.SwitchOptions{}).Changed() {
+	if input.Switch(c, v, label, input.SwitchOptions{}).Changed() {
 		log(fmt.Sprintf("%s: %v", label, *v))
 	}
 }
@@ -68,7 +70,7 @@ func codeDemoControls(c *ui.Context, fn func()) {
 
 func codeTerminalDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		term     mujica.TerminalState
+		term     code.TerminalState
 		line     string
 		disabled bool
 	}
@@ -80,13 +82,13 @@ func codeTerminalDemo(c *ui.Context, log func(string)) {
 	st := *s
 	codeDemoControls(c, func() {
 		codeDemoCheck(c, &st.disabled, "Disabled", log)
-		if mujica.Button(c, "Clear screen", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+		if input.Button(c, "Clear screen", input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 			st.term.Write("\x1b[2J\x1b[H$ ")
 			log("clear screen")
 		}
 	})
 	// A tiny echo shell stands in for the PTY.
-	mujica.Terminal(c, &st.term, mujica.TerminalOptions{Disabled: st.disabled,
+	code.Terminal(c, &st.term, code.TerminalOptions{Disabled: st.disabled,
 		Input: func(data string) {
 			log(fmt.Sprintf("input %q", data))
 			for _, r := range data {
@@ -128,27 +130,27 @@ func codeShell(line string) string {
 
 func codeTerminalTabsDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		tabs     []mujica.TerminalTab
+		tabs     []code.TerminalTab
 		active   string
 		next     int
 		disabled bool
 	}
 	s := ui.Local(c.Root(), "322", func() *state {
-		return &state{tabs: []mujica.TerminalTab{{ID: "1", Title: "zsh"}, {ID: "2", Title: "build", Busy: true}, {ID: "3", Title: "logs"}}, active: "1", next: 4}
+		return &state{tabs: []code.TerminalTab{{ID: "1", Title: "zsh"}, {ID: "2", Title: "build", Busy: true}, {ID: "3", Title: "logs"}}, active: "1", next: 4}
 	})
 	st := *s
 	codeDemoControls(c, func() {
 		codeDemoCheck(c, &st.disabled, "Disabled", log)
-		if mujica.Button(c, "New terminal", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+		if input.Button(c, "New terminal", input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 			id := fmt.Sprint(st.next)
 			st.next++
-			st.tabs = append(st.tabs, mujica.TerminalTab{ID: id, Title: "shell " + id})
+			st.tabs = append(st.tabs, code.TerminalTab{ID: id, Title: "shell " + id})
 			st.active = id
 			log("new " + id)
 		}
 	})
-	r := mujica.TerminalTabs(c, &st.tabs, &st.active, mujica.TerminalTabsOptions{Disabled: st.disabled}, func(id string) {
-		ui.Text(c, "Terminal "+id+" content").TextColor(mujica.Tokens(c).TextMuted)
+	r := code.TerminalTabs(c, &st.tabs, &st.active, code.TerminalTabsOptions{Disabled: st.disabled}, func(id string) {
+		ui.Text(c, "Terminal "+id+" content").TextColor(core.Tokens(c).TextMuted)
 	})
 	r.Element.Width(560)
 	if r.Changed {
@@ -164,8 +166,8 @@ func codeTerminalTabsDemo(c *ui.Context, log func(string)) {
 
 func codeTerminalSearchDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		term     mujica.TerminalState
-		search   mujica.TerminalSearchState
+		term     code.TerminalState
+		search   code.TerminalSearchState
 		disabled bool
 	}
 	s := ui.Local(c.Root(), "323", func() *state {
@@ -182,62 +184,62 @@ func codeTerminalSearchDemo(c *ui.Context, log func(string)) {
 	st := *s
 	codeDemoControls(c, func() { codeDemoCheck(c, &st.disabled, "Disabled", log) })
 	ui.Column(c).Width(600).Gap(8).Children(func() {
-		if mujica.TerminalSearch(c, &st.term, &st.search, mujica.TerminalSearchOptions{Disabled: st.disabled}).Changed() {
+		if code.TerminalSearch(c, &st.term, &st.search, code.TerminalSearchOptions{Disabled: st.disabled}).Changed() {
 			log(fmt.Sprintf("query %q, match %d", st.search.Query, st.search.Current+1))
 		}
-		mujica.Terminal(c, &st.term, mujica.TerminalOptions{}).Height(220)
+		code.Terminal(c, &st.term, code.TerminalOptions{}).Height(220)
 	})
 }
 
 func codeCommandHistoryDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		entries  []mujica.HistoryEntry
-		s        mujica.CommandHistoryState
+		entries  []code.HistoryEntry
+		s        code.CommandHistoryState
 		disabled bool
 	}
 	s := ui.Local(c.Root(), "324", func() *state {
 		at := time.Date(2026, 10, 5, 9, 0, 0, 0, time.UTC)
-		var e []mujica.HistoryEntry
+		var e []code.HistoryEntry
 		for i, cmd := range []string{"git pull", "go build ./...", "go test ./...", "make seal", "ls -la", "git status"} {
-			e = append(e, mujica.HistoryEntry{Command: cmd, Time: at.Add(time.Duration(i) * time.Minute)})
+			e = append(e, code.HistoryEntry{Command: cmd, Time: at.Add(time.Duration(i) * time.Minute)})
 		}
 		e[3].ExitCode = 2
 		return &state{entries: e}
 	})
 	st := *s
 	codeDemoControls(c, func() { codeDemoCheck(c, &st.disabled, "Disabled", log) })
-	r := mujica.CommandHistory(c, st.entries, &st.s, mujica.CommandHistoryOptions{Disabled: st.disabled})
+	r := code.CommandHistory(c, st.entries, &st.s, code.CommandHistoryOptions{Disabled: st.disabled})
 	r.Element.Size(480, 300)
 	if r.Replayed != nil {
 		log("replay " + r.Replayed.Command)
-		st.entries = append(st.entries, mujica.HistoryEntry{Command: r.Replayed.Command, Time: time.Now()})
+		st.entries = append(st.entries, code.HistoryEntry{Command: r.Replayed.Command, Time: time.Now()})
 	}
 }
 
 func codeLogViewerDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		lines    []mujica.LogLine
-		s        mujica.LogViewerState
+		lines    []code.LogLine
+		s        code.LogViewerState
 		disabled bool
 	}
 	s := ui.Local(c.Root(), "325", func() *state {
 		at := time.Date(2026, 10, 5, 9, 0, 0, 0, time.UTC)
-		lines := make([]mujica.LogLine, 100_000)
+		lines := make([]code.LogLine, 100_000)
 		words := []string{"ledger synced", "seal applied", "herald dispatched", "archive rotated"}
 		for i := range lines {
-			lines[i] = mujica.LogLine{Time: at.Add(time.Duration(i) * time.Second), Level: mujica.LogLevel(i % 7 % 4), Text: fmt.Sprintf("%s #%d", words[i%4], i)}
+			lines[i] = code.LogLine{Time: at.Add(time.Duration(i) * time.Second), Level: code.LogLevel(i % 7 % 4), Text: fmt.Sprintf("%s #%d", words[i%4], i)}
 		}
 		return &state{lines: lines}
 	})
 	st := *s
 	codeDemoControls(c, func() {
 		codeDemoCheck(c, &st.disabled, "Disabled", log)
-		if mujica.Button(c, "Append line", mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
-			st.lines = append(st.lines, mujica.LogLine{Time: time.Now(), Level: mujica.LogWarn, Text: fmt.Sprintf("late seal #%d", len(st.lines))})
+		if input.Button(c, "Append line", input.ButtonOptions{Variant: input.Secondary}).Clicked() {
+			st.lines = append(st.lines, code.LogLine{Time: time.Now(), Level: code.LogWarn, Text: fmt.Sprintf("late seal #%d", len(st.lines))})
 			log("append")
 		}
 	})
-	r := mujica.LogViewer(c, st.lines, &st.s, mujica.LogViewerOptions{Disabled: st.disabled})
+	r := code.LogViewer(c, st.lines, &st.s, code.LogViewerOptions{Disabled: st.disabled})
 	r.Element.Size(720, 360)
 	if r.Changed() {
 		log(fmt.Sprintf("hidden %v, follow %v", st.s.Hidden, st.s.Follow))
