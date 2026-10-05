@@ -16,7 +16,7 @@ mujica.Spinner(c, mujica.SpinnerOptions{Size: 20, Label: "Syncing", ShowLabel: t
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |
-| `Size` | `float32` | 16 | 标记边长（DIP）。 |
+| `Size` | `float32` | 16 | 标记边长（DIP）；负数、NaN 或无穷 panic。 |
 | `Label` | `string` | 内置“Loading / 加载中” | 无障碍名称；`ShowLabel` 时也显示在旁边。 |
 | `ShowLabel` | `bool` | `false` | 在标记旁显示说明。 |
 | `Color` | `ui.Color` | `AccentText` | 标记颜色。 |

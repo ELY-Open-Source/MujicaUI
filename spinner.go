@@ -1,6 +1,7 @@
 package mujica
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/egoist/mygo/ui"
@@ -18,12 +19,14 @@ type SpinnerOptions struct {
 	Color ui.Color
 }
 
-// Spinner draws four diamonds turning around a center while it shows.
-// It repaints only while painted: hidden, it stops. Reduced motion holds it still.
+// Spinner turns four diamonds only while painted; hidden or under reduced motion it stops.
 func Spinner(c *ui.Context, opts SpinnerOptions) *ui.Element {
+	if !(opts.Size >= 0) || math.IsInf(float64(opts.Size), 1) {
+		panic(fmt.Sprintf("mujica: Spinner Size %v invalid", opts.Size))
+	}
 	k := Tokens(c)
 	size := opts.Size
-	if size <= 0 {
+	if size == 0 {
 		size = 16
 	}
 	label := opts.Label

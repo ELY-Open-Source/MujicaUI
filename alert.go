@@ -43,8 +43,10 @@ func severityLook(k theme.Tokens, s Severity) (ui.Color, *ui.SVG) {
 		return k.Warning, icons.Must("triangle-alert")
 	case SeverityError:
 		return k.Danger, icons.Must("circle-x")
+	case SeverityInfo:
+		return k.Info, icons.Must("info")
 	}
-	return k.Info, icons.Must("info")
+	panic(fmt.Sprintf("mujica: unknown Severity %d", int(s)))
 }
 
 // AlertOptions configure an Alert.
@@ -66,9 +68,7 @@ type AlertResult struct {
 	Closed bool
 }
 
-// Alert shows an inline message marked by color, icon and accessible name.
-// A non-nil open adds a dismiss button that sets *open to false; nothing
-// shows while *open is false.
+// Alert shows an inline message; a non-nil open adds a dismiss button that clears it.
 func Alert(c *ui.Context, open *bool, message string, opts AlertOptions) AlertResult {
 	if message == "" {
 		panic("mujica: Alert needs a message")

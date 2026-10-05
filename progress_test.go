@@ -5,7 +5,53 @@ import (
 	"testing"
 
 	"github.com/egoist/mygo/ui"
+
+	"mujicaui/theme"
 )
+
+func TestProgressReducedMotionJumpsMidTransition(t *testing.T) {
+	v := 0.0
+	var bar ui.Rect
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{Mode: Light})
+		ui.Column(c).Width(300).Children(func() {
+			bar = Progress(c, v, ProgressOptions{}).Bounds()
+		})
+	}, 400, 100)
+	v = 1
+	tt.Frame()
+	tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})
+	if got, want := progressPixel(tt, bar.X+bar.W*0.95, bar.Y+bar.H/2), theme.Light().AccentText; got != want {
+		t.Fatalf("fill at 95%% is %v, want %v at once", got, want)
+	}
+}
+
+func progressPixel(tt *ui.Tester, x, y float32) ui.Color {
+	r, g, b, _ := tt.Image().At(int(x), int(y)).RGBA()
+	return ui.RGB(uint8(r>>8), uint8(g>>8), uint8(b>>8))
+}
+
+func TestProgressStaticFillContrast(t *testing.T) {
+	for _, m := range []Mode{Light, Dark} {
+		var bar ui.Rect
+		var k theme.Tokens
+		tt := ui.NewTester(func(c *ui.Context) {
+			Use(c, Settings{Mode: m})
+			k = Tokens(c)
+			ui.Column(c).Width(300).Children(func() {
+				bar = Progress(c, 0, ProgressOptions{Indeterminate: true}).Bounds()
+			})
+		}, 400, 100)
+		tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})
+		tt.Frame()                                              // Bounds report the previous layout
+		fill := progressPixel(tt, bar.X+bar.W/2, bar.Y+bar.H-3) // the bar is the last row
+		for _, against := range []ui.Color{k.Border, k.Background} {
+			if cr := theme.Contrast(fill, against); cr < 3 {
+				t.Errorf("%v: static fill %v vs %v is %.2f:1", m, fill, against, cr)
+			}
+		}
+	}
+}
 
 func TestProgressValueText(t *testing.T) {
 	v := 0.424

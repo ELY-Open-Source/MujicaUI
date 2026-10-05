@@ -1,6 +1,7 @@
 package mujica
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/egoist/mygo/ui"
@@ -28,11 +29,13 @@ type SkeletonOptions struct {
 	Lines int
 }
 
-// Skeleton stands in for content that is loading. It pulses while painted
-// and shows a static fill under reduced motion.
+// Skeleton stands in for loading content; it pulses while painted, static under reduced motion.
 func Skeleton(c *ui.Context, opts SkeletonOptions) *ui.Element {
-	if opts.Width < 0 || opts.Height < 0 || opts.Lines < 0 {
-		panic("mujica: negative Skeleton size")
+	if opts.Shape != SkeletonText && opts.Shape != SkeletonCircle && opts.Shape != SkeletonRect {
+		panic(fmt.Sprintf("mujica: unknown SkeletonShape %d", int(opts.Shape)))
+	}
+	if !(opts.Width >= 0) || !(opts.Height >= 0) || opts.Lines < 0 || math.IsInf(float64(opts.Width+opts.Height), 1) {
+		panic(fmt.Sprintf("mujica: Skeleton size %vx%v, %d lines invalid", opts.Width, opts.Height, opts.Lines))
 	}
 	k := Tokens(c)
 	still := c.Preferences().ReduceMotion
@@ -70,9 +73,10 @@ func Skeleton(c *ui.Context, opts SkeletonOptions) *ui.Element {
 		e.Height(h).Draw(func(p *ui.Painter, r ui.Rect) { paint(p, r, theme.CardRadius) })
 	default:
 		lines := max(opts.Lines, 1)
-		line := theme.BodySize * theme.LineHeight
+		size := FontSize(c, theme.BodySize)
+		line := size * theme.LineHeight
 		e.Height(line * float32(lines)).Draw(func(p *ui.Painter, r ui.Rect) {
-			bar := theme.BodySize * 0.8
+			bar := size * 0.8
 			for i := range lines {
 				w := r.W
 				if lines > 1 && i == lines-1 {

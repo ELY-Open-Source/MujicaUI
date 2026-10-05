@@ -25,9 +25,7 @@ type LoadingOverlayResult struct {
 	Canceled bool
 }
 
-// LoadingOverlay builds content and, while loading, covers it with a
-// spinner and label. Covered content takes no pointer, keys or focus;
-// the rest of the window stays usable. Focus inside moves to the overlay.
+// LoadingOverlay covers content while loading, blocking input to that region only.
 func LoadingOverlay(c *ui.Context, loading bool, opts LoadingOverlayOptions, content func()) LoadingOverlayResult {
 	if content == nil {
 		panic("mujica: LoadingOverlay needs content")
