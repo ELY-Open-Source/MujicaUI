@@ -45,5 +45,6 @@ ui.Render(view, 400, 300, 1)
 ## 限制
 
 - 基于 `ui.SliderBase`，它向辅助技术报告 Slider 角色、范围与当前值（ui/base.go:128）。
-- MyGo 只把方向键、Home、End 交给 `SliderBase` 本身（ui/base.go:118，按键路由见 ui/input.go:495），并固定以范围的 1% 移动。本组件让它操作副本，按方向判断按键后自己按 `Step` 移动；距端点不足 1% 时 MyGo 的方向键与 Home/End 结果相同，组件改看松开的是哪个键（`HandleInput` 能收到 KeyUp），在键松开前不改值。
+- MyGo 只把方向键、Home、End 交给 `SliderBase` 本身（ui/base.go:118，按键路由见 ui/input.go:495），以范围的 1% 移动并把结果舍入到 1e-9（ui/widgets.go:375）。本组件让它操作副本，按方向判断按键后自己按 `Step` 移动。两种情况下按键结果无法区分：距端点不足 1% 时方向键与 Home/End 结果相同；步长细到 MyGo 舍入后不动。这时组件改看松开的是哪个键（`HandleInput` 能收到 KeyUp），在键松开时才改值；按住不放也只移动一步。
+- 步长网格复用 NumberInput 的实现：值为 `Min + n·Step`，小数位取 `Min` 与 `Step` 所需，端点跳转（End/Home、另一端）先对齐网格再写值并触发事件；例如 `Max=10, Step=3` 时 End 得到 9。
 - `SliderBase` 在构建时就处理指针（ui/base.go:111），禁用时外层先禁用，且只操作副本，保证值不变。

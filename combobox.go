@@ -127,7 +127,10 @@ func Combobox(c *ui.Context, value *string, options []string, opts ComboboxOptio
 		comboboxStatus(c, f.Bounds(), opts.Loading)
 	}
 	focused := in.Focused()
-	if v, ok := p.Chosen(); ok {
+	if in.IsDisabled() {
+		// Input delivered as the field turned disabled commits nothing.
+		*query = *value
+	} else if v, ok := p.Chosen(); ok {
 		*value, *query = v, v
 		*gen, *refocus = *gen+1, focused
 	} else if in.Submitted() && opts.AllowCustom {

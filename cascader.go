@@ -79,7 +79,7 @@ func Cascader(c *ui.Context, path *[]string, opts CascaderOptions) ChoiceResult 
 	if opts.Disabled {
 		st.open = false
 	}
-	if tr.Clicked() || (!st.open && tr.Shortcut(0, ui.KeyDown)) {
+	if tr.Clicked() || (!st.open && tr.Shortcut(0, ui.KeyDown) && !tr.IsDisabled()) {
 		st.open = !st.open
 		if st.open {
 			st.active = slices.Clone(*path)
@@ -170,10 +170,11 @@ func cascaderColumn(c *ui.Context, st *cascaderState, path *[]string, opts Casca
 			selectNote(c, msg(c, "cascader.empty"))
 		default:
 			ui.Scroll(c).MaxHeight(260).Padding(4).Children(func() {
+				entry := slices.IndexFunc(lv.Nodes, func(n CascaderNode) bool { return !n.Disabled })
 				for i, n := range lv.Nodes {
 					on := depth < len(st.active) && st.active[depth] == n.Value
 					deeper = deeper || on && !n.Leaf
-					cascaderRow(c, st, path, opts, prefix, n, on, i == 0)
+					cascaderRow(c, st, path, opts, prefix, n, on, i == entry)
 				}
 			})
 		}
@@ -208,7 +209,7 @@ func cascaderRow(c *ui.Context, st *cascaderState, path *[]string, opts Cascader
 		st.active, *path, st.open = full, full, false
 	case clicked:
 		open(false)
-	case b.Shortcut(0, ui.KeyRight) && !n.Leaf:
+	case b.Shortcut(0, ui.KeyRight) && !n.Leaf && !b.IsDisabled():
 		open(true)
 	case b.Shortcut(0, ui.KeyLeft) && depth > 0:
 		st.focus, st.focusSet = slices.Clone(prefix), true

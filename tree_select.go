@@ -74,7 +74,7 @@ func TreeSelect(c *ui.Context, selected *[]string, nodes []TreeSelectNode, opts 
 	if opts.Disabled {
 		st.open = false
 	}
-	if tr.Clicked() || (!st.open && tr.Shortcut(0, ui.KeyDown)) {
+	if tr.Clicked() || (!st.open && tr.Shortcut(0, ui.KeyDown) && !tr.IsDisabled()) {
 		st.open, st.query = !st.open, ""
 	}
 	labels := map[string]string{}
@@ -111,8 +111,9 @@ func TreeSelect(c *ui.Context, selected *[]string, nodes []TreeSelectNode, opts 
 			}
 			ui.Scroll(c).MaxHeight(300).Padding(4).Children(func() {
 				ui.Column(c).FocusGroup(ui.Vertical).Children(func() {
+					entry := slices.IndexFunc(rows, func(r treeSelectRow) bool { return !r.node.Disabled })
 					for i, r := range rows {
-						treeSelectRowView(c, st, selected, r, i == 0, shown, opts)
+						treeSelectRowView(c, st, selected, r, i == entry, shown, opts)
 					}
 				})
 			})
@@ -287,7 +288,7 @@ func treeSelectRowView(c *ui.Context, st *treeSelectState, selected *[]string, r
 			b.Focus()
 			st.focus = ""
 		}
-		right, left := b.Shortcut(0, ui.KeyRight), b.Shortcut(0, ui.KeyLeft)
+		right, left := b.Shortcut(0, ui.KeyRight) && !b.IsDisabled(), b.Shortcut(0, ui.KeyLeft) && !b.IsDisabled()
 		switch {
 		case right && branch && !open:
 			st.expanded[n.ID] = true

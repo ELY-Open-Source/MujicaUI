@@ -45,11 +45,18 @@ type selectTypeahead struct {
 func Select[T comparable](c *ui.Context, value *T, options []SelectOption[T], opts SelectOptions) ChoiceResult {
 	k := Tokens(c)
 	old := *value
-	value = choiceTarget(value, opts.Disabled)
+	// SelectBase chooses into a copy as it is built; a choice counts once the option is known enabled.
+	pick := old
 	var s *ui.SelectParts[T]
-	// SelectBase takes clicks as it is built: a disabled wrapper and a copy block them.
-	ui.Row(c).Shrink(0).Disabled(opts.Disabled).Children(func() { s = ui.SelectBase(c, value) })
+	ui.Row(c).Shrink(0).Disabled(opts.Disabled).Children(func() { s = ui.SelectBase(c, &pick) })
 	tr := s.Trigger
+	commit := func() {
+		if pick != *value && !tr.IsDisabled() && selectEnabled(options, pick) {
+			*value = pick
+		}
+		pick = *value
+	}
+	commit()
 	if opts.Label != "" {
 		tr.Label(opts.Label)
 	}
@@ -67,7 +74,7 @@ func Select[T comparable](c *ui.Context, value *T, options []SelectOption[T], op
 	})
 	if ta.pending {
 		ta.pending = false
-		if !s.Open() {
+		if !s.Open() && !tr.IsDisabled() {
 			if i := selectFind(options, *value, ta.prefix); i >= 0 {
 				*value = options[i].Value
 			}
@@ -75,7 +82,7 @@ func Select[T comparable](c *ui.Context, value *T, options []SelectOption[T], op
 	}
 	var zero T
 	label, has := selectLabel(options, *value)
-	if opts.Clearable && has && (tr.Shortcut(0, ui.KeyBackspace) || tr.Shortcut(0, ui.KeyDelete)) {
+	if opts.Clearable && has && (tr.Shortcut(0, ui.KeyBackspace) || tr.Shortcut(0, ui.KeyDelete)) && !tr.IsDisabled() {
 		*value, has = zero, false
 	}
 	selectField(c, tr, s.Open(), func() {
@@ -88,6 +95,7 @@ func Select[T comparable](c *ui.Context, value *T, options []SelectOption[T], op
 			*value = zero
 		}
 	})
+	pick = *value
 	lastHi := ui.Local(tr, selectKey{"shown"}, func() int { return -1 })
 	if opts.Disabled {
 		// SelectParts has no way to close it (ui/base.go:310): a disabled select builds no popup.
@@ -113,6 +121,7 @@ func Select[T comparable](c *ui.Context, value *T, options []SelectOption[T], op
 			}
 		})
 	})
+	commit()
 	if !s.Open() {
 		*lastHi = -1
 	}
@@ -121,6 +130,16 @@ func Select[T comparable](c *ui.Context, value *T, options []SelectOption[T], op
 		slog.Debug("mujica: select changed", "label", opts.Label, "value", *value)
 	}
 	return ChoiceResult{tr, changed}
+}
+
+// selectEnabled reports whether v is an option that is not disabled.
+func selectEnabled[T comparable](options []SelectOption[T], v T) bool {
+	for _, o := range options {
+		if o.Value == v {
+			return !o.Disabled
+		}
+	}
+	return false
 }
 
 // selectFind returns the enabled option matching typed prefix.
