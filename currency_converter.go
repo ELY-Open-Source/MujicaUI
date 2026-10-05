@@ -12,7 +12,6 @@ import (
 	"mujicaui/theme"
 )
 
-// Currency is a currency the converter offers; Decimals is its minor-unit precision.
 type Currency struct {
 	Code, Name string
 	Decimals   int
@@ -20,29 +19,29 @@ type Currency struct {
 
 // CurrencyConverterState is the amount and the pair being converted.
 type CurrencyConverterState struct {
-	Amount   float64
-	From, To string
+	Amount           float64
+	From, To         string
+	rate             float64
+	rateFrom, rateTo string
+	rateBound        bool
 }
 
 // CurrencyConverterOptions configure a CurrencyConverter.
 type CurrencyConverterOptions struct {
-	// Rate converts one From into To; zero shows it is unavailable.
 	Rate float64
-	// RateTime is when the caller's rate was quoted; zero hides it.
-	RateTime time.Time
-	Disabled bool
+	// RateFrom and RateTo identify refreshed rates, including equal rates.
+	RateFrom, RateTo string
+	RateTime         time.Time
+	Disabled         bool
 }
 
-// CurrencyConverterView is a built converter, the result, and whether the pair changed.
 type CurrencyConverterView struct {
 	Element *ui.Element
-	// Result is Amount in To, rounded to its decimals; NaN without a rate.
-	Result float64
+	Result  float64
 	// PairChanged asks the caller for the new pair's rate.
 	PairChanged bool
 }
 
-// CurrencyConverter picks and swaps two currencies and converts at the caller's rate.
 func CurrencyConverter(c *ui.Context, s *CurrencyConverterState, currencies []Currency, opts CurrencyConverterOptions) CurrencyConverterView {
 	if s == nil || len(currencies) < 2 {
 		panic("mujica: CurrencyConverter needs a state and two currencies")
@@ -50,7 +49,27 @@ func CurrencyConverter(c *ui.Context, s *CurrencyConverterState, currencies []Cu
 	if opts.Rate < 0 || math.IsNaN(opts.Rate) || math.IsInf(opts.Rate, 0) {
 		panic("mujica: CurrencyConverter Rate must be finite and not negative")
 	}
+	seen := map[string]bool{}
+	for _, cur := range currencies {
+		if cur.Code == "" || seen[cur.Code] || cur.Decimals < 0 || cur.Decimals > 12 {
+			panic("mujica: currencies need unique codes and decimals in 0..12")
+		}
+		seen[cur.Code] = true
+	}
+	if s.Amount < 0 || math.IsNaN(s.Amount) || math.IsInf(s.Amount, 0) {
+		panic("mujica: currency amount must be finite and nonnegative")
+	}
 	from, to := currencyFind(currencies, s.From), currencyFind(currencies, s.To)
+	rate := opts.Rate
+	if !s.rateBound || s.rate != rate || opts.RateFrom != "" || opts.RateTo != "" {
+		s.rate, s.rateFrom, s.rateTo, s.rateBound = rate, s.From, s.To, true
+		if opts.RateFrom != "" || opts.RateTo != "" {
+			s.rateFrom, s.rateTo = opts.RateFrom, opts.RateTo
+		}
+	}
+	if s.From != s.rateFrom || s.To != s.rateTo {
+		rate = 0
+	}
 	k := Tokens(c)
 	u := Density(c).Unit()
 	options := make([]SelectOption[string], len(currencies))
@@ -58,11 +77,16 @@ func CurrencyConverter(c *ui.Context, s *CurrencyConverterState, currencies []Cu
 		options[i] = SelectOption[string]{Value: cur.Code, Label: cur.Code + " · " + cur.Name}
 	}
 	v := CurrencyConverterView{Result: math.NaN()}
-	if opts.Rate > 0 {
-		v.Result = numberInputSpec{decimals: to.Decimals}.round(s.Amount * opts.Rate)
+	if rate > 0 {
+		v.Result = numberInputSpec{decimals: to.Decimals}.round(s.Amount * rate)
 	}
 	v.Element = ui.Column(c).Gap(u*3).Padding(u*4).Background(k.Surface).Border(theme.BorderWidth, k.Border).
 		Radius(theme.CardRadius).Disabled(opts.Disabled)
+	opts.Disabled = v.Element.IsDisabled()
+	if opts.Disabled {
+		copy := *s
+		s = &copy
+	}
 	v.Element.Children(func() {
 		ui.Row(c).Gap(u * 2).AlignItems(ui.End).Wrap().Children(func() {
 			FormField(c, msg(c, "currency_converter.amount"), FormFieldOptions{}, func() *ui.Element {
@@ -85,7 +109,13 @@ func CurrencyConverter(c *ui.Context, s *CurrencyConverterState, currencies []Cu
 				return r.Element
 			})
 		})
-		if opts.Rate == 0 {
+		from, to = currencyFind(currencies, s.From), currencyFind(currencies, s.To)
+		if v.PairChanged {
+			v.Result = math.NaN()
+		} else if rate > 0 {
+			v.Result = numberInputSpec{decimals: to.Decimals}.round(s.Amount * rate)
+		}
+		if rate == 0 || v.PairChanged {
 			ui.Text(c, msg(c, "currency_converter.no_rate")).TextColor(k.TextMuted).Role(ui.RoleStatus)
 			return
 		}
@@ -95,7 +125,7 @@ func CurrencyConverter(c *ui.Context, s *CurrencyConverterState, currencies []Cu
 			ui.Text(c, statisticFormat(v.Result, to.Decimals)+" "+to.Code).Font(theme.SerifFont).FontSize(FontSize(c, theme.H2Size)).
 				TextColor(k.Text).FontFeatures("tnum")
 		})
-		note := fmt.Sprintf(msg(c, "currency_converter.rate"), from.Code, opts.Rate, to.Code)
+		note := fmt.Sprintf(msg(c, "currency_converter.rate"), from.Code, rate, to.Code)
 		if !opts.RateTime.IsZero() {
 			note += " · " + opts.RateTime.Format("2006-01-02 15:04")
 		}

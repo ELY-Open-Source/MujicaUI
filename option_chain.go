@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"fmt"
 	"log/slog"
+	"math"
 	"slices"
 
 	"github.com/egoist/mygo/ui"
@@ -23,7 +24,6 @@ type OptionStrike struct {
 	Call, Put OptionQuote
 }
 
-// OptionSide is a call or a put. The zero value is OptionCall.
 type OptionSide int
 
 const (
@@ -34,7 +34,6 @@ const (
 // OptionChainState is the expiry shown and the chosen contract.
 type OptionChainState struct {
 	Expiry string
-	// Strike and Side are the chosen contract when Chosen is set.
 	Strike float64
 	Side   OptionSide
 	Chosen bool
@@ -45,7 +44,6 @@ type OptionChainState struct {
 
 // OptionChainOptions configure an OptionChain.
 type OptionChainOptions struct {
-	// Spot is the underlying price; it centers the strikes and marks in-the-money contracts.
 	Spot     float64
 	Decimals int
 	Disabled bool
@@ -55,27 +53,46 @@ type OptionChainOptions struct {
 type OptionChainView struct {
 	Element *ui.Element
 	// ExpiryChanged asks the caller for the strikes of State.Expiry.
-	ExpiryChanged bool
-	// Changed reports a newly chosen contract; Submitted is Enter or a double click.
+	ExpiryChanged      bool
 	Changed, Submitted bool
 }
 
-// OptionChain shows calls and puts around ascending strikes, centered on the spot, for the chosen expiry.
 func OptionChain(c *ui.Context, s *OptionChainState, expiries []string, strikes []OptionStrike, opts OptionChainOptions) OptionChainView {
 	if s == nil || len(expiries) == 0 {
 		panic("mujica: OptionChain needs a state and an expiry")
 	}
+	if opts.Spot < 0 || math.IsNaN(opts.Spot) || math.IsInf(opts.Spot, 0) || s.Side < OptionCall || s.Side > OptionPut {
+		panic("mujica: OptionChain price or side is invalid")
+	}
+	for i, o := range strikes {
+		if i > 0 && o.Strike == strikes[i-1].Strike {
+			panic("mujica: OptionChain strikes must be unique")
+		}
+		for _, v := range []float64{o.Strike, o.Call.Bid, o.Call.Ask, o.Call.Last, o.Put.Bid, o.Put.Ask, o.Put.Last} {
+			if v < 0 || math.IsNaN(v) || math.IsInf(v, 0) {
+				panic("mujica: OptionChain quotes must be finite and nonnegative")
+			}
+		}
+	}
 	if !slices.IsSortedFunc(strikes, func(a, b OptionStrike) int { return cmp.Compare(a.Strike, b.Strike) }) {
 		panic("mujica: OptionChain strikes must ascend")
 	}
-	if !slices.Contains(expiries, s.Expiry) {
-		s.Expiry = expiries[0]
-	}
+
 	dec := priceDecimals("OptionChain", opts.Decimals)
 	k := Tokens(c)
 	d := Density(c)
 	var v OptionChainView
-	v.Element = ui.Column(c).Gap(d.Unit() * 2).MinHeight(0).Disabled(opts.Disabled)
+	v.Element = ui.Column(c).Gap(d.Unit() * 2).Grow(1).MinHeight(0).Disabled(opts.Disabled)
+	opts.Disabled = v.Element.IsDisabled()
+	if opts.Disabled {
+		copy := *s
+		s = &copy
+	}
+	if s.Expiry == "" {
+		s.Expiry = expiries[0]
+	} else if !slices.Contains(expiries, s.Expiry) {
+		panic("mujica: OptionChain expiry is not listed")
+	}
 	v.Element.Children(func() {
 		ui.Row(c).Gap(d.Unit() * 3).AlignItems(ui.Center).Children(func() {
 			items := make([]SelectOption[string], len(expiries))
@@ -105,6 +122,11 @@ func optionChainHeader(c *ui.Context) {
 	t := Tokens(c)
 	d := Density(c)
 	size := FontSize(c, theme.CaptionSize)
+	ui.Row(c).Padding(0, d.Unit()*3).Children(func() {
+		ui.Text(c, msg(c, "option_chain.calls")).Grow(1).Basis(0).TextAlign(ui.Center).FontSize(size).TextColor(t.TextMuted)
+		ui.Box(c).Width(90)
+		ui.Text(c, msg(c, "option_chain.puts")).Grow(1).Basis(0).TextAlign(ui.Center).FontSize(size).TextColor(t.TextMuted)
+	})
 	ui.Row(c).Padding(0, d.Unit()*3).Children(func() {
 		for side, title := range []string{"option_chain.calls", "option_chain.puts"} {
 			if side == 1 {
@@ -137,6 +159,9 @@ func optionChainRows(c *ui.Context, s *OptionChainState, strikes []OptionStrike,
 		cursor = &cp
 	}
 	atm, _ := slices.BinarySearchFunc(strikes, opts.Spot, func(o OptionStrike, v float64) int { return cmp.Compare(o.Strike, v) })
+	if atm == len(strikes) || atm > 0 && opts.Spot-strikes[atm-1].Strike < strikes[atm].Strike-opts.Spot {
+		atm--
+	}
 	if key := fmt.Sprint(s.Expiry, len(strikes)); key != s.center {
 		s.center = key
 		s.rows.ScrollTo(min(atm, len(strikes)-1), ui.Center)
@@ -144,6 +169,8 @@ func optionChainRows(c *ui.Context, s *OptionChainState, strikes []OptionStrike,
 	s.rows.Key = func(i int) any { return strikes[i].Strike }
 	s.rows.Label = func(i int) string { return statisticFormat(strikes[i].Strike, dec) }
 	s.rows.Selected = cursor
+	clickedRow, clickedSide := -1, OptionCall
+	double := false
 	restore := dataSelectTheme(c, 0)
 	list := ui.List(c, &s.rows, len(strikes), func(i int) {
 		o := strikes[i]
@@ -156,15 +183,20 @@ func optionChainRows(c *ui.Context, s *OptionChainState, strikes []OptionStrike,
 				itm := opts.Spot > 0 && (sd == 0 && o.Strike < opts.Spot || sd == 1 && o.Strike > opts.Spot)
 				half := ui.Row(c).Grow(1).Basis(0).AlignItems(ui.Center).Radius(theme.ControlRadius).
 					Label(optionChainName(c, o.Strike, OptionSide(sd), q, dec, itm))
-				if itm {
-					half.Background(k.Ornament.Alpha(0.14))
-				}
-				if chosen && OptionSide(sd) == s.Side {
-					half.DrawOver(func(p *ui.Painter, r ui.Rect) { internal.Frame(p, r, 1, 5, k.AccentText) })
-				}
 				if half.Clicked() && !half.IsDisabled() {
-					*cursor, s.Side = i, OptionSide(sd)
+					clickedRow, clickedSide, double = i, OptionSide(sd), half.DoubleClicked()
 				}
+				if itm {
+					half.Background(k.Selection)
+				}
+				half.DrawOver(func(p *ui.Painter, r ui.Rect) {
+					if itm {
+						p.FillPath(internal.Diamond(internal.Snap(p, r.X+5), internal.Snap(p, r.Y+r.H/2), 6), k.AccentText)
+					}
+					if chosen && OptionSide(sd) == s.Side {
+						internal.Frame(p, r, 1, 5, k.AccentText)
+					}
+				})
 				half.Children(func() {
 					for _, v := range []float64{q.Bid, q.Ask, q.Last} {
 						ui.Text(c, statisticFormat(v, dec)).Grow(1).Basis(0).TextAlign(ui.End).FontFeatures("tnum").SingleLine()
@@ -175,8 +207,21 @@ func optionChainRows(c *ui.Context, s *OptionChainState, strikes []OptionStrike,
 	}).Grow(1).MinHeight(0).Padding(d.Unit()).Background(k.Surface).Border(theme.BorderWidth, k.Border).Radius(theme.ControlRadius)
 	restore()
 	internal.Ring(list, k.Focus, theme.ControlRadius)
-	if !opts.Disabled {
+	pointed := OptionSide(-1)
+	if x, _, over := list.PointerPosition(); over {
+		pointed = OptionCall
+		if x > list.Bounds().W/2 {
+			pointed = OptionPut
+		}
+	}
+	if !list.IsDisabled() {
+		if clickedRow >= 0 {
+			s.cursor, s.Side = clickedRow, clickedSide
+			list.Focus()
+		}
 		switch {
+		case clickedRow < 0 && s.cursor != before && pointed >= 0:
+			s.Side = pointed
 		case list.Shortcut(0, ui.KeyLeft):
 			s.Side = OptionCall
 		case list.Shortcut(0, ui.KeyRight):
@@ -185,17 +230,16 @@ func optionChainRows(c *ui.Context, s *OptionChainState, strikes []OptionStrike,
 		if s.cursor >= 0 && (s.cursor != before || s.Side != side) {
 			s.Strike, s.Chosen, changed = strikes[s.cursor].Strike, true, true
 		}
-		submitted = list.Submitted() && s.Chosen
+		submitted = (list.Submitted() || double) && s.Chosen
 	}
 	return changed, submitted
 }
 
-// optionChainStrike is the middle strike cell; the one at the spot carries a diamond.
 func optionChainStrike(c *ui.Context, strike float64, dec int, atm bool) {
 	k := Tokens(c)
 	ui.Row(c).Width(90).Gap(4).Justify(ui.Center).AlignItems(ui.Center).Background(k.Background).Children(func() {
 		if atm {
-			ui.Box(c).Size(8, 8).Draw(func(p *ui.Painter, r ui.Rect) { p.FillPath(internal.Diamond(r.X+4, r.Y+4, 8), k.Ornament) })
+			ui.Box(c).Size(8, 8).Draw(func(p *ui.Painter, r ui.Rect) { p.FillPath(internal.Diamond(r.X+4, r.Y+4, 8), k.AccentText) })
 		}
 		ui.Text(c, statisticFormat(strike, dec)).FontWeight(700).FontFeatures("tnum")
 	})

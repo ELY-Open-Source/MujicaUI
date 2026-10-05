@@ -18,8 +18,7 @@ type PortfolioAccount struct {
 	Total    float64
 	// DayPnL is today's profit; TotalReturn the profit since inception.
 	DayPnL, TotalReturn float64
-	// Cost is what went in; it turns TotalReturn into a percent.
-	Cost float64
+	Cost                float64
 }
 
 // PortfolioSummaryOptions configure a PortfolioSummary.
@@ -32,13 +31,8 @@ type PortfolioSummaryOptions struct {
 }
 
 // PortfolioSummaryView is a built summary; Changed reports another account chosen.
-type PortfolioSummaryView struct {
-	Element *ui.Element
-	Changed bool
-}
 
-// PortfolioSummary shows total assets, today's profit and total return, for all accounts or one.
-func PortfolioSummary(c *ui.Context, account *string, accounts []PortfolioAccount, opts PortfolioSummaryOptions) PortfolioSummaryView {
+func PortfolioSummary(c *ui.Context, account *string, accounts []PortfolioAccount, opts PortfolioSummaryOptions) ChoiceResult {
 	if account == nil {
 		panic("mujica: PortfolioSummary needs an account")
 	}
@@ -64,7 +58,7 @@ func PortfolioSummary(c *ui.Context, account *string, accounts []PortfolioAccoun
 		panic("mujica: PortfolioSummary account " + *account + " is not listed")
 	}
 	before := *account
-	v := PortfolioSummaryView{}
+	v := ChoiceResult{}
 	v.Element = ui.Column(c).Gap(u*3).Padding(u*4).Background(k.Surface).Border(theme.BorderWidth, k.Border).
 		Radius(theme.CardRadius).Disabled(opts.Disabled)
 	v.Element.Children(func() {
@@ -89,8 +83,8 @@ func PortfolioSummary(c *ui.Context, account *string, accounts []PortfolioAccoun
 			})
 		})
 	})
-	v.Changed = *account != before && !v.Element.IsDisabled()
-	if v.Changed {
+	v.changed = *account != before && !v.Element.IsDisabled()
+	if v.Changed() {
 		slog.Debug("mujica: portfolio_summary account", "id", *account)
 	}
 	return v
@@ -103,7 +97,6 @@ func portfolioFigure(c *ui.Context, title string, value func()) {
 	})
 }
 
-// portfolioSigned shows a signed amount and percent with the trend arrow.
 func portfolioSigned(c *ui.Context, v float64, cur string, dec int, pct float64) {
 	sign := trendSign(v)
 	text := cur + statisticFormat(math.Abs(v), dec)
@@ -121,7 +114,6 @@ func portfolioSigned(c *ui.Context, v float64, cur string, dec int, pct float64)
 	})
 }
 
-// portfolioPercent is part of base in percent, NaN when base is zero.
 func portfolioPercent(part, base float64) float64 {
 	if base == 0 {
 		return math.NaN()

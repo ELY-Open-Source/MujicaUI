@@ -25,6 +25,9 @@ func init() {
 
 		"payoff_diagram.readout":    {"Price %s · %s %s", "价格 %s · %s %s"},
 		"payoff_diagram.spot":       {"Spot", "现价"},
+		"payoff_diagram.profit":     {"profit", "盈利"},
+		"payoff_diagram.loss":       {"loss", "亏损"},
+		"payoff_diagram.even":       {"break even", "持平"},
 		"payoff_diagram.breakevens": {"Breakeven:", "盈亏平衡点："},
 
 		"watchlist.groups":  {"Watchlists", "自选分组"},

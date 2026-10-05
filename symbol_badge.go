@@ -15,8 +15,7 @@ type MarketSymbol struct {
 	Code, Name string
 	// Market is the venue, such as NASDAQ or SSE.
 	Market string
-	// Type is the asset kind, such as Stock, ETF or Option.
-	Type string
+	Type   string
 }
 
 // SymbolBadgeOptions configure a SymbolBadge.

@@ -11,27 +11,25 @@ import (
 	"mujicaui/theme"
 )
 
-// NewsItem is a headline with its source, time and related symbols.
 type NewsItem struct {
 	ID, Title, Source string
 	Time              time.Time
 	Symbols           []string
 }
 
-// NewsFeedState holds which items were read, by ID, and the list's place.
 type NewsFeedState struct {
-	Read   map[string]bool
-	rows   ui.ListState
-	cursor int
-	count  struct {
+	Read        map[string]bool
+	rows        ui.ListState
+	cursor      int
+	readVersion int
+	count       struct {
 		key    string
 		unread int
 	}
 }
 
-// newsFeedUnread counts unread items, recounting only when items or reads change.
-func newsFeedUnread(s *NewsFeedState, items []NewsItem) int {
-	key := fmt.Sprint(chartID(items), len(s.Read))
+func newsFeedUnread(s *NewsFeedState, items []NewsItem, version int) int {
+	key := fmt.Sprint(chartID(items), version, s.readVersion)
 	if key != s.count.key {
 		s.count.key, s.count.unread = key, 0
 		for _, it := range items {
@@ -47,6 +45,7 @@ func newsFeedUnread(s *NewsFeedState, items []NewsItem) int {
 type NewsFeedOptions struct {
 	// Today decides the time stamps; zero uses the window clock.
 	Today    Date
+	Version  int
 	Status   DataStatus
 	Error    string
 	Disabled bool
@@ -55,21 +54,18 @@ type NewsFeedOptions struct {
 // NewsFeedView is a built NewsFeed and this frame's events.
 type NewsFeedView struct {
 	Element *ui.Element
-	// Opened is the item opened, which is now read; empty for none.
-	Opened string
+	Opened  string
 	// Symbol is the related code clicked; empty for none.
-	Symbol string
-	Retry  bool
+	Symbol      string
+	Retry       bool
+	ReadChanged bool
 }
 
-// NewsFeed lists headlines newest first as given, marking unread ones; only rows in view are built.
 func NewsFeed(c *ui.Context, s *NewsFeedState, items []NewsItem, opts NewsFeedOptions) NewsFeedView {
 	if s == nil {
 		panic("mujica: NewsFeed needs a state")
 	}
-	if s.Read == nil {
-		s.Read = map[string]bool{}
-	}
+
 	today := opts.Today
 	if today.IsZero() {
 		today = DateOf(c.Now())
@@ -77,15 +73,25 @@ func NewsFeed(c *ui.Context, s *NewsFeedState, items []NewsItem, opts NewsFeedOp
 	k := Tokens(c)
 	d := Density(c)
 	var v NewsFeedView
-	v.Element = ui.Column(c).Gap(d.Unit() * 2).MinHeight(0).Disabled(opts.Disabled)
+	v.Element = ui.Column(c).Gap(d.Unit() * 2).Grow(1).MinHeight(0).Disabled(opts.Disabled)
+	opts.Disabled = v.Element.IsDisabled()
+	if opts.Disabled {
+		copy := *s
+		s = &copy
+	}
+	if s.Read == nil {
+		s.Read = map[string]bool{}
+	}
 	v.Element.Children(func() {
-		unread := newsFeedUnread(s, items)
+		unread := newsFeedUnread(s, items, opts.Version)
 		ui.Row(c).Gap(d.Unit() * 2).AlignItems(ui.Center).Children(func() {
 			ui.Text(c, fmt.Sprintf(msg(c, "news_feed.unread"), unread)).TextColor(k.TextMuted).Grow(1).Role(ui.RoleStatus)
 			if Button(c, msg(c, "news_feed.mark_all"), ButtonOptions{Variant: Ghost, Disabled: opts.Disabled || unread == 0}).Clicked() {
 				for _, it := range items {
 					s.Read[it.ID] = true
 				}
+				s.readVersion++
+				v.ReadChanged = true
 				slog.Debug("mujica: news_feed mark_all", "count", unread)
 			}
 		})
@@ -137,15 +143,19 @@ func NewsFeed(c *ui.Context, s *NewsFeedState, items []NewsItem, opts NewsFeedOp
 		}).Grow(1).MinHeight(0).Padding(d.Unit()).Background(k.Surface).Border(theme.BorderWidth, k.Border).Radius(theme.ControlRadius)
 		restore()
 		internal.Ring(list, k.Focus, theme.ControlRadius)
-		if !opts.Disabled && list.Submitted() && s.cursor >= 0 && s.cursor < len(items) {
+		if !list.IsDisabled() && list.Submitted() && s.cursor >= 0 && s.cursor < len(items) {
 			v.Opened = items[s.cursor].ID
 		}
 		if v.Opened != "" && !opts.Disabled {
+			if !s.Read[v.Opened] {
+				s.readVersion++
+				v.ReadChanged = true
+			}
 			s.Read[v.Opened] = true
 		}
 	})
 	if v.Element.IsDisabled() {
-		v.Opened, v.Symbol, v.Retry = "", "", false
+		v.Opened, v.Symbol, v.Retry, v.ReadChanged = "", "", false, false
 	}
 	if v.Opened != "" || v.Symbol != "" {
 		slog.Debug("mujica: news_feed open", "item", v.Opened, "symbol", v.Symbol)

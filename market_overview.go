@@ -15,20 +15,17 @@ type MarketBreadth struct{ Advancing, Declining, Unchanged int }
 
 // MarketOverviewOptions configure a MarketOverview.
 type MarketOverviewOptions struct {
-	Breadth MarketBreadth
-	// AsOf is when the data was taken; zero hides the stamp.
+	Breadth  MarketBreadth
 	AsOf     time.Time
 	Decimals int
 	Disabled bool
 }
 
-// MarketOverviewView is a built overview and the index clicked, -1 for none.
 type MarketOverviewView struct {
 	Element *ui.Element
 	Chosen  int
 }
 
-// MarketOverview shows index cards, advancers against decliners, and a time stamp.
 func MarketOverview(c *ui.Context, indices []IndexQuote, opts MarketOverviewOptions) MarketOverviewView {
 	b := opts.Breadth
 	if b.Advancing < 0 || b.Declining < 0 || b.Unchanged < 0 {
@@ -62,7 +59,6 @@ func MarketOverview(c *ui.Context, indices []IndexQuote, opts MarketOverviewOpti
 	return v
 }
 
-// marketBreadthBar splits a bar by counts; each part has an arrow and a number.
 func marketBreadthBar(c *ui.Context, b MarketBreadth, total int) {
 	k := Tokens(c)
 	u := Density(c).Unit()

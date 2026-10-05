@@ -9,7 +9,6 @@ import (
 	"mujicaui/theme"
 )
 
-// IndexQuote is an index level, its change and recent values for the mini chart.
 type IndexQuote struct {
 	Name          string
 	Price         float64
@@ -28,7 +27,6 @@ type IndexCardOptions struct {
 	Disabled  bool
 }
 
-// IndexCard shows an index level, its change and a mini chart.
 func IndexCard(c *ui.Context, q IndexQuote, opts IndexCardOptions) ChoiceResult {
 	if q.Name == "" {
 		panic("mujica: IndexCard needs a Name")
@@ -57,7 +55,7 @@ func IndexCard(c *ui.Context, q IndexQuote, opts IndexCardOptions) ChoiceResult 
 			PriceChangeBadge(c, q.Change, q.ChangePercent, PriceChangeBadgeOptions{Decimals: dec})
 		})
 		if len(q.Series) > 0 {
-			Sparkline(c, q.Series, SparklineOptions{Frame: ChartFrame{Label: q.Name}, Width: 172})
+			Sparkline(c, q.Series, SparklineOptions{Frame: ChartFrame{Label: q.Name}, Width: 120})
 		}
 	})
 	clicked := opts.Clickable && e.Clicked() && !e.IsDisabled()

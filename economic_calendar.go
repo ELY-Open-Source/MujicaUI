@@ -23,7 +23,6 @@ type EconomicEvent struct {
 	Forecast, Previous, Actual string
 }
 
-// EconomicCalendarState is the country filter (empty shows all) and the table's state.
 type EconomicCalendarState struct {
 	Countries []string
 	// MinImportance hides events below it; zero shows all.
@@ -33,8 +32,10 @@ type EconomicCalendarState struct {
 }
 
 type economicCache struct {
-	key  string
-	rows []EconomicEvent
+	key       string
+	rows      []EconomicEvent
+	data      string
+	countries []SelectOption[string]
 }
 
 // EconomicCalendarOptions configure an EconomicCalendar.
@@ -45,7 +46,6 @@ type EconomicCalendarOptions struct {
 	Disabled bool
 }
 
-// EconomicCalendar lists economic events with importance, forecast, previous and actual, filtered by country.
 func EconomicCalendar(c *ui.Context, s *EconomicCalendarState, events []EconomicEvent, opts EconomicCalendarOptions) DataTableView {
 	if s == nil {
 		panic("mujica: EconomicCalendar needs a state")
@@ -56,17 +56,28 @@ func EconomicCalendar(c *ui.Context, s *EconomicCalendarState, events []Economic
 	u := Density(c).Unit()
 	var v DataTableView
 	col := ui.Column(c).Gap(u * 2).MinHeight(0).Grow(1).Disabled(opts.Disabled)
+	opts.Disabled = col.IsDisabled()
+	if opts.Disabled {
+		copy := *s
+		s = &copy
+	}
 	col.Children(func() {
-		var countries []SelectOption[string]
-		for _, e := range events {
-			if e.ID == "" || e.Importance < 1 || e.Importance > 3 {
-				panic("mujica: EconomicEvent needs an ID and Importance 1..3")
+		if data := chartID(events) + fmt.Sprint(opts.Version); data != s.cache.data {
+			s.cache.data, s.cache.countries = data, nil
+			seen := map[string]bool{}
+			for _, e := range events {
+				if e.ID == "" || seen[e.ID] || e.Importance < 1 || e.Importance > 3 {
+
+					panic("mujica: EconomicEvent needs an ID and Importance 1..3")
+				}
+				seen[e.ID] = true
+				if !slices.ContainsFunc(s.cache.countries, func(o SelectOption[string]) bool { return o.Value == e.Country }) {
+					s.cache.countries = append(s.cache.countries, SelectOption[string]{Value: e.Country, Label: e.Country})
+				}
 			}
-			if !slices.ContainsFunc(countries, func(o SelectOption[string]) bool { return o.Value == e.Country }) {
-				countries = append(countries, SelectOption[string]{Value: e.Country, Label: e.Country})
-			}
+			slices.SortFunc(s.cache.countries, func(a, b SelectOption[string]) int { return cmp.Compare(a.Value, b.Value) })
 		}
-		slices.SortFunc(countries, func(a, b SelectOption[string]) int { return cmp.Compare(a.Value, b.Value) })
+		countries := s.cache.countries
 		ui.Row(c).Gap(u * 3).AlignItems(ui.Center).Wrap().Children(func() {
 			MultiSelect(c, &s.Countries, countries, MultiSelectOptions{Placeholder: msg(c, "economic_calendar.all_countries"),
 				Label: msg(c, "economic_calendar.countries"), Disabled: opts.Disabled}).Element.MinWidth(220)
@@ -96,7 +107,7 @@ func EconomicCalendar(c *ui.Context, s *EconomicCalendarState, events []Economic
 			{ID: "previous", Title: msg(c, "economic_calendar.previous"), Width: 90, Align: ui.End, Text: func(e EconomicEvent) string { return cmp.Or(e.Previous, "—") }},
 		}
 		v = DataTable(c, &s.Table, rows, DataTableOptions[EconomicEvent, string]{Columns: cols, Key: func(e EconomicEvent) string { return e.ID },
-			Status: opts.Status, Error: opts.Error, Empty: msg(c, "economic_calendar.empty")})
+			Version: opts.Version, Status: opts.Status, Error: opts.Error, Empty: msg(c, "economic_calendar.empty")})
 		v.Element.Grow(1)
 	})
 	v.Element = col
@@ -122,7 +133,6 @@ func economicImportance(c *ui.Context, level int) {
 	})
 }
 
-// economicFilter keeps events of the chosen countries and importance, only refiltering on change.
 func economicFilter(s *EconomicCalendarState, events []EconomicEvent, version int) []EconomicEvent {
 	key := fmt.Sprint(chartID(events), version, s.MinImportance, strings.Join(s.Countries, "\x00"))
 	if key == s.cache.key {
