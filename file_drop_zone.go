@@ -37,15 +37,6 @@ type FileDropZoneOptions struct {
 	Disabled bool
 }
 
-// FileDropZoneParts are the parts of a FileDropZone.
-type FileDropZoneParts struct {
-	Element *ui.Element
-	changed bool
-}
-
-// Changed reports whether files were added or removed this frame.
-func (p FileDropZoneParts) Changed() bool { return p.changed }
-
 // fileDropZoneReject is a file that failed a check, shown until dismissed.
 type fileDropZoneReject struct {
 	path, reason string
@@ -66,7 +57,7 @@ type fileDropZoneState struct {
 }
 
 // FileDropZone checks dropped or browsed files and lists them; it never reads or uploads them.
-func FileDropZone(c *ui.Context, files *[]DroppedFile, opts FileDropZoneOptions) FileDropZoneParts {
+func FileDropZone(c *ui.Context, files *[]DroppedFile, opts FileDropZoneOptions) ChoiceResult {
 	if opts.MaxFiles < 0 || opts.MaxSize < 0 {
 		panic("mujica: FileDropZone limits must not be negative")
 	}
@@ -77,7 +68,7 @@ func FileDropZone(c *ui.Context, files *[]DroppedFile, opts FileDropZoneOptions)
 	}
 	k := Tokens(c)
 	d := Density(c)
-	parts := FileDropZoneParts{}
+	parts := ChoiceResult{}
 	col := ui.Column(c).Gap(d.Unit() * 2)
 	parts.Element = col
 	st := ui.Local(col, "zone", func() fileDropZoneState { return fileDropZoneState{} })
@@ -213,7 +204,7 @@ func fileDropZoneCheck(c *ui.Context, st *fileDropZoneState) {
 }
 
 // fileDropZoneList shows accepted, checking and rejected files.
-func fileDropZoneList(c *ui.Context, st *fileDropZoneState, files *[]DroppedFile, parts *FileDropZoneParts, disabled bool) {
+func fileDropZoneList(c *ui.Context, st *fileDropZoneState, files *[]DroppedFile, parts *ChoiceResult, disabled bool) {
 	k := Tokens(c)
 	d := Density(c)
 	row := func(key string, icon string, color ui.Color, name, detail string, remove func()) {

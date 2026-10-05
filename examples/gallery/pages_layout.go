@@ -417,7 +417,7 @@ func layoutSplitPaneDemo(c *ui.Context, log func(string)) {
 				Collapsible: sides[s.collapsible]},
 				pane("Files", "Drag the divider, or focus it and use the arrows.", k.Surface),
 				pane("Editor", "Enter on the divider folds the collapsible pane.", k.Background))
-			r.Fill()
+			r.Element.Fill()
 			if r.Resized {
 				log(fmt.Sprintf("resized to %.0f", s.split.Size))
 			}

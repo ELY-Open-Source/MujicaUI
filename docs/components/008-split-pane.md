@@ -11,7 +11,7 @@ split := mujica.SplitPaneState{Size: 160}
 mujica.SplitPane(c, &split, mujica.SplitPaneOptions{MinFirst: 120, Collapsible: mujica.SplitPaneFirst},
 	func() { ui.Text(c, "Files") },
 	func() { ui.Text(c, "Editor") },
-).Fill()
+).Element.Fill()
 ```
 
 签名：`func SplitPane(c *ui.Context, state *SplitPaneState, opts SplitPaneOptions, first, second func()) SplitPaneResult`
@@ -33,7 +33,7 @@ mujica.SplitPane(c, &split, mujica.SplitPaneOptions{MinFirst: 120, Collapsible: 
 | `MinFirst`, `MinSecond` | `float32` | 10 单位（默认 40 DIP） | 两栏最小尺寸；负数 panic。 |
 | `Collapsible` | `SplitPaneSide` | `SplitPaneNeither` | 可折叠的栏：`SplitPaneFirst` 或 `SplitPaneSecond`。 |
 
-返回 `SplitPaneResult`，内嵌 `*ui.Element`。
+返回 `SplitPaneResult`，`Element` 字段是组件元素。
 
 ## 状态
 

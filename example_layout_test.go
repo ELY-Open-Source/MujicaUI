@@ -100,7 +100,7 @@ func ExampleSplitPane() {
 		mujica.SplitPane(c, &split, mujica.SplitPaneOptions{MinFirst: 120, Collapsible: mujica.SplitPaneFirst},
 			func() { ui.Text(c, "Files") },
 			func() { ui.Text(c, "Editor") },
-		).Fill()
+		).Element.Fill()
 	}
 	ui.Render(view, 400, 300, 1)
 }

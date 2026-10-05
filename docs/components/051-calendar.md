@@ -19,7 +19,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func Calendar(c *ui.Context, value *Date, opts CalendarOptions) DateTimeResult`，返回值嵌入 `*ui.Element`。
+`func Calendar(c *ui.Context, value *Date, opts CalendarOptions) DateTimeResult`，返回值的 `Element` 字段是组件元素。
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |

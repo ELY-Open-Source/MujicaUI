@@ -24,15 +24,6 @@ type CarouselOptions struct {
 	Loop bool
 }
 
-// CarouselView is a built Carousel and what happened to it in this frame.
-type CarouselView struct {
-	*ui.Element
-	changed bool
-}
-
-// Changed reports a new slide.
-func (v CarouselView) Changed() bool { return v.changed }
-
 type carouselState struct {
 	paused bool
 	next   time.Time
@@ -41,7 +32,7 @@ type carouselState struct {
 }
 
 // Carousel shows slide *index of n with previous, next and position controls.
-func Carousel(c *ui.Context, index *int, n int, opts CarouselOptions, slide func(i int)) CarouselView {
+func Carousel(c *ui.Context, index *int, n int, opts CarouselOptions, slide func(i int)) ChoiceResult {
 	if n < 0 || opts.Interval < 0 {
 		panic("mujica: Carousel with negative count or Interval")
 	}
@@ -51,7 +42,7 @@ func Carousel(c *ui.Context, index *int, n int, opts CarouselOptions, slide func
 	}
 	k := Tokens(c)
 	u := Density(c).Unit()
-	var v CarouselView
+	var v ChoiceResult
 	v.Element = ui.Column(c).Gap(u * 2).Label(opts.Label)
 	st := ui.Local(v.Element, "state", func() carouselState { return carouselState{} })
 	if n > 0 && (*index < 0 || *index >= n) {
@@ -75,7 +66,7 @@ func Carousel(c *ui.Context, index *int, n int, opts CarouselOptions, slide func
 		slog.Debug("mujica: carousel slide", "index", i)
 	}
 	now := c.Now()
-	playing := opts.Autoplay && n > 1 && !st.paused && !v.Hovered() && !v.FocusWithin()
+	playing := opts.Autoplay && n > 1 && !st.paused && !v.Element.Hovered() && !v.Element.FocusWithin()
 	if !playing {
 		st.next = time.Time{}
 	} else if st.next.IsZero() {
@@ -89,16 +80,16 @@ func Carousel(c *ui.Context, index *int, n int, opts CarouselOptions, slide func
 	}
 	switch {
 	case st.dotFocus:
-	case v.Shortcut(0, ui.KeyLeft):
+	case v.Element.Shortcut(0, ui.KeyLeft):
 		goTo(*index - 1)
-	case v.Shortcut(0, ui.KeyRight):
+	case v.Element.Shortcut(0, ui.KeyRight):
 		goTo(*index + 1)
-	case v.Shortcut(0, ui.KeyHome):
+	case v.Element.Shortcut(0, ui.KeyHome):
 		goTo(0)
-	case v.Shortcut(0, ui.KeyEnd):
+	case v.Element.Shortcut(0, ui.KeyEnd):
 		goTo(n - 1)
 	}
-	v.Children(func() {
+	v.Element.Children(func() {
 		ui.Row(c).Grow(1).MinHeight(120).AlignItems(ui.Center).Gap(u * 2).Children(func() {
 			prev := Button(c, "", ButtonOptions{Variant: Ghost, Icon: icons.Must("chevron-left"), Label: msg(c, "carousel.prev"), Disabled: n < 2 || !wrap && *index == 0})
 			ui.Column(c).Grow(1).MinWidth(0).FillHeight().Clip().Background(k.Surface).Border(theme.BorderWidth, k.Border).Radius(theme.CardRadius).

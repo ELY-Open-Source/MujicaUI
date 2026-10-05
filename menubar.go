@@ -56,8 +56,8 @@ type MenubarOptions struct {
 
 // MenubarResult is the built Menubar.
 type MenubarResult struct {
-	*ui.Element
-	chosen string
+	Element *ui.Element
+	chosen  string
 }
 
 // Chosen returns the ID of the item the user chose in this frame.

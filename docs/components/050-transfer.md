@@ -34,7 +34,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 事件
 
-`TransferParts.Changed()` 有条目移动。
+`ChoiceResult.Changed()` 有条目移动。
 
 ## 键盘操作
 

@@ -15,7 +15,7 @@ view := func(c *ui.Context) {
 		Roots:    []string{"Nave", "Sacristy"},
 		Children: func(n string) []string { return kids[n] },
 		Label:    func(n string) string { return n },
-	}).Size(280, 240)
+	}).Element.Size(280, 240)
 }
 ui.Render(view, 400, 300, 1)
 ```

@@ -87,7 +87,7 @@ func TestTabsOverflowScrolls(t *testing.T) {
 	tt := ui.NewTester(func(c *ui.Context) {
 		Use(c, Settings{})
 		ui.Column(c).Width(240).Children(func() {
-			w = Tabs(c, &sel, tabs, TabsOptions{}).Bounds().W
+			w = Tabs(c, &sel, tabs, TabsOptions{}).Element.Bounds().W
 		})
 	}, 400, 200)
 	tt.Key(0, ui.KeyTab)

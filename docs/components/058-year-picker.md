@@ -20,7 +20,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func YearPicker(c *ui.Context, value *int, opts YearPickerOptions) DateTimeResult`，返回值嵌入 `*ui.Element`。
+`func YearPicker(c *ui.Context, value *int, opts YearPickerOptions) DateTimeResult`，返回值的 `Element` 字段是组件元素。
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |

@@ -15,7 +15,7 @@ mujica.Sidebar(c, &selected, []mujica.SidebarSection{
 }, mujica.SidebarOptions{})
 ```
 
-签名：`func Sidebar(c *ui.Context, selected *string, sections []SidebarSection, opts SidebarOptions) SidebarResult`
+签名：`func Sidebar(c *ui.Context, selected *string, sections []SidebarSection, opts SidebarOptions) ChoiceResult`
 
 ## 参数
 
@@ -45,7 +45,7 @@ mujica.Sidebar(c, &selected, []mujica.SidebarSection{
 | `Compact` | `bool` | false | 图标栏：隐藏文字与组标题，组之间以旧金细线分隔，名称作为悬停提示。 |
 | `Width` | `float32` | 0（240，紧凑时 56） | 宽度，DIP。高度填满父容器。 |
 
-返回 `SidebarResult`，内嵌 `*ui.Element`。展开折叠状态由组件保存。
+返回 `ChoiceResult`，`Element` 字段是组件元素。展开折叠状态由组件保存。
 
 ## 状态
 

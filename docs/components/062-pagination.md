@@ -12,7 +12,7 @@ if mujica.Pagination(c, &page, &size, mujica.PaginationOptions{Total: 420, PageS
 }
 ```
 
-签名：`func Pagination(c *ui.Context, page, pageSize *int, opts PaginationOptions) PaginationResult`
+签名：`func Pagination(c *ui.Context, page, pageSize *int, opts PaginationOptions) ChoiceResult`
 
 ## 参数
 
@@ -28,7 +28,7 @@ if mujica.Pagination(c, &page, &size, mujica.PaginationOptions{Total: 420, PageS
 | `Siblings` | `int` | 0（即 1） | 当前页两侧显示的页码数；为负 panic。 |
 | `Disabled` | `bool` | false | 整体禁用。 |
 
-返回 `PaginationResult`，内嵌 `*ui.Element`。
+返回 `ChoiceResult`，`Element` 字段是组件元素。
 
 ## 状态
 

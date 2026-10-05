@@ -27,7 +27,7 @@ opts := mujica.DataTableOptions[relic, int]{
 }
 view := func(c *ui.Context) {
 	mujica.Use(c, mujica.Settings{})
-	mujica.DataTable(c, &state, rows, opts).Size(360, 240)
+	mujica.DataTable(c, &state, rows, opts).Element.Size(360, 240)
 }
 ui.Render(view, 400, 300, 1)
 ```

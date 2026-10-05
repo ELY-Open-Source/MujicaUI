@@ -90,7 +90,7 @@ func TestSliderSnapshot(t *testing.T) {
 		ui.Column(c).Padding(20).Gap(8).Width(380).Children(func() {
 			Slider(c, &a, SliderOptions{Step: 5})
 			s := Slider(c, &b, SliderOptions{Step: 25, Marks: marks, ShowValue: true, Format: func(v float64) string { return fmt.Sprintf("%.0f%%", v) }})
-			s.Focus()
+			s.Element.Focus()
 			Slider(c, &d, SliderOptions{Disabled: true})
 		})
 	})

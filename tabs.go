@@ -27,17 +27,8 @@ type TabsOptions struct {
 	Label string
 }
 
-// TabsResult is the built Tabs: the element holding tabs and panel.
-type TabsResult struct {
-	*ui.Element
-	changed bool
-}
-
-// Changed reports a new choice made by the user in this frame.
-func (r TabsResult) Changed() bool { return r.changed }
-
 // Tabs shows tabs choosing *selected and the chosen tab's panel. Disabled tabs are skipped by the arrows.
-func Tabs(c *ui.Context, selected *int, tabs []Tab, opts TabsOptions) TabsResult {
+func Tabs(c *ui.Context, selected *int, tabs []Tab, opts TabsOptions) ChoiceResult {
 	if len(tabs) == 0 {
 		panic("mujica: Tabs needs at least one tab")
 	}
@@ -66,7 +57,7 @@ func Tabs(c *ui.Context, selected *int, tabs []Tab, opts TabsOptions) TabsResult
 	if opts.Vertical {
 		root.Row()
 	}
-	res := TabsResult{Element: root}
+	res := ChoiceResult{Element: root}
 	root.Children(func() {
 		var strip *ui.Element
 		if opts.Vertical {

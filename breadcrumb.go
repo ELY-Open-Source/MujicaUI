@@ -28,8 +28,8 @@ type BreadcrumbOptions struct {
 
 // BreadcrumbResult is the built Breadcrumb.
 type BreadcrumbResult struct {
-	*ui.Element
-	chosen int
+	Element *ui.Element
+	chosen  int
 }
 
 // Chosen returns the index of the item the user activated in this frame.

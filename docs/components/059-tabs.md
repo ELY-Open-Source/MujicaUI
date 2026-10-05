@@ -14,7 +14,7 @@ mujica.Tabs(c, &tab, []mujica.Tab{
 }, mujica.TabsOptions{Label: "Settings"})
 ```
 
-签名：`func Tabs(c *ui.Context, selected *int, tabs []Tab, opts TabsOptions) TabsResult`
+签名：`func Tabs(c *ui.Context, selected *int, tabs []Tab, opts TabsOptions) ChoiceResult`
 
 ## 参数
 
@@ -36,7 +36,7 @@ mujica.Tabs(c, &tab, []mujica.Tab{
 | `Vertical` | `bool` | false | 标签竖排在左侧，面板在右侧。 |
 | `Label` | `string` | "" | 标签列表的无障碍名称。 |
 
-返回 `TabsResult`，内嵌包含标签与面板的 `*ui.Element`。
+返回 `ChoiceResult`，`Element` 字段是包含标签与面板的元素。
 
 ## 状态
 

@@ -180,9 +180,9 @@ if r.Submitted() {
 			inputSection(c, "States", func() {
 				ui.Row(c).Gap(12).Children(func() {
 					e, ro, off := "1789-13-01", "Read only", "Disabled"
-					mujica.TextInput(c, &e, mujica.TextInputOptions{Label: "Error state", Error: "No such date"}).Grow(1)
-					mujica.TextInput(c, &ro, mujica.TextInputOptions{Label: "Read-only state", ReadOnly: true}).Grow(1)
-					mujica.TextInput(c, &off, mujica.TextInputOptions{Label: "Disabled state", Disabled: true}).Grow(1)
+					mujica.TextInput(c, &e, mujica.TextInputOptions{Label: "Error state", Error: "No such date"}).Element.Grow(1)
+					mujica.TextInput(c, &ro, mujica.TextInputOptions{Label: "Read-only state", ReadOnly: true}).Element.Grow(1)
+					mujica.TextInput(c, &off, mujica.TextInputOptions{Label: "Disabled state", Disabled: true}).Element.Grow(1)
 				})
 			})
 		}},
@@ -244,8 +244,8 @@ if r.Submitted() {
 				ui.Row(c).Gap(12).AlignItems(ui.Start).Children(func() {
 					a, b, e := 4.0, 2.0, 7.5
 					mujica.NumberInput(c, &a, mujica.NumberInputOptions{Min: 1, Max: 8, StepperOnly: true, Label: "Stepper state"})
-					mujica.NumberInput(c, &b, mujica.NumberInputOptions{Label: "Disabled state", Disabled: true}).Width(160)
-					mujica.NumberInput(c, &e, mujica.NumberInputOptions{Step: 0.5, Label: "Error state", Error: "Must be whole"}).Width(160)
+					mujica.NumberInput(c, &b, mujica.NumberInputOptions{Label: "Disabled state", Disabled: true}).Element.Width(160)
+					mujica.NumberInput(c, &e, mujica.NumberInputOptions{Step: 0.5, Label: "Error state", Error: "Must be whole"}).Element.Width(160)
 				})
 			})
 		}},

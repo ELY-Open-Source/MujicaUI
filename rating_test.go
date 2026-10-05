@@ -105,7 +105,7 @@ func TestRatingSnapshot(t *testing.T) {
 
 func TestRatingHitAreaCompact(t *testing.T) {
 	v := 2.0
-	var r RatingParts
+	var r ChoiceResult
 	tt := ui.NewTester(func(c *ui.Context) {
 		Use(c, Settings{Density: theme.Compact})
 		ui.Column(c).AlignItems(ui.Start).Children(func() {

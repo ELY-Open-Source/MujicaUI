@@ -46,7 +46,7 @@ type StatusBarOptions struct {
 
 // StatusBarResult is a StatusBar and its event in this frame.
 type StatusBarResult struct {
-	*ui.Element
+	Element *ui.Element
 	// Clicked is the ID of the action item clicked, or empty.
 	Clicked string
 }

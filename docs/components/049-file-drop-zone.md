@@ -36,7 +36,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 事件
 
-`FileDropZoneParts.Changed()` 添加或移除了文件。被拒绝的条目只显示在组件内，可单独关闭。
+`ChoiceResult.Changed()` 添加或移除了文件。被拒绝的条目只显示在组件内，可单独关闭。
 
 ## 键盘操作
 

@@ -19,7 +19,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func Collapsible(c *ui.Context, open *bool, opts CollapsibleOptions, content func()) CollapsibleView`。
+`func Collapsible(c *ui.Context, open *bool, opts CollapsibleOptions, content func()) ChoiceResult`。
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |
@@ -33,7 +33,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 事件
 
-`CollapsibleView.Changed()`：用户点击或按键切换了展开状态。
+`ChoiceResult.Changed()`：用户点击或按键切换了展开状态。
 
 ## 键盘操作
 

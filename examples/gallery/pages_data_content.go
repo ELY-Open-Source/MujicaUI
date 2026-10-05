@@ -58,7 +58,7 @@ func dataAccordionDemo(c *ui.Context, log func(string)) {
 				log("closed all from outside")
 			}
 		})
-		if mujica.Accordion(c, &s.open, []mujica.AccordionItem{
+		r := mujica.Accordion(c, &s.open, []mujica.AccordionItem{
 			{ID: "choir", Title: "Choir", Content: func() { ui.Text(c, "Twelve voices, two at the altar.") }},
 			{ID: "nave", Title: "Nave", Content: func() { ui.Text(c, "Pews of black oak, polished for the feast.") }},
 			{ID: "crypt", Title: "Crypt (disabled)", Disabled: true, Content: func() {}},
@@ -67,7 +67,9 @@ func dataAccordionDemo(c *ui.Context, log func(string)) {
 					log("ring the bells")
 				}
 			}},
-		}, mujica.AccordionOptions{Multiple: s.multiple, KeepOne: s.keepOne}).Width(420).Changed() {
+		}, mujica.AccordionOptions{Multiple: s.multiple, KeepOne: s.keepOne})
+		r.Element.Width(420)
+		if r.Changed() {
 			log(fmt.Sprintf("open %v", s.open))
 		}
 	})
@@ -235,7 +237,7 @@ func dataCarouselDemo(c *ui.Context, log func(string)) {
 		v := mujica.Carousel(c, &s.index, len(dataPictures), mujica.CarouselOptions{Label: "Windows", Autoplay: s.autoplay, Loop: s.loop, Interval: d}, func(i int) {
 			ui.Image(c, dataPictures[i].Source).Grow(1).Label(dataPictures[i].Alt)
 		})
-		v.Size(520, 300)
+		v.Element.Size(520, 300)
 		if v.Changed() {
 			log(fmt.Sprintf("slide %d", s.index+1))
 		}

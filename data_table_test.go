@@ -54,7 +54,7 @@ func (h *tableHarness) view(c *ui.Context) {
 			cols.Columns[i].Text = func(r relic) string { h.seen[r.Name]++; return text(r) }
 		}
 		v := DataTable(c, &h.st, h.rows, cols)
-		v.Size(360, 300)
+		v.Element.Size(360, 300)
 		if v.Changed() {
 			h.changes++
 		}
@@ -347,7 +347,7 @@ func TestDataTableSnapshot(t *testing.T) {
 			return h
 		})
 		ui.Column(c).Padding(16).Children(func() {
-			DataTable(c, &(*h).st, (*h).rows, (*h).opts).Size(600, 260)
+			DataTable(c, &(*h).st, (*h).rows, (*h).opts).Element.Size(600, 260)
 		})
 	})
 }

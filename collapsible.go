@@ -19,25 +19,16 @@ type CollapsibleOptions struct {
 	Disabled bool
 }
 
-// CollapsibleView is a built Collapsible and what happened to it in this frame.
-type CollapsibleView struct {
-	*ui.Element
-	changed bool
-}
-
-// Changed reports that the trigger opened or closed the content.
-func (v CollapsibleView) Changed() bool { return v.changed }
-
 // Collapsible shows content below a trigger while *open; closed content is not built.
-func Collapsible(c *ui.Context, open *bool, opts CollapsibleOptions, content func()) CollapsibleView {
+func Collapsible(c *ui.Context, open *bool, opts CollapsibleOptions, content func()) ChoiceResult {
 	if opts.Title == "" && opts.Trigger == nil {
 		panic("mujica: Collapsible needs Title or Trigger")
 	}
 	k := Tokens(c)
 	u := Density(c).Unit()
-	var v CollapsibleView
+	var v ChoiceResult
 	v.Element = ui.Column(c).Shrink(0)
-	v.Children(func() {
+	v.Element.Children(func() {
 		was := *open
 		p := ui.CollapsibleBase(c, open)
 		tr := p.Trigger

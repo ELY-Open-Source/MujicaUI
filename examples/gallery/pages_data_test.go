@@ -47,3 +47,13 @@ func TestDataDemoButtonsLog(t *testing.T) {
 		t.Fatalf("Light candles not logged: %q", *events)
 	}
 }
+
+func TestDataAccordionDemoLogsChange(t *testing.T) {
+	tt, events := dataDemo(t, "074")
+	if err := tt.Click("Bells"); err != nil {
+		t.Fatal(err)
+	}
+	if !slices.Contains(*events, "open [bells]") {
+		t.Fatalf("Accordion change not logged: %q", *events)
+	}
+}

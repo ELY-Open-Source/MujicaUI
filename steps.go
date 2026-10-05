@@ -29,15 +29,6 @@ type StepsOptions struct {
 	Label string
 }
 
-// StepsResult is the built Steps.
-type StepsResult struct {
-	*ui.Element
-	changed bool
-}
-
-// Changed reports that the user chose a clickable step in this frame.
-func (r StepsResult) Changed() bool { return r.changed }
-
 type stepsState int
 
 const (
@@ -48,7 +39,7 @@ const (
 )
 
 // Steps shows a process whose step *current is under way: earlier steps are done.
-func Steps(c *ui.Context, current *int, steps []Step, opts StepsOptions) StepsResult {
+func Steps(c *ui.Context, current *int, steps []Step, opts StepsOptions) ChoiceResult {
 	if len(steps) == 0 {
 		panic("mujica: Steps needs at least one step")
 	}
@@ -63,7 +54,7 @@ func Steps(c *ui.Context, current *int, steps []Step, opts StepsOptions) StepsRe
 	if opts.Label != "" {
 		root.Label(opts.Label)
 	}
-	res := StepsResult{Element: root}
+	res := ChoiceResult{Element: root}
 	root.Children(func() {
 		for i, s := range steps {
 			if s.Title == "" {

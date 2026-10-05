@@ -35,7 +35,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 事件
 
-`RatingParts.Changed()` 用户设置了新值；同值点击不触发。
+`ChoiceResult.Changed()` 用户设置了新值；同值点击不触发。
 
 ## 键盘操作
 

@@ -14,7 +14,7 @@ func splitPaneTester(st *SplitPaneState, opts SplitPaneOptions, p *splitPaneProb
 	return ui.NewTester(func(c *ui.Context) {
 		Use(c, Settings{})
 		r := SplitPane(c, st, opts, func() { ui.Text(c, "Files") }, func() { ui.Text(c, "Editor") })
-		r.Fill()
+		r.Element.Fill()
 		if r.Resized {
 			p.resized++
 		}
@@ -136,7 +136,7 @@ func TestSplitPaneCollapseSecondVertical(t *testing.T) {
 	tt := ui.NewTester(func(c *ui.Context) {
 		Use(c, Settings{})
 		SplitPane(c, st, SplitPaneOptions{Vertical: true, MinSecond: 60, Collapsible: SplitPaneSecond},
-			func() { ui.Text(c, "Editor") }, func() { ui.Text(c, "Console") }).Fill()
+			func() { ui.Text(c, "Editor") }, func() { ui.Text(c, "Console") }).Element.Fill()
 	}, 300, 201)
 	tt.Key(0, ui.KeyTab)
 	tt.Key(0, ui.KeyDown)
@@ -184,7 +184,7 @@ func TestSplitPaneSnapshot(t *testing.T) {
 		}
 		ui.Column(c).Padding(16).Children(func() {
 			SplitPane(c, st, SplitPaneOptions{}, pane("Files", k.Surface), pane("Editor", k.Background)).
-				Height(128).Border(1, k.Border).Radius(4).Clip()
+				Element.Height(128).Border(1, k.Border).Radius(4).Clip()
 		})
 	})
 }
@@ -196,7 +196,7 @@ func TestSplitPaneSizesInsideBorder(t *testing.T) {
 		Use(c, Settings{})
 		SplitPane(c, st, SplitPaneOptions{MinSecond: 120}, func() { ui.Text(c, "Files") }, func() {
 			second = ui.Box(c).Fill().Absolute().Bounds()
-		}).Fill().Border(1, ui.RGB(0, 0, 0))
+		}).Element.Fill().Border(1, ui.RGB(0, 0, 0))
 	}, 401, 200)
 	tt.Key(0, ui.KeyTab)
 	tt.Key(0, ui.KeyEnd)
@@ -216,7 +216,7 @@ func TestSplitPaneClampsOnResizeAlone(t *testing.T) {
 	st := &SplitPaneState{Size: 299}
 	tt := ui.NewTester(func(c *ui.Context) {
 		Use(c, Settings{})
-		SplitPane(c, st, SplitPaneOptions{}, func() { ui.Text(c, "Files") }, func() { ui.Text(c, "Editor") }).Fill()
+		SplitPane(c, st, SplitPaneOptions{}, func() { ui.Text(c, "Files") }, func() { ui.Text(c, "Editor") }).Element.Fill()
 	}, 400, 200)
 	tt.SetSize(250, 200)
 	// 250 less the divider and the 40 DIP second minimum.

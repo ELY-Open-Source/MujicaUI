@@ -53,7 +53,7 @@ func (h *treeHarness) view(c *ui.Context) {
 	opts.Label = func(n string) string { h.built[n] = true; return label(n) }
 	ui.Column(c).Padding(10).Children(func() {
 		v := Tree(c, &h.st, opts)
-		v.Size(320, 360)
+		v.Element.Size(320, 360)
 		if v.Changed() {
 			h.changes++
 		}
@@ -186,7 +186,7 @@ func TestTreeLargeIsVirtualized(t *testing.T) {
 		Tree(c, &st, TreeOptions[int]{Roots: roots, Children: kids, Label: func(n int) string {
 			built++
 			return fmt.Sprintf("Node %d", n)
-		}}).Size(320, 360)
+		}}).Element.Size(320, 360)
 	}
 	tt := ui.NewTester(view, 400, 400)
 	// Two Label calls per row; a jump builds 2×(10 rows + 2 overscan) + 2 edges.
@@ -220,7 +220,7 @@ func TestTreeSnapshot(t *testing.T) {
 			return h
 		})
 		ui.Column(c).Padding(16).Children(func() {
-			Tree(c, &(*h).st, (*h).opts).Size(360, 228)
+			Tree(c, &(*h).st, (*h).opts).Element.Size(360, 228)
 		})
 	})
 }
@@ -234,7 +234,7 @@ func TestTreeSelectionFollowsLargeReorder(t *testing.T) {
 	view := func(c *ui.Context) {
 		Use(c, Settings{Mode: Light})
 		Tree(c, &st, TreeOptions[int]{Roots: roots, Children: func(int) []int { return nil },
-			Label: func(n int) string { return fmt.Sprintf("Node %d", n) }}).Size(320, 360)
+			Label: func(n int) string { return fmt.Sprintf("Node %d", n) }}).Element.Size(320, 360)
 	}
 	tt := ui.NewTester(view, 400, 400)
 	if err := tt.Click("Node 2"); err != nil {

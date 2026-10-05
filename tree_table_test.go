@@ -50,7 +50,7 @@ func (h *ttHarness) view(c *ui.Context) {
 	h.c = c
 	ui.Column(c).Padding(10).Children(func() {
 		v := TreeTable(c, &h.st, h.opts)
-		v.Size(360, 320)
+		v.Element.Size(360, 320)
 		if v.SortChanged() {
 			h.sorts++
 		}
@@ -154,7 +154,7 @@ func TestTreeTableLargeIsVirtualized(t *testing.T) {
 		Use(c, Settings{})
 		clear(rows)
 		TreeTable(c, &st, TreeTableOptions[int]{Roots: roots, Children: kids, Label: strconv.Itoa,
-			Columns: []TreeColumn[int]{{ID: "n", Title: "N", Cell: cell(c), Compare: cmp.Compare[int]}, {ID: "m", Title: "M", Cell: cell(c)}}}).Size(320, 360)
+			Columns: []TreeColumn[int]{{ID: "n", Title: "N", Cell: cell(c), Compare: cmp.Compare[int]}, {ID: "m", Title: "M", Cell: cell(c)}}}).Element.Size(320, 360)
 	}
 	tt := ui.NewTester(view, 400, 400)
 	const bound = 26 // see TestTreeLargeIsVirtualized
@@ -187,7 +187,7 @@ func TestTreeTableSnapshot(t *testing.T) {
 		})
 		(*h).c = c
 		ui.Column(c).Padding(16).Children(func() {
-			TreeTable(c, &(*h).st, (*h).opts).Size(388, 208)
+			TreeTable(c, &(*h).st, (*h).opts).Element.Size(388, 208)
 		})
 	})
 }
@@ -208,7 +208,7 @@ func TestTreeTableSelectionFollowsLargeSort(t *testing.T) {
 				return nil
 			},
 			Columns: []TreeColumn[int]{{ID: "n", Title: "N", Cell: func(n int) { ui.Text(c, "#"+strconv.Itoa(n)) }, Compare: cmp.Compare[int]}},
-		}).Size(320, 360)
+		}).Element.Size(320, 360)
 	}
 	st.SetOpen(0, true)
 	tt := ui.NewTester(view, 400, 400)

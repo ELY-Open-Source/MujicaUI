@@ -12,7 +12,7 @@ import (
 
 // InputResult is a value input's outer element and its events.
 type InputResult struct {
-	*ui.Element
+	Element *ui.Element
 	// Input is the text field inside, for focus and keys.
 	Input     *ui.Element
 	changed   bool

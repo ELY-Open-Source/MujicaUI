@@ -39,7 +39,7 @@ type SplitPaneOptions struct {
 
 // SplitPaneResult is a SplitPane and its events in this frame.
 type SplitPaneResult struct {
-	*ui.Element
+	Element *ui.Element
 	Resized bool
 	Toggled bool
 }

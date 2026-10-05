@@ -12,14 +12,14 @@ view := func(c *ui.Context) {
 	mujica.Use(c, mujica.Settings{})
 	mujica.Carousel(c, &index, 3, mujica.CarouselOptions{Label: "Windows", Autoplay: true}, func(i int) {
 		ui.Text(c, fmt.Sprintf("Rose window %d", i+1)).Padding(24)
-	}).Size(360, 220)
+	}).Element.Size(360, 220)
 }
 ui.Render(view, 400, 300, 1)
 ```
 
 ## 参数
 
-`func Carousel(c *ui.Context, index *int, n int, opts CarouselOptions, slide func(i int)) CarouselView`。
+`func Carousel(c *ui.Context, index *int, n int, opts CarouselOptions, slide func(i int)) ChoiceResult`。
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |
@@ -34,7 +34,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 事件
 
-`CarouselView.Changed()`：当前项变化，`*index` 已更新；同时向读屏软件播报“第 N 项，共 M 项”。
+`ChoiceResult.Changed()`：当前项变化，`*index` 已更新；同时向读屏软件播报“第 N 项，共 M 项”。
 
 ## 键盘操作
 

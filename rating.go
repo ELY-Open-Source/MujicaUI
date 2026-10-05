@@ -25,17 +25,8 @@ type RatingOptions struct {
 	ShowValue bool
 }
 
-// RatingParts are the parts of a Rating.
-type RatingParts struct {
-	Element *ui.Element
-	changed bool
-}
-
-// Changed reports whether the user set a new value this frame.
-func (p RatingParts) Changed() bool { return p.changed }
-
 // Rating shows *value as stars and lets the pointer and arrows set it in steps.
-func Rating(c *ui.Context, value *float64, opts RatingOptions) RatingParts {
+func Rating(c *ui.Context, value *float64, opts RatingOptions) ChoiceResult {
 	n, step := opts.Max, opts.Step
 	if n == 0 {
 		n = 5
@@ -54,7 +45,7 @@ func Rating(c *ui.Context, value *float64, opts RatingOptions) RatingParts {
 	if label == "" {
 		label = msg(c, "rating.label")
 	}
-	parts := RatingParts{}
+	parts := ChoiceResult{}
 	set := func(v float64) {
 		v = math.Max(0, math.Min(float64(n), math.Round(v/step)*step))
 		if v != *value {

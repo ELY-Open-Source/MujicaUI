@@ -58,7 +58,7 @@ func dataListDemo(c *ui.Context, log func(string)) {
 				ui.Text(c, "Office").TextColor(mujica.Tokens(c).TextMuted)
 			}
 		})
-		v.Size(480, 320)
+		v.Element.Size(480, 320)
 		if v.Changed() {
 			k, _ := s.list.Selected()
 			log(fmt.Sprintf("selected %d, %d chosen", k, s.list.Selection.Len()))
@@ -138,7 +138,7 @@ func dataTableDemo(c *ui.Context, log func(string)) {
 		v := mujica.DataTable(c, &s.table, rows, mujica.DataTableOptions[dataRelic, int]{
 			Columns: cols, Key: func(r dataRelic) int { return r.ID }, Multiple: s.multiple, Status: st,
 		})
-		v.Size(620, 360)
+		v.Element.Size(620, 360)
 		ui.Text(c, fmt.Sprintf("%d of %d rows shown", s.table.Rows(), len(rows))).TextColor(k.TextMuted)
 		if v.SortChanged() {
 			log(fmt.Sprintf("sort %s descending=%v", s.table.Sort.Column, s.table.Sort.Descending))
@@ -224,7 +224,7 @@ func dataTreeDemo(c *ui.Context, log func(string)) {
 			ui.Checkbox(c, &s.multiple, "Multiple")
 		})
 		v := mujica.Tree(c, ts, opts)
-		v.Size(420, 340)
+		v.Element.Size(420, 340)
 		if v.Changed() {
 			n, _ := ts.Selected()
 			log(fmt.Sprintf("selected %s, %d chosen", n, ts.Selection.Len()))
@@ -290,7 +290,7 @@ func dataTreeTableDemo(c *ui.Context, log func(string)) {
 				{ID: "kids", Title: "Rooms", Width: 80, Align: ui.End, Cell: func(n string) { ui.Text(c, strconv.Itoa(len(s.lazy.kids[n]))) }},
 			},
 		})
-		v.Size(520, 320)
+		v.Element.Size(520, 320)
 		if v.SortChanged() {
 			log(fmt.Sprintf("sort %s descending=%v", s.table.Sort.Column, s.table.Sort.Descending))
 		}

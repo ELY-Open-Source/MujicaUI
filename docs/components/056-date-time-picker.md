@@ -24,7 +24,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func DateTimePicker(c *ui.Context, value *time.Time, opts DateTimePickerOptions) DateTimeResult`，返回值嵌入 `*ui.Element`。
+`func DateTimePicker(c *ui.Context, value *time.Time, opts DateTimePickerOptions) DateTimeResult`，返回值的 `Element` 字段是组件元素。
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |

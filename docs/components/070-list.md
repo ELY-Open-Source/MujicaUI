@@ -15,7 +15,7 @@ view := func(c *ui.Context) {
 		Key:   func(i int) string { return names[i] },
 		Label: func(i int) string { return names[i] },
 	}, func(i int) { ui.Text(c, names[i]) })
-	v.Size(240, 200)
+	v.Element.Size(240, 200)
 	if v.Changed() {
 		key, _ := state.Selected()
 		fmt.Println("chose", key)
@@ -26,7 +26,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func List[K comparable](c *ui.Context, s *ListState[K], n int, opts ListOptions[K], item func(i int)) ListView`。`ListView` 嵌入 `*ui.Element`；`ListState` 由调用方持有，零值表示未选择。`state.Selected()` 返回所选键，多选时 `state.Selection` 保存全部键；`state.ScrollTo(i)` 滚动到第 i 项。
+`func List[K comparable](c *ui.Context, s *ListState[K], n int, opts ListOptions[K], item func(i int)) ListView`。`ListView` 的 `Element` 字段是列表元素；`ListState` 由调用方持有，零值表示未选择。`state.Selected()` 返回所选键，多选时 `state.Selection` 保存全部键；`state.ScrollTo(i)` 滚动到第 i 项。
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |

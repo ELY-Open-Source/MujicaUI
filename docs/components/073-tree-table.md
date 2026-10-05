@@ -22,7 +22,7 @@ view := func(c *ui.Context) {
 			{ID: "size", Title: "Size", Width: 80, Align: ui.End,
 				Cell: func(n string) { ui.Text(c, strconv.Itoa(size[n])) }},
 		},
-	}).Size(360, 240)
+	}).Element.Size(360, 240)
 }
 ui.Render(view, 400, 300, 1)
 ```

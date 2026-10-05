@@ -29,7 +29,7 @@ mujica.AppShell(c, &collapsed, mujica.AppShellOptions{
 | `SidebarWidth` | `float32` | 240 | 展开时侧栏宽度（DIP）；负数 panic。 |
 | `ContentScroll` | `*ui.ScrollState` | nil | 保存主内容滚动位置；nil 时按位置保留。 |
 
-返回 `AppShellResult`，内嵌 `*ui.Element`。
+返回 `AppShellResult`，`Element` 字段是组件元素。
 
 ## 状态
 

@@ -32,8 +32,8 @@ type CommandPaletteOptions struct {
 
 // CommandPaletteResult is the built CommandPalette; Element is nil while closed.
 type CommandPaletteResult struct {
-	*ui.Element
-	chosen string
+	Element *ui.Element
+	chosen  string
 }
 
 // Chosen returns the ID of the command run in this frame; running closes the palette.

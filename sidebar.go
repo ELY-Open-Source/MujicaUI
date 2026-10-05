@@ -37,17 +37,8 @@ type SidebarOptions struct {
 	Width float32
 }
 
-// SidebarResult is the built Sidebar.
-type SidebarResult struct {
-	*ui.Element
-	changed bool
-}
-
-// Changed reports a new choice in this frame.
-func (r SidebarResult) Changed() bool { return r.changed }
-
 // Sidebar is a source list choosing an item ID into *selected, built on MyGo's Sidebar.
-func Sidebar(c *ui.Context, selected *string, sections []SidebarSection, opts SidebarOptions) SidebarResult {
+func Sidebar(c *ui.Context, selected *string, sections []SidebarSection, opts SidebarOptions) ChoiceResult {
 	k := Tokens(c)
 	width := opts.Width
 	if width == 0 {
@@ -58,7 +49,7 @@ func Sidebar(c *ui.Context, selected *string, sections []SidebarSection, opts Si
 	}
 	wrap := ui.Column(c).Width(width).FillHeight().AlignItems(ui.Stretch).Shrink(0)
 	closed := ui.Local(wrap, "closed", func() map[string]*bool { return map[string]*bool{} })
-	res := SidebarResult{Element: wrap}
+	res := ChoiceResult{Element: wrap}
 	prev := *selected
 	wrap.Children(func() {
 		// MyGo draws icons in Accent: swap in readable state colors for the sidebar.

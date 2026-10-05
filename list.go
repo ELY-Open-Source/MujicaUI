@@ -65,7 +65,7 @@ func (s *ListState[K]) ScrollTo(i int) {
 
 // ListView is a built List and what happened to it in this frame.
 type ListView struct {
-	*ui.Element
+	Element                   *ui.Element
 	changed, submitted, retry bool
 }
 
@@ -93,7 +93,7 @@ func List[K comparable](c *ui.Context, s *ListState[K], n int, opts ListOptions[
 	k := Tokens(c)
 	var v ListView
 	v.Element = ui.Column(c).MinHeight(0)
-	v.Children(func() {
+	v.Element.Children(func() {
 		if n == 0 {
 			v.retry = dataPlaceholder(c, opts.Status, opts.Error, opts.Empty, msg(c, "list.empty"))
 			return

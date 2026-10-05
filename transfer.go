@@ -29,22 +29,13 @@ type TransferOptions struct {
 	Disabled bool
 }
 
-// TransferParts are the parts of a Transfer.
-type TransferParts struct {
-	Element *ui.Element
-	changed bool
-}
-
-// Changed reports whether items moved this frame.
-func (p TransferParts) Changed() bool { return p.changed }
-
 type transferState struct {
 	checked map[string]bool
 	query   [2]string
 }
 
 // Transfer moves items between a source list and *target, the chosen IDs in order.
-func Transfer(c *ui.Context, target *[]string, items []TransferItem, opts TransferOptions) TransferParts {
+func Transfer(c *ui.Context, target *[]string, items []TransferItem, opts TransferOptions) ChoiceResult {
 	byID := make(map[string]TransferItem, len(items))
 	for _, it := range items {
 		if _, dup := byID[it.ID]; dup || it.ID == "" {
@@ -58,7 +49,7 @@ func Transfer(c *ui.Context, target *[]string, items []TransferItem, opts Transf
 		}
 	}
 	d := Density(c)
-	parts := TransferParts{}
+	parts := ChoiceResult{}
 	row := ui.Row(c).Gap(d.Unit() * 3).AlignItems(ui.Center).Disabled(opts.Disabled)
 	parts.Element = row
 	st := ui.Local(row, "transfer", func() transferState { return transferState{checked: map[string]bool{}} })

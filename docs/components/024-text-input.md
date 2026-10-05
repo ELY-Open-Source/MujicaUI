@@ -15,7 +15,7 @@ if r.Submitted() {
 
 签名：`func TextInput(c *ui.Context, value *string, opts TextInputOptions) InputResult`
 
-`InputResult` 内嵌外层 `*ui.Element`，`Input` 字段是内部编辑元素，`Changed()`、`Submitted()` 报告事件。
+`InputResult` 的 `Element` 字段是外层元素，`Input` 字段是内部编辑元素，`Changed()`、`Submitted()` 报告事件。
 
 ## 参数
 

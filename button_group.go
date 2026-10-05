@@ -28,7 +28,7 @@ type ButtonGroupOptions struct {
 
 // ButtonGroupResult is the group element and the item clicked this frame.
 type ButtonGroupResult struct {
-	*ui.Element
+	Element *ui.Element
 	clicked int
 }
 

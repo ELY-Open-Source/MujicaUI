@@ -45,7 +45,7 @@ if id, ok := res.Chosen(); ok && id == "wrap" {
 | --- | --- | --- | --- |
 | `Label` | `string` | 内置“菜单栏” | 菜单栏的无障碍名称。 |
 
-返回 `MenubarResult`，内嵌菜单栏 `*ui.Element`。
+返回 `MenubarResult`，`Element` 字段是菜单栏元素。
 
 ## 状态
 

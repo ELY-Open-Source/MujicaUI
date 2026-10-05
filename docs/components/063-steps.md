@@ -14,7 +14,7 @@ mujica.Steps(c, &current, []mujica.Step{
 }, mujica.StepsOptions{Label: "Sign-up"})
 ```
 
-签名：`func Steps(c *ui.Context, current *int, steps []Step, opts StepsOptions) StepsResult`
+签名：`func Steps(c *ui.Context, current *int, steps []Step, opts StepsOptions) ChoiceResult`
 
 ## 参数
 
@@ -36,7 +36,7 @@ mujica.Steps(c, &current, []mujica.Step{
 | `Vertical` | `bool` | false | 纵向排列，连接线在标记下方。 |
 | `Label` | `string` | "" | 整组的无障碍名称。 |
 
-返回 `StepsResult`，内嵌 `*ui.Element`。
+返回 `ChoiceResult`，`Element` 字段是组件元素。
 
 ## 状态
 

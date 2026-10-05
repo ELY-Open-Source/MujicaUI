@@ -20,15 +20,6 @@ type ViewerImage struct {
 	Alt string
 }
 
-// ImageViewerView is a built ImageViewer; Element is nil while closed.
-type ImageViewerView struct {
-	*ui.Element
-	changed bool
-}
-
-// Changed reports that another image was chosen.
-func (v ImageViewerView) Changed() bool { return v.changed }
-
 // Zoom limits, as multiples of the fitted size.
 const (
 	viewerMinZoom  = 0.25
@@ -42,9 +33,9 @@ type viewerState struct {
 	zoom, x, y float32
 }
 
-// ImageViewer shows images[*index] over the window while *open, with zoom, pan and switching.
-func ImageViewer(c *ui.Context, open *bool, index *int, images []ViewerImage) ImageViewerView {
-	var v ImageViewerView
+// ImageViewer shows images[*index] over the window while *open, with zoom, pan and switching; Element is nil while closed.
+func ImageViewer(c *ui.Context, open *bool, index *int, images []ViewerImage) ChoiceResult {
+	var v ChoiceResult
 	if !*open {
 		return v
 	}

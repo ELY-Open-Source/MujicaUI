@@ -27,17 +27,8 @@ type PaginationOptions struct {
 	Disabled bool
 }
 
-// PaginationResult is the built Pagination.
-type PaginationResult struct {
-	*ui.Element
-	changed bool
-}
-
-// Changed reports a new page or page size in this frame, from the user or a correction.
-func (r PaginationResult) Changed() bool { return r.changed }
-
 // Pagination pages *page (from 1) through Total records, clamping it when Total shrinks.
-func Pagination(c *ui.Context, page, pageSize *int, opts PaginationOptions) PaginationResult {
+func Pagination(c *ui.Context, page, pageSize *int, opts PaginationOptions) ChoiceResult {
 	if opts.Total < 0 {
 		panic("mujica: Pagination Total is negative")
 	}
@@ -58,7 +49,7 @@ func Pagination(c *ui.Context, page, pageSize *int, opts PaginationOptions) Pagi
 	d := Density(c)
 	u := d.Unit()
 	row := ui.Row(c).AlignItems(ui.Center).Gap(u * 3).Wrap().Role(ui.RoleGroup).Label(msg(c, "pagination.label")).Disabled(opts.Disabled)
-	res := PaginationResult{Element: row}
+	res := ChoiceResult{Element: row}
 	pages := paginationPages(opts.Total, *pageSize)
 	if p := max(1, min(*page, pages)); p != *page {
 		slog.Debug("mujica: pagination correct", "from", *page, "to", p, "pages", pages)
@@ -166,7 +157,7 @@ func paginationButton(c *ui.Context, text string, icon *ui.SVG, name string, on,
 	return b
 }
 
-func paginationSizes(c *ui.Context, page, pageSize *int, sizes []int, res *PaginationResult) {
+func paginationSizes(c *ui.Context, page, pageSize *int, sizes []int, res *ChoiceResult) {
 	k := Tokens(c)
 	d := Density(c)
 	u := d.Unit()

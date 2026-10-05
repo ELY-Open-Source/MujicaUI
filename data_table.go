@@ -85,7 +85,7 @@ func (s *DataTableState[K]) Rows() int { return len(s.cache.view) }
 
 // DataTableView is a built DataTable and what happened to it in this frame.
 type DataTableView struct {
-	*ui.Element
+	Element                           *ui.Element
 	changed, submitted, sorted, retry bool
 }
 
@@ -114,7 +114,7 @@ func DataTable[R any, K comparable](c *ui.Context, s *DataTableState[K], rows []
 	before := s.Sort
 	var v DataTableView
 	v.Element = ui.Column(c).MinHeight(0).Gap(d.Unit() * 2)
-	v.Children(func() {
+	v.Element.Children(func() {
 		if len(rows) > 0 {
 			ui.Row(c).Justify(ui.End).Children(func() {
 				tableColumnMenu(c, dataTableMenu(opts), &s.Sort, &s.Layout, &s.Hidden)

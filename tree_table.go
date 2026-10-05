@@ -122,7 +122,7 @@ func TreeTable[K comparable](c *ui.Context, s *TreeTableState[K], opts TreeTable
 	before := s.Sort
 	var v DataTableView
 	v.Element = ui.Column(c).MinHeight(0).Gap(d.Unit() * 2)
-	v.Children(func() {
+	v.Element.Children(func() {
 		if len(opts.Roots) == 0 {
 			t.clear(&s.Selection)
 			v.retry = dataPlaceholder(c, opts.Status, opts.Error, opts.Empty, msg(c, "list.empty"))

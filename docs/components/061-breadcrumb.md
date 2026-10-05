@@ -33,7 +33,7 @@ if i, ok := mujica.Breadcrumb(c, path, mujica.BreadcrumbOptions{}).Chosen(); ok 
 | `MaxItemWidth` | `float32` | 0（即 160 DIP） | 单项文字最大宽度，超出以省略号截断。 |
 | `Label` | `string` | 内置“路径导航” | 整组的无障碍名称。 |
 
-返回 `BreadcrumbResult`，内嵌 `*ui.Element`。
+返回 `BreadcrumbResult`，`Element` 字段是组件元素。
 
 ## 状态
 

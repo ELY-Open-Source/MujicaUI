@@ -152,7 +152,7 @@ func (g *gallery) filesView(c *ui.Context, log func(string)) {
 		v := mujica.DataTable(c, &s.table, s.entries, mujica.DataTableOptions[fileEntry, int]{
 			Columns: cols, Key: func(f fileEntry) int { return f.ID }, Multiple: true, Version: s.version,
 		})
-		v.FillWidth().Height(430)
+		v.Element.FillWidth().Height(430)
 		mujica.ContextMenu(c, v.Element, mujica.ContextMenuOptions{}, func(m *mujica.PopupMenu) { g.fileMenu(m, log, targets) })
 		if v.Changed() {
 			log(fmt.Sprintf("selection %d checked", s.table.Selection.Len()))
@@ -174,7 +174,7 @@ func (g *gallery) filesView(c *ui.Context, log func(string)) {
 			{ID: "shown", Text: fmt.Sprintf(g.t("%d shown", "显示 %d 个"), shown), Secondary: true},
 		},
 		Right: []mujica.StatusItem{{ID: "selected", Text: fmt.Sprintf(g.t("%d selected", "已选 %d 个"), s.table.Selection.Len())}},
-	}).Radius(theme.CardRadius).Border(theme.BorderWidth, k.Border)
+	}).Element.Radius(theme.CardRadius).Border(theme.BorderWidth, k.Border)
 	g.fileAdders(c, log)
 	g.renameDialog(c, log)
 	g.deleteDialog(c, log)

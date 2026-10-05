@@ -18,7 +18,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func ImageViewer(c *ui.Context, open *bool, index *int, images []ViewerImage) ImageViewerView`。`ViewerImage` 字段：`Source`（`*ui.Bitmap` 或 `*ui.SVG`，必填）、`Alt`（说明文字与无障碍名称）。关闭时返回的 `Element` 为 nil。
+`func ImageViewer(c *ui.Context, open *bool, index *int, images []ViewerImage) ChoiceResult`。`ViewerImage` 字段：`Source`（`*ui.Bitmap` 或 `*ui.SVG`，必填）、`Alt`（说明文字与无障碍名称）。关闭时返回的 `Element` 为 nil。
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |
@@ -32,7 +32,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 事件
 
-`ImageViewerView.Changed()`：切换了图片，`*index` 已更新。关闭通过 `*open` 变为 false 观察。
+`ChoiceResult.Changed()`：切换了图片，`*index` 已更新。关闭通过 `*open` 变为 false 观察。
 
 ## 键盘操作
 

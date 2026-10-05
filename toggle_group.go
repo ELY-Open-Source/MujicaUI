@@ -12,7 +12,7 @@ import (
 
 // ChoiceResult is a choice control's element and whether its value changed this frame.
 type ChoiceResult struct {
-	*ui.Element
+	Element *ui.Element
 	changed bool
 }
 

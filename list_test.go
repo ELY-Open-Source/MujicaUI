@@ -40,7 +40,7 @@ func (h *listHarness) view(c *ui.Context) {
 			h.built++
 			ui.Text(c, h.opts.Label(i)).SingleLine()
 		})
-		v.Size(h.listSize[0], h.listSize[1])
+		v.Element.Size(h.listSize[0], h.listSize[1])
 		if v.Changed() {
 			h.changes++
 		}
@@ -207,13 +207,13 @@ func TestListSnapshot(t *testing.T) {
 		g := ui.Local(c.Root(), "g", func() *ListState[int] { return &ListState[int]{started: true, cursor: 4} })
 		opts := ListOptions[int]{Key: func(i int) int { return i }, Label: func(i int) string { return names[i] }, Multiple: true}
 		ui.Row(c).Padding(16).Gap(16).Children(func() {
-			List(c, *st, len(names), opts, func(i int) { ui.Text(c, names[i]) }).Size(220, 228)
+			List(c, *st, len(names), opts, func(i int) { ui.Text(c, names[i]) }).Element.Size(220, 228)
 			gopts := opts
 			gopts.Grid, gopts.Multiple, gopts.ItemWidth, gopts.ItemHeight = true, false, 100, 64
 			List(c, *g, len(names), gopts, func(i int) {
 				ui.Text(c, names[i]).FontWeight(600)
 				ui.Text(c, "Office").TextColor(Tokens(c).TextMuted)
-			}).Size(360, 228)
+			}).Element.Size(360, 228)
 		})
 	})
 }

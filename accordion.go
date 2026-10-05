@@ -28,17 +28,8 @@ type AccordionOptions struct {
 	KeepOne bool
 }
 
-// AccordionView is a built Accordion and what happened to it in this frame.
-type AccordionView struct {
-	*ui.Element
-	changed bool
-}
-
-// Changed reports that a section opened or closed.
-func (v AccordionView) Changed() bool { return v.changed }
-
 // Accordion shows sections whose open IDs live in *open, which the caller controls.
-func Accordion(c *ui.Context, open *[]string, items []AccordionItem, opts AccordionOptions) AccordionView {
+func Accordion(c *ui.Context, open *[]string, items []AccordionItem, opts AccordionOptions) ChoiceResult {
 	seen := map[string]bool{}
 	for _, it := range items {
 		if it.ID == "" || seen[it.ID] || it.Content == nil {
@@ -49,10 +40,10 @@ func Accordion(c *ui.Context, open *[]string, items []AccordionItem, opts Accord
 	k := Tokens(c)
 	d := Density(c)
 	u := d.Unit()
-	var v AccordionView
+	var v ChoiceResult
 	v.Element = ui.Column(c).Background(k.Surface).Border(theme.BorderWidth, k.Border).Radius(theme.CardRadius)
 	focusTo := ui.Local(v.Element, "focus", func() int { return -1 })
-	v.Children(func() {
+	v.Element.Children(func() {
 		for i, it := range items {
 			ui.Column(c).Key(it.ID).Children(func() {
 				if i > 0 {

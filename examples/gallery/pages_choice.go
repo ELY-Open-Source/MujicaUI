@@ -330,7 +330,8 @@ func multiSelectDemo(c *ui.Context, log func(string)) {
 		}
 		choiceLabeled(c, "Fruits", func() {
 			r := mujica.MultiSelect(c, &s.values, choiceFruits, mujica.MultiSelectOptions{Max: limit, MaxTags: 2, Disabled: s.disable, Label: "Fruits"})
-			if r.Width(320).Changed() {
+			r.Element.Width(320)
+			if r.Changed() {
 				log(fmt.Sprintf("Fruits: %v", s.values))
 			}
 		})
@@ -435,7 +436,9 @@ func cascaderDemo(c *ui.Context, log func(string)) {
 	}, func() {
 		choiceLabeled(c, "City (children load on demand)", func() {
 			opts := mujica.CascaderOptions{Level: level, Load: load, AnyLevel: s.anyLevel, Disabled: s.ds, Label: "City"}
-			if mujica.Cascader(c, &s.path, opts).Width(320).Changed() {
+			r := mujica.Cascader(c, &s.path, opts)
+			r.Element.Width(320)
+			if r.Changed() {
 				log(fmt.Sprintf("path: %v", s.path))
 			}
 		})
@@ -471,7 +474,9 @@ func treeSelectDemo(c *ui.Context, log func(string)) {
 		}
 		choiceLabeled(c, "Roles", func() {
 			opts := mujica.TreeSelectOptions{Multiple: s.multiple, Rule: rule, MaxTags: 2, Disabled: s.disabled, Label: "Roles"}
-			if mujica.TreeSelect(c, &s.sel, choiceRoles, opts).Width(320).Changed() {
+			r := mujica.TreeSelect(c, &s.sel, choiceRoles, opts)
+			r.Element.Width(320)
+			if r.Changed() {
 				log(fmt.Sprintf("Roles: %v", s.sel))
 			}
 		})

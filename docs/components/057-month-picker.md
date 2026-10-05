@@ -20,7 +20,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func MonthPicker(c *ui.Context, value *YearMonth, opts MonthPickerOptions) DateTimeResult`，返回值嵌入 `*ui.Element`。
+`func MonthPicker(c *ui.Context, value *YearMonth, opts MonthPickerOptions) DateTimeResult`，返回值的 `Element` 字段是组件元素。
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |

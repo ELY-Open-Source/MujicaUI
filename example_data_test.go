@@ -31,7 +31,7 @@ func ExampleList() {
 			Key:   func(i int) string { return names[i] },
 			Label: func(i int) string { return names[i] },
 		}, func(i int) { ui.Text(c, names[i]) })
-		v.Size(240, 200)
+		v.Element.Size(240, 200)
 		if v.Changed() {
 			key, _ := state.Selected()
 			fmt.Println("chose", key)
@@ -61,7 +61,7 @@ func ExampleDataTable() {
 	}
 	view := func(c *ui.Context) {
 		mujica.Use(c, mujica.Settings{})
-		mujica.DataTable(c, &state, rows, opts).Size(360, 240)
+		mujica.DataTable(c, &state, rows, opts).Element.Size(360, 240)
 	}
 	ui.Render(view, 400, 300, 1)
 }
@@ -75,7 +75,7 @@ func ExampleTree() {
 			Roots:    []string{"Nave", "Sacristy"},
 			Children: func(n string) []string { return kids[n] },
 			Label:    func(n string) string { return n },
-		}).Size(280, 240)
+		}).Element.Size(280, 240)
 	}
 	ui.Render(view, 400, 300, 1)
 }
@@ -96,7 +96,7 @@ func ExampleTreeTable() {
 				{ID: "size", Title: "Size", Width: 80, Align: ui.End,
 					Cell: func(n string) { ui.Text(c, strconv.Itoa(size[n])) }},
 			},
-		}).Size(360, 240)
+		}).Element.Size(360, 240)
 	}
 	ui.Render(view, 400, 300, 1)
 }
@@ -176,7 +176,7 @@ func ExampleCarousel() {
 		mujica.Use(c, mujica.Settings{})
 		mujica.Carousel(c, &index, 3, mujica.CarouselOptions{Label: "Windows", Autoplay: true}, func(i int) {
 			ui.Text(c, fmt.Sprintf("Rose window %d", i+1)).Padding(24)
-		}).Size(360, 220)
+		}).Element.Size(360, 220)
 	}
 	ui.Render(view, 400, 300, 1)
 }

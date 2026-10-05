@@ -20,7 +20,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func Accordion(c *ui.Context, open *[]string, items []AccordionItem, opts AccordionOptions) AccordionView`。`*open` 是展开区段的 ID 列表；`AccordionItem` 字段：`ID`（必填、唯一）、`Title`、`Content`（必填）、`Disabled`。
+`func Accordion(c *ui.Context, open *[]string, items []AccordionItem, opts AccordionOptions) ChoiceResult`。`*open` 是展开区段的 ID 列表；`AccordionItem` 字段：`ID`（必填、唯一）、`Title`、`Content`（必填）、`Disabled`。
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |
@@ -33,7 +33,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 事件
 
-`AccordionView.Changed()`：某区段因用户操作而展开或关闭，`*open` 已更新。外部直接修改 `*open` 不触发事件。
+`ChoiceResult.Changed()`：某区段因用户操作而展开或关闭，`*open` 已更新。外部直接修改 `*open` 不触发事件。
 
 ## 键盘操作
 

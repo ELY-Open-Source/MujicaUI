@@ -31,8 +31,8 @@ type DescriptionListOptions struct {
 
 // DescriptionListView is a built DescriptionList and what happened to it in this frame.
 type DescriptionListView struct {
-	*ui.Element
-	copied int
+	Element *ui.Element
+	copied  int
 }
 
 // Copied returns the index of the item whose value was copied in this frame.
@@ -69,15 +69,15 @@ func DescriptionList(c *ui.Context, items []DescriptionItem, opts DescriptionLis
 		}
 		return max(1, min(most, int(math.Floor(float64((w+gap)/(minW+gap))))))
 	}
-	cols := fit(v.Bounds().W)
-	v.Draw(func(p *ui.Painter, r ui.Rect) {
+	cols := fit(v.Element.Bounds().W)
+	v.Element.Draw(func(p *ui.Painter, r ui.Rect) {
 		if fit(r.W) != cols {
 			// The new width needs other columns: build again.
 			c.Invalidate()
 		}
 	})
 	now := c.Now()
-	v.Columns(cols).Children(func() {
+	v.Element.Columns(cols).Children(func() {
 		for i, it := range items {
 			cell := ui.Column(c).Gap(u).MinWidth(0)
 			if it.Span < 0 || it.Span > cols {

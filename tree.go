@@ -160,7 +160,7 @@ func (t *treeCore[K]) itemStatus(c *ui.Context, item K, status func(K) DataStatu
 
 // TreeView is a built Tree and what happened to it in this frame.
 type TreeView struct {
-	*ui.Element
+	Element                   *ui.Element
 	changed, submitted, retry bool
 }
 
@@ -185,7 +185,7 @@ func Tree[K comparable](c *ui.Context, s *TreeState[K], opts TreeOptions[K]) Tre
 	t.begin(opts.Label, &s.Selection, opts.Multiple)
 	var v TreeView
 	v.Element = ui.Column(c).MinHeight(0)
-	v.Children(func() {
+	v.Element.Children(func() {
 		if len(opts.Roots) == 0 {
 			t.clear(&s.Selection)
 			v.retry = dataPlaceholder(c, opts.Status, opts.Error, opts.Empty, msg(c, "list.empty"))

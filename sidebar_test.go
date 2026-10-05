@@ -82,7 +82,7 @@ func TestSidebarCompact(t *testing.T) {
 	tt := ui.NewTester(func(c *ui.Context) {
 		Use(c, Settings{})
 		ui.Row(c).FillHeight().Children(func() {
-			w = Sidebar(c, &sel, sidebarSample(), SidebarOptions{Compact: true}).Bounds().W
+			w = Sidebar(c, &sel, sidebarSample(), SidebarOptions{Compact: true}).Element.Bounds().W
 		})
 	}, 400, 500)
 	tt.Frame()
