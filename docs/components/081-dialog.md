@@ -71,5 +71,6 @@ ui.Render(view, 400, 300, 1)
 
 ## 限制
 
-- 关闭后焦点回到打开时的控件；若该控件已不存在，MyGo 不回退到父级（`ui/scope.go:137` restoreFocus 只恢复原控件），焦点为空，再按 Tab 从窗口开头开始。
-- 没有关闭过渡：MyGo 在 `*open` 变为 false 的下一帧即移除浮层元素，`Transition` 的 Exit 需要父元素保留，而浮层根只在有浮层时存在。
+- 输入法组合期间按 Escape 仍会关闭浮层：MyGo 没有公开组合状态（`ui/editor.go:73` 的 `compose` 未导出，组合事件不交给带编辑器元素的 `HandleInput`，`ui/input.go:689`），编辑器也不接收 Escape（`ui/editor.go:163`），macOS 上按键先于输入法送达应用（`internal/darwin/surface.go:704`）。
+- 关闭后焦点优先由 MyGo 还给打开者；打开者已消失、焦点落空时，焦点停在组件调用处的不可见占位元素上，Tab 从这里继续。不能回到打开者的父级：MyGo 不公开当前焦点或打开者（`ui/scope.go:123`、`ui/scope.go:137`）。
+- 没有关闭过渡：`*open` 变为 false 的下一帧浮层元素即被移除。

@@ -6,6 +6,7 @@ import (
 	"github.com/egoist/mygo/ui"
 
 	"mujicaui/icons"
+	"mujicaui/theme"
 )
 
 func TestInputGroupTypingAndButtons(t *testing.T) {
@@ -107,4 +108,36 @@ func TestInputGroupSnapshot(t *testing.T) {
 			InputGroup(c, &e, InputGroupOptions{Invalid: true, Suffix: "kg", Label: "Weight"})
 		})
 	})
+}
+
+// Input queued while focused must not edit a group disabled since.
+func TestInputGroupDisabledAfterFocus(t *testing.T) {
+	value, disabled, changes := "abc", false, 0
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Disabled(disabled).Children(func() {
+			if InputGroup(c, &value, InputGroupOptions{Label: "Code"}).Changed() {
+				changes++
+			}
+		})
+	}, 400, 100)
+	_ = tt.Click("Code")
+	disabled = true
+	tt.Type("zz")
+	tt.Key(0, ui.KeyBackspace)
+	tt.Frame()
+	if value != "abc" || changes != 0 {
+		t.Fatalf("value %q changes %d", value, changes)
+	}
+}
+
+func TestInputGroupHitAreasCompact(t *testing.T) {
+	value := ""
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{Density: theme.Compact})
+		InputGroup(c, &value, InputGroupOptions{Label: "Query", Buttons: []InputGroupButton{{Label: "Clear", Icon: icons.Must("x"), IconOnly: true}}})
+	}, 400, 100)
+	if r, ok := tt.Find("Clear"); !ok || r.W < 28 || r.H < 28 {
+		t.Fatalf("button %v", r)
+	}
 }

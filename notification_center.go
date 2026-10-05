@@ -67,24 +67,28 @@ func NotificationCenter(c *ui.Context, items *[]Notification, opts NotificationC
 	panel := ui.Column(c).FillWidth().Shrink(1).MinHeight(0).Radius(theme.CardRadius).Background(k.Surface).Border(theme.BorderWidth, k.Border).
 		Role(ui.RoleGroup).Label(title).Clip()
 	panel.Children(func() {
-		ui.Row(c).AlignItems(ui.Center).Gap(u*2).Padding(u*3, u*3, u*3, u*4).Children(func() {
-			ui.Text(c, title).Font(theme.SerifFont).FontSize(FontSize(c, theme.H3Size)).TextColor(k.Text)
-			if unread > 0 {
-				ui.Text(c, fmt.Sprintf(msg(c, "notification_center.unread"), unread)).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.AccentText)
-			}
-			ui.Spacer(c)
-			if Button(c, msg(c, "notification_center.mark_all_read"), ButtonOptions{Variant: Ghost, Disabled: unread == 0}).Clicked() {
-				for i := range *items {
-					(*items)[i].Read = true
+		// Wraps so title and actions stay whole when text is enlarged.
+		ui.Row(c).Wrap().AlignItems(ui.Center).Justify(ui.SpaceBetween).Gap(u*2).Padding(u*3, u*3, u*3, u*4).Children(func() {
+			ui.Row(c).AlignItems(ui.Center).Gap(u * 2).Children(func() {
+				ui.Text(c, title).Font(theme.SerifFont).FontSize(FontSize(c, theme.H3Size)).TextColor(k.Text).SingleLine()
+				if unread > 0 {
+					ui.Text(c, fmt.Sprintf(msg(c, "notification_center.unread"), unread)).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.AccentText).SingleLine()
 				}
-				res.MarkedAllRead = true
-				slog.Debug("mujica: notification_center mark all read", "count", unread)
-			}
-			if Button(c, msg(c, "notification_center.clear_all"), ButtonOptions{Variant: Ghost, Disabled: len(*items) == 0}).Clicked() {
-				slog.Debug("mujica: notification_center clear all", "count", len(*items))
-				*items = (*items)[:0]
-				res.ClearedAll = true
-			}
+			})
+			ui.Row(c).AlignItems(ui.Center).Gap(u * 2).Children(func() {
+				if Button(c, msg(c, "notification_center.mark_all_read"), ButtonOptions{Variant: Ghost, Disabled: unread == 0}).Clicked() {
+					for i := range *items {
+						(*items)[i].Read = true
+					}
+					res.MarkedAllRead = true
+					slog.Debug("mujica: notification_center mark all read", "count", unread)
+				}
+				if Button(c, msg(c, "notification_center.clear_all"), ButtonOptions{Variant: Ghost, Disabled: len(*items) == 0}).Clicked() {
+					slog.Debug("mujica: notification_center clear all", "count", len(*items))
+					*items = (*items)[:0]
+					res.ClearedAll = true
+				}
+			})
 		})
 		// Ornament hairline under the panel title.
 		ui.Box(c).FillWidth().Height(1).Background(k.Ornament).Role(ui.RoleNone)

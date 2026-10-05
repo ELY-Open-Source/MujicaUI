@@ -53,11 +53,11 @@ func TextInput(c *ui.Context, value *string, opts TextInputOptions) InputResult 
 		if opts.Leading != nil {
 			opts.Leading()
 		}
-		in := textInputEditor(c, frame, value, opts.ReadOnly || opts.Disabled, ui.TextInputBase).Grow(1).MinWidth(Density(c).Unit() * 10).
+		in := textInputEditor(c, frame, value, opts.ReadOnly || look.disabled, ui.TextInputBase).Grow(1).MinWidth(Density(c).Unit() * 10).
 			Placeholder(opts.Placeholder).Label(opts.Label)
-		r.changed = in.Changed() && !opts.ReadOnly && !opts.Disabled
-		r.submitted = in.Submitted() && !opts.Disabled
-		if opts.Clearable && *value != "" && !opts.ReadOnly && !opts.Disabled {
+		r.changed = in.Changed() && !opts.ReadOnly && !look.disabled
+		r.submitted = in.Submitted() && !look.disabled
+		if opts.Clearable && *value != "" && !opts.ReadOnly && !look.disabled {
 			if textInputClear(c, in) {
 				*value = ""
 				r.changed = true
@@ -75,7 +75,7 @@ func TextInput(c *ui.Context, value *string, opts TextInputOptions) InputResult 
 // textInputFade eases hover, focus and error colors.
 var textInputFade = ui.ElementTransition{Colors: true, Duration: theme.StateDuration}
 
-// textInputLook is the state a field frame shows.
+// textInputLook is the state a field frame shows; disabled gains any disabled ancestor.
 type textInputLook struct {
 	disabled, readOnly, area bool
 	err                      string
@@ -86,6 +86,8 @@ func textInputFrame(c *ui.Context, look *textInputLook, build func(frame *ui.Ele
 	k := Tokens(c)
 	d := Density(c)
 	outer = ui.Column(c).Gap(d.Unit()).Shrink(0).Disabled(look.disabled)
+	// One disabled state, the field's own or an ancestor's, for build to obey.
+	look.disabled = outer.IsDisabled()
 	outer.Children(func() {
 		frame := ui.Row(c).Radius(theme.ControlRadius).Gap(d.Unit() * 2).Cursor(ui.CursorText)
 		if look.area {

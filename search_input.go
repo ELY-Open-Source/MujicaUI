@@ -59,8 +59,9 @@ func SearchInput(c *ui.Context, query *string, opts SearchInputOptions) SearchIn
 		name = place
 	}
 	var r SearchInputResult
+	look := &textInputLook{disabled: opts.Disabled}
 	step := func(d int) {
-		if opts.Matches == 0 || opts.Disabled {
+		if opts.Matches == 0 || look.disabled {
 			return
 		}
 		*opts.Current = (*opts.Current + d + opts.Matches) % opts.Matches
@@ -69,7 +70,10 @@ func SearchInput(c *ui.Context, query *string, opts SearchInputOptions) SearchIn
 	}
 	if opts.Find {
 		*opts.Current = max(0, min(*opts.Current, opts.Matches-1))
-		if !opts.Disabled {
+	}
+	r.Element, r.Input = textInputFrame(c, look, func(frame *ui.Element) *ui.Element {
+		if opts.Find {
+			// Built inside the frame, where step knows of disabled ancestors.
 			mac := runtime.GOOS == "darwin"
 			switch {
 			case mac && c.Shortcut(ui.Cmd, ui.KeyG), !mac && c.Shortcut(0, ui.KeyF3):
@@ -78,13 +82,10 @@ func SearchInput(c *ui.Context, query *string, opts SearchInputOptions) SearchIn
 				step(-1)
 			}
 		}
-	}
-	look := &textInputLook{disabled: opts.Disabled}
-	r.Element, r.Input = textInputFrame(c, look, func(frame *ui.Element) *ui.Element {
 		ui.Icon(c, icons.Must("search")).Size(16, 16).Shrink(0).TextColor(k.TextMuted)
 		back := ui.Local(frame, "back", func() bool { return false })
-		in := textInputEditor(c, frame, query, opts.Disabled, ui.TextInputBase).Grow(1).MinWidth(Density(c).Unit() * 10).Placeholder(place).Label(name)
-		r.changed = in.Changed() && !opts.Disabled
+		in := textInputEditor(c, frame, query, look.disabled, ui.TextInputBase).Grow(1).MinWidth(Density(c).Unit() * 10).Placeholder(place).Label(name)
+		r.changed = in.Changed() && !look.disabled
 		if opts.Find {
 			// Shift+Enter would reach the editor as a plain submit.
 			in.HandleInput(func(ev ui.InputEvent) bool {
@@ -102,9 +103,9 @@ func SearchInput(c *ui.Context, query *string, opts SearchInputOptions) SearchIn
 				step(1)
 			}
 		} else {
-			r.submitted = in.Submitted() && !opts.Disabled
+			r.submitted = in.Submitted() && !look.disabled
 		}
-		if *query != "" && !opts.Disabled && textInputClear(c, in) {
+		if *query != "" && !look.disabled && textInputClear(c, in) {
 			*query = ""
 			r.changed = true
 			slog.Debug("mujica: search_input clear")

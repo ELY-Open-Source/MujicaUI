@@ -286,3 +286,39 @@ func TestStatusBarKeepsFocusAcrossDensity(t *testing.T) {
 		t.Fatalf("Enter after the switch activated %d times, want 1", n)
 	}
 }
+
+func TestStatusBarFocusMovesToMoreWhenFocusedItemFolds(t *testing.T) {
+	density := theme.Default
+	var clicked []string
+	o := StatusBarOptions{
+		Left:  []StatusItem{{ID: "main", Text: "main"}, {ID: "fmt", Text: "Format", Action: true, Secondary: true}},
+		Right: []StatusItem{{ID: "bell", Label: "Notifications", Icon: icons.Must("bell"), Action: true}},
+	}
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{Density: density})
+		if id := StatusBar(c, o).Clicked; id != "" {
+			clicked = append(clicked, id)
+		}
+	}, 152, 300)
+	tt.Key(0, ui.KeyTab)
+	if !tt.Focused("Format") {
+		t.Fatal("Tab did not focus Format at Default density")
+	}
+	density = theme.Comfortable
+	tt.Frame()
+	if tt.HasText("Format") {
+		t.Fatal("Format did not fold at Comfortable density")
+	}
+	if !tt.Focused("1 more items") {
+		t.Fatal("focus did not move to the +N button that holds Format")
+	}
+	tt.Key(0, ui.KeyEnter)
+	if !tt.HasText("Format") {
+		t.Fatal("Enter on +N did not open the list with Format")
+	}
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeyEnter)
+	if len(clicked) != 1 || clicked[0] != "fmt" {
+		t.Fatalf("clicked %v, want [fmt]", clicked)
+	}
+}

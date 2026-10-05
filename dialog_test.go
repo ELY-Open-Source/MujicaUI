@@ -2,6 +2,7 @@ package mujica
 
 import (
 	"testing"
+	"time"
 
 	"github.com/egoist/mygo/ui"
 
@@ -170,6 +171,53 @@ func dialogSnapshotView(d theme.Density, decorated bool) func(c *ui.Context) {
 				Button(c, "Rename", ButtonOptions{})
 			},
 		}, func() { ui.TextInput(c, &name) })
+	}
+}
+
+func TestDialogEscapeHidesTooltipBeforeClosing(t *testing.T) {
+	open := true
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		Dialog(c, &open, DialogOptions{Title: "Outer", HideClose: true}, func() {
+			b := Button(c, "Seal", ButtonOptions{})
+			Tooltip(c, b, "Seal with wax", TooltipOptions{Delay: time.Millisecond})
+		})
+	}, 600, 400)
+	tt.Key(0, ui.KeyTab) // keyboard focus on Seal
+	if !overlayUntil(tt, func() bool { return tt.HasText("Seal with wax") }) {
+		t.Fatal("tooltip did not show in the dialog")
+	}
+	tt.Key(0, ui.KeyEscape)
+	if tt.HasText("Seal with wax") || !open {
+		t.Fatalf("first Escape: tip shown %v, dialog open %v", tt.HasText("Seal with wax"), open)
+	}
+	tt.Key(0, ui.KeyEscape)
+	if open {
+		t.Fatal("second Escape did not close the dialog")
+	}
+}
+
+func TestDialogFocusFallsBackWhenOpenerIsGone(t *testing.T) {
+	open, gone := false, false
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Children(func() {
+			Button(c, "First", ButtonOptions{})
+			if !gone && Button(c, "Open", ButtonOptions{}).Clicked() {
+				open, gone = true, true
+			}
+			Dialog(c, &open, DialogOptions{Title: "Gone"}, nil)
+			Button(c, "Next", ButtonOptions{})
+		})
+	}, 600, 400)
+	_ = tt.Click("Open")
+	tt.Key(0, ui.KeyEscape)
+	if open {
+		t.Fatal("Escape did not close")
+	}
+	tt.Key(0, ui.KeyTab)
+	if !tt.Focused("Next") {
+		t.Fatal("focus did not fall back to the dialog's place in the window")
 	}
 }
 

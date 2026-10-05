@@ -49,6 +49,6 @@ ui.Render(view, 400, 300, 1)
 
 ## 限制
 
-- 选项行基于 `ui.CheckboxBase` 自绘方框；全选的“半选”只在画面上表示，MyGo 没有为自定义元素设置 mixed 状态的公开接口（ui/element.go:282 的 checked 字段仅由内部设置），屏幕阅读器读作未选中。
+- 选项行基于 `ui.CheckboxBase` 自绘方框，选中状态由 MyGo 报告。全选的“半选”无法作为 mixed 状态报告：MyGo 没有为自定义元素设置它的公开接口（ui/element.go:282 的 checked 字段仅由内部设置）。组件改用 `Description` 读出“部分选中”，屏幕阅读器仍把复选框本身读作未选中。
 - 标签上的移除按钮不占 Tab 位，键盘用 Backspace 移除。
 - 列表未虚拟化，适合数百项以内。

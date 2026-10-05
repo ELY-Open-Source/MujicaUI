@@ -74,7 +74,6 @@ func textDemo(c *ui.Context, log func(string)) {
 			log("edit canceled")
 		}
 	})
-	displayCode(c, textCode, log)
 }
 
 const textCode = `mujica.Text(c, "Order ID: 4821-AX", mujica.TextOptions{Selectable: true})
@@ -113,7 +112,6 @@ func headingDemo(c *ui.Context, log func(string)) {
 			mujica.Heading(c, fmt.Sprintf("Level %d · 宫廷", l), mujica.HeadingOptions{Level: l})
 		}
 	})
-	displayCode(c, headingCode, log)
 }
 
 const headingCode = `mujica.Heading(c, "The Grand Hall", mujica.HeadingOptions{Subtitle: "Winter ceremonies", Divider: true})
@@ -163,7 +161,6 @@ func iconDemo(c *ui.Context, log func(string)) {
 			mujica.Icon(c, "missing-name", mujica.IconOptions{Size: 20})
 		})
 	})
-	displayCode(c, iconCode, log)
 }
 
 const iconCode = `ui.Row(c).Gap(8).Children(func() {
@@ -203,7 +200,6 @@ func avatarGroupDemo(c *ui.Context, log func(string)) {
 			}
 		}
 	})
-	displayCode(c, avatarGroupCode, log)
 }
 
 const avatarGroupCode = `mujica.AvatarGroup(c, people, mujica.AvatarGroupOptions{Max: 3})`
@@ -250,7 +246,6 @@ func badgeDemo(c *ui.Context, log func(string)) {
 			mujica.Badge(c, opts, func() { mujica.Avatar(c, "Sakiko Togawa", mujica.AvatarOptions{Size: 40}) })
 		})
 	})
-	displayCode(c, badgeCode, log)
 }
 
 const badgeCode = `mujica.Badge(c, mujica.BadgeOptions{Text: "New", Tone: mujica.BadgeNeutral}, nil)
@@ -303,7 +298,6 @@ func tagDemo(c *ui.Context, log func(string)) {
 			}
 		})
 	})
-	displayCode(c, tagCode, log)
 }
 
 const tagCode = `for i, t := range tags {
@@ -345,7 +339,6 @@ func linkDemo(c *ui.Context, log func(string)) {
 			log("in-app action")
 		}
 	})
-	displayCode(c, linkCode, log)
 }
 
 const linkCode = `mujica.Link(c, "Read the charter", mujica.LinkOptions{URL: "https://example.com/charter"})
@@ -384,7 +377,6 @@ func kbdDemo(c *ui.Context, log func(string)) {
 			})
 		}
 	})
-	displayCode(c, kbdCode, log)
 }
 
 const kbdCode = `ui.Row(c).Gap(6).Children(func() {

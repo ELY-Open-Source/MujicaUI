@@ -37,8 +37,7 @@ type OverlayOptions struct {
 	Label string
 }
 
-// Overlay shows content in a layer above the window while *open is true.
-// Escape closes it; a modal one also closes on a backdrop click.
+// Overlay shows content in a layer above the window while *open is true; Escape closes it.
 func Overlay(c *ui.Context, open *bool, opts OverlayOptions, content func()) *ui.Element {
 	if opts.Dim && !opts.Modal {
 		panic("mujica: Overlay Dim requires Modal")
@@ -46,7 +45,9 @@ func Overlay(c *ui.Context, open *bool, opts OverlayOptions, content func()) *ui
 	if opts.Place < OverlayCenter || opts.Place > OverlayBottomRight {
 		panic("mujica: Overlay Place out of range")
 	}
+	site, focus := overlaySite(c)
 	if !*open {
+		focus.closed(c, site)
 		return nil
 	}
 	k := Tokens(c)
@@ -56,6 +57,7 @@ func Overlay(c *ui.Context, open *bool, opts OverlayOptions, content func()) *ui
 	}
 	fx, fy := overlayFractions(opts.Place)
 	if opts.Modal {
+		overlayLayer(c, open)
 		var backClicked bool
 		shown := true
 		panel := ui.DialogBase(c, &shown, func(back, panel *ui.Element) {
@@ -69,6 +71,7 @@ func Overlay(c *ui.Context, open *bool, opts OverlayOptions, content func()) *ui
 			panel.Label(opts.Label).Padding(Density(c).Unit() * 4)
 			content()
 		})
+		focus.shown(panel)
 		if !shown {
 			slog.Debug("mujica: overlay close", "backdrop", backClicked)
 			*open = false
@@ -89,7 +92,8 @@ func Overlay(c *ui.Context, open *bool, opts OverlayOptions, content func()) *ui
 		overlayStyle(c, panel, p)
 		panel.Children(content)
 	})
-	if c.Shortcut(0, ui.KeyEscape) {
+	focus.shown(panel)
+	if overlayEscape(c, open) {
 		slog.Debug("mujica: overlay close", "escape", true)
 		*open = false
 	}

@@ -22,11 +22,11 @@ type RangeSliderOptions struct {
 	Label string
 }
 
-// RangeSlider sets *low and *high, which never cross. A press moves the
-// nearer thumb; each thumb takes the focus and the arrows, Home and End.
+// RangeSlider sets *low and *high, which never cross; a press moves the nearer thumb, each takes the keys.
 func RangeSlider(c *ui.Context, low, high *float64, opts RangeSliderOptions) ChoiceResult {
 	g, h := sliderSetup(opts.Min, opts.Max, opts.Step, opts.Marks, opts.ShowValue, c)
-	format := sliderFormat(opts.Format, opts.Step)
+	format := sliderFormat(opts.Format, g)
+	size := FontSize(c, theme.CaptionSize)
 	k := Tokens(c)
 	*low, *high = g.snap(math.Min(*low, *high)), g.snap(math.Max(*low, *high))
 	oldLow, oldHigh := *low, *high
@@ -47,32 +47,24 @@ func RangeSlider(c *ui.Context, low, high *float64, opts RangeSliderOptions) Cho
 				from, to = *low, g.hi
 			}
 			x := g.x(ui.Rect{W: r.W}, *v) - sliderThumb/2
-			kb := ui.Box(c).Key(i).Absolute().Left(x).Top(g.trackY-sliderThumb/2).Size(sliderThumb, sliderThumb).
-				Focusable().FocusRing(false).Role(ui.RoleSlider)
+			var kb *ui.Element
+			var next float64
+			var held bool
+			// Each thumb is a SliderBase, which reports the range and value to assistive technology.
+			ui.Box(c).Key(i).Absolute().Left(x).Top(g.trackY-sliderThumb/2).Size(sliderThumb, sliderThumb).Children(func() {
+				kb, next, held = sliderControl(c, *v, g, from, to)
+			})
+			kb.Size(sliderThumb, sliderThumb).FocusRing(false)
 			name := msg(c, []string{"range_slider.min", "range_slider.max"}[i])
 			if opts.Label != "" {
 				name = opts.Label + " " + name
 			}
-			kb.Label(name + ", " + format(*v))
-			step := func(d float64) float64 {
-				if g.step > 0 {
-					return g.snap(*v + d*g.step)
-				}
-				return *v + d*(g.hi-g.lo)/100
-			}
-			switch {
-			case kb.Shortcut(0, ui.KeyLeft), kb.Shortcut(0, ui.KeyDown):
-				*v = max(from, step(-1))
-			case kb.Shortcut(0, ui.KeyRight), kb.Shortcut(0, ui.KeyUp):
-				*v = min(to, step(1))
-			case kb.Shortcut(0, ui.KeyHome):
-				*v = from
-			case kb.Shortcut(0, ui.KeyEnd):
-				*v = to
-			}
-			if _, _, ok := kb.Dragged(); ok {
+			kb.Label(name)
+			if held {
 				pressed = true
 				*drag = i
+			} else if !opts.Disabled {
+				*v = next
 			}
 			knobs[i] = kb
 		}
@@ -104,12 +96,12 @@ func RangeSlider(c *ui.Context, low, high *float64, opts RangeSliderOptions) Cho
 	hover := e.Hovered()
 	e.Draw(func(p *ui.Painter, r ui.Rect) {
 		x0, x1 := g.x(r, lo), g.x(r, hi)
-		sliderTrackPaint(p, r, g, k, opts.Marks, format, x0, x1)
+		sliderTrackPaint(p, r, g, k, opts.Marks, size, x0, x1)
 		for i, x := range []float32{x0, x1} {
 			hot := which == i || knobs[i].Hovered()
 			sliderThumbPaint(p, k, x, r.Y+g.trackY, hot, knobs[i].FocusVisible())
 			if opts.ShowValue && (hot || hover || knobs[i].Focused()) {
-				rangeSliderBubble(p, k, x, r.Y+g.trackY, format([]float64{lo, hi}[i]), i)
+				rangeSliderBubble(p, k, x, r.Y+g.trackY, format([]float64{lo, hi}[i]), i, size)
 			}
 		}
 	})
@@ -120,11 +112,11 @@ func RangeSlider(c *ui.Context, low, high *float64, opts RangeSliderOptions) Cho
 type rangeSliderDrag struct{}
 
 // rangeSliderBubble keeps the two tips apart: the low one leans left, the high one right.
-func rangeSliderBubble(p *ui.Painter, k theme.Tokens, x, y float32, s string, i int) {
-	w, _ := p.MeasureText(1000, ui.Span{Text: s, Size: theme.CaptionSize})
+func rangeSliderBubble(p *ui.Painter, k theme.Tokens, x, y float32, s string, i int, size float32) {
+	w, _ := p.MeasureText(1000, ui.Span{Text: s, Size: size})
 	shift := (w+12)/2 - sliderThumb/2
 	if i == 0 {
 		shift = -shift
 	}
-	sliderBubblePaint(p, k, x+shift, y, s)
+	sliderBubblePaint(p, k, x+shift, y, s, size)
 }

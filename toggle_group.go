@@ -10,8 +10,7 @@ import (
 	"mujicaui/theme"
 )
 
-// ChoiceResult is the element of a choice control and whether its value
-// changed in this frame.
+// ChoiceResult is a choice control's element and whether its value changed this frame.
 type ChoiceResult struct {
 	*ui.Element
 	changed bool
@@ -42,9 +41,7 @@ type ToggleGroupOptions struct {
 	Label string
 }
 
-// ToggleGroup is a joined row of toggles choosing *value: one item, or
-// several with Multiple. Tab enters the group, the arrows move among the
-// items, Space presses one.
+// ToggleGroup is a joined row of toggles choosing one item of *value, or several with Multiple.
 func ToggleGroup[T comparable](c *ui.Context, value *[]T, items []ToggleItem[T], opts ToggleGroupOptions) ChoiceResult {
 	if !opts.Multiple && len(*value) > 1 {
 		panic("mujica: single ToggleGroup holds more than one value")
@@ -67,7 +64,8 @@ func ToggleGroup[T comparable](c *ui.Context, value *[]T, items []ToggleItem[T],
 			on := slices.Contains(*value, it.Value)
 			pressed := on
 			b := ui.ToggleBase(c, &pressed).Disabled(it.Disabled)
-			if b.Changed() && toggleGroupApply(value, it.Value, pressed, opts) {
+			// The base took input before Disabled applied: drop a disabled item's press.
+			if b.Changed() && !it.Disabled && !opts.Disabled && toggleGroupApply(value, it.Value, pressed, opts) {
 				changed = true
 				on = pressed
 			}

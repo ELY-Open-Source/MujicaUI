@@ -15,7 +15,7 @@ var overlayPages = []page{
 	{ID: "081", Name: "Dialog", ZhName: "对话框", Category: overlayCategory, Demo: dialogDemo, Code: dialogCode,
 		Keys: "Tab / Shift+Tab 在对话框内循环；Escape 关闭（可关闭此规则）；关闭后焦点回到触发按钮。"},
 	{ID: "082", Name: "AlertDialog", ZhName: "警示对话框", Category: overlayCategory, Demo: alertDialogDemo, Code: alertDialogCode,
-		Keys: "打开时焦点在取消；Enter 只触发聚焦的按钮；Escape 等同取消；点击遮罩无效。"},
+		Keys: "打开时焦点在取消；Enter 只触发聚焦的按钮，输入框中的 Enter 不确认；Escape 等同取消；点击遮罩无效。"},
 	{ID: "083", Name: "Drawer", ZhName: "抽屉", Category: overlayCategory, Demo: drawerDemo, Code: drawerCode,
 		Keys: "模态：焦点限制在抽屉内并在关闭后恢复；Escape 关闭。非模态：窗口仍可操作，Escape 关闭。"},
 	{ID: "084", Name: "Popover", ZhName: "弹出框", Category: overlayCategory, Demo: popoverDemo, Code: popoverCode,
@@ -25,7 +25,7 @@ var overlayPages = []page{
 	{ID: "086", Name: "HoverCard", ZhName: "悬停卡片", Category: overlayCategory, Demo: hoverCardDemo, Code: hoverCardCode,
 		Keys: "键盘聚焦锚点后显示，Tab 进入卡片；Escape 关闭。"},
 	{ID: "087", Name: "DropdownMenu", ZhName: "下拉菜单", Category: overlayCategory, Demo: dropdownMenuDemo, Code: dropdownMenuCode,
-		Keys: "Enter / Space / ↓ 打开；↑↓ Home End 移动；→ 打开子菜单，← 关闭；Enter 选择；Escape 或 Tab 关闭。"},
+		Keys: "Enter / Space / ↓ 打开；↑↓ Home End 移动；→ 打开子菜单，← 关闭；Enter 选择；Escape 关闭最上层；Tab 在任一层关闭整个菜单。"},
 	{ID: "088", Name: "ContextMenu", ZhName: "右键菜单", Category: overlayCategory, Demo: contextMenuDemo, Code: contextMenuCode,
 		Keys: "右键在指针处打开；焦点在区域内时按 Menu 键或 Shift+F10 在区域下方打开；其余按键同下拉菜单。"},
 	{ID: "089", Name: "Popconfirm", ZhName: "气泡确认", Category: overlayCategory, Demo: popconfirmDemo, Code: popconfirmCode,
@@ -171,10 +171,7 @@ func drawerDemo(c *ui.Context, log func(string)) {
 			log("side = " + s.side)
 		}
 		overlayCheck(c, log, &s.nonModal, "NonModal")
-		ui.Text(c, fmt.Sprintf("Size %.0f", s.size))
-		if ui.StepSlider(c, &s.size, 120, 900, 20).Width(160).Changed() {
-			log(fmt.Sprintf("size = %.0f", s.size))
-		}
+		overlaySlider(c, log, &s.size, "Size", "DIP", 120, 900, 20)
 	})
 	if mujica.Button(c, "Open drawer", mujica.ButtonOptions{}).Clicked() {
 		s.open = true
@@ -247,10 +244,7 @@ ui.Render(view, 400, 300, 1)`
 func tooltipDemo(c *ui.Context, log func(string)) {
 	delay := ui.Local(c.Root(), "085", func() float64 { return 500 })
 	overlayControls(c, func() {
-		ui.Text(c, fmt.Sprintf("Delay %.0f ms", *delay))
-		if ui.StepSlider(c, delay, 100, 1500, 100).Width(160).Changed() {
-			log(fmt.Sprintf("delay = %.0f ms", *delay))
-		}
+		overlaySlider(c, log, delay, "Delay", "ms", 100, 1500, 100)
 	})
 	opts := mujica.TooltipOptions{Delay: time.Duration(*delay) * time.Millisecond}
 	ui.Row(c).Gap(12).Children(func() {
@@ -276,19 +270,43 @@ const hoverCardCode = `view := func(c *ui.Context) {
 }
 ui.Render(view, 400, 300, 1)`
 
+type hoverCardDemoState struct {
+	shown                        bool
+	openDelay, closeDelay, width float64
+}
+
 func hoverCardDemo(c *ui.Context, log func(string)) {
-	shown := ui.Local(c.Root(), "086", func() bool { return false })
+	s := ui.Local(c.Root(), "086", func() hoverCardDemoState {
+		return hoverCardDemoState{openDelay: 500, closeDelay: 300, width: 280}
+	})
+	overlayControls(c, func() {
+		overlaySlider(c, log, &s.openDelay, "OpenDelay", "ms", 100, 1500, 100)
+		overlaySlider(c, log, &s.closeDelay, "CloseDelay", "ms", 100, 1500, 100)
+		overlaySlider(c, log, &s.width, "Width", "DIP", 200, 420, 20)
+	})
 	b := mujica.Button(c, "Lady Sakiko", mujica.ButtonOptions{Variant: mujica.Ghost})
-	card := mujica.HoverCard(c, b, mujica.HoverCardOptions{}, func() {
+	card := mujica.HoverCard(c, b, mujica.HoverCardOptions{
+		OpenDelay:  time.Duration(s.openDelay) * time.Millisecond,
+		CloseDelay: time.Duration(s.closeDelay) * time.Millisecond,
+		Width:      float32(s.width),
+	}, func() {
 		ui.Text(c, "Lady Sakiko").FontWeight(600)
 		ui.Text(c, "Keyboardist of the court; writes the masquerade's score.").TextColor(mujica.Tokens(c).TextMuted)
 		if mujica.Button(c, "Follow", mujica.ButtonOptions{Variant: mujica.Outline}).Clicked() {
 			log("follow")
 		}
 	})
-	if (card != nil) != *shown {
-		*shown = card != nil
-		log(fmt.Sprintf("card shown = %v", *shown))
+	if (card != nil) != s.shown {
+		s.shown = card != nil
+		log(fmt.Sprintf("card shown = %v", s.shown))
+	}
+}
+
+// overlaySlider is a labeled step slider logging its value.
+func overlaySlider(c *ui.Context, log func(string), v *float64, name, unit string, lo, hi, step float64) {
+	ui.Text(c, fmt.Sprintf("%s %.0f %s", name, *v, unit))
+	if ui.StepSlider(c, v, lo, hi, step).Width(140).Changed() {
+		log(fmt.Sprintf("%s = %.0f %s", name, *v, unit))
 	}
 }
 

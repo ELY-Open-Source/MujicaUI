@@ -78,8 +78,8 @@ func Progress(c *ui.Context, value float64, opts ProgressOptions) *ui.Element {
 		}
 		bar := ui.Progress(c, acc).Label(name).FillWidth().Height(u * 1.5).Radius(theme.ControlRadius).Background(k.Border)
 		shown := float32(value)
-		if !opts.Indeterminate && !still {
-			shown = bar.Animate("progress.value", shown, theme.StateDuration)
+		if !opts.Indeterminate {
+			shown = progressAnimate(bar, shown, still)
 		}
 		bar.Draw(func(p *ui.Painter, r ui.Rect) {
 			switch {
@@ -110,10 +110,13 @@ func progressRing(c *ui.Context, k theme.Tokens, u float32, acc float64, name, c
 	row.Children(func() {
 		ring := ui.Progress(c, acc).Label(name).Size(d, d).Radius(0).Background(ui.Transparent)
 		shown := float32(acc)
-		if !opts.Indeterminate && !still {
-			shown = ring.Animate("progress.value", shown, theme.StateDuration)
+		if !opts.Indeterminate {
+			shown = progressAnimate(ring, shown, still)
 		}
 		stroke := max(3, d/10)
+		size := FontSize(c, theme.CaptionSize)
+		tw, th := c.MeasureText(0, ui.Span{Text: caption, Size: size})
+		inside := caption != "" && !opts.Indeterminate && tw+4 <= d-2*stroke && th <= d-2*stroke
 		ring.Draw(func(p *ui.Painter, r ui.Rect) {
 			cx, cy, rad := internal.Snap(p, r.X+r.W/2), internal.Snap(p, r.Y+r.H/2), internal.Snap(p, (r.W-stroke)/2)
 			var track ui.Path
@@ -132,24 +135,33 @@ func progressRing(c *ui.Context, k theme.Tokens, u float32, acc float64, name, c
 				p.StrokePath(progressArc(p, cx, cy, rad, start, start+0.25), stroke, k.AccentText)
 			}
 		})
-		if caption != "" && d >= 44 && !opts.Indeterminate {
+		if inside {
 			ring.Children(func() {
-				ui.Text(c, caption).FontSize(FontSize(c, theme.CaptionSize)).FontFeatures("tnum").TextColor(k.Text)
+				ui.Text(c, caption).FontSize(size).FontFeatures("tnum").TextColor(k.Text)
 			})
 			ring.Center()
 		}
-		if opts.Label != "" || (caption != "" && (d < 44 || opts.Indeterminate)) {
+		if opts.Label != "" || (caption != "" && !inside) {
 			ui.Column(c).Children(func() {
 				if opts.Label != "" {
 					ui.Text(c, opts.Label).TextColor(k.Text)
 				}
-				if caption != "" && (d < 44 || opts.Indeterminate) {
-					ui.Text(c, caption).TextColor(k.TextMuted).FontSize(FontSize(c, theme.CaptionSize))
+				if caption != "" && !inside {
+					ui.Text(c, caption).TextColor(k.TextMuted).FontSize(size).FontFeatures("tnum")
 				}
 			})
 		}
 	})
 	return row
+}
+
+// progressAnimate eases toward target; under reduced motion it lands there and keeps the state in step.
+func progressAnimate(e *ui.Element, target float32, still bool) float32 {
+	if still {
+		// A changed target lands at once under reduced motion; the detour stops a running transition.
+		e.Animate("progress.value", target+1, theme.StateDuration)
+	}
+	return e.Animate("progress.value", target, theme.StateDuration)
 }
 
 // progressArc is the arc from turn a to turn b, clockwise from twelve o'clock.
@@ -230,6 +242,9 @@ func Meter(c *ui.Context, value float64, opts MeterOptions) *ui.Element {
 	}
 	frac := func(v float64) float32 { return float32((v - lo) / (hi - lo)) }
 	col := ui.Column(c).Gap(u * 1.5)
+	if !(opts.Width >= 0) || math.IsInf(float64(opts.Width), 1) {
+		panic(fmt.Sprintf("mujica: Meter Width %v invalid", opts.Width))
+	}
 	if opts.Width > 0 {
 		col.Width(opts.Width)
 	} else {

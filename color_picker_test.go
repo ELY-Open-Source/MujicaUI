@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/egoist/mygo/ui"
+
+	"mujicaui/theme"
 )
 
 func colorPickerTester(col *ui.Color, opts ColorPickerOptions, changes *int) *ui.Tester {
@@ -111,7 +113,7 @@ func TestColorPickerDisabledAndParse(t *testing.T) {
 
 func TestColorPickerSnapshot(t *testing.T) {
 	a, b := ui.Hex("#7D2034"), ui.Hex("#355E8099")
-	snapshot(t, "color_picker", 340, 520, func(c *ui.Context) {
+	snapshot(t, "color_picker", 340, 560, func(c *ui.Context) {
 		ui.Column(c).Padding(20).Gap(12).AlignItems(ui.Start).Children(func() {
 			ColorPicker(c, &b, ColorPickerOptions{Disabled: true})
 			p := ColorPicker(c, &a, ColorPickerOptions{})
@@ -155,5 +157,19 @@ func TestColorPickerSwatchHitArea(t *testing.T) {
 	r, ok := tt.Find("#355E80")
 	if !ok || r.W < 28 || r.H < 28 {
 		t.Fatalf("swatch %v", r)
+	}
+}
+
+func TestColorPickerSliderHitAreaCompact(t *testing.T) {
+	col := ui.Hex("#7D2034")
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{Density: theme.Compact})
+		ColorPicker(c, &col, ColorPickerOptions{Label: "Accent"})
+	}, 400, 560)
+	_ = tt.Click("Accent")
+	for _, name := range []string{"Hue", "Opacity"} {
+		if r, ok := tt.Find(name); !ok || r.H < 28 {
+			t.Fatalf("%s slider %v", name, r)
+		}
 	}
 }

@@ -17,11 +17,7 @@ type contextMenuState struct {
 	x, y float32
 }
 
-// ContextMenu gives target an in-window menu that build fills. A secondary
-// click opens it at the pointer; the menu key or Shift+F10, while the focus
-// is in target, opens it below target. It flips to stay in the window, and
-// the focus returns on close. target must be a container: the menu adds an
-// anchor child to it, and takes its HandleInput. It returns target.
+// ContextMenu gives the container target an in-window menu at the pointer or below the focus.
 func ContextMenu(c *ui.Context, target *ui.Element, opts ContextMenuOptions, build func(m *PopupMenu)) *ui.Element {
 	if target == nil {
 		panic("mujica: ContextMenu needs a target")

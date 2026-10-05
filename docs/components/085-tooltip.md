@@ -41,5 +41,6 @@ ui.Render(view, 400, 300, 1)
 
 ## 限制
 
-- 只在键盘焦点（可见焦点）时显示，鼠标点击获得的焦点不触发，避免点击后弹出提示。
+- Escape 只关闭最上层的 MujicaUI 浮层（窗口内按打开顺序记录）。MyGo 自带的 `ui.Popover`、`ui.Select` 弹层不在这份记录中；它们打开在非模态 MujicaUI 浮层之上时，Escape 可能先关闭下面的 MujicaUI 浮层。
+- 只在键盘焦点（可见焦点）时显示，鼠标点击获得的焦点不触发。
 - 不使用 MyGo 的 `Element.Tooltip`：它只跟随指针、不响应焦点（`ui/widgets.go:549`）。

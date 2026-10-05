@@ -36,8 +36,7 @@ type PaginationResult struct {
 // Changed reports a new page or page size in this frame, from the user or a correction.
 func (r PaginationResult) Changed() bool { return r.changed }
 
-// Pagination moves *page (from 1) through Total records, *pageSize per page.
-// A page past the end after Total shrinks is corrected to the last page.
+// Pagination pages *page (from 1) through Total records, clamping it when Total shrinks.
 func Pagination(c *ui.Context, page, pageSize *int, opts PaginationOptions) PaginationResult {
 	if opts.Total < 0 {
 		panic("mujica: Pagination Total is negative")
@@ -185,6 +184,7 @@ func paginationSizes(c *ui.Context, page, pageSize *int, sizes []int, res *Pagin
 		ui.Icon(c, icons.Must("chevron-down")).Size(14, 14).TextColor(k.TextMuted)
 	})
 	sel.Popup(func(panel *ui.Element) {
+		internal.PopIn(c, panel, Motion(c, theme.PopupDuration))
 		panel.Margin(u, 0, 0, 0).Padding(u).Radius(theme.PopupRadius).Background(k.Surface).
 			Border(theme.BorderWidth, k.Border).Shadow(0, 4, 12, 0, ui.RGBA(0, 0, 0, 0.16))
 		for _, s := range sizes {

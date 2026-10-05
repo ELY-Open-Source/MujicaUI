@@ -4,8 +4,8 @@ Ordered by PRD sections. Check an item only after its codex review passes. Revie
 
 - [x] T01 §1–2 Module, MyGo v0.2.10 pin, reuse rules, AGENTS.md — r1 FAIL (line height, enum checks), r2 PASS
 - [x] T02 §3 Tokens, density, type, motion, contrast tests, `Use`, icons, i18n — r1 FAIL, r2 PASS
-- [ ] T03 §4.1 Layout 001–010
-- [ ] T04 §4.2 Display 011–020
+- [x] T03 §4.1 Layout 001–010 — r1 FAIL 8, r2 FAIL 2, r3 FAIL 1 (folded focus); fixed b34958b, verified by coordinator red/green after cap
+- [x] T04 §4.2 Display 011–020 — r1 FAIL 5, r2 FAIL 5, r3 FAIL 2 (image sizing, Retry clip); fixed e922651, verified by coordinator tests and snapshot after cap
 - [ ] T05 §4.3 Inputs 021–030
 - [ ] T06 §4.4 Choices 031–040
 - [ ] T07 §4.5 Forms 041–050

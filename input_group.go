@@ -41,13 +41,14 @@ type InputGroupParts struct {
 	Input *ui.Element
 	// Clicked is the index in Buttons of the button clicked, or -1.
 	Clicked int
+	locked  bool
 }
 
 // Changed reports whether the user edited the value this frame.
-func (p InputGroupParts) Changed() bool { return p.Input.Changed() }
+func (p InputGroupParts) Changed() bool { return !p.locked && p.Input.Changed() }
 
 // Submitted reports whether Enter was pressed in the input.
-func (p InputGroupParts) Submitted() bool { return p.Input.Submitted() }
+func (p InputGroupParts) Submitted() bool { return !p.locked && p.Input.Submitted() }
 
 // InputGroup joins an input, fixed text and buttons, each its own Tab stop, in one border.
 func InputGroup(c *ui.Context, value *string, opts InputGroupOptions) InputGroupParts {
@@ -91,7 +92,7 @@ func InputGroup(c *ui.Context, value *string, opts InputGroupOptions) InputGroup
 	}
 	button := func(i int) {
 		b := opts.Buttons[i]
-		bb := ui.ButtonBase(c).Padding(0, d.Unit()*3).Gap(d.Unit() * 2).MinWidth(d.ControlHeight()).
+		bb := ui.ButtonBase(c).MinHeight(theme.MinHitSize).Padding(0, d.Unit()*3).Gap(d.Unit() * 2).MinWidth(d.ControlHeight()).
 			Disabled(b.Disabled).TextColor(k.AccentText).Label(b.Label)
 		segment(bb)
 		internal.Ring(bb, k.Focus, theme.ControlRadius)
@@ -133,7 +134,8 @@ func InputGroup(c *ui.Context, value *string, opts InputGroupOptions) InputGroup
 				// As wide as MyGo makes a text input.
 				parts.Input = ui.Text(c, *value).SingleLine().Selectable().Focusable().FocusRing(false).Grow(1).Width(200).MinWidth(0)
 			} else {
-				parts.Input = ui.TextInputBase(c, value).FocusRing(false).Grow(1).MinWidth(0).Placeholder(opts.Placeholder)
+				parts.locked = box.IsDisabled()
+				parts.Input = inputGroupEditor(c, box, value, parts.locked).FocusRing(false).Grow(1).MinWidth(0).Placeholder(opts.Placeholder)
 			}
 			if opts.Label != "" {
 				parts.Input.Label(opts.Label)
@@ -168,4 +170,16 @@ func InputGroup(c *ui.Context, value *string, opts InputGroupOptions) InputGroup
 		}
 	})
 	return parts
+}
+
+// inputGroupEditor builds the input; a disabled one edits a copy, so queued input cannot reach value.
+func inputGroupEditor(c *ui.Context, box *ui.Element, value *string, locked bool) *ui.Element {
+	if !locked {
+		return ui.TextInputBase(c, value)
+	}
+	shown := ui.Local(box, "locked", func() string { return *value })
+	*shown = *value
+	in := ui.TextInputBase(c, shown)
+	*shown = *value
+	return in
 }

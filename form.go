@@ -35,6 +35,7 @@ type formFieldState struct {
 	pending    bool
 	hasAsync   bool
 	check      func() string
+	refresh    func()
 	startAsync func()
 }
 
@@ -196,6 +197,12 @@ func formStartSubmit(st *FormState) {
 
 // formSettle finishes a waiting submit once no check is pending; it reports success.
 func formSettle(c *ui.Context, st *FormState) bool {
+	// Current values only: later edits and cross-field rules count.
+	for _, name := range st.order {
+		f := st.fields[name]
+		f.refresh()
+		f.err = f.check()
+	}
 	first, pending := "", false
 	for _, name := range st.order {
 		if st.Error(name) != "" && first == "" {
@@ -244,11 +251,10 @@ func FormItem[T any](f *FormScope, name string, value *T, opts FormItemOptions[T
 		panic("mujica: FormItem " + name + " registered twice")
 	}
 	st.order = append(st.order, name)
-	snap := fmt.Sprintf("%#v", *value)
 	fs := st.fields[name]
 	if fs == nil {
 		st.seq++
-		fs = &formFieldState{snapshot: snap, version: st.seq}
+		fs = &formFieldState{snapshot: fmt.Sprintf("%#v", *value), version: st.seq}
 		st.fields[name] = fs
 	}
 	fs.hasAsync = opts.Async != nil
@@ -268,12 +274,18 @@ func FormItem[T any](f *FormScope, name string, value *T, opts FormItemOptions[T
 			opts.Async(*value, fs.version)
 		}
 	}
-	if snap != fs.snapshot {
+	// refresh gives an edited value a new version; it runs after the control took its input.
+	fs.refresh = func() {
+		snap := fmt.Sprintf("%#v", *value)
+		if snap == fs.snapshot {
+			return
+		}
 		st.seq++
 		fs.snapshot, fs.version, fs.pending, fs.asyncErr = snap, st.seq, false, ""
 		if fs.touched || st.tried {
 			fs.err = fs.check()
 		}
+		c.Invalidate()
 	}
 	initial := opts.Initial
 	st.resets = append(st.resets, func() { *value = initial })
@@ -286,6 +298,7 @@ func FormItem[T any](f *FormScope, name string, value *T, opts FormItemOptions[T
 		ctrl = control()
 		return ctrl
 	})
+	fs.refresh()
 	focused := ctrl.FocusWithin()
 	if fs.focused && !focused {
 		fs.touched = true

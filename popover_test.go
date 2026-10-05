@@ -1,6 +1,7 @@
 package mujica
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/egoist/mygo/ui"
@@ -73,6 +74,27 @@ func TestPopoverOutsideClickAndEscape(t *testing.T) {
 	_ = tt.Click("Apply")
 	if a.applied != 1 || a.open {
 		t.Fatalf("applied %d open %v", a.applied, a.open)
+	}
+}
+
+func TestPopoverFitsWindow(t *testing.T) {
+	open := true
+	var panel ui.Rect
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Padding(30).Children(func() {
+			b := Button(c, "Filter", ButtonOptions{})
+			if p := Popover(c, b, &open, PopoverOptions{Width: 1000}, func() {
+				ui.Text(c, strings.Repeat("Long row of guests. ", 200))
+				Button(c, "Bottom", ButtonOptions{})
+			}); p != nil {
+				panel = p.Bounds()
+			}
+		})
+	}, 400, 300)
+	tt.Frame()
+	if panel.W > 400 || panel.X < 0 || panel.Y+panel.H > 300 {
+		t.Fatalf("panel %+v outside the 400×300 window", panel)
 	}
 }
 

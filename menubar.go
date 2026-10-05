@@ -285,6 +285,7 @@ func (m *menubarRun) activate(l, h int) {
 	}
 	if it.Items != nil {
 		m.st.hl = append(m.st.hl[:l+1], menubarStep(it.Items, -1, 1))
+		m.focus(m.st.open)
 		return
 	}
 	m.chosen = it.ID

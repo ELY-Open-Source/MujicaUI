@@ -145,14 +145,38 @@ func TestDropdownMenuDisabled(t *testing.T) {
 	}
 }
 
+func TestDropdownMenuTabInSubmenuClosesMenu(t *testing.T) {
+	a := &menuApp{}
+	tt := ui.NewTester(a.view, 500, 400)
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeyDown)
+	tt.Key(0, ui.KeyEnd)
+	tt.Key(0, ui.KeyRight)
+	if !tt.Focused("Archive") {
+		t.Fatal("submenu not entered")
+	}
+	tt.Key(0, ui.KeyTab)
+	if tt.HasText("Archive") || tt.HasText("Rename") {
+		t.Fatal("Tab in a submenu left the menu open")
+	}
+	if !tt.Focused("Actions") {
+		t.Fatal("focus did not return to the trigger")
+	}
+}
+
 func TestDropdownMenuSnapshot(t *testing.T) {
-	snapshot(t, "dropdown_menu", 460, 320, func(c *ui.Context) {
-		a := &menuApp{pinned: true}
+	a := &menuApp{pinned: true}
+	overlaySnapshot(t, "dropdown_menu", 520, 320, func(c *ui.Context) {
 		ui.Column(c).Padding(20).AlignItems(ui.Start).Children(func() {
-			b := ui.ButtonBase(c)
-			popupMenuTrigger(c, b, "Actions", nil, true)
-			open := true
-			popupMenuOpen(c, b, &open, a.build)
+			DropdownMenu(c, "Actions", DropdownMenuOptions{}, a.build)
 		})
+	}, func(tt *ui.Tester) {
+		tt.Key(0, ui.KeyTab)
+		tt.Key(0, ui.KeyDown) // opens with the first item focused
+		tt.Key(0, ui.KeyEnd)
+		tt.Key(0, ui.KeyRight) // opens Move to, focus ring on Archive
+		if !tt.Focused("Archive") {
+			t.Fatal("submenu did not open")
+		}
 	})
 }

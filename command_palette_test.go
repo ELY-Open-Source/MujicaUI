@@ -1,6 +1,7 @@
 package mujica
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/egoist/mygo/ui"
@@ -97,6 +98,28 @@ func TestCommandPaletteAnnouncesHighlight(t *testing.T) {
 	got := tt.Announcements()
 	if len(got) < 2 || got[len(got)-2] != "Open recent" || got[len(got)-1] != "Save all" {
 		t.Fatalf("announcements %q", got)
+	}
+}
+
+func TestCommandPaletteFilterRevealsHighlight(t *testing.T) {
+	var cmds []Command
+	for i := range 30 {
+		cmds = append(cmds, Command{ID: fmt.Sprint(i), Label: fmt.Sprintf("Command %02d", i), Keywords: []string{"royal"}})
+	}
+	open := true
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		CommandPalette(c, &open, cmds, CommandPaletteOptions{})
+	}, 800, 600)
+	tt.Key(0, ui.KeyUp) // wraps to the last, scrolling to the bottom
+	tt.Frame()
+	if r, _ := tt.Find("Command 00"); r.H > 0 {
+		t.Fatalf("list did not scroll to the end: first row at %+v", r)
+	}
+	tt.Type("royal")
+	tt.Frame()
+	if r, _ := tt.Find("Command 00"); r.H == 0 {
+		t.Fatal("highlighted first match is off screen after filtering")
 	}
 }
 

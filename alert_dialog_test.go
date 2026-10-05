@@ -86,8 +86,30 @@ func TestAlertDialogConfirmTextGatesEnter(t *testing.T) {
 	}
 	tt.Type("e")
 	tt.Key(0, ui.KeyEnter)
+	if a.confirmed != 0 || !a.open {
+		t.Fatalf("Enter in the field confirmed: %d", a.confirmed)
+	}
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeyTab)
+	if !tt.Focused("Delete") {
+		t.Fatal("Delete not reachable once unlocked")
+	}
+	tt.Key(0, ui.KeyEnter)
 	if a.confirmed != 1 || a.open {
 		t.Fatalf("typed target: confirmed %d open %v", a.confirmed, a.open)
+	}
+}
+
+// MyGo commits a composition on Enter and then handles the key (ui/editor.go:688).
+func TestAlertDialogEnterDuringCompositionDoesNotConfirm(t *testing.T) {
+	a, tt := newAlertApp(AlertDialogOptions{ConfirmText: "archive"})
+	if err := tt.Click("Type “archive” to confirm"); err != nil {
+		t.Fatal(err)
+	}
+	tt.Compose("archive", 7)
+	tt.Key(0, ui.KeyEnter)
+	if a.confirmed != 0 || !a.open {
+		t.Fatalf("Enter while composing confirmed: %d", a.confirmed)
 	}
 }
 

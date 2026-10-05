@@ -29,6 +29,9 @@ type ButtonOptions struct {
 	Label string
 }
 
+// buttonSpinnerSize is the leading icon slot, which the spinner takes while loading.
+const buttonSpinnerSize float32 = 16
+
 // Button is a push button. Loading keeps its size and blocks clicks.
 func Button(c *ui.Context, label string, opts ButtonOptions) *ui.Element {
 	if label == "" && opts.Label == "" {
@@ -36,8 +39,13 @@ func Button(c *ui.Context, label string, opts ButtonOptions) *ui.Element {
 	}
 	k := Tokens(c)
 	d := Density(c)
+	pad, gap := d.Unit()*4, d.Unit()*2
+	if opts.Loading && opts.Icon == nil && label != "" {
+		// The spinner slot comes out of the padding, so the width holds.
+		pad -= (buttonSpinnerSize + gap) / 2
+	}
 	b := ui.ButtonBase(c).MinHeight(d.ControlHeight()).MinWidth(theme.MinHitSize).
-		Padding(0, d.Unit()*4).Gap(d.Unit() * 2).Radius(theme.ControlRadius).
+		Padding(0, pad).Gap(gap).Radius(theme.ControlRadius).
 		Disabled(opts.Disabled || opts.Loading)
 	internal.Ring(b, k.Focus, theme.ControlRadius)
 	if opts.Label != "" {
@@ -49,25 +57,13 @@ func Button(c *ui.Context, label string, opts ButtonOptions) *ui.Element {
 		b.Border(theme.BorderWidth, border)
 	}
 	b.Children(func() {
-		switch {
-		case opts.Loading && opts.Icon != nil:
-			// The spinner takes the icon's 16 DIP slot.
-			Spinner(c, SpinnerOptions{Size: 16, Color: fg})
-		case opts.Loading && label == "":
-			Spinner(c, SpinnerOptions{Size: 16, Color: fg})
-		case opts.Loading:
-			// Over the hidden label, so the width stays.
-			ui.Box(c).Absolute().Left(0).Top(0).Right(0).Bottom(0).Center().Children(func() {
-				Spinner(c, SpinnerOptions{Size: 16, Color: fg})
-			})
-		case opts.Icon != nil:
-			ui.Icon(c, opts.Icon).Size(16, 16)
+		if opts.Loading {
+			Spinner(c, SpinnerOptions{Size: buttonSpinnerSize, Color: fg})
+		} else if opts.Icon != nil {
+			ui.Icon(c, opts.Icon).Size(buttonSpinnerSize, buttonSpinnerSize)
 		}
 		if label != "" {
-			t := ui.Text(c, label).SingleLine()
-			if opts.Loading && opts.Icon == nil {
-				t.TextColor(fg.Alpha(0))
-			}
+			ui.Text(c, label).SingleLine()
 		}
 	})
 	return b

@@ -51,5 +51,7 @@ ui.Render(view, 400, 300, 1)
 ## 限制
 
 - `target` 必须是容器：菜单会向它追加一个不可见的定位子元素，文字元素不能有非文字子元素（MyGo 会 panic）。
-- 菜单通过 `target.HandleInput` 接收右键按下，因此会替换调用方在同一元素上设置的 `HandleInput`（MyGo 每个元素只保存一个处理函数，`ui/handler.go:73`）。
+- 菜单通过 `target.HandleInput` 接收右键按下，因此会替换调用方在同一元素上设置的 `HandleInput`（`ui/handler.go:73`）。
 - 不使用 MyGo 的 `Element.ContextMenu`：那是系统菜单，PRD 不允许把它当作哥特样式菜单。
+- 打开期间外部点击只用于关闭，不传给下方控件：`PopoverBase` 用覆盖整窗的背板接收点击（`ui/base.go:373`）。
+- Escape 只关闭最上层的 MujicaUI 浮层（窗口内按打开顺序记录）。MyGo 自带的 `ui.Popover`、`ui.Select` 弹层不在这份记录中；它们打开在非模态 MujicaUI 浮层之上时，Escape 可能先关闭下面的 MujicaUI 浮层。

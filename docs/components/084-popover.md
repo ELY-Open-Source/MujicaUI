@@ -50,5 +50,6 @@ ui.Render(view, 400, 300, 1)
 
 ## 限制
 
-- 只支持下方与上方两个位置：位置由 MyGo `PopoverBase` 决定（`ui/widgets.go:689` keepInWindow）。
-- 打开时外部点击只用于关闭，不会传给下方控件：`PopoverBase` 用覆盖整窗的背板接收点击（`ui/base.go:373`）。
+- 打开期间外部点击只用于关闭，不传给下方控件：`PopoverBase` 用覆盖整窗的背板接收点击（`ui/base.go:373`）。
+- Escape 只关闭最上层的 MujicaUI 浮层（窗口内按打开顺序记录）。MyGo 自带的 `ui.Popover`、`ui.Select` 弹层不在这份记录中；它们打开在非模态 MujicaUI 浮层之上时，Escape 可能先关闭下面的 MujicaUI 浮层。
+- 只支持下方与上方两个位置（`ui/widgets.go:689` keepInWindow）；宽度不超过窗口，过高时内容滚动。

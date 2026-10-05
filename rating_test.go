@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/egoist/mygo/ui"
+
+	"mujicaui/theme"
 )
 
 func ratingTester(v *float64, opts RatingOptions, changes *int) *ui.Tester {
@@ -48,7 +50,7 @@ func TestRatingKeyboardSteps(t *testing.T) {
 func TestRatingPointer(t *testing.T) {
 	v, n := 0.0, 0
 	tt := ratingTester(&v, RatingOptions{Step: 0.5, Label: "Taste"}, &n)
-	size := float32(36) * 0.6
+	size := theme.MinHitSize
 	// The left half of the third star.
 	tt.ClickAt(10+2*size+size*0.25, 10+size/2)
 	if v != 2.5 || n != 1 {
@@ -99,4 +101,19 @@ func TestRatingSnapshot(t *testing.T) {
 			Rating(c, &d, RatingOptions{Disabled: true})
 		})
 	})
+}
+
+func TestRatingHitAreaCompact(t *testing.T) {
+	v := 2.0
+	var r RatingParts
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{Density: theme.Compact})
+		ui.Column(c).AlignItems(ui.Start).Children(func() {
+			r = Rating(c, &v, RatingOptions{})
+		})
+	}, 300, 100)
+	tt.Frame()
+	if b := r.Element.Bounds(); b.W < 5*28 || b.H < 28 {
+		t.Fatalf("stars %v", b)
+	}
 }

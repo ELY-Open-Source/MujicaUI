@@ -1,12 +1,84 @@
 package mujica
 
 import (
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/egoist/mygo/ui"
 
 	"mujicaui/icons"
 )
+
+// TestNavigationPopupsFadeIn checks each popup fades in over PopupDuration instead of appearing at once.
+func TestNavigationPopupsFadeIn(t *testing.T) {
+	for _, tc := range []struct {
+		name, open, sample string
+		view               func(c *ui.Context)
+	}{
+		{"breadcrumb", "Show hidden path", "Alpha", func(c *ui.Context) {
+			Breadcrumb(c, breadcrumbPath("Root", "Alpha", "Beta", "Gamma", "Omega", "Leaf"), BreadcrumbOptions{})
+		}},
+		{"pagination", "10 / page", "50 / page", func(c *ui.Context) {
+			page, size := 1, 10
+			Pagination(c, &page, &size, PaginationOptions{Total: 100, PageSizes: []int{10, 50}})
+		}},
+		{"navigation menu", "Library", "Letters", func(c *ui.Context) {
+			NavigationMenu(c, ui.NewRouter("/"), navigationMenuSample(), NavigationMenuOptions{})
+		}},
+		{"menubar", "File", "Quit", func(c *ui.Context) {
+			Menubar(c, (&menubarApp{}).menus(), MenubarOptions{})
+		}},
+		{"command palette", "", "Esc close", func(c *ui.Context) {
+			open := true
+			CommandPalette(c, &open, commandPaletteSample(), CommandPaletteOptions{})
+		}},
+	} {
+		tt := ui.NewTester(func(c *ui.Context) {
+			Use(c, Settings{Mode: Light})
+			ui.Column(c).Fill().Padding(16).AlignItems(ui.Start).Children(func() { tc.view(c) })
+		}, 700, 500)
+		if tc.open != "" {
+			if err := tt.Click(tc.open); err != nil {
+				t.Fatal(err)
+			}
+		}
+		r, ok := tt.Find(tc.sample)
+		if !ok {
+			t.Fatalf("%s: no %q", tc.name, tc.sample)
+		}
+		x, y := int(r.X-3), int(r.Y+r.H/2)
+		early := tt.Image().RGBAAt(x, y)
+		time.Sleep(200 * time.Millisecond)
+		tt.Frame()
+		if late := tt.Image().RGBAAt(x, y); early == late {
+			t.Errorf("%s: popup appeared at once (%v)", tc.name, late)
+		}
+	}
+}
+
+// TestNavigationMenuLongPanelScrolls checks a tall group stays in the window and follows the focus.
+func TestNavigationMenuLongPanelScrolls(t *testing.T) {
+	var links []NavigationLink
+	for i := range 30 {
+		links = append(links, NavigationLink{Label: fmt.Sprintf("Link %02d", i), Path: fmt.Sprintf("/l/%d", i)})
+	}
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		NavigationMenu(c, ui.NewRouter("/"), []NavigationLink{{Label: "Group", Items: links}}, NavigationMenuOptions{})
+	}, 400, 300)
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeyDown)
+	tt.Key(0, ui.KeyEnd)
+	tt.Frame()
+	if !tt.Focused("Link 29") {
+		t.Fatal("End did not focus the last link")
+	}
+	r, _ := tt.Find("Link 29")
+	if r.H == 0 || r.Y+r.H > 300 {
+		t.Fatalf("focused link off screen at %+v", r)
+	}
+}
 
 // TestNavigationCaptionsFollowTextScale checks small text grows with the desktop text scale.
 func TestNavigationCaptionsFollowTextScale(t *testing.T) {
