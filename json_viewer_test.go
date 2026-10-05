@@ -117,3 +117,48 @@ func TestJsonViewerSnapshot(t *testing.T) {
 		})
 	})
 }
+
+func TestJsonViewerAncestorDisabledKeepsTreeAndClipboard(t *testing.T) {
+	data := jsonSample
+	var s JsonViewerState
+	disabled := false
+	copied := 0
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Disabled(disabled).Children(func() {
+			if JsonViewer(c, data, &s, JsonViewerOptions{}).Copied != "" {
+				copied++
+			}
+		})
+	}, 640, 460)
+	if err := tt.Click("ball: { 3 items }"); err != nil {
+		t.Fatal(err)
+	}
+	disabled = true
+	tt.Key(0, ui.KeyRight)
+	_ = tt.Click("$.ball")
+	_ = tt.Click("Copy path")
+	if s.open["$.ball"] || copied != 0 || tt.Clipboard() != "" {
+		t.Fatal("disabled tree input")
+	}
+}
+
+func TestJsonViewerAncestorDisabledSelection(t *testing.T) {
+	var state JsonViewerState
+	disabled := false
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Disabled(disabled).Children(func() {
+			JsonViewer(c, `{"a":1,"b":2}`, &state, JsonViewerOptions{})
+		})
+	}, 640, 460)
+	if err := tt.Click("a: 1"); err != nil {
+		t.Fatal(err)
+	}
+	before := state.sel
+	disabled = true
+	tt.Key(0, ui.KeyDown)
+	if state.sel != before {
+		t.Fatal("disabled JSON selection changed")
+	}
+}

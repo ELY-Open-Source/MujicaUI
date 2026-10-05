@@ -28,7 +28,7 @@ func TestApiRequestBuilderBuildAndSend(t *testing.T) {
 	_ = tt.Click("Send") // disabled without a URL
 	_ = tt.Click("Request URL")
 	tt.Type("ftp://court")
-	if !tt.HasText("the URL needs http:// or https:// and a host") || sends != 0 {
+	if !tt.HasText("Enter a valid HTTP or HTTPS URL") || sends != 0 {
 		t.Fatalf("invalid URL: %q", tt.Texts())
 	}
 	req.URL = ""
@@ -90,4 +90,35 @@ func TestApiRequestBuilderSnapshot(t *testing.T) {
 			Headers: []KeyValue{{Key: "Accept", Value: "application/json", Enabled: true}}}
 		ui.Column(c).Padding(16).Children(func() { ApiRequestBuilder(c, &req, ApiRequestBuilderOptions{}) })
 	})
+}
+
+func TestApiRequestBuilderDisabledPreservesDefault(t *testing.T) {
+	var req ApiRequest
+	sends := 0
+	ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Disabled(true).Children(func() { ApiRequestBuilder(c, &req, ApiRequestBuilderOptions{}) })
+	}, 600, 400)
+	if req.Method != "" || sends != 0 {
+		t.Fatal("disabled request changed")
+	}
+}
+
+func TestApiRequestBuilderAncestorDisabledTabs(t *testing.T) {
+	disabled := false
+	request := ApiRequest{URL: "https://court.example", Params: []KeyValue{{Key: "page", Value: "1", Enabled: true}}, Headers: []KeyValue{{Key: "Accept", Value: "application/json", Enabled: true}}}
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Disabled(disabled).Children(func() {
+			ApiRequestBuilder(c, &request, ApiRequestBuilderOptions{})
+		})
+	}, 760, 520)
+	if err := tt.Click("Params (1)"); err != nil {
+		t.Fatal(err)
+	}
+	disabled = true
+	tt.Key(0, ui.KeyRight)
+	if !tt.HasText("page") || tt.HasText("Accept") {
+		t.Fatal("disabled request switched tabs")
+	}
 }

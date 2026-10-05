@@ -52,7 +52,7 @@ func TestSystemMonitorStatesAndRules(t *testing.T) {
 	retries := 0
 	tt := ui.NewTester(func(c *ui.Context) {
 		Use(c, Settings{})
-		if SystemMonitor(c, times, metrics[:1], SystemMonitorOptions{Status: DataFailed, Error: "agent offline"}).Retry {
+		if SystemMonitor(c, times, metrics[:1], SystemMonitorOptions{Status: DataFailed, Error: "agent offline"}).Changed() {
 			retries++
 		}
 	}, 600, 300)
@@ -76,7 +76,48 @@ func TestSystemMonitorStatesAndRules(t *testing.T) {
 
 func TestSystemMonitorSnapshot(t *testing.T) {
 	times, metrics := monitorSample(40)
-	snapshot(t, "system_monitor", 560, 380, func(c *ui.Context) {
+	snapshot(t, "system_monitor", 560, 460, func(c *ui.Context) {
 		ui.Column(c).Padding(16).Children(func() { SystemMonitor(c, times, metrics, SystemMonitorOptions{}) })
 	})
+}
+
+func TestSystemMonitorEmptyLoadingAndDisabled(t *testing.T) {
+	status := DataReady
+	retries := 0
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Disabled(true).Children(func() {
+			if SystemMonitor(c, nil, nil, SystemMonitorOptions{Status: status, Error: "offline"}).Changed() {
+				retries++
+			}
+		})
+	}, 600, 300)
+	if !tt.HasText("No resources") {
+		t.Fatal("empty resources")
+	}
+	status = DataLoading
+	tt.Frame()
+	if !tt.HasText("Loading") {
+		t.Fatal("loading resources")
+	}
+	status = DataFailed
+	tt.Frame()
+	_ = tt.Click("Retry")
+	if retries != 0 {
+		t.Fatal("disabled retry")
+	}
+}
+
+func TestSystemMonitorManySamples(t *testing.T) {
+	times, metrics := monitorSample(100000)
+	tt := ui.NewTester(func(c *ui.Context) { Use(c, Settings{}); SystemMonitor(c, times, metrics[:1], SystemMonitorOptions{}) }, 600, 420)
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeyEnd)
+	if len(tt.Texts()) > 200 {
+		t.Fatal("unbounded sample elements")
+	}
+	if !tt.HasText(times[len(times)-1].Format("15:04:05")) {
+		t.Fatal("last sample readout")
+	}
 }

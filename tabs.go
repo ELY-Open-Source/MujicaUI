@@ -54,6 +54,11 @@ func Tabs(c *ui.Context, selected *int, tabs []Tab, opts TabsOptions) ChoiceResu
 		}
 	}
 	root := ui.Column(c).AlignItems(ui.Stretch)
+	if root.IsDisabled() {
+		for _, key := range []ui.Key{ui.KeyRight, ui.KeyDown, ui.KeyLeft, ui.KeyUp, ui.KeyHome, ui.KeyEnd} {
+			root.Shortcut(0, key)
+		}
+	}
 	if opts.Vertical {
 		root.Row()
 	}
@@ -96,7 +101,7 @@ func Tabs(c *ui.Context, selected *int, tabs []Tab, opts TabsOptions) ChoiceResu
 					built[i] = tab
 				}
 			})
-			if list.Changed() {
+			if !list.IsDisabled() && list.Changed() {
 				prev := *selected
 				*selected = enabled[at]
 				res.changed = true

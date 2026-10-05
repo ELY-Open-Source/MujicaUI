@@ -95,3 +95,50 @@ func TestLogStreamSnapshot(t *testing.T) {
 		ui.Column(c).Padding(16).Children(func() { LogStream(c, lines, &s, LogStreamOptions{Height: 220}) })
 	})
 }
+
+func TestLogStreamAncestorDisabledAndEmptyFilter(t *testing.T) {
+	lines := []LogLine{{Level: LogInfo, Text: "ready"}}
+	var s LogStreamState
+	disabled := false
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Disabled(disabled).Children(func() { LogStream(c, lines, &s, LogStreamOptions{}) })
+	}, 700, 400)
+	_ = tt.Click("WARN")
+	if !tt.HasText("No log lines") || s.MinLevel != LogWarn {
+		t.Fatal("empty level filter")
+	}
+	disabled = true
+	tt.Key(0, ui.KeyRight)
+	_ = tt.Click("Pause")
+	if s.MinLevel != LogWarn || s.Paused {
+		t.Fatal("disabled stream changed")
+	}
+}
+
+func TestLogStreamReplacedLevels(t *testing.T) {
+	lines := []LogLine{{Level: LogInfo, Text: "ready"}}
+	s := LogStreamState{MinLevel: LogWarn}
+	changes := 0
+	tt := logStreamTester(&lines, &s, LogStreamOptions{}, &changes)
+	lines = []LogLine{{Level: LogError, Text: "failed"}}
+	tt.Frame()
+	if !tt.HasText("failed") || tt.HasText("No log lines") {
+		t.Fatal("replaced log levels retained old filter")
+	}
+}
+
+func TestLogStreamInitiallyPausedKeepsCurrentLines(t *testing.T) {
+	lines := logStreamLines(4)
+	state := LogStreamState{Paused: true}
+	changes := 0
+	tt := logStreamTester(&lines, &state, LogStreamOptions{}, &changes)
+	if !tt.HasText("line 3") {
+		t.Fatal("initial pause hid existing lines")
+	}
+	lines = append(lines, LogLine{Level: LogInfo, Text: "later"})
+	tt.Frame()
+	if tt.HasText("later") || !tt.HasText("1 new lines") {
+		t.Fatal("initial pause did not freeze lines")
+	}
+}

@@ -14,7 +14,7 @@ import (
 // StatCardOptions configure a StatCard. Label is required.
 type StatCardOptions struct {
 	Label string
-	// Change is the relative change, 0.12 for +12%; HasChange shows it.
+	// Change is relative; 0.12 means +12%, shown with HasChange.
 	Change    float64
 	HasChange bool
 	// LowerIsBetter colors a fall as good, as for latency.
@@ -25,14 +25,8 @@ type StatCardOptions struct {
 	Error  string
 }
 
-// StatCardResult reports this frame's events.
-type StatCardResult struct {
-	Element *ui.Element
-	Retry   bool
-}
-
-// StatCard shows a statistic, its change and trend, or loading and error states at the same size.
-func StatCard(c *ui.Context, value string, opts StatCardOptions) StatCardResult {
+// StatCard shows values, changes, trends, loading and errors.
+func StatCard(c *ui.Context, value string, opts StatCardOptions) ChoiceResult {
 	if opts.Label == "" {
 		panic("mujica: StatCard needs a Label")
 	}
@@ -44,8 +38,8 @@ func StatCard(c *ui.Context, value string, opts StatCardOptions) StatCardResult 
 	}
 	k := Tokens(c)
 	u := Density(c).Unit()
-	var r StatCardResult
-	r.Element = agentCard(c).Height(116).MinWidth(180).Label(opts.Label)
+	var r ChoiceResult
+	r.Element = agentCard(c).MinHeight(FontSize(c, 116)).MinWidth(180).Label(opts.Label)
 	r.Element.Children(func() {
 		agentCaption(c, opts.Label)
 		switch opts.Status {
@@ -60,7 +54,7 @@ func StatCard(c *ui.Context, value string, opts StatCardOptions) StatCardResult 
 					ui.Icon(c, icons.Must("circle-alert")).Size(16, 16)
 					ui.Text(c, dataError(c, opts.Error)).Role(ui.RoleStatus).FontSize(FontSize(c, theme.CaptionSize+1))
 				})
-				ui.Row(c).Children(func() { r.Retry = agentToggle(c, msg(c, "list.retry"), "refresh-cw", false) })
+				ui.Row(c).Children(func() { r.changed = agentToggle(c, msg(c, "list.retry"), "refresh-cw", false) })
 			})
 			return
 		}
@@ -75,13 +69,13 @@ func StatCard(c *ui.Context, value string, opts StatCardOptions) StatCardResult 
 			}
 		})
 	})
-	if r.Retry {
+	if r.changed {
 		slog.Debug("mujica: stat_card retry", "label", opts.Label)
 	}
 	return r
 }
 
-// statChange shows a signed percentage with an arrow, toned good or bad.
+// statChange shows a signed percentage and direction arrow.
 func statChange(c *ui.Context, change float64, lowerIsBetter bool) {
 	k := Tokens(c)
 	icon, tone, sign := "minus", k.TextMuted, ""

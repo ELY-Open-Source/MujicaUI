@@ -12,7 +12,7 @@ import (
 	"mujicaui/theme"
 )
 
-// ApiRequest is an HTTP request being built; the caller sends it.
+// ApiRequest holds request data sent by the caller.
 type ApiRequest struct {
 	// Method is GET when empty.
 	Method  string
@@ -41,13 +41,16 @@ type apiRequestState struct{ tab int }
 
 var apiMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"}
 
-// ApiRequestBuilder edits method, URL, query parameters, headers and body, and reports a send.
+// ApiRequestBuilder edits requests and reports send actions.
 func ApiRequestBuilder(c *ui.Context, req *ApiRequest, opts ApiRequestBuilderOptions) ApiRequestResult {
 	if req == nil {
 		panic("mujica: ApiRequestBuilder needs a request")
 	}
+	original := req
 	if req.Method == "" {
-		req.Method = "GET"
+		copy := *req
+		copy.Method = "GET"
+		req = &copy
 	}
 	if !slices.Contains(apiMethods, req.Method) {
 		panic("mujica: ApiRequestBuilder method " + req.Method + " is not offered")
@@ -57,6 +60,15 @@ func ApiRequestBuilder(c *ui.Context, req *ApiRequest, opts ApiRequestBuilderOpt
 	r.Element = ui.Column(c).Shrink(0).Gap(u * 3).Disabled(opts.Disabled)
 	st := ui.Local(r.Element, "mujica.apirequest", func() apiRequestState { return apiRequestState{} })
 	locked := r.Element.IsDisabled()
+	if locked {
+		copy := *req
+		copy.Params = slices.Clone(req.Params)
+		copy.Headers = slices.Clone(req.Headers)
+		req = &copy
+	} else {
+		*original = *req
+		req = original
+	}
 	full, urlErr := apiRequestURL(*req)
 	r.Element.Children(func() {
 		ui.Row(c).Gap(u * 2).AlignItems(ui.Start).Children(func() {
@@ -67,7 +79,7 @@ func ApiRequestBuilder(c *ui.Context, req *ApiRequest, opts ApiRequestBuilderOpt
 			r.Changed = Select(c, &req.Method, methods, SelectOptions{Label: msg(c, "api_request_builder.method"), Disabled: locked}).Changed()
 			shownErr := ""
 			if req.URL != "" && urlErr != nil {
-				shownErr = urlErr.Error()
+				shownErr = msg(c, "api_request_builder.invalid_url")
 			}
 			in := TextInput(c, &req.URL, TextInputOptions{Placeholder: "https://", Label: msg(c, "api_request_builder.url"), Disabled: locked, Error: shownErr})
 			in.Element.Grow(1)
@@ -98,12 +110,12 @@ func ApiRequestBuilder(c *ui.Context, req *ApiRequest, opts ApiRequestBuilderOpt
 		Tabs(c, &st.tab, tabs, TabsOptions{Label: msg(c, "api_request_builder.parts")})
 	})
 	if r.Send {
-		slog.Debug("mujica: api_request_builder send", "method", req.Method) // never the URL: it may hold a token
+		slog.Debug("mujica: api_request_builder send", "method", req.Method) // Request URLs may contain secrets.
 	}
 	return r
 }
 
-// apiRequestURL joins the URL with its enabled query parameters, or says why it is invalid.
+// apiRequestURL joins enabled query parameters with a validated URL.
 func apiRequestURL(req ApiRequest) (string, error) {
 	if req.URL == "" {
 		return "", fmt.Errorf("empty URL")

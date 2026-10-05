@@ -55,3 +55,15 @@ func TestServiceStatusSnapshot(t *testing.T) {
 		ui.Column(c).Padding(16).Children(func() { ServiceStatus(c, servicesSample, ServiceStatusOptions{}) })
 	})
 }
+
+func TestServiceStatusRejectsUnknownHealth(t *testing.T) {
+	defer func() {
+		if recover() == nil {
+			t.Fatal("unknown service health accepted")
+		}
+	}()
+	ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ServiceStatus(c, []ServiceItem{{Name: "API", Health: 99}}, ServiceStatusOptions{})
+	}, 400, 300)
+}

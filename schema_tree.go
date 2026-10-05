@@ -10,7 +10,7 @@ import (
 	"mujicaui/theme"
 )
 
-// SchemaKind is what a schema node is. The zero value is SchemaDatabase.
+// SchemaKind classifies nodes; zero means SchemaDatabase.
 type SchemaKind int
 
 const (
@@ -21,7 +21,7 @@ const (
 	SchemaIndex
 )
 
-// SchemaNode is one database object; Detail is a column type or index columns.
+// SchemaNode describes an object; Detail holds type or index columns.
 type SchemaNode struct {
 	Name     string
 	Kind     SchemaKind
@@ -39,7 +39,7 @@ type SchemaTreeState struct {
 	src      []SchemaNode
 }
 
-// Selected returns the chosen node's path, as "shop/orders/id", and whether one is chosen.
+// Selected returns the chosen path and whether it exists.
 func (s *SchemaTreeState) Selected() (string, bool) {
 	if s.selected < 0 || s.selected >= s.outline.Rows() {
 		return "", false
@@ -53,7 +53,7 @@ type SchemaTreeOptions struct {
 	Height float32
 }
 
-// SchemaTree shows databases, tables, views, columns and indexes as a keyboard tree, virtualized.
+// SchemaTree shows database objects in a virtualized keyboard tree.
 func SchemaTree(c *ui.Context, s *SchemaTreeState, roots []SchemaNode, opts SchemaTreeOptions) ChoiceResult {
 	if s == nil || opts.Height < 0 {
 		panic("mujica: SchemaTree needs a state and Height >= 0")
@@ -67,6 +67,19 @@ func SchemaTree(c *ui.Context, s *SchemaTreeState, roots []SchemaNode, opts Sche
 	d := Density(c)
 	var r ChoiceResult
 	r.Element = codePanel(c).Height(h).Label(msg(c, "schema_tree.label"))
+	locked := r.Element.IsDisabled()
+	if locked {
+		copy := *s
+		copy.outline.Open = ui.Selection[string]{}
+		for path := range s.outline.Open.All() {
+			copy.outline.Open.Add(path)
+		}
+		s = &copy
+		for _, mods := range []ui.Modifiers{0, ui.Alt, ui.Shift} {
+			r.Element.Shortcut(mods, ui.KeyLeft)
+			r.Element.Shortcut(mods, ui.KeyRight)
+		}
+	}
 	r.Element.Children(func() {
 		if len(s.roots) == 0 {
 			codeCaption(c, msg(c, "schema_tree.empty")).Padding(d.Unit() * 4)
@@ -75,10 +88,10 @@ func SchemaTree(c *ui.Context, s *SchemaTreeState, roots []SchemaNode, opts Sche
 		was := s.selected
 		s.outline.List.Selected = &s.selected
 		s.outline.List.Label = func(i int) string { return s.nodes[s.outline.Item(i)].Name }
-		restore := dataSelectTheme(c, 0)
+		restore := dataSelectTheme(c, theme.MinHitSize/4)
 		e := ui.Outline(c, &s.outline, s.roots, func(p string) []string { return s.kids[p] }, func(p string) {
 			n := s.nodes[p]
-			ui.Row(c).Grow(1).MinWidth(0).MinHeight(d.ControlHeight()-2*d.Unit()).Gap(d.Unit()*2).AlignItems(ui.Center).
+			ui.Row(c).Grow(1).MinWidth(0).MinHeight(d.ControlHeight() - 2*d.Unit()).Gap(d.Unit() * 2).AlignItems(ui.Center).
 				Label(fmt.Sprintf("%s %s %s", schemaWord(c, n.Kind), n.Name, n.Detail)).Children(func() {
 				sel, _ := s.Selected()
 				codeSelectMark(c, sel == p)
@@ -92,7 +105,7 @@ func SchemaTree(c *ui.Context, s *SchemaTreeState, roots []SchemaNode, opts Sche
 		}).Grow(1)
 		restore()
 		internal.Ring(e, k.Focus, theme.ControlRadius)
-		r.changed = s.selected != was
+		r.changed = !locked && s.selected != was
 	})
 	if r.changed {
 		p, _ := s.Selected()
@@ -134,6 +147,10 @@ func schemaIndex(s *SchemaTreeState, roots []SchemaNode) {
 		return paths
 	}
 	s.roots = walk(roots, "")
+	if len(s.roots) == 0 {
+		s.outline = ui.OutlineState[string]{}
+		s.selected = -1
+	}
 }
 
 func schemaBadge(k theme.Tokens, kind SchemaKind) (string, ui.Color) {

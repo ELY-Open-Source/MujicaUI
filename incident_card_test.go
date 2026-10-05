@@ -53,3 +53,14 @@ func TestIncidentCardSnapshot(t *testing.T) {
 		ui.Column(c).Padding(16).Children(func() { IncidentCard(c, incidentSample()) })
 	})
 }
+
+func TestIncidentCardManyUpdates(t *testing.T) {
+	inc := Incident{Title: "Recovery", Updates: make([]IncidentUpdate, 100000)}
+	for i := range inc.Updates {
+		inc.Updates[i].Text = "Update received"
+	}
+	tt := ui.NewTester(func(c *ui.Context) { Use(c, Settings{}); IncidentCard(c, inc) }, 560, 500)
+	if n := len(tt.Texts()); n > 500 {
+		t.Fatalf("built %d texts for 100000 updates", n)
+	}
+}

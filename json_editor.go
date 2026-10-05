@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"strings"
 
@@ -19,7 +20,7 @@ import (
 type JsonEditorOptions struct {
 	// Label names the editor; empty uses "JSON".
 	Label string
-	// MinHeight and MaxHeight bound the text; zero means 160 and 400.
+	// MinHeight and MaxHeight default to 160 and 400 DIPs.
 	MinHeight, MaxHeight float32
 	Disabled             bool
 }
@@ -30,7 +31,7 @@ type JsonEditorResult struct {
 	Changed bool
 	// Valid reports *text parses as one JSON value.
 	Valid bool
-	// Line and Column locate a parse error, 1-based; 0 when valid.
+	// Line and Column locate errors; valid documents use zero.
 	Line, Column int
 }
 
@@ -40,7 +41,7 @@ type jsonEditorCheck struct {
 	line, column int
 }
 
-// JsonEditor edits JSON text, formats it and points at the line and column of a parse error.
+// JsonEditor edits and formats JSON with error locations.
 func JsonEditor(c *ui.Context, text *string, opts JsonEditorOptions) JsonEditorResult {
 	if text == nil || opts.MinHeight < 0 || opts.MaxHeight < 0 {
 		panic("mujica: JsonEditor needs text and non-negative heights")
@@ -55,6 +56,9 @@ func JsonEditor(c *ui.Context, text *string, opts JsonEditorOptions) JsonEditorR
 	}
 	if maxH == 0 {
 		maxH = 400
+	}
+	if minH > maxH {
+		panic("mujica: JsonEditor MinHeight exceeds MaxHeight")
 	}
 	k := Tokens(c)
 	u := Density(c).Unit()
@@ -101,11 +105,20 @@ func jsonEditorValidate(chk *jsonEditorCheck, text string) {
 	}
 	chk.src, chk.err, chk.line, chk.column = text, "", 0, 0
 	dec := json.NewDecoder(strings.NewReader(text))
+	dec.UseNumber()
 	var v any
 	err := dec.Decode(&v)
-	offset := dec.InputOffset()
-	if err == nil && dec.More() {
-		err = errors.New("unexpected data after the value")
+	var offset int64
+	if err == nil {
+		rest := text[dec.InputOffset():]
+		offset = dec.InputOffset() + int64(len(rest)-len(strings.TrimLeft(rest, " \t\r\n"))) + 1
+		var trailing any
+		if next := dec.Decode(&trailing); next != io.EOF {
+			err = errors.New("unexpected data after the value")
+			if next != nil {
+				err = next
+			}
+		}
 	}
 	if err == nil {
 		return
@@ -120,7 +133,9 @@ func jsonEditorValidate(chk *jsonEditorCheck, text string) {
 	case strings.TrimSpace(text) == "":
 		err, offset = errors.New("empty document"), 0
 	default:
-		offset = int64(len(text))
+		if offset == 0 {
+			offset = int64(len(text))
+		}
 	}
 	before := text[:min(int(offset), len(text))]
 	chk.line = strings.Count(before, "\n") + 1
@@ -129,7 +144,7 @@ func jsonEditorValidate(chk *jsonEditorCheck, text string) {
 	chk.err = fmt.Sprintf("%d:%d %v", chk.line, chk.column, err)
 }
 
-// jsonEditorExcerpt shows the error line with a caret under the column.
+// jsonEditorExcerpt shows an error line and column caret.
 func jsonEditorExcerpt(c *ui.Context, line string, n, col int) {
 	k := Tokens(c)
 	u := Density(c).Unit()

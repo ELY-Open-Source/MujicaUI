@@ -76,3 +76,24 @@ func TestTraceWaterfallSnapshot(t *testing.T) {
 		ui.Column(c).Padding(16).Children(func() { TraceWaterfall(c, traceSample, TraceWaterfallOptions{Height: 180}) })
 	})
 }
+
+func TestTraceWaterfallAncestorDisabled(t *testing.T) {
+	disabled := false
+	changes := 0
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Disabled(disabled).Children(func() {
+			if TraceWaterfall(c, traceSample, TraceWaterfallOptions{}).Changed() {
+				changes++
+			}
+		})
+	}, 700, 460)
+	_ = tt.Click("Charge")
+	disabled = true
+	tt.Key(0, ui.KeyUp)
+	tt.Key(0, ui.KeyEnter)
+	_ = tt.Click("ListGuests")
+	if changes != 1 || !tt.HasText("payments · starts at 230 ms · takes 80 ms") {
+		t.Fatal("disabled trace selection changed")
+	}
+}

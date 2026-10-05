@@ -8,8 +8,9 @@ func init() {
 		"key_value_input.remove": {"Remove row %d", "删除第 %d 行"},
 		"key_value_input.add":    {"Add row", "添加一行"},
 
-		"stat_card.change": {"Change %s", "变化 %s"},
-		"devtools.ago":     {"%s ago", "%s 前"},
+		"system_monitor.empty": {"No resources", "没有资源"},
+		"stat_card.change":     {"Change %s", "变化 %s"},
+		"devtools.ago":         {"%s ago", "%s 前"},
 
 		"alert_list.info":             {"Info", "提示"},
 		"alert_list.warning":          {"Warning", "警告"},
@@ -43,6 +44,7 @@ func init() {
 		"uptime_bar.down":     {"Outage", "中断"},
 		"uptime_bar.nodata":   {"No data", "无数据"},
 
+		"resource_gauge.empty":    {"No resources", "没有资源"},
 		"resource_gauge.normal":   {"Normal", "正常"},
 		"resource_gauge.high":     {"High", "偏高"},
 		"resource_gauge.critical": {"Critical", "危险"},
@@ -95,6 +97,7 @@ func init() {
 		"schema_tree.column":   {"Column", "列"},
 		"schema_tree.index":    {"Index", "索引"},
 
+		"api_request_builder.invalid_url":   {"Enter a valid HTTP or HTTPS URL", "请输入有效的 HTTP 或 HTTPS 地址"},
 		"api_request_builder.method":        {"Method", "方法"},
 		"api_request_builder.url":           {"Request URL", "请求地址"},
 		"api_request_builder.send":          {"Send", "发送"},
@@ -105,6 +108,13 @@ func init() {
 		"api_request_builder.body":          {"Body", "正文"},
 		"api_request_builder.no_body":       {"GET and HEAD requests usually carry no body.", "GET 与 HEAD 请求通常不带正文。"},
 		"api_request_builder.parts":         {"Request parts", "请求组成"},
+
+		"response_viewer.label":      {"Response", "响应"},
+		"response_viewer.none":       {"Send a request to see its response", "发送请求后在此查看响应"},
+		"response_viewer.body":       {"Body", "正文"},
+		"response_viewer.empty":      {"Empty body", "正文为空"},
+		"response_viewer.headers":    {"Headers (%d)", "响应头（%d）"},
+		"response_viewer.no_headers": {"No headers", "没有响应头"},
 
 		"alert_list.empty": {"No alerts", "没有告警"},
 	})

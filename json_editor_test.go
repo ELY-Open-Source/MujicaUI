@@ -73,3 +73,63 @@ func TestJsonEditorSnapshot(t *testing.T) {
 		ui.Column(c).Padding(16).Children(func() { JsonEditor(c, &text, JsonEditorOptions{MinHeight: 120}) })
 	})
 }
+
+func TestJsonEditorRejectsTrailingDelimiter(t *testing.T) {
+	for _, text := range []string{"{} ]", "1 }", "true ]"} {
+		var r JsonEditorResult
+		jsonEditorTester(&text, JsonEditorOptions{}, &r)
+		if r.Valid {
+			t.Fatalf("accepted trailing delimiter: %q", text)
+		}
+	}
+}
+
+func TestJsonEditorHeightBounds(t *testing.T) {
+	defer func() {
+		if recover() == nil {
+			t.Fatal("reversed heights accepted")
+		}
+	}()
+	text := "{}"
+	var r JsonEditorResult
+	jsonEditorTester(&text, JsonEditorOptions{MinHeight: 300, MaxHeight: 100}, &r)
+}
+
+func TestJsonEditorAncestorDisabledFormat(t *testing.T) {
+	text := `{"a":1}`
+	disabled := false
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Disabled(disabled).Children(func() { JsonEditor(c, &text, JsonEditorOptions{}) })
+	}, 600, 460)
+	tt.Key(0, ui.KeyTab)
+	disabled = true
+	tt.Key(0, ui.KeyEnter)
+	_ = tt.Click("JSON")
+	tt.Type("x")
+	if text != `{"a":1}` {
+		t.Fatal("disabled editor changed")
+	}
+}
+
+func TestJsonEditorTrailingValueLocation(t *testing.T) {
+	text := "{}\n{}"
+	var result JsonEditorResult
+	jsonEditorTester(&text, JsonEditorOptions{}, &result)
+	if result.Valid || result.Line != 2 || result.Column != 1 {
+		t.Fatalf("trailing value at %d:%d", result.Line, result.Column)
+	}
+}
+
+func TestJsonEditorPreservesLargeNumbers(t *testing.T) {
+	text := `{"value":1e309}`
+	var result JsonEditorResult
+	tt := jsonEditorTester(&text, JsonEditorOptions{}, &result)
+	if !result.Valid {
+		t.Fatal("valid large JSON number rejected")
+	}
+	_ = tt.Click("Format")
+	if text != "{\n  \"value\": 1e309\n}" {
+		t.Fatal("large number changed by formatting")
+	}
+}

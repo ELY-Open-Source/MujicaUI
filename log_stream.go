@@ -14,12 +14,14 @@ type LogStreamState struct {
 	Paused bool
 	// MinLevel hides lines below it.
 	MinLevel LogLevel
-	// frozen is the line count at pause; lines after it wait.
+	// frozen holds the paused line count; later lines wait.
 	frozen  int
 	shown   []int
 	scanned int
 	min     LogLevel
 	rows    ui.ListState
+	src     []LogLine
+	started bool
 }
 
 // LogStreamOptions configure a LogStream.
@@ -29,7 +31,7 @@ type LogStreamOptions struct {
 	Disabled bool
 }
 
-// LogStream shows live ANSI log lines that follow the end, pause and filter by level, virtualized.
+// LogStream shows virtualized ANSI logs with pause and level filters.
 func LogStream(c *ui.Context, lines []LogLine, s *LogStreamState, opts LogStreamOptions) ChoiceResult {
 	if s == nil {
 		panic("mujica: LogStream needs a state")
@@ -44,6 +46,9 @@ func LogStream(c *ui.Context, lines []LogLine, s *LogStreamState, opts LogStream
 	var r ChoiceResult
 	r.Element = codePanel(c).Disabled(opts.Disabled).Height(h)
 	locked := r.Element.IsDisabled()
+	if !s.started {
+		s.frozen, s.started = len(lines), true
+	}
 	r.Element.Children(func() {
 		codeHeader(c, func() {
 			was := s.Paused
@@ -89,9 +94,9 @@ func LogStream(c *ui.Context, lines []LogLine, s *LogStreamState, opts LogStream
 	return r
 }
 
-// logStreamFilter extends the shown lines, or redoes them after a filter change.
+// logStreamFilter updates filtered indices when lines or filters change.
 func logStreamFilter(lines []LogLine, s *LogStreamState) {
-	if s.min != s.MinLevel || s.scanned > len(lines) {
+	if s.min != s.MinLevel || s.scanned > len(lines) || len(lines) > 0 && (len(s.src) == 0 || &lines[0] != &s.src[0]) {
 		s.min, s.scanned, s.shown = s.MinLevel, 0, s.shown[:0]
 	}
 	for i := s.scanned; i < len(lines); i++ {
@@ -103,7 +108,7 @@ func logStreamFilter(lines []LogLine, s *LogStreamState) {
 			s.shown = append(s.shown, i)
 		}
 	}
-	s.scanned = len(lines)
+	s.scanned, s.src = len(lines), lines
 }
 
 // logStreamRow shows one line: time, level word and ANSI text.
@@ -111,7 +116,7 @@ func logStreamRow(c *ui.Context, l LogLine) {
 	k := Tokens(c)
 	d := Density(c)
 	col := [...]ui.Color{k.TextMuted, k.Info, k.Warning, k.Danger}[l.Level]
-	ui.Row(c).MinHeight(d.ControlHeight() - 8).Padding(0, d.Unit()*3).Gap(d.Unit() * 3).AlignItems(ui.Center).Children(func() {
+	ui.Row(c).MinHeight(d.ControlHeight()).Padding(0, d.Unit()*3).Gap(d.Unit() * 3).AlignItems(ui.Center).Children(func() {
 		if !l.Time.IsZero() {
 			codeMono(c, l.Time.Format("15:04:05.000")).TextColor(k.TextMuted).Shrink(0)
 		}

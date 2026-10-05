@@ -37,7 +37,7 @@ func TestStatCardLoadingErrorSameSize(t *testing.T) {
 		ui.Column(c).AlignItems(ui.Start).Children(func() {
 			r := StatCard(c, "42 ms", StatCardOptions{Label: "Latency", Status: status, Error: "timeout"})
 			h = append(h, r.Element.Bounds().H)
-			if r.Retry {
+			if r.Changed() {
 				retries++
 			}
 		})
@@ -63,11 +63,50 @@ func TestStatCardLoadingErrorSameSize(t *testing.T) {
 }
 
 func TestStatCardSnapshot(t *testing.T) {
-	snapshot(t, "stat_card", 640, 150, func(c *ui.Context) {
+	snapshot(t, "stat_card", 720, 150, func(c *ui.Context) {
 		ui.Row(c).Padding(16).Gap(12).Children(func() {
 			StatCard(c, "12,480", StatCardOptions{Label: "Requests", Change: 0.124, HasChange: true, Trend: []float64{3, 5, 4, 8, 6, 9}})
 			StatCard(c, "182 ms", StatCardOptions{Label: "p95 latency", Change: 0.08, HasChange: true, LowerIsBetter: true, Trend: []float64{120, 140, 130, 182}})
 			StatCard(c, "", StatCardOptions{Label: "Errors", Status: DataFailed, Error: "Source unreachable"})
 		})
 	})
+}
+
+func TestStatCardDisabledRetryAndKeyboardTrend(t *testing.T) {
+	status := DataReady
+	disabled := false
+	retries := 0
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Disabled(disabled).Children(func() {
+			if StatCard(c, "42", StatCardOptions{Label: "CPU", Trend: []float64{1, 4, 2}, Status: status, Error: "offline"}).Changed() {
+				retries++
+			}
+		})
+	}, 400, 200)
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeyEnd)
+	announced := false
+	for _, value := range tt.Announcements() {
+		announced = announced || value == "2"
+	}
+	if !announced || !tt.HasText("2") {
+		t.Fatalf("trend boundary readout: %q", tt.Texts())
+	}
+	status, disabled = DataFailed, true
+	tt.Frame()
+	_ = tt.Click("Retry")
+	tt.Key(0, ui.KeyEnter)
+	if retries != 0 {
+		t.Fatal("disabled retry")
+	}
+}
+
+func TestStatCardTextScaleKeepsCardHeight(t *testing.T) {
+	tt := ui.NewTester(func(c *ui.Context) { Use(c, Settings{}); StatCard(c, "42", StatCardOptions{Label: "CPU"}) }, 600, 350)
+	tt.SetPreferences(ui.Preferences{TextScale: 2, ReduceMotion: true})
+	bounds, ok := tt.Find("CPU")
+	if !ok || bounds.H < 232 {
+		t.Fatalf("scaled card height %v", bounds.H)
+	}
 }

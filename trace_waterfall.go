@@ -14,7 +14,7 @@ import (
 	"mujicaui/theme"
 )
 
-// TraceSpan is one timed operation of a request; Parent is "" for the root.
+// TraceSpan holds timing; empty Parent marks a root.
 type TraceSpan struct {
 	ID, Parent string
 	Name       string
@@ -44,7 +44,7 @@ type traceState struct {
 	services map[string]int // palette slot of each service
 }
 
-// TraceWaterfall lays spans out by parent and time; choosing a span shows its detail.
+// TraceWaterfall shows timed span hierarchies and selected details.
 func TraceWaterfall(c *ui.Context, spans []TraceSpan, opts TraceWaterfallOptions) ChoiceResult {
 	if opts.Height < 0 {
 		panic("mujica: TraceWaterfall Height is negative")
@@ -88,7 +88,7 @@ func TraceWaterfall(c *ui.Context, spans []TraceSpan, opts TraceWaterfallOptions
 	return r
 }
 
-// traceLayout orders spans depth-first by start, only when the spans change.
+// traceLayout caches spans in depth-first time order.
 func traceLayout(st *traceState, spans []TraceSpan) {
 	key := fmt.Sprintf("%d", len(spans))
 	if len(spans) > 0 {
@@ -134,16 +134,18 @@ func traceLayout(st *traceState, spans []TraceSpan) {
 	}
 }
 
-// traceSpanRow shows a span's name indented by depth beside its bar; it reports a choice.
+// traceSpanRow shows span indentation, timing, selection and duration.
 func traceSpanRow(c *ui.Context, s TraceSpan, depth int, total time.Duration, slot int, selected bool) bool {
 	k := Tokens(c)
 	d := Density(c)
 	u := d.Unit()
-	row := ui.ButtonBase(c).Key(s.ID).Justify(ui.Start).Gap(u*2).MinHeight(d.ControlHeight()-4).Padding(0, u*2).
+	row := ui.ButtonBase(c).Key(s.ID).Justify(ui.Start).Gap(u*2).MinHeight(d.ControlHeight()).Padding(0, u*2).
 		Label(fmt.Sprintf("%s, %s, %s", s.Name, s.Service, agentDuration(s.Duration)))
 	internal.Ring(row, k.Focus, theme.ControlRadius)
 	if selected {
-		row.Background(k.Selection)
+		row.Background(k.Selection).DrawOver(func(p *ui.Painter, r ui.Rect) {
+			p.Stroke(ui.Rect{X: r.X + 2, Y: r.Y + 2, W: r.W - 4, H: r.H - 4}, k.Focus, theme.ControlRadius, 1)
+		})
 	} else if row.Hovered() {
 		row.Background(k.SurfaceHover)
 	}
@@ -174,5 +176,5 @@ func traceSpanRow(c *ui.Context, s TraceSpan, depth int, total time.Duration, sl
 		ui.Text(c, agentDuration(s.Duration)).Width(64).TextAlign(ui.End).FontSize(FontSize(c, theme.CaptionSize)).
 			TextColor(k.TextMuted).FontFeatures("tnum").Shrink(0)
 	})
-	return row.Clicked()
+	return !row.IsDisabled() && row.Clicked()
 }

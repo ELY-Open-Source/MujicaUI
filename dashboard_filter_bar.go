@@ -11,9 +11,9 @@ import (
 	"mujicaui/icons"
 )
 
-// DashboardFilters is what a dashboard is filtered by; the zero value filters nothing.
+// DashboardFilters holds filters; zero uses caller defaults.
 type DashboardFilters struct {
-	// Range is how far back to look; zero means the caller's default.
+	// Range is the look-back; zero uses the caller's default.
 	Range time.Duration
 	Env   string
 	Tags  []string
@@ -21,7 +21,7 @@ type DashboardFilters struct {
 
 // DashboardFilterBarOptions configure a DashboardFilterBar.
 type DashboardFilterBarOptions struct {
-	// Ranges are the offered look-backs; nil uses 15 min, 1 h, 24 h and 7 d.
+	// Ranges defaults to 15m, 1h, 24h and 7d.
 	Ranges []time.Duration
 	// Envs and Tags are the offered environments and tags.
 	Envs, Tags []string
@@ -30,7 +30,7 @@ type DashboardFilterBarOptions struct {
 
 var dashboardRanges = []time.Duration{15 * time.Minute, time.Hour, 24 * time.Hour, 7 * 24 * time.Hour}
 
-// DashboardFilterBar filters by time range, environment and tags, with a clear button.
+// DashboardFilterBar edits time, environment and tags with clear.
 func DashboardFilterBar(c *ui.Context, f *DashboardFilters, opts DashboardFilterBarOptions) ChoiceResult {
 	if f == nil {
 		panic("mujica: DashboardFilterBar needs filters")
@@ -41,6 +41,11 @@ func DashboardFilterBar(c *ui.Context, f *DashboardFilters, opts DashboardFilter
 	}
 	if f.Env != "" && !slices.Contains(opts.Envs, f.Env) {
 		panic("mujica: DashboardFilterBar Env is not offered")
+	}
+	for _, tag := range f.Tags {
+		if !slices.Contains(opts.Tags, tag) {
+			panic("mujica: DashboardFilterBar tag is not offered")
+		}
 	}
 	u := Density(c).Unit()
 	var r ChoiceResult
