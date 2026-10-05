@@ -2,6 +2,7 @@
 package mujica
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/egoist/mygo/ui"
@@ -51,6 +52,15 @@ type themeKey struct{}
 
 // Use applies s to the window. Call it first in every frame of the view.
 func Use(c *ui.Context, s Settings) {
+	if s.Mode < System || s.Mode > Dark {
+		panic(fmt.Sprintf("mujica: invalid Mode %d", s.Mode))
+	}
+	if s.Density < theme.Default || s.Density > theme.Comfortable {
+		panic(fmt.Sprintf("mujica: invalid Density %d", s.Density))
+	}
+	if s.Locale != "" && s.Locale != EnUS && s.Locale != ZhCN {
+		panic("mujica: unsupported Locale " + string(s.Locale))
+	}
 	dark := c.Theme().Dark
 	switch s.Mode {
 	case Light:
@@ -99,6 +109,7 @@ func Use(c *ui.Context, s Settings) {
 		Spacing:        s.Density.Unit(),
 		FontSize:       size,
 	})
+	c.Root().LineHeight(theme.LineHeight)
 	*ui.Local(c.Root(), themeKey{}, func() windowTheme { return windowTheme{} }) = windowTheme{k, s.Density, s.Locale, s.Messages, true}
 }
 

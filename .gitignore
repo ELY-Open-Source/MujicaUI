@@ -1,3 +1,4 @@
 *.got.png
 .DS_Store
 /gallery
+/.claude/

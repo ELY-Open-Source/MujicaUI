@@ -38,7 +38,7 @@ func Spinner(c *ui.Context, opts SpinnerOptions) *ui.Element {
 	row := ui.Row(c).Gap(Density(c).Unit() * 2).AlignItems(ui.Center)
 	row.Children(func() {
 		// MyGo's spinner carries the indeterminate progress role.
-		ui.Spinner(c).Label(label).Size(size, size).Draw(func(p *ui.Painter, r ui.Rect) {
+		ui.Spinner(c).Key(still).Label(label).Size(size, size).Draw(func(p *ui.Painter, r ui.Rect) {
 			turn := 0.0
 			if !still {
 				turn = float64(p.Now().UnixMilli()%1200) / 1200
