@@ -60,7 +60,7 @@ func SearchInput(c *ui.Context, query *string, opts SearchInputOptions) SearchIn
 	}
 	var r SearchInputResult
 	step := func(d int) {
-		if opts.Matches == 0 {
+		if opts.Matches == 0 || opts.Disabled {
 			return
 		}
 		*opts.Current = (*opts.Current + d + opts.Matches) % opts.Matches
@@ -83,8 +83,8 @@ func SearchInput(c *ui.Context, query *string, opts SearchInputOptions) SearchIn
 	r.Element, r.Input = textInputFrame(c, look, func(frame *ui.Element) *ui.Element {
 		ui.Icon(c, icons.Must("search")).Size(16, 16).Shrink(0).TextColor(k.TextMuted)
 		back := ui.Local(frame, "back", func() bool { return false })
-		in := ui.TextInputBase(c, query).Grow(1).MinWidth(Density(c).Unit() * 10).Placeholder(place).Label(name)
-		r.changed = in.Changed()
+		in := textInputEditor(c, frame, query, opts.Disabled, ui.TextInputBase).Grow(1).MinWidth(Density(c).Unit() * 10).Placeholder(place).Label(name)
+		r.changed = in.Changed() && !opts.Disabled
 		if opts.Find {
 			// Shift+Enter would reach the editor as a plain submit.
 			in.HandleInput(func(ev ui.InputEvent) bool {
@@ -102,9 +102,9 @@ func SearchInput(c *ui.Context, query *string, opts SearchInputOptions) SearchIn
 				step(1)
 			}
 		} else {
-			r.submitted = in.Submitted()
+			r.submitted = in.Submitted() && !opts.Disabled
 		}
-		if *query != "" && textInputClear(c, in) {
+		if *query != "" && !opts.Disabled && textInputClear(c, in) {
 			*query = ""
 			r.changed = true
 			slog.Debug("mujica: search_input clear")
@@ -127,7 +127,7 @@ func searchInputFindControls(c *ui.Context, query string, matches, current int, 
 	case matches > 0:
 		status = fmt.Sprintf(msg(c, "search_input.count"), current+1, matches)
 	}
-	ui.Text(c, status).TextColor(k.TextMuted).FontSize(theme.CaptionSize).FontFeatures("tnum").
+	ui.Text(c, status).TextColor(k.TextMuted).FontSize(FontSize(c, theme.CaptionSize)).FontFeatures("tnum").
 		SingleLine().Shrink(0).Role(ui.RoleStatus)
 	ui.Box(c).Width(theme.BorderWidth).Height(16).Background(k.Border).Shrink(0)
 	opts := IconButtonOptions{Variant: Ghost, Disabled: matches == 0}

@@ -55,7 +55,7 @@ func TextArea(c *ui.Context, value *string, opts TextAreaOptions) InputResult {
 	var r InputResult
 	look := &textInputLook{disabled: opts.Disabled, readOnly: opts.ReadOnly, err: errMsg, area: true}
 	r.Element, r.Input = textInputFrame(c, look, func(frame *ui.Element) *ui.Element {
-		in := textInputEditor(c, frame, value, opts.ReadOnly, true).Grow(1).Padding(d.Unit()*2, d.Unit()*3).
+		in := textInputEditor(c, frame, value, opts.ReadOnly || opts.Disabled, ui.TextAreaBase).Grow(1).Padding(d.Unit()*2, d.Unit()*3).
 			Placeholder(opts.Placeholder).Label(opts.Label)
 		if opts.MinHeight > 0 {
 			in.MinHeight(opts.MinHeight)
@@ -63,8 +63,18 @@ func TextArea(c *ui.Context, value *string, opts TextAreaOptions) InputResult {
 		if opts.MaxHeight > 0 {
 			in.MaxHeight(opts.MaxHeight)
 		}
-		r.changed = in.Changed() && !opts.ReadOnly
-		r.submitted = in.Shortcut(mods, key)
+		r.changed = in.Changed() && !opts.ReadOnly && !opts.Disabled
+		// Taken before the editor, which would make a plain Enter a newline.
+		submit := ui.Local(frame, "submit", func() bool { return false })
+		in.HandleInput(func(ev ui.InputEvent) bool {
+			if ev.Kind == ui.InputKeyDown && ev.Key == key && ev.Mods == mods {
+				*submit = true
+				return true
+			}
+			return false
+		})
+		r.submitted = *submit && !opts.Disabled
+		*submit = false
 		return in
 	}, count)
 	return r
@@ -82,7 +92,7 @@ func textAreaCount(c *ui.Context, n, max int) func() {
 		if over {
 			color = k.Danger
 		}
-		ui.Text(c, fmt.Sprintf("%d / %d", n, max)).TextColor(color).FontSize(theme.CaptionSize).
+		ui.Text(c, fmt.Sprintf("%d / %d", n, max)).TextColor(color).FontSize(FontSize(c, theme.CaptionSize)).
 			FontFeatures("tnum").Shrink(0).Label(fmt.Sprintf(msg(c, "text_area.count"), n, max))
 	}
 }

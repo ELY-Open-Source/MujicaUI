@@ -32,7 +32,7 @@ if r.Submitted() {
 
 ## 状态
 
-默认（Surface 底、ControlBorder 边）、悬停（边框加深）、聚焦（边框 Focus 色；键盘聚焦另加焦点环）、只读（Background 底、Border 边）、错误、禁用。颜色变化 120 毫秒过渡，减少动画时直接切换。
+默认（Surface 底、ControlBorder 边）、悬停（边框加深）、聚焦（边框 Focus 色；键盘聚焦另加焦点环）、只读（Background 底、Border 边）、错误、禁用。聚焦时被禁用会放弃焦点，已排队的按键不再修改值、不触发事件。颜色变化 120 毫秒过渡，减少动画时直接切换。
 
 ## 事件
 

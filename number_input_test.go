@@ -63,8 +63,81 @@ func TestNumberInputTypingPrecisionAndErrors(t *testing.T) {
 		t.Fatalf("out of range: value %v texts %q", v, tt.Texts())
 	}
 	_ = tt.Click("Elsewhere")
-	if tt.HasText("Enter a number") {
-		t.Fatal("error stays after leaving the field, which shows the value again")
+	if v != 1.25 || !tt.HasText("Enter a number from 0.00 to 2.00") {
+		t.Fatalf("leaving dropped the error: value %v texts %q", v, tt.Texts())
+	}
+}
+
+func TestNumberInputKeepsInvalidTextAfterBlur(t *testing.T) {
+	v, n := 1.0, 0
+	tt := numberInputTester(&v, &n, NumberInputOptions{Label: "Count"})
+	_ = tt.Click("Count")
+	tt.Command("selectAll")
+	tt.Type("abc")
+	_ = tt.Click("Elsewhere")
+	if !tt.HasText("Enter a number") || v != 1 {
+		t.Fatalf("after blur: value %v texts %q", v, tt.Texts())
+	}
+	_ = tt.Click("Count")
+	tt.Command("selectAll")
+	tt.Command("copy")
+	if tt.Clipboard() != "abc" {
+		t.Fatalf("invalid text replaced by %q", tt.Clipboard())
+	}
+	tt.Type("4")
+	if v != 4 || tt.HasText("Enter a number") {
+		t.Fatalf("correction: value %v texts %q", v, tt.Texts())
+	}
+}
+
+func TestNumberInputSyncsExternalValue(t *testing.T) {
+	v, n := 1.0, 0
+	tt := numberInputTester(&v, &n, NumberInputOptions{Label: "Level"})
+	_ = tt.Click("Level")
+	v = 9
+	tt.Frame()
+	tt.Command("selectAll")
+	tt.Command("copy")
+	if tt.Clipboard() != "9" {
+		t.Fatalf("focused field shows %q after the value became 9", tt.Clipboard())
+	}
+	tt.Key(0, ui.KeyUp)
+	if v != 10 {
+		t.Fatalf("Up after external change gave %v", v)
+	}
+}
+
+func TestNumberInputRangeOnPrecisionGrid(t *testing.T) {
+	v, n := 0.2, 0
+	tt := numberInputTester(&v, &n, NumberInputOptions{Min: 0.11, Max: 0.29, Step: 0.1, Label: "Fine"})
+	_ = tt.Click("Fine")
+	tt.Key(0, ui.KeyUp)
+	if v != 0.2 {
+		t.Fatalf("stepping up left the range: %v", v)
+	}
+	tt.Key(0, ui.KeyDown)
+	if v != 0.2 {
+		t.Fatalf("stepping down left the range: %v", v)
+	}
+}
+
+func TestNumberInputDisabledWhileFocused(t *testing.T) {
+	v, n, off, focused := 5.0, 0, false, false
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		r := NumberInput(c, &v, NumberInputOptions{Label: "Live", Disabled: off})
+		if r.Changed() {
+			n++
+		}
+		focused = r.Input.Focused()
+	}, 400, 300)
+	_ = tt.Click("Live")
+	off = true
+	tt.Key(0, ui.KeyUp)
+	tt.Type("7")
+	tt.Frame()
+	if v != 5 || n != 0 || focused {
+		t.Fatalf("disabled while focused: value %v changes %d focused %v", v, n, focused)
 	}
 }
 
@@ -112,7 +185,7 @@ func TestNumberInputDisabled(t *testing.T) {
 }
 
 func TestNumberInputBadOptionsPanic(t *testing.T) {
-	for _, opts := range []NumberInputOptions{{Min: 3, Max: 1}, {StepperOnly: true}, {Step: -1}} {
+	for _, opts := range []NumberInputOptions{{Min: 3, Max: 1}, {StepperOnly: true}, {Step: -1}, {Min: 0.11, Max: 0.19, Precision: 1}} {
 		func() {
 			defer func() {
 				if recover() == nil {

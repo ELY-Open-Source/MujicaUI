@@ -25,12 +25,15 @@ type ButtonOptions struct {
 	Icon     *ui.SVG
 	Loading  bool
 	Disabled bool
-	// Label names an icon-only button for assistive technology.
+	// Label names an icon-only button for assistive technology; required without a label.
 	Label string
 }
 
 // Button is a push button. Loading keeps its size and blocks clicks.
 func Button(c *ui.Context, label string, opts ButtonOptions) *ui.Element {
+	if label == "" && opts.Label == "" {
+		panic("mujica: Button without a label needs Label to name it")
+	}
 	k := Tokens(c)
 	d := Density(c)
 	b := ui.ButtonBase(c).MinHeight(d.ControlHeight()).MinWidth(theme.MinHitSize).
@@ -46,13 +49,25 @@ func Button(c *ui.Context, label string, opts ButtonOptions) *ui.Element {
 		b.Border(theme.BorderWidth, border)
 	}
 	b.Children(func() {
-		if opts.Loading {
-			Spinner(c, SpinnerOptions{Size: 14, Color: fg})
-		} else if opts.Icon != nil {
+		switch {
+		case opts.Loading && opts.Icon != nil:
+			// The spinner takes the icon's 16 DIP slot.
+			Spinner(c, SpinnerOptions{Size: 16, Color: fg})
+		case opts.Loading && label == "":
+			Spinner(c, SpinnerOptions{Size: 16, Color: fg})
+		case opts.Loading:
+			// Over the hidden label, so the width stays.
+			ui.Box(c).Absolute().Left(0).Top(0).Right(0).Bottom(0).Center().Children(func() {
+				Spinner(c, SpinnerOptions{Size: 16, Color: fg})
+			})
+		case opts.Icon != nil:
 			ui.Icon(c, opts.Icon).Size(16, 16)
 		}
 		if label != "" {
-			ui.Text(c, label).SingleLine()
+			t := ui.Text(c, label).SingleLine()
+			if opts.Loading && opts.Icon == nil {
+				t.TextColor(fg.Alpha(0))
+			}
 		}
 	})
 	return b
