@@ -23,13 +23,13 @@ func TestPasswordInputMaskPasteAndReveal(t *testing.T) {
 	tt.Command("paste")
 	tt.Type("et")
 	if pw != "s3cret" || changes != 2 {
-		t.Fatalf("value %q changes %d", pw, changes)
+		t.Fatalf("value matched %v (length %d), changes %d", pw == "s3cret", len(pw), changes)
 	}
 	tt.SetClipboard("")
 	tt.Command("selectAll")
 	tt.Command("copy")
 	if tt.Clipboard() != "" {
-		t.Fatalf("masked field copied %q", tt.Clipboard())
+		t.Fatalf("masked field copied %d characters", len(tt.Clipboard()))
 	}
 	for _, s := range tt.Texts() {
 		if s == "s3cret" {
@@ -40,13 +40,13 @@ func TestPasswordInputMaskPasteAndReveal(t *testing.T) {
 		t.Fatal(err)
 	}
 	if _, ok := tt.Find("Hide password"); !ok || pw != "s3cret" {
-		t.Fatalf("after reveal: value %q, texts %q", pw, tt.Texts())
+		t.Fatalf("after reveal: value matched %v, hide toggle shown %v", pw == "s3cret", ok)
 	}
 	_ = tt.Click("Password")
 	tt.Command("selectAll")
 	tt.Command("copy")
 	if tt.Clipboard() != "s3cret" {
-		t.Fatalf("revealed field copied %q", tt.Clipboard())
+		t.Fatalf("revealed copy matched %v (length %d)", tt.Clipboard() == "s3cret", len(tt.Clipboard()))
 	}
 	tt.Key(0, ui.KeyEnter)
 	if submits != 1 {
@@ -82,7 +82,7 @@ func TestPasswordInputDisabled(t *testing.T) {
 	_ = tt.Click("Off")
 	tt.Type("zz")
 	if pw != "locked" {
-		t.Fatalf("disabled value %q", pw)
+		t.Fatalf("disabled value matched %v (length %d)", pw == "locked", len(pw))
 	}
 	if _, ok := tt.Find("Show password"); !ok {
 		t.Fatal("disabled toggle revealed")

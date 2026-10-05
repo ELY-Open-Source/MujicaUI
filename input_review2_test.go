@@ -175,3 +175,29 @@ func TestRadioGroupKeysByEquality(t *testing.T) {
 		t.Fatalf("after reorder chose %v, One focused %v", v, tt.Focused("One"))
 	}
 }
+
+func TestNumberInputStepExactBounds(t *testing.T) {
+	for _, stepper := range []bool{false, true} {
+		v := 1e12
+		tt := numberInputStepTester(&v, NumberInputOptions{Min: 0, Max: 2e12, Step: 1, StepperOnly: stepper})
+		tt.Key(0, ui.KeyUp)
+		if v != 1e12+1 {
+			t.Errorf("stepper %v: Up from 1e12 by 1 gave %.0f", stepper, v)
+		}
+		tt.Key(0, ui.KeyDown)
+		tt.Key(0, ui.KeyDown)
+		if v != 1e12-1 {
+			t.Errorf("stepper %v: two Downs gave %.0f", stepper, v)
+		}
+		v = 0.2
+		tt = numberInputStepTester(&v, NumberInputOptions{Min: 0, Max: 0.29999999995, Step: 0.1, StepperOnly: stepper})
+		tt.Key(0, ui.KeyUp)
+		if v != 0.2 {
+			t.Errorf("stepper %v: Up past Max 0.29999999995 gave %v", stepper, v)
+		}
+		tt.Key(0, ui.KeyEnd)
+		if stepper && v != 0.2 {
+			t.Errorf("End went to %v, past the largest value at precision 1", v)
+		}
+	}
+}
