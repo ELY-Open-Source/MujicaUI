@@ -49,8 +49,7 @@ func (p InputGroupParts) Changed() bool { return p.Input.Changed() }
 // Submitted reports whether Enter was pressed in the input.
 func (p InputGroupParts) Submitted() bool { return p.Input.Submitted() }
 
-// InputGroup joins a single-line input with text and buttons inside one border.
-// Every button keeps its own place in the Tab order.
+// InputGroup joins an input, fixed text and buttons, each its own Tab stop, in one border.
 func InputGroup(c *ui.Context, value *string, opts InputGroupOptions) InputGroupParts {
 	for _, b := range opts.Buttons {
 		if b.IconOnly && b.Icon == nil {

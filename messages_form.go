@@ -42,6 +42,7 @@ func init() {
 		"transfer.all":              {"Select all in %s", "全选%s"},
 		"transfer.search":           {"Search", "搜索"},
 		"transfer.search_in":        {"Search %s", "搜索%s"},
+		"transfer.partial":          {"%d of %d selected", "已选 %d / %d 项"},
 		"transfer.empty":            {"No items", "暂无条目"},
 		"transfer.no_match":         {"No matches", "无匹配结果"},
 		"form.submit":               {"Submit", "提交"},

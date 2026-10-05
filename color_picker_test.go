@@ -124,3 +124,36 @@ func TestColorPickerSnapshot(t *testing.T) {
 		})
 	})
 }
+
+// Disabling an open picker closes it before keys can change the color.
+func TestColorPickerDisabledWhileOpen(t *testing.T) {
+	col, n := ui.Hex("#808080"), 0
+	opts := ColorPickerOptions{Label: "Shade"}
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		if ColorPicker(c, &col, opts).Changed() {
+			n++
+		}
+	}, 400, 560)
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeyEnter)
+	if !tt.Focused("Saturation and brightness") {
+		t.Fatal("not open")
+	}
+	opts.Disabled = true
+	tt.Key(0, ui.KeyUp)
+	tt.Key(0, ui.KeyRight)
+	if col != ui.Hex("#808080") || n != 0 || tt.HasText("HEX") {
+		t.Fatalf("disabled picker changed to %v", col)
+	}
+}
+
+func TestColorPickerSwatchHitArea(t *testing.T) {
+	col, n := ui.Hex("#7D2034"), 0
+	tt := colorPickerTester(&col, ColorPickerOptions{Label: "Accent"}, &n)
+	_ = tt.Click("Accent")
+	r, ok := tt.Find("#355E80")
+	if !ok || r.W < 28 || r.H < 28 {
+		t.Fatalf("swatch %v", r)
+	}
+}

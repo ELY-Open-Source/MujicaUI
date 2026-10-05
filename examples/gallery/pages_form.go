@@ -177,10 +177,12 @@ var formPages = []page{
 				e = "This name is already in the guest list."
 			}
 			mujica.FormField(c, "Guest name", mujica.FormFieldOptions{Required: d.required, Horizontal: d.horizontal,
-				Description: "As written on the invitation.", Error: e}, func() {
-				if mujica.InputGroup(c, &d.value, mujica.InputGroupOptions{Invalid: d.withError}).Changed() {
+				Description: "As written on the invitation.", Error: e}, func() *ui.Element {
+				g := mujica.InputGroup(c, &d.value, mujica.InputGroupOptions{Invalid: d.withError})
+				if g.Changed() {
 					log(fmt.Sprintf("value %q", d.value))
 				}
+				return g.Input
 			})
 		}},
 	{ID: "043", Name: "InputGroup", ZhName: "输入组合", Category: "Forms", Code: formCode["InputGroup"],
@@ -346,8 +348,8 @@ ui.Render(view, 400, 300, 1)`,
 	"FormField": `email := ""
 view := func(c *ui.Context) {
 	mujica.Use(c, mujica.Settings{})
-	mujica.FormField(c, "Email", mujica.FormFieldOptions{Required: true, Description: "For receipts."}, func() {
-		mujica.InputGroup(c, &email, mujica.InputGroupOptions{})
+	mujica.FormField(c, "Email", mujica.FormFieldOptions{Required: true, Description: "For receipts."}, func() *ui.Element {
+		return mujica.InputGroup(c, &email, mujica.InputGroupOptions{}).Input
 	})
 }
 ui.Render(view, 400, 300, 1)`,

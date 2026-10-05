@@ -30,8 +30,8 @@ func ExampleFormField() {
 	email := ""
 	view := func(c *ui.Context) {
 		mujica.Use(c, mujica.Settings{})
-		mujica.FormField(c, "Email", mujica.FormFieldOptions{Required: true, Description: "For receipts."}, func() {
-			mujica.InputGroup(c, &email, mujica.InputGroupOptions{})
+		mujica.FormField(c, "Email", mujica.FormFieldOptions{Required: true, Description: "For receipts."}, func() *ui.Element {
+			return mujica.InputGroup(c, &email, mujica.InputGroupOptions{}).Input
 		})
 	}
 	ui.Render(view, 400, 300, 1)
