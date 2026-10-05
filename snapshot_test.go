@@ -6,9 +6,12 @@ import (
 	"image"
 	"image/png"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/egoist/mygo/ui"
@@ -22,9 +25,18 @@ func snapshot(t *testing.T, name string, w, h int, view func(c *ui.Context)) {
 	snapshotAfter(t, name, w, h, view, nil)
 }
 
+// snapshotChild marks a process that renders snapshots itself.
+const snapshotChild = "MUJICA_SNAPSHOT_CHILD"
+
+var snapshotRan sync.Map
+
 // snapshotAfter is snapshot with drive sending input before the capture.
 func snapshotAfter(t *testing.T, name string, w, h int, view func(c *ui.Context), drive func(tt *ui.Tester)) {
 	t.Helper()
+	if os.Getenv(snapshotChild) == "" {
+		snapshotInChild(t)
+		return
+	}
 	for _, m := range []Mode{Light, Dark} {
 		ready := false
 		tt := ui.NewTester(func(c *ui.Context) {
@@ -61,6 +73,27 @@ func snapshotAfter(t *testing.T, name string, w, h int, view func(c *ui.Context)
 			}
 			t.Errorf("%s differs; see %s.got.png", path, path)
 		}
+	}
+}
+
+// snapshotInChild reruns the test alone in a fresh process; MyGo's path cache is process-wide.
+func snapshotInChild(t *testing.T) {
+	t.Helper()
+	if _, done := snapshotRan.LoadOrStore(t.Name(), true); done {
+		return
+	}
+	parts := strings.Split(t.Name(), "/")
+	for i, p := range parts {
+		parts[i] = "^" + regexp.QuoteMeta(p) + "$"
+	}
+	args := []string{"-test.run=" + strings.Join(parts, "/"), "-test.count=1"}
+	if *update {
+		args = append(args, "-update")
+	}
+	cmd := exec.Command(os.Args[0], args...)
+	cmd.Env = append(os.Environ(), snapshotChild+"=1")
+	if out, err := cmd.CombinedOutput(); err != nil {
+		t.Fatalf("snapshot child failed: %v\n%s", err, out)
 	}
 }
 

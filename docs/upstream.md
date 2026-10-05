@@ -35,4 +35,4 @@ PRD 第 2 节要求公开接口不足时向上游提交扩展。以下缺口在 
 | `SelectBase` 高亮无设置接口 | `ui/base.go:260` | Select |
 | `TextInputBase` 无只读开关与占位符 | `ui/editor.go:139,734,811` | TextInput 只读模式、CommandPalette |
 | `ui.Stepper` 禁用时仍可步进，固定 9 位取整 | `ui/indicators.go:216`、`ui/widgets.go` `snap` | NumberInput（已改为自绘） |
-| 路径遮罩缓存按四分之一像素取键，进程内共享 | `ui/path.go:189-210` | 自绘路径以 `internal.Snap` 对齐；MyGo 自绘的箭头（Outline 等）无法对齐，快照依赖测试运行顺序，`-shuffle` 下 TreeTable 快照会出现 6 像素差异 |
+| 路径遮罩缓存按四分之一像素取键，进程内共享 | `ui/path.go:189-210` | 自绘路径以 `internal.Snap` 对齐；MyGo 自绘的箭头（Outline 等）无法对齐；快照测试因此在独立子进程中渲染，结果与测试顺序无关 |
