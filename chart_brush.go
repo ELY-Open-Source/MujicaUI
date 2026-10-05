@@ -75,20 +75,21 @@ func ChartBrush(c *ui.Context, value *[2]float64, opts ChartBrushOptions) Choice
 		track.Draw(func(p *ui.Painter, r ui.Rect) { brushPaint(p, r, *value, opts, k) })
 		track.Children(func() {
 			x0, x1 := at(value[0]), at(value[1])
-			window := ui.Box(c).Absolute().Left(x0).Top(0).Width(max(x1-x0, 1)).Height(h).Focusable().
-				Role(ui.RoleGroup).Label(fmt.Sprintf(msg(c, "chart_brush.window"), opts.Label, val(value[0]), val(value[1])))
-			internal.Ring(window, k.Focus, theme.ControlRadius)
-			ends := [2]*ui.Element{}
-			for i, x := range []float32{x0, x1} {
-				end := ui.Box(c).Absolute().Left(x - theme.MinHitSize/2).Top(0).Size(theme.MinHitSize, h).Focusable().
+			end := func(i int, x float32) *ui.Element {
+				e := ui.Box(c).Absolute().Left(x - theme.MinHitSize/2).Top(0).Size(theme.MinHitSize, h).Focusable().
 					Role(ui.RoleSlider).Label(fmt.Sprintf(msg(c, []string{"chart_brush.start", "chart_brush.end"}[i]), val(value[i])))
-				internal.Ring(end, k.Focus, theme.ControlRadius)
-				end.Draw(func(p *ui.Painter, r ui.Rect) {
+				internal.Ring(e, k.Focus, theme.ControlRadius)
+				return e.Draw(func(p *ui.Painter, r ui.Rect) {
 					cx := internal.Snap(p, r.X+r.W/2)
 					p.Fill(ui.Rect{X: cx - 3, Y: r.Y + r.H/2 - 10, W: 6, H: 20}, k.Text, 2)
 				})
-				ends[i] = end
 			}
+			// Tab order runs start, window, end.
+			ends := [2]*ui.Element{end(0, x0)}
+			window := ui.Box(c).Absolute().Left(x0 + theme.MinHitSize/2).Top(0).Width(max(x1-x0-theme.MinHitSize, 1)).Height(h).Focusable().
+				Role(ui.RoleGroup).Label(fmt.Sprintf(msg(c, "chart_brush.window"), opts.Label, val(value[0]), val(value[1])))
+			internal.Ring(window, k.Focus, theme.ControlRadius)
+			ends[1] = end(1, x1)
 			if res.Element.IsDisabled() {
 				return
 			}
