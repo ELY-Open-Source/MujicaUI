@@ -199,7 +199,7 @@ func projectListConversation(c *ui.Context, conv ChatConversation, home ChatProj
 		if b.Clicked() {
 			v.Opened = conv.ID
 		}
-		DropdownMenu(c, "", DropdownMenuOptions{Icon: icons.Must("ellipsis"), Label: fmt.Sprintf(msg(c, "project_list.move_to"), conv.Title)}, func(m *PopupMenu) {
+		conversationItemMenu(c, fmt.Sprintf(msg(c, "project_list.move_to"), conv.Title), func(m *PopupMenu) {
 			m.Group(msg(c, "project_list.move_group"), func() {
 				for _, p := range all {
 					if p.ID != home.ID && m.Item(p.Name, PopupMenuItemOptions{}) {
@@ -207,6 +207,6 @@ func projectListConversation(c *ui.Context, conv ChatConversation, home ChatProj
 					}
 				}
 			})
-		}).Shrink(0)
+		})
 	})
 }

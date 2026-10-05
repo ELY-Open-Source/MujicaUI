@@ -97,10 +97,12 @@ func conversationSearchList(c *ui.Context, s *conversationSearchState, q string,
 	s.rows.Key = func(i int) any { return hits[i].ID }
 	s.rows.Label = func(i int) string { return hits[i].Title }
 	s.rows.Selected = &s.cursor
+	// Rows have one height, so the list can size itself before measuring them.
+	rowH := d.ControlHeight() + FontSize(c, theme.CaptionSize)*theme.LineHeight + 2
 	restore := dataSelectTheme(c, 0)
 	list := ui.List(c, &s.rows, len(hits), func(i int) {
 		h := hits[i]
-		row := ui.Column(c).MinHeight(d.ControlHeight()).Padding(d.Unit(), d.Unit()*2).Gap(2).Justify(ui.Center)
+		row := ui.Column(c).Height(rowH).Padding(d.Unit(), d.Unit()*2).Gap(2).Justify(ui.Center).ClipY()
 		if i == s.cursor {
 			row.DrawOver(func(p *ui.Painter, r ui.Rect) {
 				p.FillPath(internal.Diamond(r.X+3, r.Y+r.H/2, 6), k.AccentText)
@@ -109,13 +111,13 @@ func conversationSearchList(c *ui.Context, s *conversationSearchState, q string,
 		row.Children(func() {
 			ui.RichText(c, conversationSearchSpans(h.Title, q, k)...).SingleLine()
 			if h.Snippet != "" {
-				ui.RichText(c, conversationSearchSpans(h.Snippet, q, k)...).MaxLines(2).TextColor(k.TextMuted).FontSize(FontSize(c, theme.CaptionSize))
+				ui.RichText(c, conversationSearchSpans(h.Snippet, q, k)...).SingleLine().TextColor(k.TextMuted).FontSize(FontSize(c, theme.CaptionSize))
 			}
 		})
 		if !row.IsDisabled() && row.Clicked() {
 			chosen = h.ID
 		}
-	}).MaxHeight(360).Padding(d.Unit()).Background(k.Surface).Border(theme.BorderWidth, k.Border).
+	}).Height(min(360, float32(len(hits))*rowH+2*d.Unit()+2)).Padding(d.Unit()).Background(k.Surface).Border(theme.BorderWidth, k.Border).
 		Radius(theme.ControlRadius).Label(msg(c, "conversation_search.results"))
 	restore()
 	internal.Ring(list, k.Focus, theme.ControlRadius)

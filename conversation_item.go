@@ -94,7 +94,7 @@ func ConversationItem(c *ui.Context, conv *ChatConversation, opts ConversationIt
 				v.Deleted = main.Shortcut(0, ui.KeyDelete)
 			}
 		}
-		menu := DropdownMenu(c, "", DropdownMenuOptions{Icon: icons.Must("ellipsis"), Label: msg(c, "conversation_item.actions"), Disabled: opts.Disabled}, func(m *PopupMenu) {
+		conversationItemMenu(c, msg(c, "conversation_item.actions"), func(m *PopupMenu) {
 			rename = m.Item(msg(c, "conversation_item.rename"), PopupMenuItemOptions{}) || rename
 			pin := msg(c, "conversation_item.pin")
 			if conv.Pinned {
@@ -105,7 +105,6 @@ func ConversationItem(c *ui.Context, conv *ChatConversation, opts ConversationIt
 			m.Separator()
 			v.Deleted = m.Item(msg(c, "conversation_item.delete"), PopupMenuItemOptions{}) || v.Deleted
 		})
-		menu.Shrink(0).MinWidth(theme.MinHitSize).MinHeight(theme.MinHitSize)
 	})
 	if rename && !row.IsDisabled() {
 		st.editing, st.fresh, st.draft = true, true, conv.Title
@@ -141,4 +140,17 @@ func conversationItemEditor(c *ui.Context, k theme.Tokens, conv *ChatConversatio
 	case in.Shortcut(0, ui.KeyEscape):
 		st.editing = false
 	}
+}
+
+// conversationItemMenu is a borderless ellipsis button opening the menu build fills.
+func conversationItemMenu(c *ui.Context, label string, build func(m *PopupMenu)) *ui.Element {
+	b := iconAction(c, icons.Must("ellipsis"), label).Role(ui.RoleMenuButton).Shrink(0)
+	open := ui.Local(b, conversationItemKey{}, func() bool { return false })
+	if b.IsDisabled() {
+		*open = false
+	} else if b.Clicked() || b.Shortcut(0, ui.KeyDown) {
+		*open = true
+	}
+	popupMenuOpen(c, b, open, build)
+	return b
 }

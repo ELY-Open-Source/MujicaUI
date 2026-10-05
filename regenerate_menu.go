@@ -80,6 +80,7 @@ func RegenerateMenu(c *ui.Context, opts RegenerateMenuOptions) RegenerateMenuVie
 			}
 		})
 	})
+	v.Element.AlignSelf(ui.Start)
 	if v.Element.IsDisabled() {
 		v.Chosen = false
 	}

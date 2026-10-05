@@ -65,12 +65,11 @@ func init() {
 
 		"stop_generating_button.stop": {"Stop generating", "停止生成"},
 
-		"system_prompt_editor.title":    {"System prompt", "系统提示"},
-		"system_prompt_editor.unsaved":  {"Unsaved changes", "未保存"},
-		"system_prompt_editor.count":    {"%d characters", "%d 字"},
-		"system_prompt_editor.count_of": {"%d / %d characters", "%d / %d 字"},
-		"system_prompt_editor.restore":  {"Restore default", "恢复默认"},
-		"system_prompt_editor.save":     {"Save", "保存"},
+		"system_prompt_editor.title":   {"System prompt", "系统提示"},
+		"system_prompt_editor.unsaved": {"Unsaved changes", "未保存"},
+		"system_prompt_editor.count":   {"%d characters", "%d 字"},
+		"system_prompt_editor.restore": {"Restore default", "恢复默认"},
+		"system_prompt_editor.save":    {"Save", "保存"},
 
 		"cost_estimator.kind":        {"Kind", "类别"},
 		"cost_estimator.tokens":      {"Tokens", "Tokens"},

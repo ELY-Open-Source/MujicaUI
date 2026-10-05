@@ -94,7 +94,7 @@ func ConversationList(c *ui.Context, s *ConversationListState, items []ChatConve
 	s.rows.Label = func(i int) string { return conversationListTitle(c, items, rows[i]) }
 	s.rows.Selected = cursor
 	var list *ui.Element
-	wrap := ui.Column(c).Grow(1).MinHeight(0).Disabled(opts.Disabled)
+	wrap := ui.Column(c).MinHeight(0).Disabled(opts.Disabled)
 	wrap.Children(func() {
 		restore := dataSelectTheme(c, 0)
 		list = ui.List(c, &s.rows, len(rows), func(i int) {
