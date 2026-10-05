@@ -137,7 +137,7 @@ func TestSelectEmptyAndDisabled(t *testing.T) {
 }
 
 func TestSelectSnapshot(t *testing.T) {
-	snapshot(t, "select", 460, 110, func(c *ui.Context) {
+	snapshot(t, "select", 660, 90, func(c *ui.Context) {
 		a, b, d := "", "banana", "apple"
 		ui.Row(c).Padding(20).Gap(16).Wrap().Children(func() {
 			Select(c, &a, selectTestOptions, SelectOptions{})

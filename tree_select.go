@@ -217,7 +217,9 @@ func treeSelectRowView(c *ui.Context, st *treeSelectState, selected *[]string, r
 			if arrow.Hovered() {
 				arrow.Background(k.SurfaceHover)
 			}
-			arrow.Draw(func(p *ui.Painter, rc ui.Rect) { internal.Chevron(p, rc, !open, k.TextMuted) })
+			arrow.Draw(func(p *ui.Painter, rc ui.Rect) {
+				internal.Mark(p, rc, map[bool]string{true: "chevron-down", false: "chevron-right"}[open], k.TextMuted)
+			})
 		}
 		state := treeSelectCheck(n, *selected, opts)
 		var b *ui.Element

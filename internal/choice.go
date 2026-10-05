@@ -3,6 +3,7 @@ package internal
 import (
 	"github.com/egoist/mygo/ui"
 
+	"mujicaui/icons"
 	"mujicaui/theme"
 )
 
@@ -31,30 +32,16 @@ func CheckBox(p *ui.Painter, r ui.Rect, s CheckState, k theme.Tokens, hover bool
 		bg = k.AccentHover
 	}
 	p.Fill(r, bg, theme.ControlRadius)
-	var path ui.Path
+	mark := "check"
 	if s == Mixed {
-		path.MoveTo(r.X+r.W*0.25, r.Y+r.H/2).LineTo(r.X+r.W*0.75, r.Y+r.H/2)
-	} else {
-		path.MoveTo(r.X+r.W*0.22, r.Y+r.H*0.52).LineTo(r.X+r.W*0.42, r.Y+r.H*0.72).LineTo(r.X+r.W*0.78, r.Y+r.H*0.3)
+		mark = "minus"
 	}
-	p.StrokePath(&path, 1.75, k.OnAccent)
+	Mark(p, r, mark, k.OnAccent)
 }
 
-// Chevron strokes an arrow in r pointing down, or right when right.
-func Chevron(p *ui.Painter, r ui.Rect, right bool, c ui.Color) {
-	var path ui.Path
-	if right {
-		path.MoveTo(r.X+r.W*0.38, r.Y+r.H*0.22).LineTo(r.X+r.W*0.66, r.Y+r.H/2).LineTo(r.X+r.W*0.38, r.Y+r.H*0.78)
-	} else {
-		path.MoveTo(r.X+r.W*0.22, r.Y+r.H*0.38).LineTo(r.X+r.W/2, r.Y+r.H*0.66).LineTo(r.X+r.W*0.78, r.Y+r.H*0.38)
-	}
-	p.StrokePath(&path, 1.5, c)
-}
-
-// Cross strokes an x in r.
-func Cross(p *ui.Painter, r ui.Rect, c ui.Color) {
-	var path ui.Path
-	k := r.W * 0.28
-	path.MoveTo(r.X+k, r.Y+k).LineTo(r.X+r.W-k, r.Y+r.H-k).MoveTo(r.X+r.W-k, r.Y+k).LineTo(r.X+k, r.Y+r.H-k)
-	p.StrokePath(&path, 1.5, c)
+// Mark paints the Lucide icon name inset in r. Icons sit on the pixel grid,
+// so their cached masks never differ between frames or tests.
+func Mark(p *ui.Painter, r ui.Rect, name string, c ui.Color) {
+	in := r.W * 0.12
+	p.Icon(icons.Must(name), ui.Rect{X: r.X + in, Y: r.Y + in, W: r.W - 2*in, H: r.H - 2*in}, c)
 }

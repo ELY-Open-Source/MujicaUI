@@ -69,12 +69,7 @@ func Combobox(c *ui.Context, value *string, options []string, opts ComboboxOptio
 			p.Input.Focus()
 		}
 		open := p.Open()
-		arrow.Draw(func(pt *ui.Painter, r ui.Rect) {
-			if open {
-				r.Y, r.H = r.Y+r.H, -r.H
-			}
-			internal.Chevron(pt, r, false, k.TextMuted)
-		})
+		arrow.Draw(func(pt *ui.Painter, r ui.Rect) { internal.Mark(pt, r, selectChevron(open), k.TextMuted) })
 	})
 	in := p.Input
 	if f.Clicked() {

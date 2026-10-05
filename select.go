@@ -178,13 +178,17 @@ func selectField(c *ui.Context, tr *ui.Element, open bool, content func()) {
 	tr.Children(func() {
 		content()
 		ui.Box(c).Size(16, 16).Shrink(0).Draw(func(p *ui.Painter, r ui.Rect) {
-			if open {
-				// Mirrored: the chevron points up while the popup shows.
-				r.Y, r.H = r.Y+r.H, -r.H
-			}
-			internal.Chevron(p, r, false, k.TextMuted)
+			internal.Mark(p, r, selectChevron(open), k.TextMuted)
 		})
 	})
+}
+
+// selectChevron names the arrow of a field: up while its popup shows.
+func selectChevron(open bool) string {
+	if open {
+		return "chevron-up"
+	}
+	return "chevron-down"
 }
 
 // selectClear draws a small clear button that takes no Tab stop; it reports a click.
@@ -194,7 +198,7 @@ func selectClear(c *ui.Context, k theme.Tokens, name string) bool {
 	if x.Hovered() {
 		x.Background(k.SurfaceHover)
 	}
-	x.Draw(func(p *ui.Painter, r ui.Rect) { internal.Cross(p, r, k.TextMuted) })
+	x.Draw(func(p *ui.Painter, r ui.Rect) { internal.Mark(p, r, "x", k.TextMuted) })
 	return clicked
 }
 
@@ -220,9 +224,7 @@ func selectRow(c *ui.Context, row *ui.Element, highlighted, chosen bool, label s
 	row.Children(func() {
 		ui.Box(c).Size(14, 14).Shrink(0).Draw(func(p *ui.Painter, r ui.Rect) {
 			if chosen {
-				var path ui.Path
-				path.MoveTo(r.X+r.W*0.15, r.Y+r.H*0.52).LineTo(r.X+r.W*0.4, r.Y+r.H*0.76).LineTo(r.X+r.W*0.85, r.Y+r.H*0.26)
-				p.StrokePath(&path, 1.75, k.AccentText)
+				internal.Mark(p, r, "check", k.AccentText)
 			}
 		})
 		ui.Text(c, label).SingleLine()

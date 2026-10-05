@@ -227,7 +227,7 @@ func cascaderRow(c *ui.Context, st *cascaderState, path *[]string, opts Cascader
 		ui.Text(c, n.Label).SingleLine().Grow(1).Shrink(1)
 		if !n.Leaf {
 			ui.Box(c).Size(14, 14).Shrink(0).Draw(func(p *ui.Painter, r ui.Rect) {
-				internal.Chevron(p, r, true, k.TextMuted)
+				internal.Mark(p, r, "chevron-right", k.TextMuted)
 			})
 		}
 	})

@@ -229,10 +229,7 @@ func selectSearch(c *ui.Context, query *string, placeholder string) *ui.Element 
 	var in *ui.Element
 	f.Children(func() {
 		ui.Box(c).Size(14, 14).Shrink(0).Draw(func(p *ui.Painter, r ui.Rect) {
-			var path ui.Path
-			path.Circle(r.X+r.W*0.42, r.Y+r.H*0.42, r.W*0.32)
-			path.MoveTo(r.X+r.W*0.66, r.Y+r.H*0.66).LineTo(r.X+r.W*0.92, r.Y+r.H*0.92)
-			p.StrokePath(&path, 1.5, k.TextMuted)
+			internal.Mark(p, r, "search", k.TextMuted)
 		})
 		in = ui.TextInputBase(c, query).Grow(1).Placeholder(placeholder).Label(placeholder).AutoFocus()
 	})
