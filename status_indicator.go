@@ -44,11 +44,12 @@ type StatusIndicatorOptions struct {
 
 // StatusIndicator shows a status by its own shape and a word, never by color alone.
 func StatusIndicator(c *ui.Context, status Status, opts StatusIndicatorOptions) *ui.Element {
+	key := "status_indicator." + status.String() // panics on an unknown Status
 	k := Tokens(c)
 	u := Density(c).Unit()
 	label := opts.Label
 	if label == "" {
-		label = msg(c, "status_indicator."+status.String())
+		label = msg(c, key)
 	}
 	var tone ui.Color
 	var icon *ui.SVG
@@ -71,7 +72,7 @@ func StatusIndicator(c *ui.Context, status Status, opts StatusIndicatorOptions) 
 		} else {
 			ui.Icon(c, icon).Size(16, 16).TextColor(tone)
 		}
-		ui.Text(c, label).TextColor(k.Text).FontSize(theme.BodySize).SingleLine()
+		ui.Text(c, label).TextColor(k.Text).FontSize(FontSize(c, theme.BodySize)).SingleLine()
 	})
 	return row
 }

@@ -44,9 +44,7 @@ type NotificationCenterResult struct {
 	ClearedAll    bool
 }
 
-// NotificationCenter lists *items and edits them in place: read, unread,
-// remove, clear. The list is one Tab stop; arrows move among its buttons
-// and Delete removes the focused notification.
+// NotificationCenter lists *items and edits them in place: read, unread, remove, clear.
 func NotificationCenter(c *ui.Context, items *[]Notification, opts NotificationCenterOptions) NotificationCenterResult {
 	if items == nil {
 		panic("mujica: NotificationCenter needs items")
@@ -70,9 +68,9 @@ func NotificationCenter(c *ui.Context, items *[]Notification, opts NotificationC
 		Role(ui.RoleGroup).Label(title).Clip()
 	panel.Children(func() {
 		ui.Row(c).AlignItems(ui.Center).Gap(u*2).Padding(u*3, u*3, u*3, u*4).Children(func() {
-			ui.Text(c, title).Font(theme.SerifFont).FontSize(theme.H3Size).TextColor(k.Text)
+			ui.Text(c, title).Font(theme.SerifFont).FontSize(FontSize(c, theme.H3Size)).TextColor(k.Text)
 			if unread > 0 {
-				ui.Text(c, fmt.Sprintf(msg(c, "notification_center.unread"), unread)).FontSize(theme.CaptionSize).TextColor(k.AccentText)
+				ui.Text(c, fmt.Sprintf(msg(c, "notification_center.unread"), unread)).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.AccentText)
 			}
 			ui.Spacer(c)
 			if Button(c, msg(c, "notification_center.mark_all_read"), ButtonOptions{Variant: Ghost, Disabled: unread == 0}).Clicked() {
@@ -135,7 +133,7 @@ func notificationRow(c *ui.Context, k theme.Tokens, u float32, n *Notification, 
 				p.FillPath(internal.Diamond(r.X+r.W/2, r.Y+r.H/2, 8), k.AccentText)
 			}
 		})
-		open := ui.ButtonBase(c).Grow(1).Shrink(1).Column().AlignItems(ui.Start).Justify(ui.Start).Gap(u).
+		open := ui.ButtonBase(c).MinHeight(theme.MinHitSize).Grow(1).Shrink(1).Column().AlignItems(ui.Start).Justify(ui.Start).Gap(u).
 			Radius(theme.ControlRadius).Label(name)
 		internal.Ring(open, k.Focus, theme.ControlRadius)
 		open.Children(func() {
@@ -145,7 +143,7 @@ func notificationRow(c *ui.Context, k theme.Tokens, u float32, n *Notification, 
 					t.Bold()
 				}
 				if n.Time != "" {
-					ui.Text(c, n.Time).FontSize(theme.CaptionSize).TextColor(k.TextMuted).SingleLine()
+					ui.Text(c, n.Time).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.TextMuted).SingleLine()
 				}
 			})
 			if n.Body != "" {

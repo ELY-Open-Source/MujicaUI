@@ -38,8 +38,7 @@ type ResultResult struct {
 	Action int
 }
 
-// Result reports the outcome of a finished task and offers next steps.
-// It only reports the chosen step; the caller navigates.
+// Result shows a task outcome and reports the chosen next step; the caller navigates.
 func Result(c *ui.Context, opts ResultOptions) ResultResult {
 	k := Tokens(c)
 	u := Density(c).Unit()
@@ -61,7 +60,7 @@ func Result(c *ui.Context, opts ResultOptions) ResultResult {
 	res.Element = ui.Column(c).FillWidth().AlignItems(ui.Center).Gap(u*3).Padding(u*10, u*6).Role(ui.RoleGroup).Label(title)
 	res.Element.Children(func() {
 		ui.Icon(c, icon).Size(48, 48).TextColor(tone)
-		ui.Text(c, title).Font(theme.SerifFont).FontSize(theme.H2Size).TextColor(k.Text).TextAlign(ui.Center)
+		ui.Text(c, title).Font(theme.SerifFont).FontSize(FontSize(c, theme.H2Size)).TextColor(k.Text).TextAlign(ui.Center)
 		if opts.Description != "" {
 			ui.Text(c, opts.Description).TextColor(k.TextMuted).TextAlign(ui.Center).MaxWidth(420).LineHeight(theme.LineHeight)
 		}

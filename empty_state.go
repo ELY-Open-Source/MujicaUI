@@ -76,7 +76,7 @@ func EmptyState(c *ui.Context, opts EmptyStateOptions) EmptyStateResult {
 		if !opts.NoIcon {
 			ui.Icon(c, icon).Size(32, 32).TextColor(k.TextMuted).Margin(0, 0, u*2, 0)
 		}
-		ui.Text(c, title).Font(theme.SerifFont).FontSize(theme.H3Size).TextColor(k.Text).TextAlign(ui.Center)
+		ui.Text(c, title).Font(theme.SerifFont).FontSize(FontSize(c, theme.H3Size)).TextColor(k.Text).TextAlign(ui.Center)
 		ui.Text(c, desc).TextColor(k.TextMuted).TextAlign(ui.Center).MaxWidth(360).LineHeight(theme.LineHeight)
 		if opts.Action != "" {
 			ui.Box(c).Margin(u*2, 0, 0, 0).Children(func() {
