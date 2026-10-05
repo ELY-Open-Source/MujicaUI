@@ -144,3 +144,35 @@ func TestTagsInputDisabledAfterFocus(t *testing.T) {
 		t.Fatalf("tags %q changes %d", tags, n)
 	}
 }
+
+// Cut and paste after disabling with a selected draft change neither draft nor clipboard.
+func TestTagsInputDisabledEditCommands(t *testing.T) {
+	tags, n, seen := []string{}, 0, ""
+	opts := TagsInputOptions{Label: "Tags", Validate: func(s string) string { seen = s; return "" }}
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		if TagsInput(c, &tags, opts).Changed() {
+			n++
+		}
+	}, 520, 200)
+	_ = tt.Click("Tags")
+	tt.Type("ivy")
+	tt.Key(ui.Cmd, ui.KeyA)
+	tt.SetClipboard("clip")
+	opts.Disabled = true
+	tt.Frame()
+	tt.Key(ui.Cmd, ui.KeyX)
+	tt.Command("cut")
+	tt.Command("paste")
+	tt.Frame()
+	if tt.Clipboard() != "clip" || n != 0 {
+		t.Fatalf("clipboard %q changes %d", tt.Clipboard(), n)
+	}
+	opts.Disabled = false
+	tt.Frame()
+	_ = tt.Click("Tags")
+	tt.Key(0, ui.KeyEnter)
+	if seen != "ivy" || tt.Clipboard() != "clip" || len(tags) != 1 {
+		t.Fatalf("draft %q clipboard %q tags %q", seen, tt.Clipboard(), tags)
+	}
+}

@@ -141,3 +141,33 @@ func TestInputGroupHitAreasCompact(t *testing.T) {
 		t.Fatalf("button %v", r)
 	}
 }
+
+// Cut and paste after disabling a field with a selection change neither value nor clipboard.
+func TestInputGroupDisabledEditCommands(t *testing.T) {
+	value, disabled, changes := "secret", false, 0
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		if InputGroup(c, &value, InputGroupOptions{Label: "Code", Disabled: disabled}).Changed() {
+			changes++
+		}
+	}, 400, 100)
+	_ = tt.Click("Code")
+	tt.Key(ui.Cmd, ui.KeyA)
+	tt.SetClipboard("clip")
+	disabled = true
+	tt.Frame()
+	tt.Key(ui.Cmd, ui.KeyX)
+	tt.Command("cut")
+	tt.Command("paste")
+	tt.Command("undo")
+	tt.Frame()
+	if value != "secret" || tt.Clipboard() != "clip" || changes != 0 {
+		t.Fatalf("value %q clipboard %q changes %d", value, tt.Clipboard(), changes)
+	}
+	disabled = false
+	tt.Frame()
+	tt.Frame()
+	if value != "secret" || tt.Clipboard() != "clip" || changes != 0 {
+		t.Fatalf("after enabling: value %q clipboard %q", value, tt.Clipboard())
+	}
+}
