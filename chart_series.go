@@ -204,3 +204,15 @@ func chartRuns(vals []float64, x func(i int) float32, f func(idx []int)) {
 		i = j
 	}
 }
+
+func chartVisibleIndices(n, limit, active int) []int {
+	step := max(1, (n+limit-1)/limit)
+	out := make([]int, 0, min(n, limit+1))
+	for i := 0; i < n; i += step {
+		out = append(out, i)
+	}
+	if active >= 0 && active < n && active%step != 0 {
+		out = append(out, active)
+	}
+	return out
+}

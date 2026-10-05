@@ -32,10 +32,10 @@ func BarChart(c *ui.Context, categories []string, series []ChartSeries, opts Bar
 	k := Tokens(c)
 	pal := internal.Palette(k)
 	size := FontSize(c, theme.CaptionSize)
-	keys := make([]chartKey, len(series))
+	keys := make([]ChartLegendItem, len(series))
 	var vis []int
 	for i, s := range series {
-		keys[i] = chartKey{Name: s.Name, Color: pal[i%len(pal)], Shape: i}
+		keys[i] = ChartLegendItem{Name: s.Name, Color: pal[i%len(pal)], Shape: i}
 		if !ch.hidden(s.Name) {
 			vis = append(vis, i)
 		}
@@ -111,12 +111,12 @@ func BarChart(c *ui.Context, categories []string, series []ChartSeries, opts Bar
 		return ui.Rect{X: at, Y: a, W: w, H: max(b-a, 1)}
 	}
 	value := func(i int) float64 { m := lay.marks[i]; return series[m.series].Values[m.cat] }
-	spec := chartSpec{n: len(lay.marks), keys: keys, toggle: len(series) > 1}
-	spec.readout = func(i int) string {
+	spec := ChartSpec{Marks: len(lay.marks), Legend: keys, Hidden: ch.toggles(len(series) > 1)}
+	spec.Readout = func(i int) string {
 		m := lay.marks[i]
 		return categories[m.cat] + " · " + series[m.series].Name + " " + chartValue(c, value(i), opts.Format)
 	}
-	spec.pick = func(r ui.Rect, x, y float32) int {
+	spec.Pick = func(r ui.Rect, x, y float32) int {
 		_, band, vs := geom(r)
 		for i := range lay.marks {
 			b := rect(band, vs, i)
@@ -127,7 +127,7 @@ func BarChart(c *ui.Context, categories []string, series []ChartSeries, opts Bar
 		}
 		return -1
 	}
-	spec.draw = func(p *ui.Painter, r ui.Rect, active int) {
+	spec.Draw = func(p *ui.Painter, r ui.Rect, active int) {
 		plot, band, vs := geom(r)
 		label := func(v float64) string { return internal.FormatTick(v, step) }
 		var pos []float32

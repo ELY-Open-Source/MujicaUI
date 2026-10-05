@@ -46,9 +46,9 @@ func PieChart(c *ui.Context, slices []ChartSlice, opts PieChartOptions) ChartRes
 	if total == 0 {
 		n = 0
 	}
-	keys := make([]chartKey, len(parts))
+	keys := make([]ChartLegendItem, len(parts))
 	for i, s := range parts {
-		keys[i] = chartKey{Name: s.Label, Color: pal[i%len(pal)], Shape: i}
+		keys[i] = ChartLegendItem{Name: s.Label, Color: pal[i%len(pal)], Shape: i}
 	}
 	// angle returns slice i's start and end, clockwise.
 	angle := func(i int) (float64, float64) {
@@ -66,11 +66,11 @@ func PieChart(c *ui.Context, slices []ChartSlice, opts PieChartOptions) ChartRes
 		return r.X + r.W/2, r.Y + r.H/2, r0, r1
 	}
 	share := func(i int) string { return fmt.Sprintf("%.1f%%", 100*parts[i].Value/total) }
-	spec := chartSpec{n: n, keys: keys}
-	spec.readout = func(i int) string {
+	spec := ChartSpec{Marks: n, Legend: keys}
+	spec.Readout = func(i int) string {
 		return parts[i].Label + " · " + chartValue(c, parts[i].Value, opts.Format) + " · " + share(i)
 	}
-	spec.pick = func(r ui.Rect, x, y float32) int {
+	spec.Pick = func(r ui.Rect, x, y float32) int {
 		cx, cy, r0, r1 := geom(r)
 		d := float32(math.Hypot(float64(x-cx), float64(y-cy)))
 		if d < r0 || d > r1 {
@@ -87,7 +87,7 @@ func PieChart(c *ui.Context, slices []ChartSlice, opts PieChartOptions) ChartRes
 		}
 		return -1
 	}
-	spec.draw = func(p *ui.Painter, r ui.Rect, active int) {
+	spec.Draw = func(p *ui.Painter, r ui.Rect, active int) {
 		cx, cy, r0, r1 := geom(r)
 		for i := range parts {
 			a0, a1 := angle(i)
@@ -105,7 +105,10 @@ func PieChart(c *ui.Context, slices []ChartSlice, opts PieChartOptions) ChartRes
 				mx, my := internal.Polar(cx, cy, (r0+r1)/2+float32(chartBool(r0 == 0))*r1*0.12, (a0+a1)/2)
 				ink := chartInk(k, keys[i].Color)
 				internal.Marker(p, i, mx, my-8, 9, ink)
-				chartText(p, share(i), mx, my+2, size, ink, 0.5, 0)
+				// The percent shows where the ring is wide enough to hold it.
+				if w, _ := p.MeasureText(0, ui.Span{Text: share(i), Size: size}); r1-r0 >= w+6 {
+					chartText(p, share(i), mx, my+2, size, ink, 0.5, 0)
+				}
 			}
 		}
 		if opts.Donut {

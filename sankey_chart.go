@@ -127,15 +127,15 @@ func SankeyChart(c *ui.Context, nodes []SankeyNode, links []SankeyLink, opts San
 	if len(links) == 0 {
 		n = 0
 	}
-	spec := chartSpec{n: n}
-	spec.readout = func(i int) string {
+	spec := ChartSpec{Marks: n}
+	spec.Readout = func(i int) string {
 		if i < len(nodes) {
 			return nodes[i].Label + " · " + msg(c, "sankey_chart.in") + " " + val(l.in[i]) + " · " + msg(c, "sankey_chart.out") + " " + val(l.out[i])
 		}
 		e := links[i-len(nodes)]
 		return nodes[l.from[i-len(nodes)]].Label + " → " + nodes[l.to[i-len(nodes)]].Label + " · " + val(e.Value)
 	}
-	spec.pick = func(r ui.Rect, x, y float32) int {
+	spec.Pick = func(r ui.Rect, x, y float32) int {
 		boxes, y0, y1, scale := geom(r)
 		for i, b := range boxes {
 			if (ui.Rect{X: b.X - 4, Y: b.Y, W: b.W + 8, H: b.H}).Contains(x, y) {
@@ -154,7 +154,7 @@ func SankeyChart(c *ui.Context, nodes []SankeyNode, links []SankeyLink, opts San
 		}
 		return -1
 	}
-	spec.draw = func(p *ui.Painter, r ui.Rect, active int) {
+	spec.Draw = func(p *ui.Painter, r ui.Rect, active int) {
 		boxes, y0, y1, scale := geom(r)
 		lit := sankeyLit(l, len(nodes), active)
 		for i := range links {

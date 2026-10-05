@@ -84,8 +84,8 @@ func Gauge(c *ui.Context, value float64, opts GaugeOptions) ChartResult {
 	if seg >= 0 {
 		reading += " · " + opts.Segments[seg].Label
 	}
-	spec := chartSpec{n: 1 + len(opts.Segments)}
-	spec.readout = func(i int) string {
+	spec := ChartSpec{Marks: 1 + len(opts.Segments)}
+	spec.Readout = func(i int) string {
 		if i == 0 {
 			return reading
 		}
@@ -95,7 +95,7 @@ func Gauge(c *ui.Context, value float64, opts GaugeOptions) ChartResult {
 		}
 		return fmt.Sprintf("%s: %s–%s", s.Label, val(from), val(s.To))
 	}
-	spec.pick = func(r ui.Rect, x, y float32) int {
+	spec.Pick = func(r ui.Rect, x, y float32) int {
 		cx, cy, rad := geom(r)
 		d := float32(math.Hypot(float64(x-cx), float64(y-cy)))
 		if d < rad*0.45 {
@@ -114,7 +114,7 @@ func Gauge(c *ui.Context, value float64, opts GaugeOptions) ChartResult {
 		}
 		return -1
 	}
-	spec.draw = func(p *ui.Painter, r ui.Rect, active int) {
+	spec.Draw = func(p *ui.Painter, r ui.Rect, active int) {
 		cx, cy, rad := geom(r)
 		from := a0
 		if len(opts.Segments) == 0 {

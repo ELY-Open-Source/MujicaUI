@@ -55,11 +55,11 @@ func HeatmapChart(c *ui.Context, rows, cols []string, values [][]float64, opts H
 	cell := func(xb, yb internal.Band, i int) ui.Rect {
 		return ui.Rect{X: xb.Start(i % len(cols)), Y: yb.Start(i / len(cols)), W: xb.Width(), H: yb.Width()}
 	}
-	spec := chartSpec{n: n}
-	spec.readout = func(i int) string {
+	spec := ChartSpec{Marks: n}
+	spec.Readout = func(i int) string {
 		return rows[i/len(cols)] + " · " + cols[i%len(cols)] + " · " + chartValue(c, values[i/len(cols)][i%len(cols)], opts.Format)
 	}
-	spec.move = func(i int, key ui.Key) int {
+	spec.Move = func(i int, key ui.Key) int {
 		r, col := i/len(cols), i%len(cols)
 		switch key {
 		case ui.KeyLeft:
@@ -73,7 +73,7 @@ func HeatmapChart(c *ui.Context, rows, cols []string, values [][]float64, opts H
 		}
 		return r*len(cols) + col
 	}
-	spec.pick = func(r ui.Rect, x, y float32) int {
+	spec.Pick = func(r ui.Rect, x, y float32) int {
 		plot, xb, yb := geom(r)
 		if !plot.Contains(x, y) {
 			return -1
@@ -82,7 +82,7 @@ func HeatmapChart(c *ui.Context, rows, cols []string, values [][]float64, opts H
 		row := min(len(rows)-1, int((y-plot.Y)/yb.Step()))
 		return row*len(cols) + col
 	}
-	spec.draw = func(p *ui.Painter, r ui.Rect, active int) {
+	spec.Draw = func(p *ui.Painter, r ui.Rect, active int) {
 		plot, xb, yb := geom(r)
 		for i := range len(rows) * len(cols) {
 			b := cell(xb, yb, i)

@@ -106,8 +106,8 @@ func NetworkGraph(c *ui.Context, s *NetworkGraphState, nodes []GraphNode, edges 
 		return max(hi[0]-lo[0], hi[1]-lo[1], 1e-9) / float64(min(r.W, r.H)-48) / float64(s.zoom)
 	}
 	pt := func(r ui.Rect, i int) (float32, float32) { return screen(r, s.pos[nodes[i].ID]) }
-	spec := chartSpec{n: len(nodes)}
-	spec.readout = func(i int) string {
+	spec := ChartSpec{Marks: len(nodes)}
+	spec.Readout = func(i int) string {
 		var near []string
 		for _, l := range links {
 			switch i {
@@ -119,10 +119,10 @@ func NetworkGraph(c *ui.Context, s *NetworkGraphState, nodes []GraphNode, edges 
 		}
 		return fmt.Sprintf(msg(c, "network_graph.readout"), nodes[i].Label, len(near), strings.Join(near, ", "))
 	}
-	spec.pick = func(r ui.Rect, x, y float32) int {
+	spec.Pick = func(r ui.Rect, x, y float32) int {
 		return internal.Nearest(len(nodes), func(i int) (float32, float32) { return pt(r, i) }, x, y, 12, false)
 	}
-	spec.draw = func(p *ui.Painter, r ui.Rect, active int) {
+	spec.Draw = func(p *ui.Painter, r ui.Rect, active int) {
 		p.Clip(r, 0, func() {
 			for _, l := range links {
 				x0, y0 := pt(r, l[0])
@@ -154,7 +154,7 @@ func NetworkGraph(c *ui.Context, s *NetworkGraphState, nodes []GraphNode, edges 
 	}
 	hit := func(x, y float32) string {
 		b := plot.Bounds()
-		if i := spec.pick(ui.Rect{W: b.W, H: b.H}, x, y); i >= 0 {
+		if i := spec.Pick(ui.Rect{W: b.W, H: b.H}, x, y); i >= 0 {
 			return nodes[i].ID
 		}
 		return ""

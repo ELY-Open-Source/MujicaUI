@@ -74,9 +74,9 @@ func BulletChart(c *ui.Context, value float64, opts BulletChartOptions) ChartRes
 		}
 		return ui.Rect{X: s.Map(float64(a)), Y: plot.Y + inset, W: s.Map(float64(b)) - s.Map(float64(a)), H: plot.H - 2*inset}
 	}
-	spec := chartSpec{n: len(marks)}
-	spec.readout = func(i int) string { return marks[i] }
-	spec.pick = func(r ui.Rect, x, y float32) int {
+	spec := ChartSpec{Marks: len(marks)}
+	spec.Readout = func(i int) string { return marks[i] }
+	spec.Pick = func(r ui.Rect, x, y float32) int {
 		plot, s := geom(r)
 		if !plot.Contains(x, y) {
 			return -1
@@ -99,7 +99,7 @@ func BulletChart(c *ui.Context, value float64, opts BulletChartOptions) ChartRes
 		}
 		return -1
 	}
-	spec.draw = func(p *ui.Painter, r ui.Rect, active int) {
+	spec.Draw = func(p *ui.Painter, r ui.Rect, active int) {
 		plot, s := geom(r)
 		inset := bulletInset(plot, opts.Vertical)
 		prev := 0.0

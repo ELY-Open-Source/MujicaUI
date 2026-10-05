@@ -46,15 +46,15 @@ func Treemap(c *ui.Context, path *[]string, root ChartNode, opts TreemapOptions)
 		}
 		ch := newChart(c, opts.Frame)
 		tiles := func(r ui.Rect) []ui.Rect { return squarify(values, r) }
-		spec := chartSpec{n: len(kids)}
-		spec.readout = func(i int) string {
+		spec := ChartSpec{Marks: len(kids)}
+		spec.Readout = func(i int) string {
 			s := fmt.Sprintf("%s · %s · %.1f%%", kids[i].Name, chartValue(c, values[i], opts.Format), 100*values[i]/sum)
 			if len(kids[i].Children) > 0 {
 				s += " · " + msg(c, "chart.opens")
 			}
 			return s
 		}
-		spec.pick = func(r ui.Rect, x, y float32) int {
+		spec.Pick = func(r ui.Rect, x, y float32) int {
 			for i, t := range tiles(r) {
 				if t.Contains(x, y) {
 					return i
@@ -62,14 +62,14 @@ func Treemap(c *ui.Context, path *[]string, root ChartNode, opts TreemapOptions)
 			}
 			return -1
 		}
-		spec.activate = func(i int) {
+		spec.Activate = func(i int) {
 			if len(kids[i].Children) > 0 {
 				*path = append(slices.Clone(*path), kids[i].Name)
 				res.value = true
 				slog.Debug("mujica: treemap drill", "path", strings.Join(*path, "/"))
 			}
 		}
-		spec.draw = func(p *ui.Painter, r ui.Rect, active int) {
+		spec.Draw = func(p *ui.Painter, r ui.Rect, active int) {
 			for i, t := range tiles(r) {
 				bg := pal[i%len(pal)]
 				p.Fill(t, bg, 2)
