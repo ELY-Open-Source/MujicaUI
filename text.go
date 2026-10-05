@@ -120,6 +120,7 @@ func editableTextField(c *ui.Context, k theme.Tokens, value *string, opts Editab
 		in = ui.TextInputBase(c, &st.draft).Grow(1).MinWidth(theme.MinHitSize*3).Padding(pad, pad*2).
 			Radius(theme.ControlRadius).Background(k.Surface).Border(theme.BorderWidth, k.Accent).TextColor(k.Text).
 			Label(opts.Label).Error(opts.Error)
+		internal.Ring(in, k.Focus, theme.ControlRadius)
 	})
 	done := func() {
 		st.editing = false
