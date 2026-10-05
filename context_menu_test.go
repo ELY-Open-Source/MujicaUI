@@ -93,7 +93,7 @@ func TestContextMenuDisabled(t *testing.T) {
 
 func TestContextMenuSnapshot(t *testing.T) {
 	a := &menuApp{}
-	overlaySnapshot(t, "context_menu", 460, 320, func(c *ui.Context) {
+	snapshotAfter(t, "context_menu", 460, 320, func(c *ui.Context) {
 		ui.Column(c).Padding(20).Children(func() {
 			row := ui.Row(c).Height(36).FillWidth().Padding(0, 12).AlignItems(ui.Center).Background(Tokens(c).Selection)
 			row.Children(func() { ui.Text(c, "Letter to the Countess") })

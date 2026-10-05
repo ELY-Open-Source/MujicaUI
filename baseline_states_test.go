@@ -23,9 +23,9 @@ func TestBaselineButtonStates(t *testing.T) {
 			Button(c, "Cancel", ButtonOptions{Variant: Secondary})
 		})
 	}
-	overlaySnapshot(t, "button-hover", 300, 90, view, func(tt *ui.Tester) { tt.Move(baselineAt(t, tt, "Save")) })
-	overlaySnapshot(t, "button-pressed", 300, 90, view, func(tt *ui.Tester) { tt.Press(baselineAt(t, tt, "Save")) })
-	overlaySnapshot(t, "button-focus", 300, 90, view, func(tt *ui.Tester) { tt.Key(0, ui.KeyTab) })
+	snapshotAfter(t, "button-hover", 300, 90, view, func(tt *ui.Tester) { tt.Move(baselineAt(t, tt, "Save")) })
+	snapshotAfter(t, "button-pressed", 300, 90, view, func(tt *ui.Tester) { tt.Press(baselineAt(t, tt, "Save")) })
+	snapshotAfter(t, "button-focus", 300, 90, view, func(tt *ui.Tester) { tt.Key(0, ui.KeyTab) })
 }
 
 func TestBaselineTextInputStates(t *testing.T) {
@@ -36,8 +36,8 @@ func TestBaselineTextInputStates(t *testing.T) {
 			TextInput(c, &date, TextInputOptions{Label: "Date", Error: "No such date"})
 		})
 	}
-	overlaySnapshot(t, "text_input-focus", 400, 170, view, func(tt *ui.Tester) { tt.Key(0, ui.KeyTab) })
-	overlaySnapshot(t, "text_input-error-focus", 400, 170, view, func(tt *ui.Tester) {
+	snapshotAfter(t, "text_input-focus", 400, 170, view, func(tt *ui.Tester) { tt.Key(0, ui.KeyTab) })
+	snapshotAfter(t, "text_input-error-focus", 400, 170, view, func(tt *ui.Tester) {
 		tt.Key(0, ui.KeyTab)
 		tt.Key(0, ui.KeyTab)
 	})
@@ -51,7 +51,7 @@ func TestBaselineCheckboxStates(t *testing.T) {
 			Checkbox(c, &off, "Open", CheckboxOptions{})
 		})
 	}
-	overlaySnapshot(t, "checkbox-hover", 240, 110, view, func(tt *ui.Tester) { tt.Move(baselineAt(t, tt, "Open")) })
-	overlaySnapshot(t, "checkbox-focus", 240, 110, view, func(tt *ui.Tester) { tt.Key(0, ui.KeyTab) })
-	overlaySnapshot(t, "checkbox-pressed", 240, 110, view, func(tt *ui.Tester) { tt.Press(baselineAt(t, tt, "Sealed")) })
+	snapshotAfter(t, "checkbox-hover", 240, 110, view, func(tt *ui.Tester) { tt.Move(baselineAt(t, tt, "Open")) })
+	snapshotAfter(t, "checkbox-focus", 240, 110, view, func(tt *ui.Tester) { tt.Key(0, ui.KeyTab) })
+	snapshotAfter(t, "checkbox-pressed", 240, 110, view, func(tt *ui.Tester) { tt.Press(baselineAt(t, tt, "Sealed")) })
 }

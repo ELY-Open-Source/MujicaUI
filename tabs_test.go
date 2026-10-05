@@ -1,11 +1,7 @@
 package mujica
 
 import (
-	"bytes"
 	"image/color"
-	"os"
-	"path/filepath"
-	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -159,38 +155,6 @@ func TestTabsSnapshot(t *testing.T) {
 	}
 }
 
-// tabsStateSnapshot compares tabsView after act in both themes with <name>-<mode>.png.
-func tabsStateSnapshot(t *testing.T, name string, act func(tt *ui.Tester)) {
-	t.Helper()
-	for _, m := range []Mode{Light, Dark} {
-		tt := ui.NewTester(func(c *ui.Context) {
-			Use(c, Settings{Mode: m})
-			tabsView(c)
-		}, 520, 300)
-		tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})
-		act(tt)
-		tt.Frame()
-		got := encode(t, tt.Image())
-		path := filepath.Join("testdata", "snapshots", runtime.GOOS, name+"-"+strings.ToLower(m.String())+".png")
-		if *update {
-			if err := os.WriteFile(path, got, 0o644); err != nil {
-				t.Fatal(err)
-			}
-			continue
-		}
-		want, err := os.ReadFile(path)
-		if err != nil {
-			t.Fatalf("%v (run go test -update)", err)
-		}
-		if !bytes.Equal(got, want) {
-			if err := os.WriteFile(path+".got.png", got, 0o644); err != nil {
-				t.Fatal(err)
-			}
-			t.Errorf("%s differs; see %s.got.png", path, path)
-		}
-	}
-}
-
 func TestTabsStateSnapshots(t *testing.T) {
 	center := func(tt *ui.Tester, s string) (float32, float32) {
 		r, ok := tt.Find(s)
@@ -199,9 +163,9 @@ func TestTabsStateSnapshots(t *testing.T) {
 		}
 		return r.X + r.W/2, r.Y + r.H/2
 	}
-	tabsStateSnapshot(t, "tabs-hover", func(tt *ui.Tester) { tt.Move(center(tt, "Members")) })
-	tabsStateSnapshot(t, "tabs-pressed", func(tt *ui.Tester) { tt.Press(center(tt, "Settings")) })
-	tabsStateSnapshot(t, "tabs-focus", func(tt *ui.Tester) {
+	snapshotAfter(t, "tabs-hover", 520, 300, tabsView, func(tt *ui.Tester) { tt.Move(center(tt, "Members")) })
+	snapshotAfter(t, "tabs-pressed", 520, 300, tabsView, func(tt *ui.Tester) { tt.Press(center(tt, "Settings")) })
+	snapshotAfter(t, "tabs-focus", 520, 300, tabsView, func(tt *ui.Tester) {
 		tt.Key(0, ui.KeyTab)
 		tt.Key(0, ui.KeyRight)
 	})

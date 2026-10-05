@@ -211,7 +211,7 @@ func TestDropdownMenuTabInSubmenuClosesMenu(t *testing.T) {
 
 func TestDropdownMenuSnapshot(t *testing.T) {
 	a := &menuApp{pinned: true}
-	overlaySnapshot(t, "dropdown_menu", 520, 320, func(c *ui.Context) {
+	snapshotAfter(t, "dropdown_menu", 520, 320, func(c *ui.Context) {
 		ui.Column(c).Padding(20).AlignItems(ui.Start).Children(func() {
 			DropdownMenu(c, "Actions", DropdownMenuOptions{}, a.build)
 		})

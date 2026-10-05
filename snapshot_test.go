@@ -19,6 +19,12 @@ var update = flag.Bool("update", false, "rewrite snapshots")
 // snapshot compares view in both themes with testdata/snapshots/<os>/<name>-<mode>.png.
 func snapshot(t *testing.T, name string, w, h int, view func(c *ui.Context)) {
 	t.Helper()
+	snapshotAfter(t, name, w, h, view, nil)
+}
+
+// snapshotAfter is snapshot with drive sending input before the capture.
+func snapshotAfter(t *testing.T, name string, w, h int, view func(c *ui.Context), drive func(tt *ui.Tester)) {
+	t.Helper()
 	for _, m := range []Mode{Light, Dark} {
 		ready := false
 		tt := ui.NewTester(func(c *ui.Context) {
@@ -31,6 +37,9 @@ func snapshot(t *testing.T, name string, w, h int, view func(c *ui.Context)) {
 		tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})
 		ready = true
 		tt.Frame()
+		if drive != nil {
+			drive(tt)
+		}
 		got := encode(t, tt.Image())
 		path := filepath.Join("testdata", "snapshots", runtime.GOOS, name+"-"+strings.ToLower(m.String())+".png")
 		if *update {

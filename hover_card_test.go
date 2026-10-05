@@ -154,7 +154,7 @@ func TestHoverCardInsideDialog(t *testing.T) {
 }
 
 func TestHoverCardSnapshot(t *testing.T) {
-	overlaySnapshot(t, "hover_card", 420, 240, func(c *ui.Context) {
+	snapshotAfter(t, "hover_card", 420, 240, func(c *ui.Context) {
 		ui.Column(c).Padding(24).AlignItems(ui.Start).Children(func() {
 			b := Button(c, "Lady Uika", ButtonOptions{Variant: Ghost})
 			HoverCard(c, b, HoverCardOptions{OpenDelay: time.Millisecond}, func() {

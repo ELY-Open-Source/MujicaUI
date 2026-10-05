@@ -99,7 +99,7 @@ func TestTooltipScalesWithText(t *testing.T) {
 }
 
 func TestTooltipSnapshot(t *testing.T) {
-	overlaySnapshot(t, "tooltip", 360, 140, func(c *ui.Context) {
+	snapshotAfter(t, "tooltip", 360, 140, func(c *ui.Context) {
 		ui.Column(c).Padding(24).AlignItems(ui.Start).Children(func() {
 			b := Button(c, "Seal", ButtonOptions{Variant: Secondary})
 			Tooltip(c, b, "Seal the letter with wax", TooltipOptions{Delay: time.Millisecond})
