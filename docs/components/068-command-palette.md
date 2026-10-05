@@ -63,3 +63,4 @@ if id, ok := res.Chosen(); ok {
 
 - MyGo `TextInputBase` 没有占位文字（`ui/editor.go:734`）；为避免与输入法组合文字重叠，说明放在底部提示栏，搜索框以无障碍名称“搜索命令”标识。
 - 搜索是子串匹配，不做模糊匹配或排序打分。
+- 焦点留在搜索框以便继续输入；方向键移动高亮时用 `c.Announce` 朗读当前命令，并写入搜索框的 `Description`（MyGo 的 active descendant 不公开）。

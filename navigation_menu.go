@@ -101,19 +101,23 @@ func navigationMenuTop(c *ui.Context, l NavigationLink, path string, push func(s
 	u := d.Unit()
 	on := navigationMenuActive(l, path)
 	b := ui.ButtonBase(c).MinHeight(d.ControlHeight()).Padding(0, u*3).Gap(u * 1.5).Radius(theme.ControlRadius).
-		Label(l.Label).TextColor(k.TextMuted).Cursor(ui.CursorPointer)
+		Label(l.Label).Cursor(ui.CursorPointer)
 	open := ui.Local(b, "open", func() bool { return false })
 	if l.Items == nil {
 		b.Role(ui.RoleLink)
 	} else {
 		b.Role(ui.RoleMenuButton)
 	}
+	fg := k.TextMuted
 	if on {
-		b.TextColor(k.Text).FontWeight(600)
+		b.FontWeight(600)
+		fg = k.Text
 	}
 	if b.Hovered() || *open {
-		b.Background(k.SurfaceHover).TextColor(k.Text)
+		b.Background(k.SurfaceHover)
+		fg = k.Text
 	}
+	internal.Ease(b, Motion(c, theme.StateDuration), fg)
 	b.FocusRing(false).DrawOver(func(p *ui.Painter, r ui.Rect) {
 		if on {
 			p.Fill(ui.Rect{X: r.X + u*3, Y: r.Y + r.H - 2, W: r.W - u*6, H: 2}, k.AccentText, 1)
@@ -154,7 +158,7 @@ func navigationMenuTop(c *ui.Context, l NavigationLink, path string, push func(s
 					panic("mujica: NavigationLink needs a Label")
 				}
 				if it.Items != nil {
-					ui.Text(c, it.Label).Font(theme.SerifFont).FontSize(theme.CaptionSize).TextColor(k.Ornament.Mix(k.Text, 0.35)).
+					ui.Text(c, it.Label).Font(theme.SerifFont).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.Ornament.Mix(k.Text, 0.35)).
 						Padding(u*2, u*2, u, u*2).SingleLine()
 					list(it.Items)
 					continue
@@ -191,6 +195,7 @@ func navigationMenuItem(c *ui.Context, l NavigationLink, on, first bool) *ui.Ele
 	case e.Hovered():
 		e.Background(k.SurfaceHover)
 	}
+	internal.Ease(e, Motion(c, theme.StateDuration), k.Text)
 	e.Children(func() {
 		if l.Icon != nil {
 			ui.Icon(c, l.Icon).Size(16, 16).Margin(2, 0, 0, 0)
@@ -198,7 +203,7 @@ func navigationMenuItem(c *ui.Context, l NavigationLink, on, first bool) *ui.Ele
 		ui.Column(c).Gap(2).MinWidth(0).Children(func() {
 			ui.Text(c, l.Label).SingleLine()
 			if l.Description != "" {
-				ui.Text(c, l.Description).FontSize(theme.CaptionSize).TextColor(k.TextMuted).FontWeight(400)
+				ui.Text(c, l.Description).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.TextMuted).FontWeight(400)
 			}
 		})
 	})

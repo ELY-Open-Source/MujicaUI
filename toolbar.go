@@ -57,6 +57,7 @@ func ToolbarButton(c *ui.Context, label string, opts ToolbarButtonOptions) *ui.E
 	case b.Hovered():
 		b.Background(k.SurfaceHover)
 	}
+	internal.Ease(b, Motion(c, theme.StateDuration), k.Text)
 	b.Children(func() {
 		if opts.Icon != nil {
 			ui.Icon(c, opts.Icon).Size(16, 16)

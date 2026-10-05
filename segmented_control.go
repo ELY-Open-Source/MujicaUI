@@ -75,7 +75,7 @@ func SegmentedControl(c *ui.Context, selected *int, segments []Segment, opts Seg
 				seg.Background(k.SurfaceHover)
 				fg = k.Text
 			}
-			seg.TextColor(fg)
+			internal.Ease(seg, Motion(c, theme.StateDuration), fg)
 			internal.Ring(seg, k.Focus, theme.ControlRadius)
 			if s.HideLabel {
 				seg.Tooltip(s.Label)
