@@ -13,6 +13,7 @@ func init() {
 		"chart_sync.link":          {"Sync with other charts", "与其他图表同步"},
 		"chart_sync.linked":        {"Synced", "已同步"},
 		"chart_sync.unlinked":      {"Not synced", "未同步"},
+		"indicator_pane.remove":    {"Remove %s", "移除 %s"},
 		"drawing_tools.note":       {"Note", "标注"},
 	})
 }
