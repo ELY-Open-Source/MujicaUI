@@ -1,0 +1,211 @@
+package mujica
+
+import (
+	"cmp"
+	"fmt"
+	"log/slog"
+	"slices"
+
+	"github.com/egoist/mygo/ui"
+
+	"mujicaui/internal"
+	"mujicaui/theme"
+)
+
+// OptionQuote is one contract's market.
+type OptionQuote struct {
+	Bid, Ask, Last float64
+}
+
+// OptionStrike is a strike with its call and put.
+type OptionStrike struct {
+	Strike    float64
+	Call, Put OptionQuote
+}
+
+// OptionSide is a call or a put. The zero value is OptionCall.
+type OptionSide int
+
+const (
+	OptionCall OptionSide = iota
+	OptionPut
+)
+
+// OptionChainState is the expiry shown and the chosen contract.
+type OptionChainState struct {
+	Expiry string
+	// Strike and Side are the chosen contract when Chosen is set.
+	Strike float64
+	Side   OptionSide
+	Chosen bool
+	rows   ui.ListState
+	cursor int
+	center string
+}
+
+// OptionChainOptions configure an OptionChain.
+type OptionChainOptions struct {
+	// Spot is the underlying price; it centers the strikes and marks in-the-money contracts.
+	Spot     float64
+	Decimals int
+	Disabled bool
+}
+
+// OptionChainView is a built OptionChain and this frame's events.
+type OptionChainView struct {
+	Element *ui.Element
+	// ExpiryChanged asks the caller for the strikes of State.Expiry.
+	ExpiryChanged bool
+	// Changed reports a newly chosen contract; Submitted is Enter or a double click.
+	Changed, Submitted bool
+}
+
+// OptionChain shows calls and puts around ascending strikes, centered on the spot, for the chosen expiry.
+func OptionChain(c *ui.Context, s *OptionChainState, expiries []string, strikes []OptionStrike, opts OptionChainOptions) OptionChainView {
+	if s == nil || len(expiries) == 0 {
+		panic("mujica: OptionChain needs a state and an expiry")
+	}
+	if !slices.IsSortedFunc(strikes, func(a, b OptionStrike) int { return cmp.Compare(a.Strike, b.Strike) }) {
+		panic("mujica: OptionChain strikes must ascend")
+	}
+	if !slices.Contains(expiries, s.Expiry) {
+		s.Expiry = expiries[0]
+	}
+	dec := priceDecimals("OptionChain", opts.Decimals)
+	k := Tokens(c)
+	d := Density(c)
+	var v OptionChainView
+	v.Element = ui.Column(c).Gap(d.Unit() * 2).MinHeight(0).Disabled(opts.Disabled)
+	v.Element.Children(func() {
+		ui.Row(c).Gap(d.Unit() * 3).AlignItems(ui.Center).Children(func() {
+			items := make([]SelectOption[string], len(expiries))
+			for i, e := range expiries {
+				items[i] = SelectOption[string]{Value: e, Label: e}
+			}
+			v.ExpiryChanged = Select(c, &s.Expiry, items, SelectOptions{Label: msg(c, "option_chain.expiry"), Disabled: opts.Disabled}).Changed()
+			if opts.Spot > 0 {
+				ui.Text(c, fmt.Sprintf(msg(c, "option_chain.spot"), statisticFormat(opts.Spot, dec))).TextColor(k.TextMuted)
+			}
+		})
+		optionChainHeader(c)
+		v.Changed, v.Submitted = optionChainRows(c, s, strikes, opts, dec)
+	})
+	if v.Element.IsDisabled() {
+		v.ExpiryChanged, v.Changed, v.Submitted = false, false, false
+	}
+	if v.Changed {
+		slog.Debug("mujica: option_chain choose", "strike", s.Strike, "side", s.Side)
+	}
+	return v
+}
+
+var optionChainCols = [3]string{"option_chain.bid", "option_chain.ask", "option_chain.last"}
+
+func optionChainHeader(c *ui.Context) {
+	t := Tokens(c)
+	d := Density(c)
+	size := FontSize(c, theme.CaptionSize)
+	ui.Row(c).Padding(0, d.Unit()*3).Children(func() {
+		for side, title := range []string{"option_chain.calls", "option_chain.puts"} {
+			if side == 1 {
+				ui.Text(c, msg(c, "option_chain.strike")).Width(90).TextAlign(ui.Center).FontSize(size).TextColor(t.TextMuted)
+			}
+			ui.Row(c).Grow(1).Basis(0).Children(func() {
+				for _, col := range optionChainCols {
+					ui.Text(c, msg(c, col)).Grow(1).Basis(0).TextAlign(ui.End).FontSize(size).TextColor(t.TextMuted)
+				}
+			}).Label(msg(c, title))
+		}
+	})
+}
+
+func optionChainRows(c *ui.Context, s *OptionChainState, strikes []OptionStrike, opts OptionChainOptions, dec int) (changed, submitted bool) {
+	k := Tokens(c)
+	d := Density(c)
+	if len(strikes) == 0 {
+		ui.Text(c, msg(c, "option_chain.empty")).TextColor(k.TextMuted).Padding(d.Unit() * 3)
+		return false, false
+	}
+	s.cursor = -1
+	if s.Chosen {
+		s.cursor = slices.IndexFunc(strikes, func(o OptionStrike) bool { return o.Strike == s.Strike })
+	}
+	before, side := s.cursor, s.Side
+	cursor := &s.cursor
+	if opts.Disabled {
+		cp := s.cursor
+		cursor = &cp
+	}
+	atm, _ := slices.BinarySearchFunc(strikes, opts.Spot, func(o OptionStrike, v float64) int { return cmp.Compare(o.Strike, v) })
+	if key := fmt.Sprint(s.Expiry, len(strikes)); key != s.center {
+		s.center = key
+		s.rows.ScrollTo(min(atm, len(strikes)-1), ui.Center)
+	}
+	s.rows.Key = func(i int) any { return strikes[i].Strike }
+	s.rows.Label = func(i int) string { return statisticFormat(strikes[i].Strike, dec) }
+	s.rows.Selected = cursor
+	restore := dataSelectTheme(c, 0)
+	list := ui.List(c, &s.rows, len(strikes), func(i int) {
+		o := strikes[i]
+		chosen := s.Chosen && i == s.cursor
+		ui.Row(c).MinHeight(d.ControlHeight()).Padding(0, d.Unit()*2).AlignItems(ui.Stretch).Children(func() {
+			for sd, q := range []OptionQuote{o.Call, o.Put} {
+				if sd == 1 {
+					optionChainStrike(c, o.Strike, dec, i == atm && opts.Spot > 0)
+				}
+				itm := opts.Spot > 0 && (sd == 0 && o.Strike < opts.Spot || sd == 1 && o.Strike > opts.Spot)
+				half := ui.Row(c).Grow(1).Basis(0).AlignItems(ui.Center).Radius(theme.ControlRadius).
+					Label(optionChainName(c, o.Strike, OptionSide(sd), q, dec, itm))
+				if itm {
+					half.Background(k.Ornament.Alpha(0.14))
+				}
+				if chosen && OptionSide(sd) == s.Side {
+					half.DrawOver(func(p *ui.Painter, r ui.Rect) { internal.Frame(p, r, 1, 5, k.AccentText) })
+				}
+				if half.Clicked() && !half.IsDisabled() {
+					*cursor, s.Side = i, OptionSide(sd)
+				}
+				half.Children(func() {
+					for _, v := range []float64{q.Bid, q.Ask, q.Last} {
+						ui.Text(c, statisticFormat(v, dec)).Grow(1).Basis(0).TextAlign(ui.End).FontFeatures("tnum").SingleLine()
+					}
+				})
+			}
+		})
+	}).Grow(1).MinHeight(0).Padding(d.Unit()).Background(k.Surface).Border(theme.BorderWidth, k.Border).Radius(theme.ControlRadius)
+	restore()
+	internal.Ring(list, k.Focus, theme.ControlRadius)
+	if !opts.Disabled {
+		switch {
+		case list.Shortcut(0, ui.KeyLeft):
+			s.Side = OptionCall
+		case list.Shortcut(0, ui.KeyRight):
+			s.Side = OptionPut
+		}
+		if s.cursor >= 0 && (s.cursor != before || s.Side != side) {
+			s.Strike, s.Chosen, changed = strikes[s.cursor].Strike, true, true
+		}
+		submitted = list.Submitted() && s.Chosen
+	}
+	return changed, submitted
+}
+
+// optionChainStrike is the middle strike cell; the one at the spot carries a diamond.
+func optionChainStrike(c *ui.Context, strike float64, dec int, atm bool) {
+	k := Tokens(c)
+	ui.Row(c).Width(90).Gap(4).Justify(ui.Center).AlignItems(ui.Center).Background(k.Background).Children(func() {
+		if atm {
+			ui.Box(c).Size(8, 8).Draw(func(p *ui.Painter, r ui.Rect) { p.FillPath(internal.Diamond(r.X+4, r.Y+4, 8), k.Ornament) })
+		}
+		ui.Text(c, statisticFormat(strike, dec)).FontWeight(700).FontFeatures("tnum")
+	})
+}
+
+func optionChainName(c *ui.Context, strike float64, side OptionSide, q OptionQuote, dec int, itm bool) string {
+	s := fmt.Sprintf(msg(c, []string{"option_chain.call_name", "option_chain.put_name"}[side]), statisticFormat(strike, dec),
+		statisticFormat(q.Bid, dec), statisticFormat(q.Ask, dec), statisticFormat(q.Last, dec))
+	if itm {
+		s += ", " + msg(c, "option_chain.itm")
+	}
+	return s
+}
