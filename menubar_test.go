@@ -178,6 +178,38 @@ func TestMenubarKeysAfterClickInMenu(t *testing.T) {
 	}
 }
 
+func TestMenubarTabOutClosesMenu(t *testing.T) {
+	for _, back := range []bool{false, true} {
+		a := &menubarApp{}
+		tt := ui.NewTester(func(c *ui.Context) {
+			Use(c, Settings{})
+			ui.Column(c).Fill().Children(func() {
+				Button(c, "Before", ButtonOptions{})
+				Menubar(c, a.menus(), MenubarOptions{})
+				Button(c, "After", ButtonOptions{})
+			})
+		}, 700, 500)
+		tt.Key(0, ui.KeyTab)
+		tt.Key(0, ui.KeyTab)
+		tt.Key(0, ui.KeyDown)
+		if !tt.HasText("Quit") {
+			t.Fatal("menu did not open")
+		}
+		mods, want := ui.Modifiers(0), "After"
+		if back {
+			mods, want = ui.Shift, "Before"
+		}
+		tt.Key(mods, ui.KeyTab)
+		if tt.HasText("Quit") || !tt.Focused(want) {
+			t.Fatalf("shift=%v: menu open %v, focus on %s %v", back, tt.HasText("Quit"), want, tt.Focused(want))
+		}
+		tt.Key(0, ui.KeyEscape)
+		if !tt.Focused(want) {
+			t.Fatalf("shift=%v: Escape moved focus off %s", back, want)
+		}
+	}
+}
+
 func TestMenubarLongMenuScrolls(t *testing.T) {
 	var items []MenubarItem
 	for i := range 30 {
