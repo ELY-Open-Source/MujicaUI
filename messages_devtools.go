@@ -95,6 +95,17 @@ func init() {
 		"schema_tree.column":   {"Column", "列"},
 		"schema_tree.index":    {"Index", "索引"},
 
+		"api_request_builder.method":        {"Method", "方法"},
+		"api_request_builder.url":           {"Request URL", "请求地址"},
+		"api_request_builder.send":          {"Send", "发送"},
+		"api_request_builder.params":        {"Params (%d)", "参数（%d）"},
+		"api_request_builder.params_label":  {"Query parameters", "查询参数"},
+		"api_request_builder.headers":       {"Headers (%d)", "请求头（%d）"},
+		"api_request_builder.headers_label": {"Request headers", "请求头"},
+		"api_request_builder.body":          {"Body", "正文"},
+		"api_request_builder.no_body":       {"GET and HEAD requests usually carry no body.", "GET 与 HEAD 请求通常不带正文。"},
+		"api_request_builder.parts":         {"Request parts", "请求组成"},
+
 		"alert_list.empty": {"No alerts", "没有告警"},
 	})
 }
