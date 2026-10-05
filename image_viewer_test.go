@@ -28,7 +28,6 @@ type viewerHarness struct {
 	index   int
 	images  []ViewerImage
 	changes int
-	stage   ui.Rect
 }
 
 func newViewerHarness() *viewerHarness {
