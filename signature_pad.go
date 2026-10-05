@@ -112,7 +112,7 @@ func SignaturePad(c *ui.Context, strokes *[][]SignaturePoint, opts SignaturePadO
 		size := FontSize(c, theme.CaptionSize)
 		pad.Draw(func(p *ui.Painter, r ui.Rect) {
 			line := r.Y + r.H - 28
-			internal.Rule(p, r.X+16, r.X+r.W-16, line, k.Border)
+			p.Fill(ui.Rect{X: r.X + 16, Y: line, W: r.W - 32, H: 1}, k.Border, 0)
 			p.Text(r.X+16, line+4, "×", size, k.TextMuted)
 			if empty {
 				w, _ := p.MeasureText(0, ui.Span{Text: msg(c, "signature_pad.empty"), Size: size})
