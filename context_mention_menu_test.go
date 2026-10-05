@@ -14,8 +14,8 @@ var mentionSample = []ContextItem{
 	{ID: "f2", Label: "seating.xlsx", Detail: "~/ball", Kind: ContextFile},
 }
 
-// mentionTester filters items as an async source would, one frame late.
-type mentionTester struct {
+// mentionMenuTester filters items as an async source would, one frame late.
+type mentionMenuTester struct {
 	text    string
 	items   []ContextItem
 	loading bool
@@ -23,7 +23,7 @@ type mentionTester struct {
 	queries []string
 }
 
-func (m *mentionTester) view(c *ui.Context) {
+func (m *mentionMenuTester) view(c *ui.Context) {
 	Use(c, Settings{})
 	ui.Column(c).Fill().Justify(ui.End).Padding(16).Children(func() {
 		p := PromptComposer(c, &m.text, PromptComposerOptions{Label: "Prompt"})
@@ -44,7 +44,7 @@ func (m *mentionTester) view(c *ui.Context) {
 }
 
 func TestContextMentionMenuGroupsAndChooses(t *testing.T) {
-	m := &mentionTester{}
+	m := &mentionMenuTester{}
 	tt := ui.NewTester(m.view, 600, 500)
 	_ = tt.Click("Prompt")
 	tt.Type("Read @")
@@ -68,7 +68,7 @@ func TestContextMentionMenuGroupsAndChooses(t *testing.T) {
 }
 
 func TestContextMentionMenuOnlyAfterSpaceAndLoading(t *testing.T) {
-	m := &mentionTester{loading: true}
+	m := &mentionMenuTester{loading: true}
 	tt := ui.NewTester(m.view, 600, 500)
 	_ = tt.Click("Prompt")
 	tt.Type("mail@host")
@@ -93,13 +93,13 @@ func TestContextMentionMenuBadItem(t *testing.T) {
 			t.Fatal("no panic for an item without ID")
 		}
 	}()
-	m := &mentionTester{items: []ContextItem{{Label: "x"}}}
+	m := &mentionMenuTester{items: []ContextItem{{Label: "x"}}}
 	ui.NewTester(m.view, 300, 300)
 }
 
 func TestContextMentionMenuSnapshot(t *testing.T) {
 	snapshotAfter(t, "context_mention_menu", 560, 420, func(c *ui.Context) {
-		(*ui.Local(c.Root(), "m", func() *mentionTester { return &mentionTester{items: mentionSample} })).view(c)
+		(*ui.Local(c.Root(), "m", func() *mentionMenuTester { return &mentionMenuTester{items: mentionSample} })).view(c)
 	}, func(tt *ui.Tester) {
 		_ = tt.Click("Prompt")
 		tt.Type("Compare @")

@@ -8,7 +8,7 @@ import (
 	"github.com/egoist/mygo/ui"
 )
 
-var traceSample = []WaterfallSpan{
+var waterfallSample = []WaterfallSpan{
 	{ID: "db", Parent: "api", Name: "SELECT guests", Service: "postgres", Start: 40 * time.Millisecond, Duration: 90 * time.Millisecond},
 	{ID: "root", Name: "GET /ball", Service: "gateway", Duration: 320 * time.Millisecond},
 	{ID: "api", Parent: "root", Name: "ListGuests", Service: "api", Start: 20 * time.Millisecond, Duration: 200 * time.Millisecond},
@@ -26,7 +26,7 @@ func traceTester(spans []WaterfallSpan, changes *int) *ui.Tester {
 
 func TestTraceWaterfallOrderAndDetail(t *testing.T) {
 	n := 0
-	tt := traceTester(traceSample, &n)
+	tt := traceTester(waterfallSample, &n)
 	if !tt.HasText("4 spans · 320 ms") {
 		t.Fatalf("summary: %q", tt.Texts())
 	}
@@ -73,6 +73,6 @@ func TestTraceWaterfallRulesAndMany(t *testing.T) {
 
 func TestTraceWaterfallSnapshot(t *testing.T) {
 	snapshot(t, "trace_waterfall", 680, 280, func(c *ui.Context) {
-		ui.Column(c).Padding(16).Children(func() { TraceWaterfall(c, traceSample, TraceWaterfallOptions{Height: 180}) })
+		ui.Column(c).Padding(16).Children(func() { TraceWaterfall(c, waterfallSample, TraceWaterfallOptions{Height: 180}) })
 	})
 }
