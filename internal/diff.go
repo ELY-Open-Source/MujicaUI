@@ -2,7 +2,7 @@ package internal
 
 import "strings"
 
-// DiffOp says whether a diff line is kept, removed or added.
+// DiffOp says a line is kept, removed or added.
 type DiffOp uint8
 
 const (
@@ -11,14 +11,14 @@ const (
 	DiffInsert
 )
 
-// DiffLine is one line of a line diff with its 1-based line numbers; 0 means absent.
+// DiffLine is a numbered diff line; 0 means absent.
 type DiffLine struct {
 	Op       DiffOp
 	Text     string
 	Old, New int
 }
 
-// SplitLines splits text into lines without their line breaks; "" has no lines.
+// SplitLines splits text into lines; "" has none.
 func SplitLines(s string) []string {
 	if s == "" {
 		return nil
@@ -26,7 +26,7 @@ func SplitLines(s string) []string {
 	return strings.Split(strings.TrimSuffix(s, "\n"), "\n")
 }
 
-// LineDiff returns a shortest edit script turning a into b (Myers, O((N+M)D)).
+// LineDiff returns a shortest edit script from a to b.
 func LineDiff(a, b []string) []DiffLine {
 	// Common prefix and suffix need no search.
 	pre := 0
@@ -49,7 +49,7 @@ func LineDiff(a, b []string) []DiffLine {
 	return out
 }
 
-// myers appends the edit script of a to b, numbering from offsets ao and bo.
+// myers appends the edit script, numbering from ao and bo.
 func myers(out []DiffLine, a, b []string, ao, bo int) []DiffLine {
 	n, m := len(a), len(b)
 	total := n + m
@@ -80,7 +80,7 @@ func myers(out []DiffLine, a, b []string, ao, bo int) []DiffLine {
 			}
 		}
 	}
-	// Walk the trace back from (n, m), collecting moves in reverse.
+	// Walk the trace back, collecting moves in reverse.
 	var rev []DiffLine
 	x, y := n, m
 	for d := end; d >= 0; d-- {
