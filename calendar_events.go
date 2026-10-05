@@ -1,0 +1,204 @@
+package mujica
+
+import (
+	"fmt"
+	"sort"
+	"time"
+
+	"github.com/egoist/mygo/ui"
+
+	"mujicaui/theme"
+)
+
+// EventColor picks an event's color from the theme's event palette.
+type EventColor int
+
+const (
+	EventAccent EventColor = iota
+	EventInfo
+	EventSuccess
+	EventWarning
+	EventDanger
+	EventNeutral
+)
+
+// CalendarEvent is one entry of the calendar views. End is exclusive.
+type CalendarEvent struct {
+	ID       string
+	Title    string
+	Start    time.Time
+	End      time.Time
+	AllDay   bool
+	Color    EventColor
+	Location string
+	// Attendees, Reminders and Repeat are edited by EventEditor.
+	Attendees []Attendee
+	Reminders []time.Duration
+	Repeat    Recurrence
+}
+
+// CalendarChangeKind says what a view gesture did.
+type CalendarChangeKind int
+
+const (
+	CalendarMove CalendarChangeKind = iota
+	CalendarResize
+	CalendarCreate
+)
+
+// CalendarChange is a move, resize or new event a view asks the caller to apply.
+type CalendarChange struct {
+	Kind       CalendarChangeKind
+	ID         string
+	Start, End time.Time
+	AllDay     bool
+}
+
+// CalendarViewResult is a calendar view and what the user asked of it.
+type CalendarViewResult struct {
+	Element *ui.Element
+	opened  string
+	change  *CalendarChange
+	day     Date
+}
+
+// Opened returns the event the user activated.
+func (r CalendarViewResult) Opened() (string, bool) { return r.opened, r.opened != "" }
+
+// Changed returns the move, resize or creation the user made.
+func (r CalendarViewResult) Changed() (CalendarChange, bool) {
+	if r.change == nil {
+		return CalendarChange{}, false
+	}
+	return *r.change, true
+}
+
+// DayChosen returns the day the user activated.
+func (r CalendarViewResult) DayChosen() (Date, bool) { return r.day, !r.day.IsZero() }
+
+// eventPalette maps EventColor to tokens that keep 3:1 on Surface in both themes.
+func eventPalette(k theme.Tokens) [6]ui.Color {
+	return [6]ui.Color{k.AccentText, k.Info, k.Success, k.Warning, k.Danger, k.TextMuted}
+}
+
+func eventColor(k theme.Tokens, c EventColor) ui.Color {
+	if c < EventAccent || c > EventNeutral {
+		panic(fmt.Sprintf("mujica: EventColor %d out of range", c))
+	}
+	return eventPalette(k)[c]
+}
+
+// eventsCheck panics on events no view can place.
+func eventsCheck(name string, events []CalendarEvent) {
+	for _, e := range events {
+		if e.ID == "" {
+			panic("mujica: " + name + " event without ID")
+		}
+		if !e.End.After(e.Start) {
+			panic(fmt.Sprintf("mujica: %s event %q ends before it starts", name, e.ID))
+		}
+	}
+}
+
+// eventsIndex caches the events overlapping a span, rebuilt only when data or span change.
+type eventsIndex struct {
+	first    *CalendarEvent
+	n        int
+	version  int
+	from, to time.Time
+	hits     []int
+}
+
+// eventsIn returns the indexes of events overlapping [from, to), by start time.
+func eventsIn(e *ui.Element, events []CalendarEvent, version int, from, to time.Time) []int {
+	ix := ui.Local(e, "mujica.events.index", func() *eventsIndex { return &eventsIndex{} })
+	var first *CalendarEvent
+	if len(events) > 0 {
+		first = &events[0]
+	}
+	if c := *ix; c.first == first && c.n == len(events) && c.version == version && c.from.Equal(from) && c.to.Equal(to) && c.hits != nil {
+		return c.hits
+	}
+	hits := []int{}
+	for i, ev := range events {
+		if ev.Start.Before(to) && ev.End.After(from) {
+			hits = append(hits, i)
+		}
+	}
+	sort.SliceStable(hits, func(a, b int) bool {
+		x, y := events[hits[a]], events[hits[b]]
+		if !x.Start.Equal(y.Start) {
+			return x.Start.Before(y.Start)
+		}
+		return x.End.After(y.End)
+	})
+	**ix = eventsIndex{first, len(events), version, from, to, hits}
+	return hits
+}
+
+// eventSpan is a placed interval, in any unit.
+type eventSpan struct{ from, to float64 }
+
+// eventColumns lays out overlapping spans side by side: each gets a column and its cluster's width.
+func eventColumns(spans []eventSpan) (col, cols []int) {
+	col, cols = make([]int, len(spans)), make([]int, len(spans))
+	order := make([]int, len(spans))
+	for i := range order {
+		order[i] = i
+	}
+	sort.SliceStable(order, func(a, b int) bool { return spans[order[a]].from < spans[order[b]].from })
+	var ends []float64
+	var cluster []int
+	clusterEnd := -1.0
+	flush := func() {
+		for _, i := range cluster {
+			cols[i] = len(ends)
+		}
+		cluster, ends = cluster[:0], ends[:0]
+	}
+	for _, i := range order {
+		s := spans[i]
+		if len(cluster) > 0 && s.from >= clusterEnd {
+			flush()
+		}
+		placed := false
+		for c, end := range ends {
+			if end <= s.from {
+				ends[c], col[i], placed = s.to, c, true
+				break
+			}
+		}
+		if !placed {
+			col[i] = len(ends)
+			ends = append(ends, s.to)
+		}
+		cluster = append(cluster, i)
+		clusterEnd = max(clusterEnd, s.to)
+	}
+	flush()
+	return col, cols
+}
+
+// eventDayStart is midnight of d in loc; a missing midnight resolves to the day's first instant.
+func eventDayStart(d Date, loc *time.Location) time.Time {
+	return time.Date(d.Year, d.Month, d.Day, 0, 0, 0, 0, loc)
+}
+
+// eventTimeText formats an event's wall-clock span in loc.
+func eventTimeText(c *ui.Context, ev CalendarEvent, loc *time.Location, hour12 bool) string {
+	if ev.AllDay {
+		return msg(c, "event_chip.all_day")
+	}
+	cfg := timeConfig{hour12: hour12}
+	s, e := ev.Start.In(loc), ev.End.In(loc)
+	text := timeText(c, TimeOfDay{s.Hour(), s.Minute(), 0}, cfg) + " – " + timeText(c, TimeOfDay{e.Hour(), e.Minute(), 0}, cfg)
+	return text
+}
+
+// eventLocation panics without a caller zone; views never assume UTC.
+func eventLocation(name string, loc *time.Location) *time.Location {
+	if loc == nil {
+		panic("mujica: " + name + " needs a Location")
+	}
+	return loc
+}
