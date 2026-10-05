@@ -42,7 +42,7 @@ mujica.Meter(c, 93, mujica.MeterOptions{
 | `Levels` | `*ui.MeterLevels` | `nil` | 阈值：达到 `Warning` 为偏高、达到 `Critical` 为严重；`Critical < Warning` 时低值为坏（如电量）。须在范围内。 |
 | `Label` | `string` | `""` | 名称。 |
 | `ShowValue` | `bool` | `false` | 显示“值 / 最大值”。 |
-| `Width` | `float32` | 填满 | 宽度。 |
+| `Width` | `float32` | 填满 | 宽度；负数、NaN 或无穷 panic。 |
 
 ## 状态
 
@@ -60,5 +60,5 @@ mujica.Meter(c, 93, mujica.MeterOptions{
 
 ## 限制
 
-- 环形直径小于 44 DIP 时百分比显示在旁边，而不是环内。
+- 百分比按缩放后的文字尺寸测量，放不进环内时显示在环旁边。
 - MyGo 不提供自定义无障碍数值的公开接口，因此必须基于 `ui.Progress` / `ui.Meter` 元素绘制。
