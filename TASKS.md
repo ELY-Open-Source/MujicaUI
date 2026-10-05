@@ -2,8 +2,8 @@
 
 Ordered by PRD sections. Check an item only after its codex review passes. Review rounds noted as `r1`, `r2`, `r3`.
 
-- [ ] T01 §1–2 Module, MyGo v0.2.10 pin, reuse rules, AGENTS.md
-- [ ] T02 §3 Tokens, density, type, motion, contrast tests, `Use`, icons, i18n
+- [x] T01 §1–2 Module, MyGo v0.2.10 pin, reuse rules, AGENTS.md — r1 FAIL (line height, enum checks), r2 PASS
+- [x] T02 §3 Tokens, density, type, motion, contrast tests, `Use`, icons, i18n — r1 FAIL, r2 PASS
 - [ ] T03 §4.1 Layout 001–010
 - [ ] T04 §4.2 Display 011–020
 - [ ] T05 §4.3 Inputs 021–030
