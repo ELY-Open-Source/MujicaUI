@@ -16,6 +16,8 @@ func init() {
 
 		"color_palette.custom": {"Custom color", "自定义颜色"},
 
+		"knob.label": {"Knob", "旋钮"},
+
 		"qr_code.label":    {"QR code", "二维码"},
 		"qr_code.too_long": {"Text too long for a QR code", "文字过长，无法生成二维码"},
 	})
