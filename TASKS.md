@@ -43,4 +43,5 @@ Ordered by PRD sections. Check an item only after its codex review passes. Revie
 - [ ] T19 §8 Docs: install, minimal example, theme, compat; 100 component pages; examples compile
 - [ ] T20 §9 Snapshots, density baselines, large-data and lifecycle tests
 - [ ] T21 §9 CI workflow
-- [ ] T22 §10 Acceptance checklist
+- [ ] T22 §6.3 Split into category sub-packages after 001–500 land (user decision 2026-10-05); update PRD §6.3, docs, Gallery, CI
+- [ ] T23 §10 Acceptance checklist

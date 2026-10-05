@@ -36,7 +36,7 @@ func (m *mirror) serveInput(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	m.mu.Lock()
-	err := m.apply(in)
+	err := m.applyWatchingClipboard(in)
 	if err == nil {
 		m.capture()
 	}
@@ -67,7 +67,8 @@ func (m *mirror) apply(in input) error {
 		if d := m.down; d != nil {
 			m.down = nil
 			if dx, dy := in.X-d.X, in.Y-d.Y; dx*dx+dy*dy <= 16 {
-				m.tt.ClickAtWith(modifiers(d.Mods), d.X, d.Y)
+				// The click lands where it is released, as a real press and release would.
+				m.tt.ClickAtWith(modifiers(d.Mods), in.X, in.Y)
 			} else {
 				slog.Info("gallery: modified drag ignored; tester clicks only", "mods", modifiers(d.Mods))
 			}
@@ -123,4 +124,22 @@ func modifiers(m []bool) ui.Modifiers {
 		}
 	}
 	return out
+}
+
+// applyWatchingClipboard applies in and notes any clipboard write it caused, even of equal text.
+func (m *mirror) applyWatchingClipboard(in input) error {
+	if in.Type == "paste" || in.Type == "command" && in.Text == "paste" {
+		return m.apply(in)
+	}
+	before := m.tt.Clipboard()
+	m.probes++
+	probe := fmt.Sprintf("\x00mujica-mirror-probe-%d", m.probes)
+	m.tt.SetClipboard(probe)
+	err := m.apply(in)
+	if m.tt.Clipboard() == probe {
+		m.tt.SetClipboard(before)
+	} else {
+		m.copied = true
+	}
+	return err
 }
