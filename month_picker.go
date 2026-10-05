@@ -44,11 +44,13 @@ type MonthPickerOptions struct {
 	// Today marks the current month; zero uses the system clock.
 	Today    Date
 	Disabled bool
+	// ReadOnly keeps the field focusable and copyable but blocks the popup and clearing.
+	ReadOnly bool
 	// Label names the field for assistive technology.
 	Label string
 }
 
-// MonthPicker chooses a month into *value from a year page; PageUp and PageDown change the year.
+// MonthPicker chooses a month into *value from a year page.
 func MonthPicker(c *ui.Context, value *YearMonth, opts MonthPickerOptions) DateTimeResult {
 	for _, m := range []YearMonth{*value, opts.Min, opts.Max} {
 		if !m.IsZero() && (m.Month < time.January || m.Month > time.December) {
@@ -75,7 +77,7 @@ func MonthPicker(c *ui.Context, value *YearMonth, opts MonthPickerOptions) DateT
 	}
 	col, picked, ok, cleared := datetimeGridPicker(c, datetimeGridField{
 		text: text, placeholder: msg(c, "month_picker.placeholder"), label: label,
-		clearable: opts.Clearable, hasValue: !value.IsZero(), disabled: opts.Disabled, home: home.ordinal(),
+		clearable: opts.Clearable, hasValue: !value.IsZero(), disabled: opts.Disabled, readOnly: opts.ReadOnly, home: home.ordinal(),
 	}, datetimeGridConfig{
 		pageOf:  func(o int) (int, int) { return yearMonthOf(o).Year * 12, 12 },
 		cols:    3,

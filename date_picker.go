@@ -24,12 +24,13 @@ type DatePickerOptions struct {
 	// Placeholder shows in the empty field; empty uses the built-in copy.
 	Placeholder string
 	Disabled    bool
+	// ReadOnly keeps the text focusable and copyable but blocks edits and the popup.
+	ReadOnly bool
 	// Label names the field for assistive technology.
 	Label string
 }
 
-// DatePicker is a typed date field with a calendar popup editing *value.
-// Typed text commits on Enter or when the field loses focus; invalid text stays and is reported.
+// DatePicker types or picks *value; invalid text is kept and reported.
 func DatePicker(c *ui.Context, value *Date, opts DatePickerOptions) DateTimeResult {
 	datetimeCheckDate("DatePicker value", *value)
 	datetimeCheckBounds("DatePicker", opts.Min, opts.Max)
@@ -53,6 +54,13 @@ func DatePicker(c *ui.Context, value *Date, opts DatePickerOptions) DateTimeResu
 	open := ui.Local(col, "date-picker-open", func() bool { return false })
 	cursor := ui.Local(col, "date-picker-cursor", func() Date { return Date{} })
 	wasFocused := ui.Local(col, "date-picker-focused", func() bool { return false })
+	shownLayout := ui.Local(col, "date-picker-layout", func() string { return layout })
+	if *shownLayout != layout {
+		if *text == Date.Format(*value, *shownLayout) || value.IsZero() && *text == "" {
+			*text = format(*value)
+		}
+		*shownLayout = layout
+	}
 	if *seen != *value {
 		*seen, *text, *problem = *value, format(*value), ""
 	}
@@ -96,23 +104,26 @@ func DatePicker(c *ui.Context, value *Date, opts DatePickerOptions) DateTimeResu
 	}
 	var field *ui.Element
 	col.Children(func() {
-		field = datetimeField(c, ui.Row(c), *problem != "")
+		field = datetimeField(c, ui.Row(c), *problem != "", opts.ReadOnly)
 		field.Children(func() {
-			in := ui.TextInputBase(c, text).Grow(1).Shrink(1).Placeholder(placeholder).FontFeatures("tnum")
+			in := textInputEditor(c, field, text, opts.ReadOnly, false).Grow(1).Shrink(1).Placeholder(placeholder).FontFeatures("tnum")
 			label := opts.Label
 			if label == "" {
 				label = placeholder
 			}
 			in.Label(label).Error(*problem)
 			focused := in.Focused()
-			if in.Submitted() || *wasFocused && !focused && *text != format(*value) {
+			if !opts.ReadOnly && (in.Submitted() || *wasFocused && !focused && *text != format(*value)) {
 				submit()
 			}
 			*wasFocused = focused
+			if opts.ReadOnly {
+				return
+			}
 			if opts.Clearable && !value.IsZero() && datetimeIconButton(c, "x", msg(c, "calendar.clear")).Clicked() {
 				commit(Date{}, "clear")
 			}
-			if datetimeIconButton(c, "calendar", msg(c, "date_picker.open")).Clicked() {
+			if datetimeIconButton(c, "calendar", msg(c, "date_picker.open")).Role(ui.RolePopUpButton).Clicked() {
 				if *open {
 					*open = false
 				} else {
@@ -120,10 +131,10 @@ func DatePicker(c *ui.Context, value *Date, opts DatePickerOptions) DateTimeResu
 				}
 			}
 		})
-		if !*open && (field.Shortcut(0, ui.KeyDown) || field.Shortcut(ui.Alt, ui.KeyDown)) {
+		if !*open && !opts.ReadOnly && (field.Shortcut(0, ui.KeyDown) || field.Shortcut(ui.Alt, ui.KeyDown)) {
 			openAt()
 		}
-		datetimePopup(c, field, open, func() {
+		datetimePopup(c, field, open, opts.ReadOnly, func() {
 			picked, _ := calendarMonth(c, cursor, calendarConfig{
 				chosen:    func(x Date) bool { return x == *value },
 				enabled:   enabled,

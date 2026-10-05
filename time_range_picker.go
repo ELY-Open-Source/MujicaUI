@@ -9,7 +9,7 @@ import (
 	"mujicaui/theme"
 )
 
-// TimeRange is a start and an end time of day. End before Start means it ends the next day.
+// TimeRange is a span of day; End before Start means next day.
 type TimeRange struct {
 	Start, End TimeOfDay
 }
@@ -28,15 +28,16 @@ type TimeRangePickerOptions struct {
 	// AllowOvernight accepts an end before the start, meaning the next day.
 	AllowOvernight bool
 	Disabled       bool
+	// ReadOnly keeps both ends focusable and copyable but blocks edits.
+	ReadOnly bool
 	// Label names the pair for assistive technology.
 	Label string
 }
 
-// TimeRangePicker edits a start and an end time. It writes *value only when both ends are valid
-// and the end follows the start, or crosses midnight with AllowOvernight.
+// TimeRangePicker writes *value only when the range is valid.
 func TimeRangePicker(c *ui.Context, value *TimeRange, opts TimeRangePickerOptions) DateTimeResult {
 	cfg := timePickerConfig("TimeRangePicker", TimePickerOptions{Seconds: opts.Seconds, Hour12: opts.Hour12,
-		MinuteStep: opts.MinuteStep, SecondStep: opts.SecondStep, Min: opts.Min, Max: opts.Max})
+		MinuteStep: opts.MinuteStep, SecondStep: opts.SecondStep, Min: opts.Min, Max: opts.Max, ReadOnly: opts.ReadOnly})
 	if !value.Start.Valid() || !value.End.Valid() {
 		panic(fmt.Sprintf("mujica: TimeRangePicker value %v is not a pair of times", *value))
 	}
@@ -53,32 +54,37 @@ func TimeRangePicker(c *ui.Context, value *TimeRange, opts TimeRangePickerOption
 	seen := ui.Local(col, "time-range-seen", func() TimeRange { return *value })
 	problem := ui.Local(col, "time-range-error", func() string { return "" })
 	if *seen != *value {
-		*draft, *seen, *problem = *value, *value, ""
+		*draft, *seen = *value, *value
 	}
 	changed := false
 	col.Children(func() {
-		edited := false
+		edited, bad := false, ""
 		ui.Row(c).Gap(d.Unit() * 2).AlignItems(ui.Center).Children(func() {
 			start, end := cfg, cfg
 			start.label, end.label = msg(c, "time_range_picker.start"), msg(c, "time_range_picker.end")
-			start.invalid, end.invalid = *problem != "", *problem != ""
-			if _, e := timeEditor(c, &draft.Start, start); e {
-				edited = true
-			}
+			start.problem, end.problem = *problem, *problem
+			_, e1, b1 := timeEditor(c, &draft.Start, start)
 			ui.Text(c, "–").TextColor(k.TextMuted).Role(ui.RoleNone)
-			if _, e := timeEditor(c, &draft.End, end); e {
-				edited = true
+			_, e2, b2 := timeEditor(c, &draft.End, end)
+			edited, bad = e1 || e2, b1
+			if bad == "" {
+				bad = b2
 			}
 			if draft.Overnight() && opts.AllowOvernight {
-				ui.Text(c, msg(c, "time_range_picker.next_day")).FontSize(theme.CaptionSize).TextColor(k.AccentText)
+				ui.Text(c, msg(c, "time_range_picker.next_day")).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.AccentText)
 			}
 		})
-		if edited {
-			*problem = timeRangeProblem(c, *draft, cfg, opts.AllowOvernight)
-			if *problem == "" && *draft != *value {
-				slog.Debug("mujica: time_range_picker change", "from", *value, "to", *draft)
-				*value, *seen, changed = *draft, *draft, true
-			}
+		p := bad
+		if p == "" {
+			p = timeRangeProblem(c, *draft, cfg, opts.AllowOvernight)
+		}
+		if p != *problem {
+			*problem = p
+			c.Invalidate()
+		}
+		if edited && p == "" && *draft != *value {
+			slog.Debug("mujica: time_range_picker change", "from", *value, "to", *draft)
+			*value, *seen, changed = *draft, *draft, true
 		}
 		datetimeError(c, *problem)
 	})
