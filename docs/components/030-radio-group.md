@@ -13,7 +13,7 @@ if mujica.RadioGroup(c, &size, items, mujica.RadioGroupOptions{Label: "Size"}).C
 }
 ```
 
-签名：`func RadioGroup[T comparable](c *ui.Context, value *T, items []RadioItem[T], opts RadioGroupOptions) InputResult`
+签名：`func RadioGroup[T comparable](c *ui.Context, value *T, items []RadioItem[T], opts RadioGroupOptions) ChoiceResult`
 
 ## 参数
 

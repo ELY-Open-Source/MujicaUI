@@ -102,7 +102,7 @@ type CheckboxGroupOptions struct {
 }
 
 // CheckboxGroup shows a select-all box over items: checked, mixed or clear.
-func CheckboxGroup(c *ui.Context, label string, items []CheckboxItem, opts CheckboxGroupOptions) InputResult {
+func CheckboxGroup(c *ui.Context, label string, items []CheckboxItem, opts CheckboxGroupOptions) ChoiceResult {
 	if len(items) == 0 {
 		panic("mujica: CheckboxGroup needs items")
 	}
@@ -122,12 +122,11 @@ func CheckboxGroup(c *ui.Context, label string, items []CheckboxItem, opts Check
 			}
 		}
 	}
-	var r InputResult
+	var r ChoiceResult
 	r.Element = ui.Column(c).Shrink(0).Disabled(opts.Disabled || enabled == 0)
 	r.Element.Children(func() {
 		all := on == len(items)
 		head := Checkbox(c, &all, label, CheckboxOptions{Indeterminate: on > 0 && !all})
-		r.Input = head
 		if head.Changed() {
 			// Select-all leaves disabled items alone.
 			target := enabledOn < enabled

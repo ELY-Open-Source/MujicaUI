@@ -17,7 +17,7 @@ mujica.CheckboxGroup(c, "Notifications", []mujica.CheckboxItem{
 
 ```go
 func Checkbox(c *ui.Context, value *bool, label string, opts CheckboxOptions) *ui.Element
-func CheckboxGroup(c *ui.Context, label string, items []CheckboxItem, opts CheckboxGroupOptions) InputResult
+func CheckboxGroup(c *ui.Context, label string, items []CheckboxItem, opts CheckboxGroupOptions) ChoiceResult
 ```
 
 ## 参数

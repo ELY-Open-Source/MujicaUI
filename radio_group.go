@@ -27,7 +27,7 @@ type RadioGroupOptions struct {
 }
 
 // RadioGroup chooses one item's Value into *value; arrows move the choice.
-func RadioGroup[T comparable](c *ui.Context, value *T, items []RadioItem[T], opts RadioGroupOptions) InputResult {
+func RadioGroup[T comparable](c *ui.Context, value *T, items []RadioItem[T], opts RadioGroupOptions) ChoiceResult {
 	if value == nil {
 		panic("mujica: RadioGroup needs a value")
 	}
@@ -43,7 +43,7 @@ func RadioGroup[T comparable](c *ui.Context, value *T, items []RadioItem[T], opt
 	}
 	k := Tokens(c)
 	d := Density(c)
-	var r InputResult
+	var r ChoiceResult
 	// Disabled on a wrapper blocks the bases' clicks before they choose.
 	wrap := ui.Box(c).Shrink(0).Disabled(opts.Disabled)
 	// Keys by first appearance of each value: fmt keys would merge equal-looking values.
