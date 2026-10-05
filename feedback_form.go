@@ -10,7 +10,7 @@ import (
 	"mujicaui/theme"
 )
 
-// FeedbackRating is the thumb the user gave. The zero value is FeedbackUp.
+// FeedbackRating is the thumb given; zero is FeedbackUp.
 type FeedbackRating int
 
 const (
@@ -18,7 +18,7 @@ const (
 	FeedbackDown
 )
 
-// FeedbackValue is what the user wrote: chosen reasons and a comment.
+// FeedbackValue is the chosen reasons and a comment.
 type FeedbackValue struct {
 	Reasons []string
 	Comment string
@@ -29,7 +29,7 @@ type FeedbackFormOptions struct {
 	Rating FeedbackRating
 	// Reasons replaces the built-in reasons for the rating.
 	Reasons []string
-	// Submitting shows the caller sending the feedback and blocks the form.
+	// Submitting shows the caller sending; it blocks the form.
 	Submitting bool
 	Disabled   bool
 }
@@ -45,7 +45,7 @@ var feedbackReasons = [2][]string{
 	{"feedback_form.down.wrong", "feedback_form.down.unhelpful", "feedback_form.down.unsafe", "feedback_form.down.style"},
 }
 
-// FeedbackForm asks why after a thumbs up or down: reason chips and a comment, then Submit or Cancel.
+// FeedbackForm asks for reasons and a comment after a rating.
 func FeedbackForm(c *ui.Context, value *FeedbackValue, opts FeedbackFormOptions) FeedbackFormView {
 	if value == nil {
 		panic("mujica: FeedbackForm needs a value")

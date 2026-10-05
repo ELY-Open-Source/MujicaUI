@@ -7,11 +7,10 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"mujicaui/internal"
 	"mujicaui/theme"
 )
 
-// CostEstimatorOptions configure a CostEstimator. Prices are per million tokens, from the caller.
+// CostEstimatorOptions configure a CostEstimator; prices are per million tokens.
 type CostEstimatorOptions struct {
 	InputTokens, OutputTokens int
 	InputPrice, OutputPrice   float64
@@ -21,7 +20,7 @@ type CostEstimatorOptions struct {
 	Digits int
 }
 
-// CostEstimate is the cost of the input, the output and both.
+// CostEstimate is the input, output and total cost.
 type CostEstimate struct{ Input, Output, Total float64 }
 
 // EstimateCost prices token counts at per-million rates.
@@ -31,7 +30,7 @@ func EstimateCost(inputTokens, outputTokens int, inputPrice, outputPrice float64
 	return CostEstimate{in, out, in + out}
 }
 
-// CostEstimator shows input and output tokens and their estimated cost at the caller's prices.
+// CostEstimator shows token counts and cost at caller prices.
 func CostEstimator(c *ui.Context, opts CostEstimatorOptions) *ui.Element {
 	if opts.InputTokens < 0 || opts.OutputTokens < 0 {
 		panic("mujica: CostEstimator token counts must not be negative")
@@ -76,9 +75,7 @@ func CostEstimator(c *ui.Context, opts CostEstimatorOptions) *ui.Element {
 		cell(msg(c, "cost_estimator.output"), k.Text, false)
 		cell(strconv.Itoa(opts.OutputTokens), k.Text, true)
 		cell(money(est.Output), k.Text, true)
-		ui.Box(c).ColumnSpan(3).Height(9).Draw(func(p *ui.Painter, r ui.Rect) {
-			internal.Rule(p, r.X, r.X+r.W, r.Y+r.H/2, k.Ornament)
-		})
+		ui.Box(c).ColumnSpan(3).Height(theme.BorderWidth).MarginY(d.Unit()).Background(k.Ornament)
 		ui.Text(c, msg(c, "cost_estimator.total")).Font(theme.SerifFont).TextColor(k.Text)
 		cell(strconv.Itoa(opts.InputTokens+opts.OutputTokens), k.Text, true)
 		ui.Text(c, money(est.Total)).Bold().TextColor(k.AccentText).JustifySelf(ui.End).FontFeatures("tnum")

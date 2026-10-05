@@ -12,7 +12,7 @@ import (
 	"mujicaui/theme"
 )
 
-// ChatProject is a project that holds conversations; Folder groups projects, empty for none.
+// ChatProject holds conversations; Folder groups projects, empty for none.
 type ChatProject struct {
 	ID, Name, Folder string
 }
@@ -23,7 +23,7 @@ type ProjectListOptions struct {
 	Disabled bool
 }
 
-// ProjectListState is the chosen project and which folders and projects are open.
+// ProjectListState is the chosen project and open folders and projects.
 type ProjectListState struct {
 	// Selected is the chosen project's ID; empty for none.
 	Selected string
@@ -38,12 +38,12 @@ type ProjectListView struct {
 	Changed bool
 	// Opened is a conversation the user opened, empty for none.
 	Opened string
-	// Moved asks the caller to move conversation MoveID into project MoveTo.
+	// Moved asks the caller to move MoveID into MoveTo.
 	Moved          bool
 	MoveID, MoveTo string
 }
 
-// ProjectList shows folders of projects and their conversations; drop a ConversationDrag on a project, or use Move to, to file it.
+// ProjectList shows project folders and conversations; drops move them.
 func ProjectList(c *ui.Context, s *ProjectListState, projects []ChatProject, conversations func(projectID string) []ChatConversation, opts ProjectListOptions) ProjectListView {
 	if s == nil || conversations == nil {
 		panic("mujica: ProjectList needs a state and conversations")
@@ -91,7 +91,7 @@ func ProjectList(c *ui.Context, s *ProjectListState, projects []ChatProject, con
 	return v
 }
 
-// projectListFolder is a folder heading on a CollapsibleBase trigger, which reports expanded.
+// projectListFolder is a folder heading on a CollapsibleBase trigger.
 func projectListFolder(c *ui.Context, title string, open *bool) *ui.Element {
 	k := Tokens(c)
 	d := Density(c)

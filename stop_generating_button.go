@@ -17,7 +17,7 @@ type StopGeneratingButtonOptions struct {
 	Disabled   bool
 }
 
-// StopGeneratingButton asks to stop a reply while one is generating; Cmd+. (Ctrl+. elsewhere) does too.
+// StopGeneratingButton asks to stop generating; Mod+. does too.
 func StopGeneratingButton(c *ui.Context, opts StopGeneratingButtonOptions) ChoiceResult {
 	if !opts.Generating {
 		return ChoiceResult{}

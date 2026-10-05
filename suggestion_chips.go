@@ -12,7 +12,7 @@ import (
 
 // SuggestionChipsOptions configure SuggestionChips.
 type SuggestionChipsOptions struct {
-	// Send makes a click send the suggestion; by default it fills the input.
+	// Send makes a click send instead of filling the input.
 	Send bool
 	// Label names the group, such as "Follow-up questions".
 	Label    string
@@ -24,11 +24,11 @@ type SuggestionChipsView struct {
 	Element *ui.Element
 	// Chosen is the suggestion clicked, empty for none.
 	Chosen string
-	// Sent reports that Chosen should be sent now; otherwise it is already in the input.
+	// Sent asks to send Chosen now instead of filling.
 	Sent bool
 }
 
-// SuggestionChips offers starter prompts or follow-ups; a click fills *input, or with Send asks to send.
+// SuggestionChips offers prompts that fill *input or ask to send.
 func SuggestionChips(c *ui.Context, input *string, suggestions []string, opts SuggestionChipsOptions) SuggestionChipsView {
 	if input == nil {
 		panic("mujica: SuggestionChips needs an input")

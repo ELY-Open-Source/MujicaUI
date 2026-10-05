@@ -14,21 +14,21 @@ import (
 
 // ConversationItemOptions configure a ConversationItem.
 type ConversationItemOptions struct {
-	// Today decides the time stamp's form; zero uses the window clock.
+	// Today decides the time stamp; zero uses the clock.
 	Today    Date
 	Selected bool
 	Disabled bool
-	// Draggable lets the row be dragged onto a ProjectList as a ConversationDrag.
+	// Draggable lets the row be dropped on a ProjectList.
 	Draggable bool
 }
 
 // ConversationDrag is the value a dragged conversation carries.
 type ConversationDrag struct{ ID string }
 
-// ConversationItemView is a built ConversationItem and what the user asked for this frame.
+// ConversationItemView is a built ConversationItem and its requests.
 type ConversationItemView struct {
 	Element *ui.Element
-	// Opened, Deleted, Exported and PinToggled are requests for the caller to carry out.
+	// Opened, Deleted, Exported and PinToggled are requests for the caller.
 	Opened, Deleted, Exported, PinToggled bool
 	// Renamed reports a confirmed new title, already in conv.Title.
 	Renamed bool
@@ -41,7 +41,7 @@ type conversationItemState struct {
 
 type conversationItemKey struct{}
 
-// ConversationItem is a conversation row: title, time, and a menu to rename in place, pin, export or delete.
+// ConversationItem is a conversation row with rename, pin, export, delete.
 func ConversationItem(c *ui.Context, conv *ChatConversation, opts ConversationItemOptions) ConversationItemView {
 	if conv == nil || conv.ID == "" {
 		panic("mujica: ConversationItem needs a conversation with an ID")
@@ -118,7 +118,7 @@ func ConversationItem(c *ui.Context, conv *ChatConversation, opts ConversationIt
 	return v
 }
 
-// conversationItemEditor is the in-place title field: Enter keeps a non-blank title, Escape cancels.
+// conversationItemEditor edits the title in place; Escape cancels.
 func conversationItemEditor(c *ui.Context, k theme.Tokens, conv *ChatConversation, st *conversationItemState, v *ConversationItemView) {
 	d := Density(c)
 	in := ui.TextInputBase(c, &st.draft).Grow(1).MinHeight(d.ControlHeight()-4).Padding(0, d.Unit()*2).
@@ -142,7 +142,7 @@ func conversationItemEditor(c *ui.Context, k theme.Tokens, conv *ChatConversatio
 	}
 }
 
-// conversationItemMenu is a borderless ellipsis button opening the menu build fills.
+// conversationItemMenu is a borderless ellipsis button opening a menu.
 func conversationItemMenu(c *ui.Context, label string, build func(m *PopupMenu)) *ui.Element {
 	b := iconAction(c, icons.Must("ellipsis"), label).Role(ui.RoleMenuButton).Shrink(0)
 	open := ui.Local(b, conversationItemKey{}, func() bool { return false })

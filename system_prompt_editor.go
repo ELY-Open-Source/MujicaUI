@@ -17,23 +17,23 @@ import (
 type SystemPromptEditorOptions struct {
 	// Default is what Restore default puts back.
 	Default string
-	// Saved is the text last saved; a different value shows as unsaved.
+	// Saved is the text last saved; differences show as unsaved.
 	Saved string
-	// MaxLength is the character limit; over it, Save is blocked. Zero is none.
+	// MaxLength limits characters, blocking Save beyond it; zero is none.
 	MaxLength int
 	// Saving shows the caller's save in progress and blocks editing.
 	Saving   bool
 	Disabled bool
 }
 
-// SystemPromptEditorView is a built editor and what the user asked for.
+// SystemPromptEditorView is a built editor and its requests.
 type SystemPromptEditorView struct {
 	Element *ui.Element
-	// Save asks the caller to save *value; Restored reports the default was put back.
+	// Save asks to save *value; Restored reports the default returned.
 	Save, Restored bool
 }
 
-// SystemPromptEditor edits a system prompt with a character count, restore default, an unsaved mark and Mod+S to save.
+// SystemPromptEditor edits a system prompt with count, restore and save.
 func SystemPromptEditor(c *ui.Context, value *string, opts SystemPromptEditorOptions) SystemPromptEditorView {
 	if value == nil {
 		panic("mujica: SystemPromptEditor needs a value")

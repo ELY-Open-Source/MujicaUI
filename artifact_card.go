@@ -10,7 +10,7 @@ import (
 	"mujicaui/theme"
 )
 
-// ArtifactKind is what an artifact holds. The zero value is ArtifactCode.
+// ArtifactKind is what an artifact holds; zero is ArtifactCode.
 type ArtifactKind int
 
 const (
@@ -23,7 +23,7 @@ const (
 type ArtifactCardOptions struct {
 	Kind  ArtifactKind
 	Title string
-	// Detail is a short fact, such as "Go · 120 lines".
+	// Detail is a short fact, such as "Go, 120 lines".
 	Detail string
 	// Streaming shows the artifact is still being written.
 	Streaming bool
@@ -34,7 +34,7 @@ var artifactKinds = [3]struct{ icon, name string }{
 	{"file", "artifact_card.code"}, {"file-text", "artifact_card.document"}, {"layout-grid", "artifact_card.web"},
 }
 
-// ArtifactCard stands for an artifact inside a message; a click or Enter asks to open the artifact panel.
+// ArtifactCard stands for an artifact; activating asks to open it.
 func ArtifactCard(c *ui.Context, opts ArtifactCardOptions) ChoiceResult {
 	if opts.Title == "" {
 		panic("mujica: ArtifactCard needs a Title")

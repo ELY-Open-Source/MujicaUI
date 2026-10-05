@@ -9,7 +9,7 @@ import (
 	"mujicaui/theme"
 )
 
-// CapabilityCard explains one thing the assistant can do, with example prompts.
+// CapabilityCard explains one assistant capability with example prompts.
 type CapabilityCard struct {
 	Title, Description string
 	Icon               *ui.SVG
@@ -30,7 +30,7 @@ type CapabilityCardsView struct {
 	Example string
 }
 
-// CapabilityCards shows what the assistant can do; clicking an example hands it to the caller.
+// CapabilityCards shows capabilities; a clicked example goes to the caller.
 func CapabilityCards(c *ui.Context, cards []CapabilityCard, opts CapabilityCardsOptions) CapabilityCardsView {
 	if opts.Columns < 0 {
 		panic("mujica: CapabilityCards Columns is negative")
@@ -76,7 +76,7 @@ func CapabilityCards(c *ui.Context, cards []CapabilityCard, opts CapabilityCards
 	return v
 }
 
-// capabilityExample is a quoted example prompt button; it reports a click.
+// capabilityExample is a quoted example button reporting a click.
 func capabilityExample(c *ui.Context, k theme.Tokens, text string) bool {
 	d := Density(c)
 	b := ui.ButtonBase(c).MinHeight(d.ControlHeight()).Padding(d.Unit(), d.Unit()*3).Justify(ui.Start).

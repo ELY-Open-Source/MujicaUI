@@ -16,7 +16,7 @@ type DateSeparatorOptions struct {
 	Today Date
 }
 
-// DateSeparator marks where a day's messages begin: Today, Yesterday, or the full date in the window's language.
+// DateSeparator marks where a day's messages begin, localized.
 func DateSeparator(c *ui.Context, day Date, opts DateSeparatorOptions) *ui.Element {
 	if !day.Valid() {
 		panic("mujica: DateSeparator needs a valid date")
@@ -30,9 +30,7 @@ func DateSeparator(c *ui.Context, day Date, opts DateSeparatorOptions) *ui.Eleme
 	label := dateSeparatorLabel(c, day, today)
 	row := ui.Row(c).FillWidth().Gap(u*3).AlignItems(ui.Center).Padding(u*2, 0).Role(ui.RoleText).Label(label)
 	line := func() {
-		ui.Box(c).Grow(1).Height(9).Draw(func(p *ui.Painter, r ui.Rect) {
-			internal.Rule(p, r.X, r.X+r.W, r.Y+r.H/2, k.Border)
-		})
+		ui.Box(c).Grow(1).Height(theme.BorderWidth).Background(k.Border)
 	}
 	row.Children(func() {
 		line()
@@ -59,7 +57,7 @@ func dateSeparatorLabel(c *ui.Context, day, today Date) string {
 		msg(c, fmt.Sprintf("calendar.month_%d", day.Month)), day.Day, day.Year)
 }
 
-// dateSeparatorWhen is a short time stamp: the clock today, else the relative day or date.
+// dateSeparatorWhen is a short stamp: time, day or date.
 func dateSeparatorWhen(c *ui.Context, t time.Time, today Date) string {
 	day := DateOf(t)
 	if day == today {

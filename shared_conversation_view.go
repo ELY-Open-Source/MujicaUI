@@ -13,7 +13,7 @@ import (
 	"mujicaui/theme"
 )
 
-// SessionRole is who wrote a message. The zero value is SessionUser.
+// SessionRole is who wrote a message; zero is SessionUser.
 type SessionRole int
 
 const (
@@ -22,7 +22,7 @@ const (
 	SessionSystem
 )
 
-// SessionMessage is one message of a saved conversation, as plain text.
+// SessionMessage is one saved message, as plain text.
 type SessionMessage struct {
 	Role SessionRole
 	// Author names the writer; empty uses the role's name.
@@ -39,7 +39,7 @@ type SharedConversationViewOptions struct {
 	Disabled bool
 }
 
-// SharedConversationView shows a shared conversation read-only, with who shared it and when; it reports Copy link.
+// SharedConversationView shows a shared conversation read-only with Copy link.
 func SharedConversationView(c *ui.Context, messages []SessionMessage, opts SharedConversationViewOptions) ChoiceResult {
 	if opts.Title == "" {
 		panic("mujica: SharedConversationView needs a Title")
@@ -78,7 +78,7 @@ func SharedConversationView(c *ui.Context, messages []SessionMessage, opts Share
 
 type sharedConversationKey struct{}
 
-// sessionMessageView is one read-only message: author, time and selectable plain text.
+// sessionMessageView shows one read-only message with author and time.
 func sessionMessageView(c *ui.Context, k theme.Tokens, m SessionMessage) {
 	d := Density(c)
 	if m.Role < SessionUser || m.Role > SessionSystem {

@@ -20,9 +20,9 @@ type ConversationSearchHit struct {
 
 // ConversationSearchOptions configure a ConversationSearch.
 type ConversationSearchOptions struct {
-	// Loading shows the caller's search for the query is under way.
+	// Loading shows the caller's search is under way.
 	Loading bool
-	// Error is the caller's failed search; it shows with a retry button.
+	// Error describes a failed search, shown with a retry button.
 	Error       string
 	Placeholder string
 	Label       string
@@ -32,9 +32,9 @@ type ConversationSearchOptions struct {
 // ConversationSearchView is a built ConversationSearch and this frame's events.
 type ConversationSearchView struct {
 	Element *ui.Element
-	// QueryChanged asks the caller to search again for the new query.
+	// QueryChanged asks the caller to search for the new query.
 	QueryChanged bool
-	// Chosen is the hit opened by a click or Enter, empty for none.
+	// Chosen is the hit opened this frame, or empty.
 	Chosen string
 	Retry  bool
 }
@@ -47,7 +47,7 @@ type conversationSearchState struct {
 
 type conversationSearchKey struct{}
 
-// ConversationSearch searches titles and content; the caller supplies hits for the query and the matches are highlighted.
+// ConversationSearch shows caller-supplied hits for a query, highlighting matches.
 func ConversationSearch(c *ui.Context, query *string, hits []ConversationSearchHit, opts ConversationSearchOptions) ConversationSearchView {
 	if query == nil {
 		panic("mujica: ConversationSearch needs a query")
@@ -97,7 +97,7 @@ func conversationSearchList(c *ui.Context, s *conversationSearchState, q string,
 	s.rows.Key = func(i int) any { return hits[i].ID }
 	s.rows.Label = func(i int) string { return hits[i].Title }
 	s.rows.Selected = &s.cursor
-	// Rows have one height, so the list can size itself before measuring them.
+	// Rows share one height, so the list sizes itself early.
 	rowH := d.ControlHeight() + FontSize(c, theme.CaptionSize)*theme.LineHeight + 2
 	restore := dataSelectTheme(c, 0)
 	list := ui.List(c, &s.rows, len(hits), func(i int) {
@@ -134,7 +134,7 @@ func conversationSearchList(c *ui.Context, s *conversationSearchState, q string,
 	return chosen
 }
 
-// conversationSearchSpans splits text into spans, marking each case-insensitive match of q.
+// conversationSearchSpans marks each case-insensitive match of q in text.
 func conversationSearchSpans(text, q string, k theme.Tokens) []ui.Span {
 	r := []rune(text)
 	var spans []ui.Span
@@ -152,7 +152,7 @@ func conversationSearchSpans(text, q string, k theme.Tokens) []ui.Span {
 	return spans
 }
 
-// conversationSearchMatches returns rune ranges of case-insensitive matches of q in text.
+// conversationSearchMatches returns rune ranges where q matches, ignoring case.
 func conversationSearchMatches(text, q string) [][2]int {
 	t, p := []rune(text), []rune(q)
 	if len(p) == 0 {

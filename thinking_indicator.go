@@ -11,11 +11,11 @@ import (
 
 // ThinkingIndicatorOptions configure a ThinkingIndicator.
 type ThinkingIndicatorOptions struct {
-	// Phase is the caller's stage text, such as "Searching the web"; empty uses "Thinking".
+	// Phase is the caller's stage text; empty uses "Thinking".
 	Phase string
 }
 
-// ThinkingIndicator shows the assistant is working: three diamonds rising in turn and the phase; still under reduced motion.
+// ThinkingIndicator shows rising diamonds and a phase, still when reduced.
 func ThinkingIndicator(c *ui.Context, opts ThinkingIndicatorOptions) *ui.Element {
 	k := Tokens(c)
 	d := Density(c)

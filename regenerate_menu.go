@@ -29,7 +29,7 @@ type RegenerateChoice struct {
 
 // RegenerateMenuOptions configure a RegenerateMenu.
 type RegenerateMenuOptions struct {
-	// Models lists models to retry with; Current is marked and left out.
+	// Models lists models to retry with; Current is left out.
 	Models  []string
 	Current string
 	// Variants replaces the built-in Longer, Shorter, Simpler and More detailed.
@@ -37,14 +37,14 @@ type RegenerateMenuOptions struct {
 	Disabled bool
 }
 
-// RegenerateMenuView is a built menu and the retry chosen this frame.
+// RegenerateMenuView is a built menu and the chosen retry.
 type RegenerateMenuView struct {
 	Element *ui.Element
 	Chosen  bool
 	Choice  RegenerateChoice
 }
 
-// RegenerateMenu offers regenerate, retry with another model, and variants such as longer or shorter.
+// RegenerateMenu offers retry, another model, and rewrite variants.
 func RegenerateMenu(c *ui.Context, opts RegenerateMenuOptions) RegenerateMenuView {
 	variants := opts.Variants
 	if variants == nil {

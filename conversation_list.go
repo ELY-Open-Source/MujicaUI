@@ -37,7 +37,7 @@ type ConversationListState struct {
 	plan     conversationListPlan
 }
 
-// conversationListPlan is the grouped rows, rebuilt only when the data or day changes.
+// conversationListPlan holds grouped rows, rebuilt on new data or day.
 type conversationListPlan struct {
 	src   []ChatConversation
 	day   Date
@@ -45,7 +45,7 @@ type conversationListPlan struct {
 	built bool
 }
 
-// conversationListRow is group header g (item < 0) or an index into the items.
+// conversationListRow is a header (item < 0) or item index.
 type conversationListRow struct {
 	group, item int
 }
@@ -60,10 +60,10 @@ type ConversationListView struct {
 // Changed reports a newly chosen conversation, in State.Selected.
 func (v ConversationListView) Changed() bool { return v.changed }
 
-// Submitted reports Enter or a double click on the chosen conversation.
+// Submitted reports Enter or a double click on the choice.
 func (v ConversationListView) Submitted() bool { return v.submitted }
 
-// ConversationList groups conversations into pinned, today, yesterday, past 7 days and older, building only rows in view.
+// ConversationList groups conversations by recency, building only visible rows.
 func ConversationList(c *ui.Context, s *ConversationListState, items []ChatConversation, opts ConversationListOptions, row func(conv ChatConversation)) ConversationListView {
 	if s == nil {
 		panic("mujica: ConversationList needs a state")
@@ -181,7 +181,7 @@ var conversationListGroups = [5]string{
 	"conversation_list.week", "conversation_list.older",
 }
 
-// conversationListGroup is the group index of conv: pinned, today, yesterday, 7 days, older.
+// conversationListGroup returns the recency group index of conv.
 func conversationListGroup(conv ChatConversation, today Date) int {
 	day := DateOf(conv.Updated)
 	switch {

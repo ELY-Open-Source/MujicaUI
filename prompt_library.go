@@ -13,7 +13,7 @@ import (
 	"mujicaui/theme"
 )
 
-// PromptTemplate is a reusable prompt; {{name}} in Body is a variable to fill before inserting.
+// PromptTemplate is a reusable prompt; {{name}} marks a variable.
 type PromptTemplate struct {
 	ID, Category, Title, Body string
 }
@@ -24,7 +24,7 @@ type PromptLibraryOptions struct {
 	Disabled bool
 }
 
-// PromptLibraryState is the library's category, search, chosen template and variable values.
+// PromptLibraryState holds category, query, chosen template and variable values.
 type PromptLibraryState struct {
 	// Category filters templates; empty shows all.
 	Category string
@@ -34,7 +34,7 @@ type PromptLibraryState struct {
 	shown    promptLibraryShown
 }
 
-// promptLibraryShown caches the filtered templates until the data, query or category changes.
+// promptLibraryShown caches filtered templates until data, query or category change.
 type promptLibraryShown struct {
 	src             []PromptTemplate
 	query, category string
@@ -43,10 +43,10 @@ type promptLibraryShown struct {
 	built           bool
 }
 
-// PromptLibraryView is a built PromptLibrary and the text inserted this frame.
+// PromptLibraryView is a built PromptLibrary and inserted text.
 type PromptLibraryView struct {
 	Element *ui.Element
-	// Inserted is the chosen template with its variables filled, empty for none.
+	// Inserted is the filled template, or empty.
 	Inserted string
 }
 
@@ -70,7 +70,7 @@ func PromptLibraryFill(body string, values map[string]string) string {
 	})
 }
 
-// PromptLibrary browses templates by category and search, previews one, fills its variables and inserts it.
+// PromptLibrary browses, previews, fills and inserts prompt templates.
 func PromptLibrary(c *ui.Context, s *PromptLibraryState, templates []PromptTemplate, opts PromptLibraryOptions) PromptLibraryView {
 	if s == nil {
 		panic("mujica: PromptLibrary needs a state")
@@ -152,7 +152,7 @@ func promptLibraryCategory(c *ui.Context, k theme.Tokens, s *PromptLibraryState,
 	}
 }
 
-// selectableRow is a focusable row chosen by click, Enter or Space, marked with Selection and a diamond.
+// selectableRow is a focusable row marked chosen with a diamond.
 func selectableRow(c *ui.Context, k theme.Tokens, key, label string, chosen bool) bool {
 	d := Density(c)
 	b := ui.ButtonBase(c).Key(key).MinHeight(d.ControlHeight()).Padding(0, d.Unit()*2).Gap(d.Unit() * 2).Justify(ui.Start).
@@ -176,7 +176,7 @@ func selectableRow(c *ui.Context, k theme.Tokens, key, label string, chosen bool
 	return b.Clicked() && !b.IsDisabled()
 }
 
-// promptLibraryPreview shows the filled body, a field per variable, and Insert once all are filled.
+// promptLibraryPreview shows the body, variable fields and Insert.
 func promptLibraryPreview(c *ui.Context, k theme.Tokens, s *PromptLibraryState, t PromptTemplate, disabled bool) string {
 	d := Density(c)
 	vars := PromptLibraryVariables(t.Body)

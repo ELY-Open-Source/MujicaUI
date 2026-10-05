@@ -8,7 +8,7 @@ import (
 	"mujicaui/icons"
 )
 
-// ChatEmptyKind is why a chat view is empty. The zero value is ChatEmptyNew.
+// ChatEmptyKind is why a chat is empty; zero is ChatEmptyNew.
 type ChatEmptyKind int
 
 const (
@@ -20,18 +20,18 @@ const (
 	ChatEmptyOffline
 )
 
-// ChatEmptyStateOptions configure a ChatEmptyState; empty texts use the kind's built-in copy.
+// ChatEmptyStateOptions configure a ChatEmptyState; empty texts use built-in copy.
 type ChatEmptyStateOptions struct {
 	Kind ChatEmptyKind
 	// Query, for ChatEmptyNoResults, is named in the description.
 	Query       string
 	Title       string
 	Description string
-	// Action replaces the kind's button text: Start, Clear search or Retry.
+	// Action replaces the kind's built-in button text.
 	Action string
 }
 
-// ChatEmptyState explains an empty chat (new, no results, offline) and offers the next step.
+// ChatEmptyState explains an empty chat and offers the next step.
 func ChatEmptyState(c *ui.Context, opts ChatEmptyStateOptions) EmptyStateResult {
 	switch opts.Kind {
 	case ChatEmptyNew:

@@ -11,7 +11,7 @@ import (
 	"mujicaui/theme"
 )
 
-// KnowledgeFile is a file in a project's knowledge, sized in tokens by the caller.
+// KnowledgeFile is a project knowledge file, sized in tokens.
 type KnowledgeFile struct {
 	ID, Name string
 	Tokens   int
@@ -26,16 +26,16 @@ type ProjectKnowledgePanelOptions struct {
 	Disabled bool
 }
 
-// ProjectKnowledgePanelView is a built panel and what the user asked for.
+// ProjectKnowledgePanelView is a built panel and its requests.
 type ProjectKnowledgePanelView struct {
 	Element *ui.Element
 	// Add asks the caller to pick files to add.
 	Add bool
-	// Removed is the ID of a file to remove, empty for none.
+	// Removed is the ID of a file to remove.
 	Removed string
 }
 
-// ProjectKnowledgePanel lists a project's knowledge files with add, remove and how full it is.
+// ProjectKnowledgePanel lists knowledge files with add, remove and usage.
 func ProjectKnowledgePanel(c *ui.Context, files []KnowledgeFile, opts ProjectKnowledgePanelOptions) ProjectKnowledgePanelView {
 	if opts.Capacity <= 0 {
 		panic("mujica: ProjectKnowledgePanel needs a positive Capacity")
@@ -90,7 +90,7 @@ func ProjectKnowledgePanel(c *ui.Context, files []KnowledgeFile, opts ProjectKno
 	return v
 }
 
-// projectKnowledgeMeter shows used of capacity; near and over the limit add a word and an icon, not only color.
+// projectKnowledgeMeter shows usage; limits get words and icons.
 func projectKnowledgeMeter(c *ui.Context, k theme.Tokens, used, capacity int) {
 	d := Density(c)
 	frac := float64(used) / float64(capacity)

@@ -17,7 +17,7 @@ type WelcomeScreenOptions struct {
 	Disabled bool
 }
 
-// WelcomeScreen greets a new conversation with capability cards and a starter-prompt slot; it reports a chosen example.
+// WelcomeScreen greets a new conversation with cards and prompts.
 func WelcomeScreen(c *ui.Context, opts WelcomeScreenOptions) CapabilityCardsView {
 	if opts.Greeting == "" {
 		panic("mujica: WelcomeScreen needs a Greeting")

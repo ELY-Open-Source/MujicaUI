@@ -13,7 +13,7 @@ import (
 	"mujicaui/theme"
 )
 
-// ExportFormat is the text form of an export. The zero value is ExportMarkdown.
+// ExportFormat is an export's text form; zero is ExportMarkdown.
 type ExportFormat int
 
 const (
@@ -22,7 +22,7 @@ const (
 	ExportText
 )
 
-// ExportRange is which messages an export holds. The zero value is ExportAll.
+// ExportRange is which messages an export holds; zero is ExportAll.
 type ExportRange int
 
 const (
@@ -35,7 +35,7 @@ const (
 
 var exportRoles = map[SessionRole]string{SessionUser: "user", SessionAssistant: "assistant", SessionSystem: "system"}
 
-// ExportConversation writes messages as Markdown, JSON or plain text; it does not parse their text.
+// ExportConversation writes messages as Markdown, JSON or plain text.
 func ExportConversation(title string, messages []SessionMessage, format ExportFormat) string {
 	var b strings.Builder
 	switch format {
@@ -145,13 +145,13 @@ type ConversationExportOptions struct {
 // ConversationExportView is a built ConversationExport and the export asked for.
 type ConversationExportView struct {
 	Element *ui.Element
-	// Exported reports Content is ready for the caller to write, as Format.
+	// Exported reports Content is ready for the caller to write.
 	Exported bool
 	Content  string
 	Format   ExportFormat
 }
 
-// ConversationExport picks a format and range, previews the result and hands the text to the caller to save.
+// ConversationExport picks format and range, previews, and hands over text.
 func ConversationExport(c *ui.Context, s *ConversationExportState, messages []SessionMessage, opts ConversationExportOptions) ConversationExportView {
 	if s == nil || opts.Title == "" {
 		panic("mujica: ConversationExport needs a state and a Title")
