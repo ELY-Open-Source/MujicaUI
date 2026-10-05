@@ -81,9 +81,9 @@ func PerformanceChart(c *ui.Context, values []float64, opts PerformanceChartOpti
 	if !ok {
 		n = 0
 	}
-	keys := make([]chartKey, len(series))
+	keys := make([]ChartLegendItem, len(series))
 	for i, s := range series {
-		keys[i] = chartKey{Name: s.Name, Color: pal[i], Shape: i}
+		keys[i] = ChartLegendItem{Name: s.Name, Color: pal[i], Shape: i}
 	}
 	var ticks []float64
 	var step float64
@@ -96,15 +96,15 @@ func PerformanceChart(c *ui.Context, values []float64, opts PerformanceChartOpti
 		plot := chartInset(r, 56, 26)
 		return plot, ax.scale(plot), internal.Linear{D0: lo, D1: hi, R0: float64(plot.Y + plot.H), R1: float64(plot.Y)}
 	}
-	spec := chartSpec{n: n, keys: keys, toggle: true}
-	spec.pick = func(r ui.Rect, x, y float32) int {
+	spec := ChartSpec{Marks: n, Legend: keys, Hidden: ch.toggles(true)}
+	spec.Pick = func(r ui.Rect, x, y float32) int {
 		plot, xs, _ := geom(r)
 		if !plot.Contains(x, y) {
 			return -1
 		}
 		return ax.nearest(xs.Invert(x))
 	}
-	spec.readout = func(i int) string {
+	spec.Readout = func(i int) string {
 		parts := []string{opts.Times[i].Format("2006-01-02")}
 		for _, s := range series {
 			if !ch.hidden(s.Name) {
@@ -113,7 +113,7 @@ func PerformanceChart(c *ui.Context, values []float64, opts PerformanceChartOpti
 		}
 		return strings.Join(parts, " · ")
 	}
-	spec.draw = func(p *ui.Painter, r ui.Rect, active int) {
+	spec.Draw = func(p *ui.Painter, r ui.Rect, active int) {
 		plot, xs, ys := geom(r)
 		x := func(i int) float32 { return internal.Snap(p, xs.Map(ax.vals[i])) }
 		if dd.Percent < 0 && !ch.hidden(name) {

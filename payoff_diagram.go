@@ -126,18 +126,18 @@ func PayoffDiagram(c *ui.Context, legs []OptionLeg, opts PayoffDiagramOptions) C
 			internal.Linear{D0: ylo, D1: yhi, R0: float64(plot.Y + plot.H), R1: float64(plot.Y)}
 	}
 	up, down := trendColor(c, 1), trendColor(c, -1)
-	spec := chartSpec{n: n}
-	spec.readout = func(i int) string {
+	spec := ChartSpec{Marks: n}
+	spec.Readout = func(i int) string {
 		return fmt.Sprintf(msg(c, "payoff_diagram.readout"), format(d.px[i]), trendWord(c, trendSign(d.pl[i])), format(d.pl[i]))
 	}
-	spec.pick = func(r ui.Rect, x, y float32) int {
+	spec.Pick = func(r ui.Rect, x, y float32) int {
 		plot, xs, _ := geom(r)
 		if !plot.Contains(x, y) {
 			return -1
 		}
 		return max(0, min(n-1, int(math.Round((xs.Invert(x)-lo)/(hi-lo)*float64(n-1)))))
 	}
-	spec.draw = func(p *ui.Painter, r ui.Rect, active int) {
+	spec.Draw = func(p *ui.Painter, r ui.Rect, active int) {
 		plot, xs, ys := geom(r)
 		internal.AxisY(p, plot, ys, ticks, func(v float64) string { return internal.FormatTick(v, step) }, size, k)
 		lx, ll, lstep := internal.Nice(lo, hi, max(2, int(plot.W/90)))

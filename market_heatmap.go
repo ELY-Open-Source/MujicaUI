@@ -65,8 +65,8 @@ func MarketHeatmap(c *ui.Context, path *[]string, root HeatNode, opts MarketHeat
 			return k.Surface.Mix(trendColor(c, trendSign(ch)), float32(0.15+0.85*min(math.Abs(ch)/scale, 1)))
 		}
 		ch := newChart(c, opts.Frame)
-		spec := chartSpec{n: len(tiles)}
-		spec.readout = func(i int) string {
+		spec := ChartSpec{Marks: len(tiles)}
+		spec.Readout = func(i int) string {
 			t := tiles[i]
 			s := fmt.Sprintf("%s · %s %s%% · %s", t.name, trendWord(c, trendSign(t.change)), statisticSigned(t.change, 2), statisticFormat(t.cap, 0))
 			if t.branch {
@@ -74,7 +74,7 @@ func MarketHeatmap(c *ui.Context, path *[]string, root HeatNode, opts MarketHeat
 			}
 			return s
 		}
-		spec.pick = func(r ui.Rect, x, y float32) int {
+		spec.Pick = func(r ui.Rect, x, y float32) int {
 			for i, t := range squarify(caps, r) {
 				if t.Contains(x, y) {
 					return i
@@ -82,14 +82,14 @@ func MarketHeatmap(c *ui.Context, path *[]string, root HeatNode, opts MarketHeat
 			}
 			return -1
 		}
-		spec.activate = func(i int) {
+		spec.Activate = func(i int) {
 			if tiles[i].branch {
 				*path = append(slices.Clone(*path), tiles[i].name)
 				res.value = true
 				slog.Debug("mujica: market_heatmap drill", "path", strings.Join(*path, "/"))
 			}
 		}
-		spec.draw = func(p *ui.Painter, r ui.Rect, active int) {
+		spec.Draw = func(p *ui.Painter, r ui.Rect, active int) {
 			for i, t := range squarify(caps, r) {
 				bg := color(tiles[i].change)
 				p.Fill(t, bg, 2)
