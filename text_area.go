@@ -27,6 +27,8 @@ type TextAreaOptions struct {
 	ReadOnly   bool
 	// Error marks the value invalid and shows the message below.
 	Error string
+	// keys sees keys before the editor, for PromptComposer's menus.
+	keys func(ui.InputEvent) bool
 }
 
 // TextArea is a multi-line field editing *value.
@@ -67,6 +69,9 @@ func TextArea(c *ui.Context, value *string, opts TextAreaOptions) InputResult {
 		// Taken before the editor, which would make a plain Enter a newline.
 		submit := ui.Local(frame, "submit", func() bool { return false })
 		in.HandleInput(func(ev ui.InputEvent) bool {
+			if opts.keys != nil && opts.keys(ev) {
+				return true
+			}
 			if ev.Kind == ui.InputKeyDown && ev.Key == key && ev.Mods == mods {
 				*submit = true
 				return true
