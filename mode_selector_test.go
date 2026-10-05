@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/egoist/mygo/ui"
+	"mujicaui/theme"
 )
 
 func TestModeSelectorClickAndArrows(t *testing.T) {
@@ -59,4 +60,16 @@ func TestModeSelectorSnapshot(t *testing.T) {
 			ModeSelector(c, &mode, ModeSelectorOptions{IconsOnly: true})
 		})
 	})
+}
+
+func TestModeSelectorSelectionSurface(t *testing.T) {
+	mode := ModeResearch
+	tt := ui.NewTester(func(c *ui.Context) { Use(c, Settings{}); ModeSelector(c, &mode, ModeSelectorOptions{}) }, 600, 100)
+	tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})
+	b, _ := tt.Find("Deep research")
+	pixel := tt.Image().RGBAAt(int(b.X+4), int(b.Y+4))
+	k := theme.Light()
+	if pixel.R != k.Selection.R || pixel.G != k.Selection.G || pixel.B != k.Selection.B {
+		t.Fatalf("selected surface %v, want Selection %v", pixel, k.Selection)
+	}
 }

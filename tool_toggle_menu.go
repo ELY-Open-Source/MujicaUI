@@ -18,23 +18,23 @@ type ToolItem struct {
 	Label       string
 	Description string
 	On          *bool
-	// NeedsAuth marks a tool the user must authorize before turning it on.
+	// NeedsAuth marks tools requiring caller-owned authorization.
 	NeedsAuth, Authorized bool
 }
 
-// ToolToggleResult is the menu's button and what the user did this frame.
+// ToolToggleResult carries the trigger and requested action.
 type ToolToggleResult struct {
 	Element            *ui.Element
 	changed, authorize string
 }
 
-// Changed returns the ID of the tool turned on or off.
+// Changed returns the toggled tool ID.
 func (r ToolToggleResult) Changed() (string, bool) { return r.changed, r.changed != "" }
 
-// Authorize returns the ID of a tool whose authorization the user asked for.
+// Authorize returns the tool ID requesting authorization.
 func (r ToolToggleResult) Authorize() (string, bool) { return r.authorize, r.authorize != "" }
 
-// ToolToggleMenu is a button opening a panel of tool switches; tools needing authorization show a mark and an authorize action.
+// ToolToggleMenu displays tool switches and authorization actions.
 func ToolToggleMenu(c *ui.Context, tools []ToolItem) ToolToggleResult {
 	on := 0
 	for _, t := range tools {
@@ -68,6 +68,7 @@ func ToolToggleMenu(c *ui.Context, tools []ToolItem) ToolToggleResult {
 	disabled := b.IsDisabled()
 	if b.Clicked() && !disabled {
 		*open = !*open
+		slog.Debug("mujica: tool_toggle_menu fold", "open", *open)
 	}
 	if disabled {
 		*open = false
@@ -83,7 +84,7 @@ func ToolToggleMenu(c *ui.Context, tools []ToolItem) ToolToggleResult {
 	return r
 }
 
-// toolToggleRow shows one tool: its switch, or its authorization mark and action.
+// toolToggleRow displays a switch or authorization action.
 func toolToggleRow(c *ui.Context, t ToolItem, r *ToolToggleResult) {
 	k := Tokens(c)
 	u := Density(c).Unit()

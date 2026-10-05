@@ -54,6 +54,7 @@ func init() {
 		"send_button.send":                 {"Send", "发送"},
 		"send_button.stop":                 {"Stop generating", "停止生成"},
 		"citation_badge.label":             {"Source %d: %s", "来源 %d：%s"},
+		"citation_badge.preview":           {"Source preview", "来源预览"},
 		"source_card.open":                 {"Open %s", "打开 %s"},
 		"sources_panel.label":              {"Sources", "来源"},
 		"sources_panel.empty":              {"No sources", "没有来源"},

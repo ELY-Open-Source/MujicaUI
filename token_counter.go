@@ -10,10 +10,10 @@ import (
 	"mujicaui/theme"
 )
 
-// tokenWarnShare is the share of the limit from which the count warns.
+// tokenWarnShare sets the warning threshold.
 const tokenWarnShare = 0.9
 
-// TokenCounter shows the caller's token estimate against the limit: muted, warning past 90%, danger over it.
+// TokenCounter displays estimates, limits and threshold warnings.
 func TokenCounter(c *ui.Context, used, limit int) *ui.Element {
 	if used < 0 || limit <= 0 {
 		panic("mujica: TokenCounter needs used >= 0 and limit > 0")

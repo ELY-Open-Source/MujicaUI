@@ -59,3 +59,20 @@ func TestPasteImagePreviewSnapshot(t *testing.T) {
 		ui.Column(c).Padding(20).Children(func() { PasteImagePreview(c, pasteImages()) })
 	})
 }
+
+func TestPasteImagePreviewKeyboard(t *testing.T) {
+	removed := ""
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Padding(16).Children(func() {
+			if id, ok := PasteImagePreview(c, pasteImages()).Removed(); ok {
+				removed = id
+			}
+		})
+	}, 400, 160)
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeyEnter)
+	if removed != "a" {
+		t.Fatalf("removed %q, want a", removed)
+	}
+}

@@ -9,15 +9,15 @@ import (
 
 // VoiceWaveformOptions configure a VoiceWaveform.
 type VoiceWaveformOptions struct {
-	// Silence is the level below which input counts as silent; zero means 0.05.
+	// Silence sets the quiet threshold; zero means 0.05.
 	Silence float32
-	// SilentFor is how many trailing samples under Silence show the hint; zero means 20.
+	// SilentFor sets consecutive quiet samples; zero means 20.
 	SilentFor int
-	// Width is the bar area width in DIPs; zero means 200.
+	// Width sets waveform width; zero means 200 DIPs.
 	Width float32
 }
 
-// VoiceWaveform draws recent input levels, 0 to 1, newest at the right, and hints at silence.
+// VoiceWaveform draws recent input levels and a silence hint.
 func VoiceWaveform(c *ui.Context, levels []float32, opts VoiceWaveformOptions) *ui.Element {
 	if opts.Silence < 0 || opts.Silence >= 1 || opts.SilentFor < 0 || opts.Width < 0 {
 		panic("mujica: VoiceWaveform needs 0 <= Silence < 1 and non-negative SilentFor and Width")

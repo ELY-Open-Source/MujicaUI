@@ -2,6 +2,7 @@ package mujica
 
 import (
 	"log/slog"
+	"slices"
 	"strings"
 
 	"github.com/egoist/mygo/ui"
@@ -32,7 +33,7 @@ func (k ContextKind) group() string {
 	return [...]string{"context_mention_menu.file", "context_mention_menu.doc", "context_mention_menu.web"}[k]
 }
 
-// ContextItem is a file, document or web page the user can mention.
+// ContextItem describes a file, document or webpage mention.
 type ContextItem struct {
 	// ID is the item's stable identity; required.
 	ID     string
@@ -43,11 +44,11 @@ type ContextItem struct {
 
 // ContextMentionOptions configure a ContextMentionMenu.
 type ContextMentionOptions struct {
-	// Loading shows that the caller is fetching items for the query.
+	// Loading indicates caller-owned asynchronous fetching.
 	Loading bool
 }
 
-// ContextMentionResult is the menu's popup, nil while closed, its query and the item chosen this frame.
+// ContextMentionResult carries the popup, query and chosen item.
 type ContextMentionResult struct {
 	Element      *ui.Element
 	query        string
@@ -56,46 +57,56 @@ type ContextMentionResult struct {
 	ok           bool
 }
 
-// Query returns the text after "@"; QueryChanged reports a new one to fetch items for.
+// Query returns mention text; QueryChanged requests fresh results.
 func (r ContextMentionResult) Query() string      { return r.query }
 func (r ContextMentionResult) QueryChanged() bool { return r.queryChanged }
 
-// Chosen returns the item picked by Enter, Tab or a click; its "@query" was taken out of the text.
+// Chosen returns the selected item and consumes its trigger.
 func (r ContextMentionResult) Chosen() (ContextItem, bool) { return r.chosen, r.ok }
 
-// ContextMentionMenu pops up items grouped by kind while the composer's text ends in "@query".
-// The caller filters items for Query, possibly asynchronously, and attaches the chosen one.
+// ContextMentionMenu groups results for the active mention query.
+// The caller filters results synchronously or asynchronously.
 func ContextMentionMenu(c *ui.Context, composer InputResult, value *string, items []ContextItem, opts ContextMentionOptions) ContextMentionResult {
-	var rows []slashMenuRow
-	var order []int
-	for kind := ContextFile; kind <= ContextWeb; kind++ {
-		for i, it := range items {
-			if it.ID == "" || it.Label == "" {
-				panic("mujica: ContextItem needs ID and Label")
-			}
-			if it.Kind == kind {
-				rows = append(rows, slashMenuRow{label: it.Label, detail: it.Detail, icon: kind.icon(), group: msg(c, kind.group())})
-				order = append(order, i)
+	if composer.Element == nil || composer.Input == nil || value == nil {
+		panic("mujica: ContextMentionMenu needs composer and value")
+	}
+	data := ui.Local(composer.Element, "mention-data", func() mentionMenuData { return mentionMenuData{} })
+	locale := current(c).locale
+	if !data.built || locale != data.locale || !slices.Equal(data.items, items) {
+		data.built, data.locale = true, locale
+		data.items = append(data.items[:0], items...)
+		data.rows, data.order = data.rows[:0], data.order[:0]
+
+		for kind := ContextFile; kind <= ContextWeb; kind++ {
+			for i, it := range items {
+				if it.ID == "" || it.Label == "" {
+					panic("mujica: ContextItem needs ID and Label")
+				}
+				if it.Kind == kind {
+					data.rows = append(data.rows, slashMenuRow{label: it.Label, detail: it.Detail, icon: kind.icon(), group: msg(c, kind.group())})
+					data.order = append(data.order, i)
+				}
 			}
 		}
+		if len(data.order) != len(items) {
+			panic("mujica: unknown ContextKind")
+		}
 	}
-	if len(order) != len(items) {
-		panic("mujica: unknown ContextKind")
-	}
+	rows, order := data.rows, data.order
 	st := ui.Local(composer.Element, slashMenuKey{"mention"}, func() slashMenuState { return slashMenuState{} })
 	at := contextMentionAt(*value)
 	var r ContextMentionResult
 	if at >= 0 {
 		r.query = (*value)[at+1:]
 	}
-	// A new query, or the menu opening, asks the caller for items.
-	r.queryChanged = at >= 0 && (r.query != st.query || !st.open && st.dismissed == nil)
+	// Opening or changing queries requests caller-owned results.
+	r.queryChanged = at >= 0 && !composer.Element.IsDisabled() && composer.Input.Focused() && (r.query != st.query || !st.open && st.dismissed == nil)
 	empty := msg(c, "context_mention_menu.empty")
 	if opts.Loading {
 		empty = msg(c, "context_mention_menu.loading")
 	}
-	i, _ := slashMenuShow(c, composer, st, r.query, at >= 0, rows, slashMenuOptions{empty: empty, label: msg(c, "context_mention_menu.label"), loading: opts.Loading})
-	r.Element = st.panel
+	i, _, panel := slashMenuShow(c, composer, st, r.query, at >= 0, rows, slashMenuOptions{empty: empty, label: msg(c, "context_mention_menu.label"), loading: opts.Loading})
+	r.Element = panel
 	if i >= 0 {
 		r.chosen, r.ok = items[order[i]], true
 		*value = (*value)[:at]
@@ -111,4 +122,12 @@ func contextMentionAt(s string) int {
 		return -1
 	}
 	return at
+}
+
+type mentionMenuData struct {
+	built  bool
+	locale Locale
+	items  []ContextItem
+	rows   []slashMenuRow
+	order  []int
 }

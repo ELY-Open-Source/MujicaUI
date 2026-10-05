@@ -10,7 +10,7 @@ import (
 	"mujicaui/theme"
 )
 
-// PastedImage is an image pasted or dropped into a prompt; the caller decodes it.
+// PastedImage contains a caller-decoded clipboard or dropped image.
 type PastedImage struct {
 	// ID is the image's stable identity; required.
 	ID     string
@@ -22,7 +22,7 @@ type PastedImage struct {
 // pasteImageSize is the thumbnail's edge in DIPs.
 const pasteImageSize float32 = 72
 
-// PasteImagePreview shows pasted or dropped images as thumbnails, each with a remove button.
+// PasteImagePreview displays removable image thumbnails.
 func PasteImagePreview(c *ui.Context, images []PastedImage) RemoveResult {
 	k := Tokens(c)
 	u := Density(c).Unit()

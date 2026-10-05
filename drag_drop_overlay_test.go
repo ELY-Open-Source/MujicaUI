@@ -42,7 +42,7 @@ func TestDragDropOverlayNeedsContent(t *testing.T) {
 	}, 100, 100)
 }
 
-// TestDragDropOverlaySnapshot draws the mask shown while files are over the area.
+// TestDragDropOverlaySnapshot captures the active drop mask.
 func TestDragDropOverlaySnapshot(t *testing.T) {
 	snapshot(t, "drag_drop_overlay", 420, 220, func(c *ui.Context) {
 		ui.Box(c).Fill().Padding(12).Children(func() {

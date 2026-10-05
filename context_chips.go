@@ -13,11 +13,11 @@ import (
 
 // ContextChipsOptions configure ContextChips.
 type ContextChipsOptions struct {
-	// Max is how many chips show before the rest fold under "+N"; zero means 4.
+	// Max sets visible chips before folding; zero means four.
 	Max int
 }
 
-// RemoveResult is a list's element and the ID the user removed this frame.
+// RemoveResult carries the element and removed item ID.
 type RemoveResult struct {
 	Element *ui.Element
 	removed string
@@ -26,7 +26,7 @@ type RemoveResult struct {
 // Removed returns the ID whose remove button was pressed.
 func (r RemoveResult) Removed() (string, bool) { return r.removed, r.removed != "" }
 
-// ContextChips lists attached context as chips with remove buttons; past Max the rest fold.
+// ContextChips displays removable context with folded overflow.
 func ContextChips(c *ui.Context, items []ContextItem, opts ContextChipsOptions) RemoveResult {
 	if opts.Max < 0 {
 		panic("mujica: ContextChips Max must not be negative")
@@ -47,7 +47,7 @@ func ContextChips(c *ui.Context, items []ContextItem, opts ContextChipsOptions) 
 			shown = min(shown, limit)
 		}
 		for _, it := range items[:shown] {
-			ui.Row(c).Key(it.ID).Gap(u).AlignItems(ui.Center).Padding(0, 0, 0, u*2).MinHeight(theme.MinHitSize).
+			ui.Row(c).Key(it.ID).Gap(u).AlignItems(ui.Center).Padding(0, 0, 0, u*2).MinHeight(Density(c).ControlHeight()).
 				Radius(theme.ControlRadius).Background(k.Surface).Border(theme.BorderWidth, k.Border).Role(ui.RoleListItem).
 				Children(func() {
 					ui.Icon(c, icons.Must(it.Kind.icon())).Size(14, 14).Shrink(0).TextColor(k.AccentText)
@@ -65,7 +65,7 @@ func ContextChips(c *ui.Context, items []ContextItem, opts ContextChipsOptions) 
 		if *expanded {
 			label = msg(c, "context_chips.less")
 		}
-		b := ui.ButtonBase(c).MinHeight(theme.MinHitSize).Padding(0, u*2).Radius(theme.ControlRadius).Label(label).TextColor(k.AccentText)
+		b := ui.ButtonBase(c).MinHeight(Density(c).ControlHeight()).Padding(0, u*2).Radius(theme.ControlRadius).Label(label).TextColor(k.AccentText)
 		internal.Ring(b, k.Focus, theme.ControlRadius)
 		if b.Hovered() {
 			b.Background(k.SurfaceHover)

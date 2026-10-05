@@ -1,6 +1,7 @@
 package mujica
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/egoist/mygo/ui"
@@ -12,7 +13,7 @@ var slashCommandsSample = []SlashCommand{
 	{Name: "translate", Description: "Translate to French"},
 }
 
-// slashTester is a composer with a slash menu; it records chosen commands and sends.
+// slashTester records command choices and prompt submissions.
 type slashTester struct {
 	text   string
 	chosen []string
@@ -119,4 +120,65 @@ func TestSlashCommandMenuSnapshot(t *testing.T) {
 		tt.Type("/")
 		tt.Key(0, ui.KeyDown)
 	})
+}
+
+func TestSlashCommandMenuNarrowAndLargeData(t *testing.T) {
+	cmds := make([]SlashCommand, 100000)
+	for i := range cmds {
+		cmds[i] = SlashCommand{Name: fmt.Sprintf("cmd%d", i)}
+	}
+	text := "/"
+	var panel *ui.Element
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		p := PromptComposer(c, &text, PromptComposerOptions{Label: "Prompt"})
+		panel = SlashCommandMenu(c, p, &text, cmds).Element
+	}, 180, 120)
+	_ = tt.Click("Prompt")
+	tt.Frame()
+	if panel == nil {
+		t.Fatal("menu missing")
+	}
+	b := panel.Bounds()
+	if b.X < 0 || b.Y < 0 || b.X+b.W > 180 || b.Y+b.H > 120 {
+		t.Errorf("popup outside window: %v", b)
+	}
+	if n := len(tt.Texts()); n > 150 {
+		t.Errorf("built %d labels for 100000 commands, want <= 150", n)
+	}
+}
+
+func TestSlashCommandMenuReopensAfterTriggerRemoved(t *testing.T) {
+	s := &slashTester{}
+	tt := ui.NewTester(s.view, 500, 400)
+	_ = tt.Click("Prompt")
+	tt.Type("/")
+	tt.Key(0, ui.KeyEscape)
+	tt.Key(0, ui.KeyBackspace)
+	tt.Type("/")
+	if !tt.HasText("/summarize") {
+		t.Fatal("retyped slash stayed dismissed")
+	}
+}
+
+func TestSlashCommandMenuQueryRevealsHighlight(t *testing.T) {
+	commands := make([]SlashCommand, 100)
+	for i := range commands {
+		commands[i] = SlashCommand{Name: fmt.Sprintf("cmd%03d", i)}
+	}
+	text := "/"
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Fill().Justify(ui.End).Children(func() {
+			p := PromptComposer(c, &text, PromptComposerOptions{Label: "Prompt"})
+			SlashCommandMenu(c, p, &text, commands)
+		})
+	}, 500, 400)
+	_ = tt.Click("Prompt")
+	tt.Scroll(100, 150, 0, 1500)
+	tt.Type("c")
+	b, ok := tt.Find("/cmd000")
+	if !ok || b.H == 0 || b.Y < 0 || b.Y+b.H > 400 {
+		t.Fatalf("highlight outside view: %v found %v", b, ok)
+	}
 }

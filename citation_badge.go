@@ -20,20 +20,22 @@ type Source struct {
 	Published  time.Time
 }
 
-// CitationState links citations, source cards and the sources panel; the caller holds it.
+// CitationState links citations and sources through caller-owned state.
 type CitationState struct {
-	// Active is the 1-based number of the source the user chose; 0 for none.
+	// Active selects a 1-based source; zero clears selection.
 	Active int
 	hover  int
 	owner  uint64
+	seen   time.Time
+	locate uint64
 }
 
 // lit reports whether source n is chosen or hovered anywhere.
 func (s *CitationState) lit(n int) bool { return n > 0 && (s.Active == n || s.hover == n) }
 
-// track records that e, showing source n, is or is no longer under the pointer.
+// track refreshes pointer ownership for the current frame.
 func (s *CitationState) track(c *ui.Context, e *ui.Element, n int) {
-	switch over := e.Hovered(); {
+	switch over := e.Hovered() && !e.IsDisabled(); {
 	case over && s.hover != n:
 		s.hover, s.owner = n, e.ID()
 		c.Invalidate()
@@ -41,9 +43,19 @@ func (s *CitationState) track(c *ui.Context, e *ui.Element, n int) {
 		s.hover, s.owner = 0, 0
 		c.Invalidate()
 	}
+	if s.owner == e.ID() {
+		s.seen = c.Now()
+	}
 }
 
-// CitationBadge is an inline source number; hovering previews the source, clicking makes it Active.
+func (s *CitationState) expire(c *ui.Context, frame time.Time) {
+	if s.hover != 0 && s.seen != frame {
+		s.hover, s.owner = 0, 0
+		c.Invalidate()
+	}
+}
+
+// CitationBadge previews and locates a numbered source.
 func CitationBadge(c *ui.Context, n int, src Source, st *CitationState) ChoiceResult {
 	if n < 1 || st == nil || src.Title == "" || src.URL == "" {
 		panic("mujica: CitationBadge needs n >= 1, a state and a Source with Title and URL")
@@ -51,7 +63,7 @@ func CitationBadge(c *ui.Context, n int, src Source, st *CitationState) ChoiceRe
 	k := Tokens(c)
 	label := fmt.Sprintf(msg(c, "citation_badge.label"), n, src.Title)
 	size := FontSize(c, theme.CaptionSize-1)
-	b := ui.ButtonBase(c).MinWidth(18).Height(18).Padding(0, 4).Radius(theme.ControlRadius).Label(label).Transition(colorFade)
+	b := ui.ButtonBase(c).MinWidth(theme.MinHitSize).MinHeight(theme.MinHitSize).Padding(0, 4).Radius(theme.ControlRadius).Label(label).Transition(colorFade)
 	internal.Ring(b, k.Focus, theme.ControlRadius)
 	st.track(c, b, n)
 	if st.lit(n) {
@@ -59,25 +71,33 @@ func CitationBadge(c *ui.Context, n int, src Source, st *CitationState) ChoiceRe
 	} else {
 		b.Background(k.SurfaceHover).Border(theme.BorderWidth, k.Border).TextColor(k.TextMuted)
 	}
+	frame := c.Now()
+	b.Draw(func(p *ui.Painter, r ui.Rect) {
+		st.expire(c, frame)
+		if st.lit(n) {
+			p.Fill(ui.Rect{X: r.X + 4, Y: r.Y + r.H - 4, W: r.W - 8, H: 2}, k.AccentText, 0)
+		}
+	})
 	b.Children(func() { ui.Text(c, fmt.Sprint(n)).FontSize(size).FontFeatures("tnum").FontWeight(600).SingleLine() })
 	r := ChoiceResult{Element: b}
-	if b.Clicked() && !b.IsDisabled() && st.Active != n {
+	if b.Clicked() && !b.IsDisabled() {
 		st.Active, r.changed = n, true
+		st.locate++
 		slog.Debug("mujica: citation_badge activate", "n", n)
 	}
 	citationPreview(c, b, n, src)
 	return r
 }
 
-// citationPreviewDelay is how long hover or focus rests before the preview shows.
+// citationPreviewDelay sets the hover and focus wait.
 const citationPreviewDelay = 500 * time.Millisecond
 
-// citationPreview shows the source by badge b once hover or keyboard focus rests on it.
-// It lets the pointer through, so the badge stays clickable under it; Escape hides it.
+// citationPreview displays a source after resting hover or focus.
+// Pass-through preserves badge clicks; Escape dismisses the preview.
 func citationPreview(c *ui.Context, b *ui.Element, n int, src Source) {
 	st := ui.Local(b, "mujica.citation", func() tooltipState { return tooltipState{} })
 	size := ui.Local(b, "mujica.citation.size", func() ui.Rect { return ui.Rect{} })
-	if !b.Hovered() && !b.FocusVisible() {
+	if b.IsDisabled() || !b.Hovered() && !b.FocusVisible() {
 		*st = tooltipState{}
 		return
 	}
@@ -96,13 +116,14 @@ func citationPreview(c *ui.Context, b *ui.Element, n int, src Source) {
 		return
 	}
 	u := Density(c).Unit()
-	w := float32(300)
-	x, y := overlayPlace(c, b.Bounds(), w, size.H, 6)
+	ww, wh := c.Size()
+	w, h := min(float32(300), max(0, ww-8)), max(0, wh-8)
+	x, y := overlayPlace(c, b.Bounds(), w, min(size.H, h), 6)
 	ui.Overlay(c, func() {
-		panel := ui.Column(c).Absolute().Left(x).Top(y).Width(w).Padding(u * 3).PassThrough().Role(ui.RoleTooltip)
+		panel := ui.Column(c).Absolute().Left(x).Top(y).Width(w).MaxHeight(h).Padding(u * 3).PassThrough().Role(ui.RoleTooltip).Label(msg(c, "citation_badge.preview"))
 		overlayStyle(c, panel, overlayAnchored(c, panel, *size))
 		*size = panel.Bounds()
-		panel.Children(func() { sourceSummary(c, n, src) })
+		panel.Children(func() { ui.Scroll(c).Shrink(1).Children(func() { sourceSummary(c, n, src) }) })
 	})
 }
 

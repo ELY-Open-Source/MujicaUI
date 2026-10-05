@@ -60,3 +60,33 @@ func TestAttachmentChipSnapshot(t *testing.T) {
 		})
 	})
 }
+
+func TestAttachmentChipKeyboardAndDisabled(t *testing.T) {
+	off, removed, retried := false, 0, 0
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Row(c).Disabled(off).Children(func() {
+			r := AttachmentChip(c, Attachment{Name: "guests.csv", Size: 0, Err: errors.New("upload failed")})
+			if r.Removed() {
+				removed++
+			}
+			if r.Retried() {
+				retried++
+			}
+		})
+	}, 400, 160)
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeyEnter)
+	tt.Key(0, ui.KeyTab)
+	tt.Key(0, ui.KeySpace)
+	if retried != 1 || removed != 1 {
+		t.Fatalf("retry %d remove %d", retried, removed)
+	}
+	off = true
+	tt.Frame()
+	tt.Key(0, ui.KeyEnter)
+	_ = tt.Click("Retry upload of guests.csv")
+	if retried != 1 || removed != 1 {
+		t.Fatal("disabled attachment handled input")
+	}
+}

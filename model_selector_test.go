@@ -1,6 +1,7 @@
 package mujica
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/egoist/mygo/ui"
@@ -69,4 +70,60 @@ func TestModelSelectorSnapshot(t *testing.T) {
 		v := ui.Local(c.Root(), "v", func() string { return "herald" })
 		ui.Column(c).Padding(16).Children(func() { ModelSelector(c, v, modelsSample, ModelSelectorOptions{}) })
 	}, func(tt *ui.Tester) { _ = tt.Click("Model") })
+}
+
+func TestModelSelectorAncestorDisabledCloses(t *testing.T) {
+	v, off, changes := "herald", false, 0
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Disabled(off).Children(func() {
+			if ModelSelector(c, &v, modelsSample, ModelSelectorOptions{}).Changed() {
+				changes++
+			}
+		})
+	}, 400, 400)
+	_ = tt.Click("Model")
+	off = true
+	tt.Frame()
+	tt.Key(0, ui.KeyDown)
+	tt.Key(0, ui.KeyEnter)
+	if tt.HasText("Page Mini") || v != "herald" || changes != 0 {
+		t.Fatalf("disabled popup: value %q changes %d texts %q", v, changes, tt.Texts())
+	}
+}
+
+func TestModelSelectorLargeDataAndEnd(t *testing.T) {
+	models := make([]ModelOption, 100000)
+	for i := range models {
+		models[i] = ModelOption{ID: fmt.Sprint(i), Name: fmt.Sprintf("Model %d", i)}
+	}
+	v := "0"
+	tt := ui.NewTester(func(c *ui.Context) { Use(c, Settings{}); ModelSelector(c, &v, models, ModelSelectorOptions{}) }, 400, 300)
+	_ = tt.Click("Model")
+	if n := len(tt.Texts()); n > 200 {
+		t.Errorf("built %d labels, want <= 200", n)
+	}
+	tt.Key(0, ui.KeyEnd)
+	tt.Key(0, ui.KeyEnter)
+	if v != "99999" {
+		t.Errorf("End choice %q, want 99999", v)
+	}
+}
+
+func TestModelSelectorPopupFitsWindow(t *testing.T) {
+	value := "0"
+	models := make([]ModelOption, 100)
+	for i := range models {
+		models[i] = ModelOption{ID: fmt.Sprint(i), Name: fmt.Sprintf("Model %d", i)}
+	}
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Column(c).Padding(16).Children(func() { ModelSelector(c, &value, models, ModelSelectorOptions{}) })
+	}, 440, 330)
+	_ = tt.Click("Model")
+	tt.Key(0, ui.KeyEnd)
+	b, ok := tt.Find("Model 99")
+	if !ok || b.H == 0 || b.Y < 0 || b.Y+b.H > 330 {
+		t.Fatalf("last available model outside window %v found %v", b, ok)
+	}
 }

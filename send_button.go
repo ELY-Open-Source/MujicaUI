@@ -12,21 +12,21 @@ import (
 
 // SendButtonOptions configure a SendButton.
 type SendButtonOptions struct {
-	// Streaming turns the button into Stop while a reply is generated.
+	// Streaming selects Stop while the caller generates a reply.
 	Streaming bool
-	// Disabled blocks sending, as for an empty prompt; Stop stays available.
+	// Disabled blocks sending; Stop remains available.
 	Disabled bool
-	// Shortcut is the send key shown in the tooltip, as "Enter"; empty shows none.
+	// Shortcut supplies tooltip text; empty hides the hint.
 	Shortcut string
 }
 
-// SendResult is the button and which action the user took this frame.
+// SendResult carries the button and requested action.
 type SendResult struct {
 	Element    *ui.Element
 	send, stop bool
 }
 
-// Sent reports a press while idle; Stopped a press while streaming.
+// Sent requests sending; Stopped requests generation cancellation.
 func (r SendResult) Sent() bool    { return r.send }
 func (r SendResult) Stopped() bool { return r.stop }
 
