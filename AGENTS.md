@@ -32,6 +32,7 @@ testdata/snapshots/  <os>/<name>-<light|dark>.png
 
 - Signature: `func Name(c *ui.Context, value *T, opts NameOptions) *ui.Element`. Composites may return a named struct.
 - Zero `Options` gives the default look. No `map[string]any` config.
+- Explicit font sizes: `FontSize(c, theme.CaptionSize)`; it applies the desktop text scale.
 - Colors: `k := mujica.Tokens(c)`. Metrics: `theme.*` consts and `Density(c).Unit()` / `.ControlHeight()`.
 - Build on MyGo Bases (`ui.ButtonBase`, `ui.CheckboxBase`, `ui.SelectBase`, ...) or MyGo widgets restyled through the theme `Use` sets. Never reach into MyGo internals.
 - Focus: `internal.Ring(e, k.Focus, radius)` for the 2 DIP ring with 2 DIP gap.

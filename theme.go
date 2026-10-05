@@ -82,10 +82,7 @@ func Use(c *ui.Context, s Settings) {
 	if p.HighContrast {
 		k = k.HighContrast()
 	}
-	size := theme.BodySize
-	if p.TextScale > 0 {
-		size *= p.TextScale
-	}
+	size := FontSize(c, theme.BodySize)
 	c.SetTheme(&ui.Theme{
 		Dark:           k.Dark,
 		Background:     k.Background,
@@ -133,4 +130,12 @@ func Motion(c *ui.Context, d time.Duration) time.Duration {
 		return 0
 	}
 	return d
+}
+
+// FontSize scales a design size by the desktop's text scale.
+func FontSize(c *ui.Context, size float32) float32 {
+	if s := c.Preferences().TextScale; s > 0 {
+		return size * s
+	}
+	return size
 }

@@ -41,3 +41,15 @@ func TestTokensWithoutUsePanics(t *testing.T) {
 	}()
 	ui.NewTester(func(c *ui.Context) { Tokens(c) }, 100, 100)
 }
+
+func TestFontSizeFollowsTextScale(t *testing.T) {
+	var got float32
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		got = FontSize(c, theme.CaptionSize)
+	}, 100, 100)
+	tt.SetPreferences(ui.Preferences{TextScale: 2})
+	if got != 2*theme.CaptionSize {
+		t.Fatalf("FontSize = %v, want %v", got, 2*theme.CaptionSize)
+	}
+}
