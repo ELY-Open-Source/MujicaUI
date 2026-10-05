@@ -209,7 +209,6 @@ func (s *site) index() string {
 	}
 	b.WriteString(`<section class="hero"><p class="eyebrow">Court-gothic components for MyGo</p><h1>MujicaUI</h1>`)
 	b.WriteString(`<div class="rule" aria-hidden="true"><span></span></div>`)
-	fmt.Fprintf(&b, `<p class="lede">宫廷哥特风格的 Go 桌面组件库：象牙白与炭黑底色，酒红主色，旧金细线，衬线标题。共 %d 个组件，%d 个分类。</p>`, len(s.comps), len(s.cats))
 	b.WriteString(`<p class="honest"><strong>说明：</strong>这些组件是原生 Go（MyGo）控件，在桌面窗口里由 GPU 自绘。本站展示的是渲染快照图片，浏览器不运行任何组件代码。<br>`)
 	b.WriteString(`<strong>Note:</strong> the components are native Go (MyGo) widgets. The images are rendered snapshots; your browser runs no component code.</p>`)
 	b.WriteString(`<p class="ctas"><a class="btn" href="/readme/">开始使用</a><a class="btn ghost" href="` + repoURL + `" rel="noopener">GitHub 源码</a></p></section>`)
