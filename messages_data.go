@@ -1,0 +1,36 @@
+package mujica
+
+func init() {
+	addMessages(map[string][2]string{
+		"list.empty":              {"No items", "暂无数据"},
+		"list.loading":            {"Loading", "加载中"},
+		"list.loadingMore":        {"Loading more", "正在加载更多"},
+		"list.failed":             {"Could not load", "加载失败"},
+		"list.retry":              {"Retry", "重试"},
+		"data_table.noMatch":      {"No matching rows", "没有匹配的行"},
+		"data_table.selectRow":    {"Select row", "选择行"},
+		"data_table.columns":      {"Columns", "列"},
+		"timeline.done":           {"Done", "已完成"},
+		"timeline.active":         {"Current", "进行中"},
+		"timeline.warning":        {"Warning", "警告"},
+		"timeline.error":          {"Error", "错误"},
+		"description_list.copy":   {"Copy", "复制"},
+		"description_list.copied": {"Copied", "已复制"},
+		"statistic.up":            {"up", "上升"},
+		"statistic.down":          {"down", "下降"},
+		"statistic.flat":          {"unchanged", "持平"},
+		"carousel.prev":           {"Previous slide", "上一项"},
+		"carousel.next":           {"Next slide", "下一项"},
+		"carousel.pause":          {"Pause autoplay", "暂停自动播放"},
+		"carousel.play":           {"Resume autoplay", "继续自动播放"},
+		"carousel.position":       {"Slide %d of %d", "第 %d 项，共 %d 项"},
+		"image_viewer.title":      {"Image viewer", "图片查看器"},
+		"image_viewer.position":   {"Image %d of %d", "第 %d 张，共 %d 张"},
+		"image_viewer.zoomIn":     {"Zoom in", "放大"},
+		"image_viewer.zoomOut":    {"Zoom out", "缩小"},
+		"image_viewer.fit":        {"Fit to window", "适应窗口"},
+		"image_viewer.close":      {"Close", "关闭"},
+		"image_viewer.prev":       {"Previous image", "上一张"},
+		"image_viewer.next":       {"Next image", "下一张"},
+	})
+}
