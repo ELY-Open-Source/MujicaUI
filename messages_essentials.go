@@ -18,6 +18,9 @@ func init() {
 
 		"knob.label": {"Knob", "旋钮"},
 
+		"currency_input.invalid":   {"Enter an amount, such as 1,234.50", "请输入金额，例如 1,234.50"},
+		"currency_input.precision": {"Use at most %d decimal places", "最多保留 %d 位小数"},
+
 		"qr_code.label":    {"QR code", "二维码"},
 		"qr_code.too_long": {"Text too long for a QR code", "文字过长，无法生成二维码"},
 	})

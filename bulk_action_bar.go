@@ -26,7 +26,7 @@ func BulkActionBar(c *ui.Context, selected int, opts BulkActionBarOptions, actio
 	k := Tokens(c)
 	u := Density(c).Unit()
 	count := fmt.Sprintf(msg(c, "bulk_action_bar.selected"), selected)
-	bar := ui.Row(c).AlignItems(ui.Center).Gap(u*3).Padding(u*2, u*2, u*2, u*4).MinHeight(Density(c).ControlHeight()+4*u).
+	bar := ui.Row(c).AlignItems(ui.Center).Gap(u*3).Padding(u*2, u*2, u*2, u*4).MinHeight(Density(c).ControlHeight() + 4*u).
 		Role(ui.RoleToolbar).Label(count).Disabled(opts.Disabled)
 	overlayStyle(c, bar, overlayEnter(c, bar))
 	said := ui.Local(bar, "bulk_action_bar.said", func() int { return 0 })

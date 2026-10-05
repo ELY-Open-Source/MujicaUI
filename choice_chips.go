@@ -30,7 +30,7 @@ func ChoiceChips[T comparable](c *ui.Context, value *[]T, items []ToggleItem[T],
 	}
 	k := Tokens(c)
 	d := Density(c)
-	g := ui.Row(c).Wrap().Gap(d.Unit()*2).Disabled(opts.Disabled).Role(ui.RoleGroup).FocusGroup(ui.Horizontal)
+	g := ui.Row(c).Wrap().Gap(d.Unit() * 2).Disabled(opts.Disabled).Role(ui.RoleGroup).FocusGroup(ui.Horizontal)
 	if opts.Label != "" {
 		g.Label(opts.Label)
 	}
@@ -54,7 +54,7 @@ func ChoiceChips[T comparable](c *ui.Context, value *[]T, items []ToggleItem[T],
 }
 
 func choiceChipLook[T comparable](c *ui.Context, k theme.Tokens, d theme.Density, b *ui.Element, on bool, it ToggleItem[T]) {
-	b.MinHeight(max(theme.MinHitSize, d.ControlHeight()-4)).MinWidth(theme.MinHitSize).Padding(0, d.Unit()*3).Gap(d.Unit()*1.5).
+	b.MinHeight(max(theme.MinHitSize, d.ControlHeight()-4)).MinWidth(theme.MinHitSize).Padding(0, d.Unit()*3).Gap(d.Unit() * 1.5).
 		Radius(theme.PopupRadius)
 	internal.Ring(b, k.Focus, theme.PopupRadius)
 	bg, fg, line := k.Surface, k.Text, k.ControlBorder
