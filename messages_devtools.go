@@ -43,6 +43,10 @@ func init() {
 		"uptime_bar.down":     {"Outage", "中断"},
 		"uptime_bar.nodata":   {"No data", "无数据"},
 
+		"resource_gauge.normal":   {"Normal", "正常"},
+		"resource_gauge.high":     {"High", "偏高"},
+		"resource_gauge.critical": {"Critical", "危险"},
+
 		"alert_list.empty": {"No alerts", "没有告警"},
 	})
 }
