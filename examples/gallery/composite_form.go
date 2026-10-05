@@ -110,7 +110,7 @@ func (g *gallery) formEdit(c *ui.Context, log func(string)) {
 
 func (g *gallery) formFields(c *ui.Context, f *mujica.FormScope, log func(string)) {
 	s := &g.cForm
-	mujica.FormItem(f, "name", &s.name, mujica.FormItemOptions[string]{Label: g.t("Stage name", "艺名"), Required: true,
+	mujica.FormItem(c, f, "name", &s.name, mujica.FormItemOptions[string]{Label: g.t("Stage name", "艺名"), Required: true,
 		Description: g.t("Checked against the archive; “Oblivionis” is taken.", "将与档案核对；“Oblivionis”已被占用。"),
 		Validate: func(v string) string {
 			if len([]rune(strings.TrimSpace(v))) < 2 {
@@ -134,7 +134,7 @@ func (g *gallery) formFields(c *ui.Context, f *mujica.FormScope, log func(string
 		}}, func() *ui.Element {
 		return mujica.TextInput(c, &s.name, mujica.TextInputOptions{}).Input
 	})
-	mujica.FormItem(f, "password", &s.password, mujica.FormItemOptions[string]{Label: g.t("Password", "密码"), Required: true,
+	mujica.FormItem(c, f, "password", &s.password, mujica.FormItemOptions[string]{Label: g.t("Password", "密码"), Required: true,
 		Validate: func(v string) string {
 			if len([]rune(v)) < 8 {
 				return g.t("Use at least 8 characters.", "至少 8 个字符。")
@@ -147,14 +147,14 @@ func (g *gallery) formFields(c *ui.Context, f *mujica.FormScope, log func(string
 		}
 		return r.Input
 	})
-	mujica.FormItem(f, "debut", &s.debut, mujica.FormItemOptions[mujica.Date]{Label: g.t("Debut date", "首演日期"), Required: true}, func() *ui.Element {
+	mujica.FormItem(c, f, "debut", &s.debut, mujica.FormItemOptions[mujica.Date]{Label: g.t("Debut date", "首演日期"), Required: true}, func() *ui.Element {
 		r := mujica.DatePicker(c, &s.debut, mujica.DatePickerOptions{Clearable: true})
 		if r.Changed() {
 			log("debut " + s.debut.Format("2006-01-02"))
 		}
 		return r.Input
 	})
-	mujica.FormItem(f, "roles", &s.tags, mujica.FormItemOptions[[]string]{Label: g.t("Roles", "担当"), Required: true,
+	mujica.FormItem(c, f, "roles", &s.tags, mujica.FormItemOptions[[]string]{Label: g.t("Roles", "担当"), Required: true,
 		Description: g.t("Up to 4; press Enter after each.", "最多 4 个；每个后按 Enter。")}, func() *ui.Element {
 		r := mujica.TagsInput(c, &s.tags, mujica.TagsInputOptions{Max: 4, Invalid: s.st.Error("roles") != "", Placeholder: g.t("keyboard, bass…", "键盘、贝斯…")})
 		if r.Changed() {
@@ -162,7 +162,7 @@ func (g *gallery) formFields(c *ui.Context, f *mujica.FormScope, log func(string
 		}
 		return r.Input
 	})
-	mujica.FormItem(f, "terms", &s.terms, mujica.FormItemOptions[bool]{Label: g.t("Terms", "条款"),
+	mujica.FormItem(c, f, "terms", &s.terms, mujica.FormItemOptions[bool]{Label: g.t("Terms", "条款"),
 		Validate: func(v bool) string {
 			if !v {
 				return g.t("Accept the terms to continue.", "请先同意条款。")

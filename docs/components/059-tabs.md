@@ -7,11 +7,13 @@
 ## 最小示例
 
 ```go
-mujica.Tabs(c, &tab, []mujica.Tab{
+if mujica.Tabs(c, &tab, []mujica.Tab{
 	{Label: "General", Panel: func() { ui.Text(c, "General settings") }},
 	{Label: "Fonts", Icon: icons.Must("italic"), Panel: func() { ui.Text(c, "Fonts") }},
 	{Label: "Archive", Disabled: true},
-}, mujica.TabsOptions{Label: "Settings"})
+}, mujica.TabsOptions{Label: "Settings"}).Changed() {
+	fmt.Println("tab", tab)
+}
 ```
 
 签名：`func Tabs(c *ui.Context, selected *int, tabs []Tab, opts TabsOptions) ChoiceResult`

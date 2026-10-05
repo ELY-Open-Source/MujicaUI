@@ -99,7 +99,6 @@ type FormOptions struct {
 
 // FormScope registers a Form's fields with FormItem.
 type FormScope struct {
-	c          *ui.Context
 	st         *FormState
 	horizontal bool
 }
@@ -140,7 +139,7 @@ func Form(c *ui.Context, st *FormState, opts FormOptions, fields func(f *FormSco
 	parts := FormParts{}
 	col := ui.Column(c).Gap(d.Unit() * 5)
 	parts.Element = col
-	scope := &FormScope{c: c, st: st, horizontal: opts.Horizontal}
+	scope := &FormScope{st: st, horizontal: opts.Horizontal}
 	col.Children(func() {
 		// A new key after Reset drops the controls' drafts and errors.
 		ui.Box(c).Key(st.generation).Children(func() {
@@ -242,8 +241,8 @@ func formReset(st *FormState) {
 }
 
 // FormItem registers field name around the focusable element control returns.
-func FormItem[T any](f *FormScope, name string, value *T, opts FormItemOptions[T], control func() *ui.Element) *ui.Element {
-	c, st := f.c, f.st
+func FormItem[T any](c *ui.Context, f *FormScope, name string, value *T, opts FormItemOptions[T], control func() *ui.Element) *ui.Element {
+	st := f.st
 	if name == "" || opts.Label == "" {
 		panic("mujica: FormItem needs a name and a Label")
 	}

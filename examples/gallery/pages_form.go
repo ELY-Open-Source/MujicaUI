@@ -118,7 +118,7 @@ var formPages = []page{
 			}
 			formToggles(c, []string{"Labels beside fields", "Server rejects the submit"}, &d.horizontal, &d.slowServer)
 			res := mujica.Form(c, &d.st, mujica.FormOptions{Horizontal: d.horizontal}, func(f *mujica.FormScope) {
-				mujica.FormItem(f, "name", &d.name, mujica.FormItemOptions[string]{Label: "Stage name", Required: true, Initial: "Sakiko",
+				mujica.FormItem(c, f, "name", &d.name, mujica.FormItemOptions[string]{Label: "Stage name", Required: true, Initial: "Sakiko",
 					Description: "Checked against the archive; \"Oblivionis\" is taken.",
 					Async: func(v string, version uint64) {
 						log(fmt.Sprintf("async check started v%d", version))
@@ -134,7 +134,7 @@ var formPages = []page{
 					}}, func() *ui.Element {
 					return mujica.InputGroup(c, &d.name, mujica.InputGroupOptions{Invalid: d.st.Error("name") != ""}).Input
 				})
-				mujica.FormItem(f, "email", &d.email, mujica.FormItemOptions[string]{Label: "Email", Required: true,
+				mujica.FormItem(c, f, "email", &d.email, mujica.FormItemOptions[string]{Label: "Email", Required: true,
 					Validate: func(v string) string {
 						if !strings.Contains(v, "@") {
 							return "Enter an email address."
@@ -147,7 +147,7 @@ var formPages = []page{
 					}
 					return g.Input
 				})
-				mujica.FormItem(f, "tags", &d.tags, mujica.FormItemOptions[[]string]{Label: "Roles", Required: true, Initial: []string{"keyboard"}}, func() *ui.Element {
+				mujica.FormItem(c, f, "tags", &d.tags, mujica.FormItemOptions[[]string]{Label: "Roles", Required: true, Initial: []string{"keyboard"}}, func() *ui.Element {
 					return mujica.TagsInput(c, &d.tags, mujica.TagsInputOptions{Max: 4, Invalid: d.st.Error("tags") != ""}).Input
 				})
 			})
@@ -336,7 +336,7 @@ name := ""
 view := func(c *ui.Context) {
 	mujica.Use(c, mujica.Settings{})
 	res := mujica.Form(c, &state, mujica.FormOptions{}, func(f *mujica.FormScope) {
-		mujica.FormItem(f, "name", &name, mujica.FormItemOptions[string]{Label: "Name", Required: true}, func() *ui.Element {
+		mujica.FormItem(c, f, "name", &name, mujica.FormItemOptions[string]{Label: "Name", Required: true}, func() *ui.Element {
 			return mujica.InputGroup(c, &name, mujica.InputGroupOptions{Invalid: state.Error("name") != ""}).Input
 		})
 	})
