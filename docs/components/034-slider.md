@@ -25,7 +25,7 @@ ui.Render(view, 400, 300, 1)
 | `Step` | `float64` | 0 | 步长；值为 `Min + n·Step`。0 为连续。 |
 | `Marks` | `[]SliderMark` | nil | 刻度：`Value` 处画刻线，`Label` 非空时在下方显示文字。 |
 | `ShowValue` | `bool` | false | 悬停、拖动或聚焦时在滑块上方显示数值提示（预留高度，不改变布局）。 |
-| `Format` | `func(float64) string` | 按步长精度 | 数值文字。 |
+| `Format` | `func(float64) string` | 按 `Min`、`Step` 所需小数位（连续时至少 1 位） | 数值文字。 |
 | `Disabled` | `bool` | false | 禁用。 |
 | `Label` | `string` | "" | 无障碍名称。 |
 
@@ -44,5 +44,6 @@ ui.Render(view, 400, 300, 1)
 
 ## 限制
 
-- 基于 `ui.SliderBase`。MyGo 的方向键步长固定为范围的 1%（ui/base.go:116），本组件把每次按键结果换算为一个 `Step`；当 `Step` 小于范围的 1% 且滑块距端点不足 1% 时，方向键会直接到端点。
-- `SliderBase` 在构建时就处理指针（ui/base.go:111），禁用时组件改为让它操作副本，保证值不变。
+- 基于 `ui.SliderBase`，它向辅助技术报告 Slider 角色、范围与当前值（ui/base.go:128）。
+- MyGo 只把方向键、Home、End 交给 `SliderBase` 本身（ui/base.go:118，按键路由见 ui/input.go:495），并固定以范围的 1% 移动。本组件让它操作副本，按方向判断按键后自己按 `Step` 移动；距端点不足 1% 时 MyGo 的方向键与 Home/End 结果相同，组件改看松开的是哪个键（`HandleInput` 能收到 KeyUp），在键松开前不改值。
+- `SliderBase` 在构建时就处理指针（ui/base.go:111），禁用时外层先禁用，且只操作副本，保证值不变。

@@ -43,8 +43,7 @@ type CascaderLevel struct {
 type CascaderOptions struct {
 	// Level returns the children under path; the empty path is the roots.
 	Level func(path []string) CascaderLevel
-	// Load fetches the children under path, once while Idle and on retry; it
-	// should mark the level Loading and finish through Window.Update.
+	// Load fetches the children under path while Idle and on retry; it marks the level Loading.
 	Load func(path []string)
 	// AnyLevel lets branches be chosen too; by default only leaves are.
 	AnyLevel bool
@@ -66,9 +65,7 @@ type cascaderState struct {
 
 type cascaderKey struct{}
 
-// Cascader chooses a path through levels the caller supplies, loading
-// children on demand. Up and Down move in a column, Right opens a branch,
-// Left goes back, Enter or Space chooses; Escape closes.
+// Cascader chooses a path through levels the caller supplies, loading children on demand.
 func Cascader(c *ui.Context, path *[]string, opts CascaderOptions) ChoiceResult {
 	if opts.Level == nil {
 		panic("mujica: Cascader needs Level")
@@ -79,6 +76,9 @@ func Cascader(c *ui.Context, path *[]string, opts CascaderOptions) ChoiceResult 
 		tr.Label(opts.Label)
 	}
 	st := *ui.Local(tr, cascaderKey{}, func() *cascaderState { return &cascaderState{requested: map[string]bool{}} })
+	if opts.Disabled {
+		st.open = false
+	}
 	if tr.Clicked() || (!st.open && tr.Shortcut(0, ui.KeyDown)) {
 		st.open = !st.open
 		if st.open {
@@ -186,7 +186,7 @@ func cascaderRow(c *ui.Context, st *cascaderState, path *[]string, opts Cascader
 	d := Density(c)
 	full := append(slices.Clone(prefix), n.Value)
 	depth := len(prefix)
-	b := ui.ButtonBase(c).Key(n.Value).Disabled(n.Disabled).MinHeight(d.ControlHeight()-4).Padding(0, d.Unit()*2).
+	b := ui.ButtonBase(c).Key(n.Value).Disabled(n.Disabled).MinHeight(d.ControlHeight()).Padding(0, d.Unit()*2).
 		Gap(d.Unit() * 2).Justify(ui.Start).Radius(theme.ControlRadius).FillWidth().Role(ui.RoleListItem)
 	internal.Ring(b, k.Focus, theme.ControlRadius)
 	if st.focusSet && (slices.Equal(st.focus, full) || first && slices.Equal(st.focus, append(slices.Clone(prefix), ""))) {
@@ -214,6 +214,7 @@ func cascaderRow(c *ui.Context, st *cascaderState, path *[]string, opts Cascader
 		st.focus, st.focusSet = slices.Clone(prefix), true
 	}
 	chosen := len(*path) > depth && slices.Equal((*path)[:depth+1], full)
+	b.Selected(chosen).Background(ui.Transparent).TextColor(k.Text)
 	switch {
 	case on:
 		b.Background(k.Selection)
@@ -224,6 +225,7 @@ func cascaderRow(c *ui.Context, st *cascaderState, path *[]string, opts Cascader
 		b.TextColor(k.AccentText)
 	}
 	b.Children(func() {
+		selectCheck(c, chosen)
 		ui.Text(c, n.Label).SingleLine().Grow(1).Shrink(1)
 		if !n.Leaf {
 			ui.Box(c).Size(14, 14).Shrink(0).Draw(func(p *ui.Painter, r ui.Rect) {

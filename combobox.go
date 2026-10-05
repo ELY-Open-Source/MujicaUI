@@ -41,9 +41,7 @@ func (r ComboboxResult) QueryChanged() bool { return r.queryChanged }
 // comboboxKey keeps this file's state apart from MyGo's own.
 type comboboxKey struct{ name string }
 
-// Combobox chooses *value by typing to filter options and picking one, as
-// an autocomplete does. Up and Down move, Enter or a click chooses, Escape
-// closes. With AllowCustom, Enter or leaving the field keeps typed text.
+// Combobox chooses *value by typing to filter options and picking one, or typed text with AllowCustom.
 func Combobox(c *ui.Context, value *string, options []string, opts ComboboxOptions) ComboboxResult {
 	k := Tokens(c)
 	d := Density(c)
@@ -52,9 +50,21 @@ func Combobox(c *ui.Context, value *string, options []string, opts ComboboxOptio
 		Gap(d.Unit() * 2).Radius(theme.ControlRadius).Background(k.Surface).Cursor(ui.CursorText).Disabled(opts.Disabled)
 	query := ui.Local(f, comboboxKey{"query"}, func() string { return *value })
 	wasFocused := ui.Local(f, comboboxKey{"focused"}, func() bool { return false })
+	// MyGo keeps the caret on replaced text (ui/editor.go:117): a choice builds a fresh input.
+	gen := ui.Local(f, comboboxKey{"input"}, func() int { return 0 })
+	refocus := ui.Local(f, comboboxKey{"refocus"}, func() bool { return false })
 	var p *ui.ComboboxParts
 	f.Children(func() {
-		p = ui.ComboboxBase(c, query)
+		ui.Row(c).Key(*gen).Grow(1).Children(func() {
+			p = ui.ComboboxBase(c, choiceTarget(query, opts.Disabled))
+		})
+		if *refocus {
+			p.Input.Focus()
+			*refocus = false
+		}
+		if opts.Disabled {
+			p.SetOpen(false)
+		}
 		pad := max(0, (d.ControlHeight()-2-theme.BodySize*theme.LineHeight)/2)
 		p.Input.Grow(1).MinWidth(80).Padding(pad, d.Unit()*3).Placeholder(opts.Placeholder)
 		if opts.Label != "" {
@@ -63,13 +73,16 @@ func Combobox(c *ui.Context, value *string, options []string, opts ComboboxOptio
 		if opts.Loading {
 			Spinner(c, SpinnerOptions{Size: 14})
 		}
-		arrow := ui.Box(c).Size(16, 16).Shrink(0).Cursor(ui.CursorPointer)
+		arrow := ui.Box(c).Size(theme.MinHitSize, theme.MinHitSize).Shrink(0).Cursor(ui.CursorPointer).
+			Role(ui.RoleButton).Label(msg(c, "combobox.toggle"))
 		if arrow.Clicked() {
 			p.SetOpen(!p.Open())
 			p.Input.Focus()
 		}
 		open := p.Open()
-		arrow.Draw(func(pt *ui.Painter, r ui.Rect) { internal.Mark(pt, r, selectChevron(open), k.TextMuted) })
+		arrow.Draw(func(pt *ui.Painter, r ui.Rect) {
+			internal.Mark(pt, selectCenter(r, 16), selectChevron(open), k.TextMuted)
+		})
 	})
 	in := p.Input
 	if f.Clicked() {
@@ -116,11 +129,13 @@ func Combobox(c *ui.Context, value *string, options []string, opts ComboboxOptio
 	focused := in.Focused()
 	if v, ok := p.Chosen(); ok {
 		*value, *query = v, v
+		*gen, *refocus = *gen+1, focused
 	} else if in.Submitted() && opts.AllowCustom {
 		*value = strings.TrimSpace(*query)
 	} else if in.Submitted() && p.Open() && len(shown) > 0 {
 		// Results came after typing left nothing highlighted: Enter takes the first.
 		*value, *query = shown[0], shown[0]
+		*gen, *refocus = *gen+1, true
 		p.SetOpen(false)
 	} else if *wasFocused && !focused {
 		if opts.AllowCustom {

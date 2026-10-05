@@ -25,9 +25,9 @@ ui.Render(view, 400, 300, 1)
 | `Step` | `float64` | 0 | 步长，0 为连续。 |
 | `Marks` | `[]SliderMark` | nil | 刻度与文字。 |
 | `ShowValue` | `bool` | false | 悬停、拖动或聚焦时显示两端数值；低端提示向左、高端向右，互不遮挡。 |
-| `Format` | `func(float64) string` | 按步长精度 | 数值文字。 |
+| `Format` | `func(float64) string` | 按 `Min`、`Step` 所需小数位（连续时至少 1 位） | 数值文字。 |
 | `Disabled` | `bool` | false | 禁用。 |
-| `Label` | `string` | "" | 区间名称；两个滑块分别读作“`Label` 最小值, 20”“`Label` 最大值, 80”。 |
+| `Label` | `string` | "" | 区间名称；两个滑块分别名为“`Label` 最小值”“`Label` 最大值”，数值与范围由 Slider 角色报告。 |
 
 ## 状态
 
@@ -46,5 +46,6 @@ ui.Render(view, 400, 300, 1)
 
 ## 限制
 
-- MyGo 自带的 `ui.RangeSlider` 使用玻璃质感滑块（ui/widgets.go:419），不符合本库风格；MyGo 也没有双滑块 Base，故本组件用公开的 `Dragged`、`PointerPosition`、`Shortcut` 组合实现。
-- 滑块的无障碍角色为 Slider，但数值范围属性只能由 `SliderBase` 设置（ui/base.go:128），因此当前值写在名称里（如“Price 最小值, 20”），屏幕阅读器读名称而非数值属性。
+- MyGo 自带的 `ui.RangeSlider` 使用玻璃质感滑块（ui/widgets.go:419），不符合本库风格；MyGo 也没有双滑块 Base，故每个滑块各是一个 `SliderBase`（报告 Slider 角色、范围与当前值，ui/base.go:128），拖动由外层的 `Dragged`、`PointerPosition` 处理。
+- 两个滑块的范围都报告为整条轨道 `Min`–`Max`；“不能越过另一端”这一动态上下限无法告诉辅助技术。
+- 按键处理与 Slider 相同：距端点不足 1% 时等到按键松开再移动（见 034 限制）。

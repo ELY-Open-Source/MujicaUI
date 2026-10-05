@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"math"
 	"strconv"
+	"strings"
 
 	"github.com/egoist/mygo/ui"
 
@@ -25,7 +26,7 @@ type SliderOptions struct {
 	Marks []SliderMark
 	// ShowValue shows the value above the thumb while hovered, dragged or focused.
 	ShowValue bool
-	// Format writes the value; nil prints it with the step's precision.
+	// Format writes the value; nil prints as many decimals as Min and Step need.
 	Format   func(float64) string
 	Disabled bool
 	// Label names the slider for assistive technology.
@@ -63,20 +64,67 @@ func (g sliderGeom) snap(v float64) float64 {
 	return math.Round(v*1e9) / 1e9
 }
 
-// keyed returns the value after a key moved old to raw, MyGo's 1% key step,
-// as one step of the slider: Home and End land on the ends.
-func (g sliderGeom) keyed(old, raw float64) float64 {
-	switch {
-	case g.step <= 0:
-		return raw
-	case raw == g.lo:
-		return g.lo
-	case raw == g.hi:
-		return g.snap(g.hi)
-	case raw > old:
-		return g.snap(min(g.hi, old+g.step))
+// sliderKey is the last key released on a slider, and a move waiting for it.
+type sliderKey struct {
+	up      ui.Key
+	pending int
+}
+
+type sliderKeyID struct{}
+
+// sliderControl builds a SliderBase on a copy of v and returns where the pointer or a key moves v.
+func sliderControl(c *ui.Context, v float64, g sliderGeom, from, to float64) (s *ui.Element, next float64, dragged bool) {
+	raw := v
+	s = ui.SliderBase(c, &raw, g.lo, g.hi)
+	ks := *ui.Local(s, sliderKeyID{}, func() *sliderKey { return &sliderKey{} })
+	// MyGo gives key downs to the base alone (ui/base.go:118); releases still reach this handler.
+	s.HandleInput(func(ev ui.InputEvent) bool {
+		if ev.Kind != ui.InputKeyUp {
+			return false
+		}
+		ks.up = ev.Key
+		return true
+	})
+	up, dir := ks.up, ks.pending
+	ks.up, ks.pending = 0, 0
+	if _, _, dragged = s.Dragged(); dragged {
+		return s, max(from, min(to, g.snap(raw))), true
 	}
-	return g.snap(old - g.step)
+	unsure := dir != 0
+	switch {
+	case raw < v:
+		dir, unsure = -1, false
+	case raw > v:
+		dir, unsure = 1, false
+	}
+	if dir == 0 {
+		return s, v, false
+	}
+	end, limit := g.lo, from
+	if dir > 0 {
+		end, limit = g.hi, to
+	}
+	jump := raw == end
+	// An arrow within 1% of an end lands on it too: the released key tells which it was.
+	if unsure || jump && math.Abs(v-end) <= (g.hi-g.lo)/100*(1+1e-9) {
+		switch up {
+		case ui.KeyHome, ui.KeyEnd:
+			jump = true
+		case ui.KeyLeft, ui.KeyRight, ui.KeyUp, ui.KeyDown:
+			jump = false
+		default:
+			ks.pending = dir
+			return s, v, false
+		}
+	}
+	if jump {
+		return s, limit, false
+	}
+	step := g.step
+	if step <= 0 {
+		step = (g.hi - g.lo) / 100
+	}
+	return s, max(from, min(to, g.snap(v+float64(dir)*step))), false
 }
 
 func sliderSetup(min, max, step float64, marks []SliderMark, showValue bool, c *ui.Context) (sliderGeom, float32) {
@@ -101,66 +149,70 @@ func sliderSetup(min, max, step float64, marks []SliderMark, showValue bool, c *
 	return g, h
 }
 
-func sliderFormat(format func(float64) string, step float64) func(float64) string {
+// sliderDecimals counts the decimals the shortest form of each value needs.
+func sliderDecimals(vs ...float64) int {
+	n := 0
+	for _, v := range vs {
+		s := strconv.FormatFloat(v, 'f', -1, 64)
+		if i := strings.IndexByte(s, '.'); i >= 0 {
+			n = max(n, len(s)-i-1)
+		}
+	}
+	return n
+}
+
+func sliderFormat(format func(float64) string, g sliderGeom) func(float64) string {
 	if format != nil {
 		return format
 	}
-	prec := 0
-	if step > 0 && step < 1 {
-		prec = int(math.Ceil(-math.Log10(step) - 1e-9))
-	} else if step == 0 {
-		prec = 1
+	prec := sliderDecimals(g.lo, g.step)
+	if g.step == 0 {
+		prec = max(prec, 1)
 	}
 	return func(v float64) string { return strconv.FormatFloat(v, 'f', prec, 64) }
 }
 
-// Slider sets *value between Min and Max by dragging anywhere on its box,
-// the arrows (one Step), Home and End. The thumb is a diamond; the hit area
-// is the whole rectangle.
+// Slider sets *value by dragging anywhere on its box, the arrows (one Step), Home and End.
 func Slider(c *ui.Context, value *float64, opts SliderOptions) ChoiceResult {
 	g, h := sliderSetup(opts.Min, opts.Max, opts.Step, opts.Marks, opts.ShowValue, c)
-	format := sliderFormat(opts.Format, opts.Step)
+	format := sliderFormat(opts.Format, g)
+	size := FontSize(c, theme.CaptionSize)
 	k := Tokens(c)
 	old := g.snap(*value)
 	*value = old
-	target := value
-	if opts.Disabled {
-		// SliderBase takes the pointer as it is built: a disabled one moves a copy.
-		scratch := old
-		target = &scratch
-	}
-	s := ui.SliderBase(c, target, g.lo, g.hi).Height(h).MinWidth(120).PaddingX(sliderThumb / 2).
-		FocusRing(false).Disabled(opts.Disabled).Cursor(ui.CursorPointer)
+	var s *ui.Element
+	var next float64
+	var held bool
+	// Disabled on a wrapper blocks the base before it takes input.
+	ui.Column(c).Disabled(opts.Disabled).Children(func() {
+		s, next, held = sliderControl(c, old, g, g.lo, g.hi)
+	})
+	s.Height(h).MinWidth(120).PaddingX(sliderThumb / 2).FocusRing(false).Cursor(ui.CursorPointer)
 	if opts.Label != "" {
 		s.Label(opts.Label)
 	}
-	if *value != old {
-		if _, _, drag := s.Dragged(); drag {
-			*value = g.snap(*value)
-		} else {
-			*value = g.keyed(old, *value)
-		}
+	if !opts.Disabled {
+		*value = next
 	}
 	changed := *value != old
 	if changed {
 		slog.Debug("mujica: slider changed", "label", opts.Label, "value", *value)
 	}
-	_, _, held := s.Dragged()
 	hover := s.Hovered()
 	v := *value
 	s.Draw(func(p *ui.Painter, r ui.Rect) {
-		sliderTrackPaint(p, r, g, k, opts.Marks, format, g.x(r, g.lo), g.x(r, v))
+		sliderTrackPaint(p, r, g, k, opts.Marks, size, g.x(r, g.lo), g.x(r, v))
 		x := g.x(r, v)
 		sliderThumbPaint(p, k, x, r.Y+g.trackY, hover || held, s.FocusVisible())
 		if opts.ShowValue && (hover || held || s.Focused()) {
-			sliderBubblePaint(p, k, x, r.Y+g.trackY, format(v))
+			sliderBubblePaint(p, k, x, r.Y+g.trackY, format(v), size)
 		}
 	})
 	return ChoiceResult{s, changed}
 }
 
 // sliderTrackPaint draws the rail, the filled part from x0 to x1, and the marks.
-func sliderTrackPaint(p *ui.Painter, r ui.Rect, g sliderGeom, k theme.Tokens, marks []SliderMark, format func(float64) string, x0, x1 float32) {
+func sliderTrackPaint(p *ui.Painter, r ui.Rect, g sliderGeom, k theme.Tokens, marks []SliderMark, size, x0, x1 float32) {
 	y := r.Y + g.trackY
 	left, right := g.x(r, g.lo), g.x(r, g.hi)
 	p.Fill(ui.Rect{X: left, Y: y - sliderTrack/2, W: right - left, H: sliderTrack}, k.Border, 0)
@@ -170,8 +222,8 @@ func sliderTrackPaint(p *ui.Painter, r ui.Rect, g sliderGeom, k theme.Tokens, ma
 		x := g.x(r, m.Value)
 		p.Fill(ui.Rect{X: x - 0.5, Y: y + sliderTrack/2 + 2, W: 1, H: 5}, k.TextMuted, 0)
 		if m.Label != "" {
-			w, _ := p.MeasureText(1000, ui.Span{Text: m.Label, Size: theme.CaptionSize})
-			p.Text(x-w/2, y+sliderTrack/2+8, m.Label, theme.CaptionSize, k.TextMuted)
+			w, _ := p.MeasureText(1000, ui.Span{Text: m.Label, Size: size})
+			p.Text(x-w/2, y+sliderTrack/2+8, m.Label, size, k.TextMuted)
 		}
 	}
 }
@@ -191,10 +243,10 @@ func sliderThumbPaint(p *ui.Painter, k theme.Tokens, x, y float32, hot, focus bo
 }
 
 // sliderBubblePaint draws the value tip above the thumb at (x, y).
-func sliderBubblePaint(p *ui.Painter, k theme.Tokens, x, y float32, s string) {
-	w, h := p.MeasureText(1000, ui.Span{Text: s, Size: theme.CaptionSize})
+func sliderBubblePaint(p *ui.Painter, k theme.Tokens, x, y float32, s string, size float32) {
+	w, h := p.MeasureText(1000, ui.Span{Text: s, Size: size})
 	b := ui.Rect{X: x - w/2 - 6, Y: y - sliderThumb/2 - h - 10, W: w + 12, H: h + 4}
 	p.Fill(b, k.Surface, theme.ControlRadius)
 	p.Stroke(b, k.ControlBorder, theme.ControlRadius, theme.BorderWidth)
-	p.Text(b.X+6, b.Y+2, s, theme.CaptionSize, k.Text)
+	p.Text(b.X+6, b.Y+2, s, size, k.Text)
 }

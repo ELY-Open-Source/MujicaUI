@@ -59,9 +59,7 @@ type treeSelectRow struct {
 	parent string
 }
 
-// TreeSelect chooses one node, or several with Multiple, from a tree in a
-// popup with search. Up and Down move, Right expands, Left collapses or
-// goes to the parent, Space or Enter chooses; Escape closes.
+// TreeSelect chooses one node, or several with Multiple, from a searchable tree in a popup.
 func TreeSelect(c *ui.Context, selected *[]string, nodes []TreeSelectNode, opts TreeSelectOptions) ChoiceResult {
 	if !opts.Multiple && len(*selected) > 1 {
 		panic("mujica: single TreeSelect holds more than one ID")
@@ -73,6 +71,9 @@ func TreeSelect(c *ui.Context, selected *[]string, nodes []TreeSelectNode, opts 
 		tr.Label(opts.Label)
 	}
 	st := *ui.Local(tr, treeSelectKey{}, func() *treeSelectState { return &treeSelectState{expanded: map[string]bool{}} })
+	if opts.Disabled {
+		st.open = false
+	}
 	if tr.Clicked() || (!st.open && tr.Shortcut(0, ui.KeyDown)) {
 		st.open, st.query = !st.open, ""
 	}
@@ -104,10 +105,14 @@ func TreeSelect(c *ui.Context, selected *[]string, nodes []TreeSelectNode, opts 
 				selectNote(c, msg(c, "tree_select.no_results"))
 				return
 			}
+			shown := make(map[string]bool, len(rows))
+			for _, r := range rows {
+				shown[r.node.ID] = true
+			}
 			ui.Scroll(c).MaxHeight(300).Padding(4).Children(func() {
 				ui.Column(c).FocusGroup(ui.Vertical).Children(func() {
 					for i, r := range rows {
-						treeSelectRowView(c, st, selected, r, i == 0, opts)
+						treeSelectRowView(c, st, selected, r, i == 0, shown, opts)
 					}
 				})
 			})
@@ -127,7 +132,7 @@ func treeSelectWalk(nodes []TreeSelectNode, fn func(n *TreeSelectNode)) {
 	}
 }
 
-// treeSelectVisible lists the rows to show: expanded ones, or while searching the matches and their ancestors.
+// treeSelectVisible lists the rows to show: expanded ones, or matches and their ancestors.
 func treeSelectVisible(nodes []TreeSelectNode, st *treeSelectState) []treeSelectRow {
 	q := strings.ToLower(strings.TrimSpace(st.query))
 	var rows []treeSelectRow
@@ -155,9 +160,9 @@ func treeSelectVisible(nodes []TreeSelectNode, st *treeSelectState) []treeSelect
 	return rows
 }
 
-// treeSelectCheck returns a node's check state under the rule.
+// treeSelectCheck returns a node's check state: its own in single mode, else by the rule.
 func treeSelectCheck(n *TreeSelectNode, selected []string, opts TreeSelectOptions) internal.CheckState {
-	if opts.Rule == TreeSelectIndependent || len(n.Children) == 0 {
+	if !opts.Multiple || opts.Rule == TreeSelectIndependent || len(n.Children) == 0 {
 		if slices.Contains(selected, n.ID) {
 			return internal.Checked
 		}
@@ -201,14 +206,38 @@ func treeSelectToggle(n *TreeSelectNode, selected []string, on bool, opts TreeSe
 	return selected
 }
 
-func treeSelectRowView(c *ui.Context, st *treeSelectState, selected *[]string, r treeSelectRow, first bool, opts TreeSelectOptions) {
+// treeSelectFirstChild returns the first child of n that shows and is enabled, or "".
+func treeSelectFirstChild(n *TreeSelectNode, shown map[string]bool) string {
+	for _, ch := range n.Children {
+		if shown[ch.ID] && !ch.Disabled {
+			return ch.ID
+		}
+	}
+	return ""
+}
+
+// treeSelectDescribe says what MyGo cannot set on custom rows (ui/element.go:282).
+func treeSelectDescribe(c *ui.Context, b *ui.Element, branch, open bool, state internal.CheckState) {
+	var parts []string
+	if branch {
+		parts = append(parts, msg(c, map[bool]string{true: "tree_select.expanded", false: "tree_select.collapsed"}[open]))
+	}
+	if state == internal.Mixed {
+		parts = append(parts, msg(c, "tree_select.mixed"))
+	}
+	if len(parts) > 0 {
+		b.Description(strings.Join(parts, ", "))
+	}
+}
+
+func treeSelectRowView(c *ui.Context, st *treeSelectState, selected *[]string, r treeSelectRow, first bool, shown map[string]bool, opts TreeSelectOptions) {
 	k := Tokens(c)
 	d := Density(c)
 	n := r.node
 	branch := len(n.Children) > 0
 	open := branch && (st.expanded[n.ID] || strings.TrimSpace(st.query) != "")
 	ui.Row(c).Key(n.ID).AlignItems(ui.Center).Gap(2).Padding(0, 0, 0, float32(r.depth)*18).Children(func() {
-		arrow := ui.Box(c).Size(18, 18).Shrink(0).Radius(theme.ControlRadius)
+		arrow := ui.Box(c).Size(theme.MinHitSize, theme.MinHitSize).Shrink(0).Radius(theme.ControlRadius)
 		if branch {
 			arrow.Role(ui.RoleButton).Label(fmt.Sprintf(msg(c, map[bool]string{true: "tree_select.collapse", false: "tree_select.expand"}[open]), n.Label))
 			if arrow.Clicked() {
@@ -218,6 +247,8 @@ func treeSelectRowView(c *ui.Context, st *treeSelectState, selected *[]string, r
 				arrow.Background(k.SurfaceHover)
 			}
 			arrow.Draw(func(p *ui.Painter, rc ui.Rect) {
+				in := (rc.W - 16) / 2
+				rc = ui.Rect{X: rc.X + in, Y: rc.Y + in, W: 16, H: 16}
 				internal.Mark(p, rc, map[bool]string{true: "chevron-down", false: "chevron-right"}[open], k.TextMuted)
 			})
 		}
@@ -230,20 +261,28 @@ func treeSelectRowView(c *ui.Context, st *treeSelectState, selected *[]string, r
 				*selected = treeSelectToggle(n, *selected, on, opts)
 			}
 		} else {
-			b = ui.ButtonBase(c).Disabled(n.Disabled).MinHeight(d.ControlHeight()-4).Padding(0, d.Unit()*2).
-				Justify(ui.Start).Radius(theme.ControlRadius).Grow(1)
+			chosen := state == internal.Checked
+			ui.Row(c).Grow(1).Disabled(n.Disabled).Children(func() {
+				b = ui.ButtonBase(c).MinHeight(d.ControlHeight()).Padding(0, d.Unit()*2).Gap(d.Unit() * 2).
+					Justify(ui.Start).Radius(theme.ControlRadius).Grow(1)
+			})
 			internal.Ring(b, k.Focus, theme.ControlRadius)
 			if b.Clicked() {
 				*selected, st.open = []string{n.ID}, false
 			}
+			b.Role(ui.RoleTreeItem).Selected(chosen).Background(ui.Transparent).TextColor(k.Text)
 			switch {
-			case state == internal.Checked:
+			case chosen:
 				b.Background(k.Selection).TextColor(k.AccentText)
 			case b.Hovered():
 				b.Background(k.SurfaceHover)
 			}
-			b.Role(ui.RoleTreeItem).Children(func() { ui.Text(c, n.Label).SingleLine() })
+			b.Children(func() {
+				ui.Text(c, n.Label).SingleLine().Grow(1)
+				selectCheck(c, chosen)
+			})
 		}
+		treeSelectDescribe(c, b, branch, open, state)
 		if st.focus == n.ID || first && st.focus == "\x00" {
 			b.Focus()
 			st.focus = ""
@@ -253,7 +292,7 @@ func treeSelectRowView(c *ui.Context, st *treeSelectState, selected *[]string, r
 		case right && branch && !open:
 			st.expanded[n.ID] = true
 		case right && branch:
-			st.focus = n.Children[0].ID
+			st.focus = treeSelectFirstChild(n, shown)
 		case left && open && st.expanded[n.ID]:
 			st.expanded[n.ID] = false
 		case left && r.parent != "":
