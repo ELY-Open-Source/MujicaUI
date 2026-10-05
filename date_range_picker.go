@@ -135,7 +135,12 @@ func DateRangePicker(c *ui.Context, value *DateRange, opts DateRangePickerOption
 				}
 				ready := !draft.Start.IsZero() && !draft.End.IsZero()
 				if Button(c, msg(c, "calendar.confirm"), ButtonOptions{Disabled: !ready}).Clicked() {
-					finish(*draft, "confirm")
+					if p := dateRangeProblem(c, *draft, opts.Min, opts.Max, enabled, layout); p != "" {
+						slog.Debug("mujica: date_range_picker invalid confirm", "draft", *draft)
+						*problem = p
+					} else {
+						finish(*draft, "confirm")
+					}
 				}
 			})
 		})
@@ -149,6 +154,22 @@ func DateRangePicker(c *ui.Context, value *DateRange, opts DateRangePickerOption
 		*problem = ""
 	}
 	return DateTimeResult{Element: col, changed: changed, cancelled: cancelled}
+}
+
+// dateRangeProblem checks a whole draft against the current bounds and filter.
+func dateRangeProblem(c *ui.Context, r DateRange, lo, hi Date, enabled func(Date) bool, layout string) string {
+	format := func(d Date) string { return d.Format(layout) }
+	for _, d := range []Date{r.Start, r.End} {
+		if p := datePickerProblem(c, d, lo, hi, enabled, format); p != "" {
+			return p
+		}
+	}
+	for x := r.Start; x.Compare(r.End) <= 0; x = x.AddDays(1) {
+		if !enabled(x) {
+			return fmt.Sprintf(msg(c, "date_range_picker.blocked"), format(x))
+		}
+	}
+	return ""
 }
 
 // dateRangePick applies a picked day to the draft and returns any problem.

@@ -113,7 +113,7 @@ func DatePicker(c *ui.Context, value *Date, opts DatePickerOptions) DateTimeResu
 			}
 			in.Label(label).Error(*problem)
 			focused := in.Focused()
-			if !opts.ReadOnly && (in.Submitted() || *wasFocused && !focused && *text != format(*value)) {
+			if !opts.ReadOnly && !in.IsDisabled() && (in.Submitted() || *wasFocused && !focused && *text != format(*value)) {
 				submit()
 			}
 			*wasFocused = focused
