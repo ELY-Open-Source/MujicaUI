@@ -105,13 +105,16 @@ func TestImageNegativeSizePanics(t *testing.T) {
 
 func TestImageSnapshot(t *testing.T) {
 	bmp := imageTestBitmap()
-	snapshot(t, "image", 760, 170, func(c *ui.Context) {
+	snapshot(t, "image", 820, 170, func(c *ui.Context) {
 		ui.Row(c).Padding(20).Gap(12).AlignItems(ui.Start).Children(func() {
 			Image(c, bmp, ImageOptions{Width: 120, Height: 120, Crop: true, Alt: "Cropped"})
 			Image(c, nil, ImageOptions{Width: 120, Height: 120})
 			Image(c, nil, ImageOptions{Width: 120, Height: 120, Loading: true})
 			Image(c, nil, ImageOptions{Width: 200, Height: 120, Err: errors.New("404")})
 			Image(c, bmp, ImageOptions{Err: errors.New("404")})
+			ui.Row(c).Width(40).AlignItems(ui.Start).Margin(20, 0, 0, 0).Children(func() {
+				Image(c, bmp, ImageOptions{Err: errors.New("404")})
+			})
 		})
 	})
 }
