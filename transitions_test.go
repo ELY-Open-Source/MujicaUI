@@ -170,7 +170,10 @@ func TestLayoutTransitionResizes(t *testing.T) {
 			t.Fatal("negative duration did not panic")
 		}
 	}()
-	ui.Render(func(c *ui.Context) { Use(c, Settings{}); LayoutTransition(c, LayoutTransitionOptions{Duration: -1}, nil) }, 100, 50, 1)
+	ui.Render(func(c *ui.Context) {
+		Use(c, Settings{})
+		LayoutTransition(c, LayoutTransitionOptions{Duration: -1}, nil)
+	}, 100, 50, 1)
 }
 
 func TestPresenceSnapshot(t *testing.T) {

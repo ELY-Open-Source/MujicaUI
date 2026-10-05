@@ -184,7 +184,7 @@ func slashMenuPanel(c *ui.Context, a ui.Rect, st *slashMenuState, rows []slashMe
 		panel.Children(func() {
 			ui.Scroll(c).Fill().Padding(u).Children(func() {
 				if len(rows) == 0 {
-					ui.Row(c).MinHeight(rowH).Padding(0, u*3).Gap(u*2).AlignItems(ui.Center).TextColor(k.TextMuted).Children(func() {
+					ui.Row(c).MinHeight(rowH).Padding(0, u*3).Gap(u * 2).AlignItems(ui.Center).TextColor(k.TextMuted).Children(func() {
 						if o.loading {
 							Spinner(c, SpinnerOptions{Size: 14})
 						}
@@ -198,7 +198,7 @@ func slashMenuPanel(c *ui.Context, a ui.Rect, st *slashMenuState, rows []slashMe
 						ui.Text(c, group).Height(headH).Padding(u*2, u*3, 0, u*3).FontSize(FontSize(c, theme.CaptionSize)).
 							FontWeight(600).TextColor(k.TextMuted).Role(ui.RoleText)
 					}
-					row := ui.Row(c).Key(i).Height(rowH).Padding(0, u*3, 0, u*2).Gap(u*2).AlignItems(ui.Center).
+					row := ui.Row(c).Key(i).Height(rowH).Padding(0, u*3, 0, u*2).Gap(u * 2).AlignItems(ui.Center).
 						Radius(theme.ControlRadius).Role(ui.RoleListItem).Label(r.label).Cursor(ui.CursorPointer)
 					if row.Clicked() {
 						clicked = i

@@ -94,7 +94,7 @@ func alertRow(c *ui.Context, a AlertItem, locked bool) (ack, silence bool) {
 	sev := [...]Severity{SeverityInfo, SeverityWarning, SeverityError}[a.Level]
 	word := msg(c, [...]string{"alert_list.info", "alert_list.warning", "alert_list.critical"}[a.Level])
 	silenced := a.Silence.After(c.Now())
-	row := ui.Row(c).Key(a.ID).Gap(u * 3).AlignItems(ui.Center).MinHeight(d.ControlHeight() + u*2).Padding(u*2, u*3).
+	row := ui.Row(c).Key(a.ID).Gap(u*3).AlignItems(ui.Center).MinHeight(d.ControlHeight()+u*2).Padding(u*2, u*3).
 		Label(word + ", " + a.Title)
 	if tone, _ := severityLook(k, sev); a.Level == AlertCritical && !a.Acked {
 		row.DrawOver(func(p *ui.Painter, r ui.Rect) { p.Fill(ui.Rect{X: r.X, Y: r.Y, W: 3, H: r.H}, tone, 0) })

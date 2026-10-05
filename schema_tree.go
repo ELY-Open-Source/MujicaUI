@@ -78,7 +78,7 @@ func SchemaTree(c *ui.Context, s *SchemaTreeState, roots []SchemaNode, opts Sche
 		restore := dataSelectTheme(c, 0)
 		e := ui.Outline(c, &s.outline, s.roots, func(p string) []string { return s.kids[p] }, func(p string) {
 			n := s.nodes[p]
-			ui.Row(c).Grow(1).MinWidth(0).MinHeight(d.ControlHeight()-2*d.Unit()).Gap(d.Unit()*2).AlignItems(ui.Center).
+			ui.Row(c).Grow(1).MinWidth(0).MinHeight(d.ControlHeight() - 2*d.Unit()).Gap(d.Unit() * 2).AlignItems(ui.Center).
 				Label(fmt.Sprintf("%s %s %s", schemaWord(c, n.Kind), n.Name, n.Detail)).Children(func() {
 				sel, _ := s.Selected()
 				codeSelectMark(c, sel == p)

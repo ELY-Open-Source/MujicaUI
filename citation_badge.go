@@ -15,9 +15,9 @@ import (
 type Source struct {
 	// Title and URL are required.
 	Title, URL string
-	Site      string
-	Snippet   string
-	Published time.Time
+	Site       string
+	Snippet    string
+	Published  time.Time
 }
 
 // CitationState links citations, source cards and the sources panel; the caller holds it.

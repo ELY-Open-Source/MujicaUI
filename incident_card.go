@@ -94,7 +94,7 @@ func incidentUpdate(c *ui.Context, k theme.Tokens, up IncidentUpdate, last bool)
 			}
 			p.FillPath(internal.Diamond(cx, cy, 9), k.Ornament)
 		})
-		ui.Column(c).Grow(1).Shrink(1).Gap(u / 2).Padding(0, 0, u*2, 0).Children(func() {
+		ui.Column(c).Grow(1).Shrink(1).Gap(u/2).Padding(0, 0, u*2, 0).Children(func() {
 			ui.Row(c).Gap(u * 2).Children(func() {
 				ui.Text(c, incidentStatusWord(c, up.Status)).FontWeight(600)
 				if !up.At.IsZero() {

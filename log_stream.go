@@ -111,7 +111,7 @@ func logStreamRow(c *ui.Context, l LogLine) {
 	k := Tokens(c)
 	d := Density(c)
 	col := [...]ui.Color{k.TextMuted, k.Info, k.Warning, k.Danger}[l.Level]
-	ui.Row(c).MinHeight(d.ControlHeight() - 8).Padding(0, d.Unit()*3).Gap(d.Unit() * 3).AlignItems(ui.Center).Children(func() {
+	ui.Row(c).MinHeight(d.ControlHeight()-8).Padding(0, d.Unit()*3).Gap(d.Unit() * 3).AlignItems(ui.Center).Children(func() {
 		if !l.Time.IsZero() {
 			codeMono(c, l.Time.Format("15:04:05.000")).TextColor(k.TextMuted).Shrink(0)
 		}

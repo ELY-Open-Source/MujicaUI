@@ -53,7 +53,7 @@ func ServiceStatus(c *ui.Context, services []ServiceItem, opts ServiceStatusOpti
 	summary := msg(c, [...]string{"service_status.all_ok", "service_status.some_degraded", "service_status.some_down"}[worst])
 	col := ui.Column(c).Shrink(0).Gap(u * 2).Label(summary)
 	col.Children(func() {
-		ui.Row(c).Gap(u * 3).AlignItems(ui.Center).Padding(u*3).Radius(theme.CardRadius).Border(theme.BorderWidth, k.Border).
+		ui.Row(c).Gap(u*3).AlignItems(ui.Center).Padding(u*3).Radius(theme.CardRadius).Border(theme.BorderWidth, k.Border).
 			Background(k.Surface).Role(ui.RoleStatus).Label(summary).Children(func() {
 			devtoolsSeverity(c, serviceSeverity(worst), summary)
 			ui.Box(c).Grow(1)
@@ -66,7 +66,7 @@ func ServiceStatus(c *ui.Context, services []ServiceItem, opts ServiceStatusOpti
 		agentRows(c, len(services), func(i int) {
 			s := services[i]
 			word := serviceWord(c, s.Health)
-			ui.Row(c).Key(i).Gap(u * 3).AlignItems(ui.Center).MinHeight(Density(c).ControlHeight()).Padding(u, u*3).
+			ui.Row(c).Key(i).Gap(u*3).AlignItems(ui.Center).MinHeight(Density(c).ControlHeight()).Padding(u, u*3).
 				Label(s.Name + ", " + word).Children(func() {
 				ui.Column(c).Grow(1).Shrink(1).Children(func() {
 					ui.Text(c, s.Name).SingleLine()

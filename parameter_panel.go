@@ -41,7 +41,9 @@ func ParameterPanel(c *ui.Context, params []ModelParam) ChoiceResult {
 	}
 	r.Element.Children(func() {
 		for _, p := range params {
-			format := func(v float64) string { return strconv.FormatFloat(v, 'f', sliderDecimals(p.Min, p.Step, p.Default), 64) }
+			format := func(v float64) string {
+				return strconv.FormatFloat(v, 'f', sliderDecimals(p.Min, p.Step, p.Default), 64)
+			}
 			ui.Column(c).Key(p.Label).Gap(u).Children(func() {
 				ui.Row(c).Gap(u * 2).AlignItems(ui.Center).Children(func() {
 					ui.Text(c, p.Label).FontWeight(600).Grow(1).SingleLine()

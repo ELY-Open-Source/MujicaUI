@@ -52,7 +52,7 @@ func AttachmentChip(c *ui.Context, a Attachment) AttachmentChipResult {
 	if a.Err != nil {
 		border = k.Danger
 	}
-	r.Element = ui.Row(c).Gap(u * 2).AlignItems(ui.Center).Padding(u, u, u, u*2).Width(220).
+	r.Element = ui.Row(c).Gap(u*2).AlignItems(ui.Center).Padding(u, u, u, u*2).Width(220).
 		Radius(theme.ControlRadius).Background(k.Surface).Border(theme.BorderWidth, border).Role(ui.RoleGroup).Label(a.Name)
 	disabled := r.Element.IsDisabled()
 	r.Element.Children(func() {
@@ -72,7 +72,9 @@ func AttachmentChip(c *ui.Context, a Attachment) AttachmentChipResult {
 				ui.Text(c, fmt.Sprintf(msg(c, "attachment_chip.uploading"), pct)).SingleLine().FontSize(small).TextColor(k.TextMuted).FontFeatures("tnum")
 				frac := float32(a.Progress)
 				ui.Box(c).Height(3).Radius(1.5).Background(k.Border).Role(ui.RoleProgress).Label(fmt.Sprintf(msg(c, "attachment_chip.uploading"), pct)).
-					Draw(func(p *ui.Painter, b ui.Rect) { p.Fill(ui.Rect{X: b.X, Y: b.Y, W: b.W * frac, H: b.H}, k.AccentText, 1.5) })
+					Draw(func(p *ui.Painter, b ui.Rect) {
+						p.Fill(ui.Rect{X: b.X, Y: b.Y, W: b.W * frac, H: b.H}, k.AccentText, 1.5)
+					})
 			default:
 				ui.Text(c, fileMessageSize(c, a.Size)).SingleLine().FontSize(small).TextColor(k.TextMuted)
 			}
