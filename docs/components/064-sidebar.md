@@ -62,10 +62,10 @@ mujica.Sidebar(c, &selected, []mujica.SidebarSection{
 
 - Tab：进入侧边栏（一个停靠点）。
 - ↑/↓：上一项/下一项；Home / End：首项/末项；输入名称开头字母跳到匹配项。
-- 分组与嵌套组标题用指针点击展开折叠。
+- 分组与嵌套组标题各是一个 Tab 停靠点（辅助技术看到 disclosure，含展开状态）；Enter 或 Space 展开折叠，箭头在 120 ms 内转动。
 
 ## 限制
 
 - 复用 MyGo `ui.SidebarItem`，它用主题 Accent 绘制图标（`ui/sidebar.go:182`）；深色主题 Accent 对比度不足，本组件在构建侧边栏时临时把 MyGo 主题的 Accent 换成 AccentText。
 - MyGo `SidebarItem` 总是追加名称文字（`ui/sidebar.go:212`）；紧凑模式传入空名称，名称改由 `Label` 与提示提供，因此紧凑模式下首字母跳转不可用。
-- 嵌套组用 MyGo `SidebarSection` 实现，组标题本身不能被选中，且只能用指针展开折叠（MyGo 不给标题注册按键）。
+- 组标题基于 MyGo `CollapsibleBase` 的触发器，而不是 `SidebarSection`（后者只能用指针展开，箭头固定 150 ms，`ui/sidebar.go:115`）。组标题本身不能被选中。展开状态按完整父路径保存，同名组互不影响。

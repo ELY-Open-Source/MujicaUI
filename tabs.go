@@ -152,7 +152,7 @@ func tabsStyle(c *ui.Context, tab *ui.Element, t Tab, on, vertical bool) {
 		tab.Background(k.SurfaceHover)
 		fg = k.Text
 	}
-	tab.TextColor(fg)
+	internal.Ease(tab, Motion(c, theme.StateDuration), fg)
 	tab.FocusRing(false).DrawOver(func(p *ui.Painter, r ui.Rect) {
 		if on {
 			if vertical {

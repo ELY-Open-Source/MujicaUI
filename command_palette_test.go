@@ -89,6 +89,17 @@ func TestCommandPaletteShortcutSearchRun(t *testing.T) {
 	}
 }
 
+func TestCommandPaletteAnnouncesHighlight(t *testing.T) {
+	a := &paletteApp{open: true}
+	tt := ui.NewTester(a.view, 800, 600)
+	tt.Key(0, ui.KeyDown)
+	tt.Key(0, ui.KeyDown)
+	got := tt.Announcements()
+	if len(got) < 2 || got[len(got)-2] != "Open recent" || got[len(got)-1] != "Save all" {
+		t.Fatalf("announcements %q", got)
+	}
+}
+
 func TestCommandPaletteEmptyClickEscape(t *testing.T) {
 	a := &paletteApp{open: true}
 	tt := ui.NewTester(a.view, 800, 600)

@@ -90,10 +90,12 @@ func Breadcrumb(c *ui.Context, items []BreadcrumbItem, opts BreadcrumbOptions) B
 			link := ui.ButtonBase(c).Role(ui.RoleLink).Gap(u).Padding(u, u*1.5).Radius(theme.ControlRadius).
 				Shrink(1).MinWidth(0).Cursor(ui.CursorPointer).Tooltip(it.Label).Label(it.Label)
 			internal.Ring(link, k.Focus, theme.ControlRadius)
-			link.TextColor(k.TextMuted)
+			fg := k.TextMuted
 			if link.Hovered() {
-				link.Background(k.SurfaceHover).TextColor(k.Text)
+				link.Background(k.SurfaceHover)
+				fg = k.Text
 			}
+			internal.Ease(link, Motion(c, theme.StateDuration), fg)
 			link.Children(func() { breadcrumbContent(c, it, width) })
 			if link.Clicked() {
 				choose(i)
@@ -119,12 +121,15 @@ func breadcrumbMore(c *ui.Context, hidden []BreadcrumbItem, choose func(int)) {
 	k := Tokens(c)
 	u := Density(c).Unit()
 	b := ui.ButtonBase(c).Padding(u, u*1.5).Radius(theme.ControlRadius).MinWidth(theme.MinHitSize).
-		Label(msg(c, "breadcrumb.more")).Tooltip(msg(c, "breadcrumb.more")).TextColor(k.TextMuted).Cursor(ui.CursorPointer)
+		Label(msg(c, "breadcrumb.more")).Tooltip(msg(c, "breadcrumb.more")).Cursor(ui.CursorPointer)
 	internal.Ring(b, k.Focus, theme.ControlRadius)
 	open := ui.Local(b, "open", func() bool { return false })
+	fg := k.TextMuted
 	if b.Hovered() || *open {
-		b.Background(k.SurfaceHover).TextColor(k.Text)
+		b.Background(k.SurfaceHover)
+		fg = k.Text
 	}
+	internal.Ease(b, Motion(c, theme.StateDuration), fg)
 	if b.Clicked() {
 		*open = !*open
 	}
@@ -142,6 +147,7 @@ func breadcrumbMore(c *ui.Context, hidden []BreadcrumbItem, choose func(int)) {
 			if item.Hovered() {
 				item.Background(k.SurfaceHover)
 			}
+			internal.Ease(item, Motion(c, theme.StateDuration), k.Text)
 			item.Children(func() {
 				if it.Icon != nil {
 					ui.Icon(c, it.Icon).Size(14, 14).Shrink(0)

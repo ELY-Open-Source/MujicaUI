@@ -52,7 +52,7 @@ if id, ok := res.Chosen(); ok && id == "wrap" {
 - 打开的菜单标题：Selection 背景；高亮项：Selection 背景。
 - 勾选项：AccentText 勾号；单选项：AccentText 菱形标记；名称附“已勾选”。
 - 禁用项：降低不透明度，指针与键盘均跳过。
-- 弹层：6 DIP 圆角、Border 边框；靠近窗口边缘时左移，子菜单放不下时翻到父菜单左侧，过高时上移。
+- 弹层：6 DIP 圆角、Border 边框；靠近窗口边缘时左移，子菜单放不下时翻到父菜单左侧，过高时限高并在菜单内滚动，键盘高亮项自动滚入视野。
 
 ## 事件
 
@@ -71,4 +71,4 @@ if id, ok := res.Chosen(); ok && id == "wrap" {
 - 快捷键只做提示，不注册；用 `c.Shortcut` 处理。
 - MyGo 没有 menu / menuitem 角色（`ui/access.go:25-79`），项以按钮呈现；勾选状态无法通过公开接口写入（`ui/base.go:56` 的 checked 为内部字段），因此写入名称。
 - 指针点击非可聚焦元素会清除焦点（`ui/input.go:238`）；选择后组件把焦点还给对应标题。
-- 菜单打开期间，焦点保持在标题上，高亮项由组件管理（与 MyGo `SelectBase` 相同的方式）。
+- 菜单打开期间，焦点保持在标题上，高亮项由组件管理。驱动菜单的按键注册在标题上，而 MyGo 的 active descendant 不公开，因此高亮变化时用 `c.Announce` 朗读当前项，并把它写入标题的 `Description`。

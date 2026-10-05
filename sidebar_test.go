@@ -124,6 +124,44 @@ func TestSidebarInvalid(t *testing.T) {
 	}
 }
 
+func TestSidebarGroupKeyboard(t *testing.T) {
+	sel := "inbox"
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		Sidebar(c, &sel, sidebarSample(), SidebarOptions{})
+	}, 400, 500)
+	// Tab stops: the item list, the Library title, the Projects group.
+	for range 3 {
+		tt.Key(0, ui.KeyTab)
+	}
+	tt.Key(0, ui.KeyEnter)
+	if tt.HasText("Opera") {
+		t.Fatal("Enter did not collapse the group")
+	}
+	tt.Key(0, ui.KeySpace)
+	if !tt.HasText("Opera") {
+		t.Fatal("Space did not expand the group")
+	}
+}
+
+func TestSidebarSameNamedGroups(t *testing.T) {
+	sel := "a1"
+	sections := []SidebarSection{
+		{Title: "Court", Items: []SidebarItem{{Label: "Drafts", Items: []SidebarItem{{ID: "a1", Label: "Edict"}}}}},
+		{Title: "Chapel", Items: []SidebarItem{{Label: "Drafts", Items: []SidebarItem{{ID: "b1", Label: "Hymn"}}}}},
+	}
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		Sidebar(c, &sel, sections, SidebarOptions{})
+	}, 400, 500)
+	if err := tt.Click("Drafts"); err != nil {
+		t.Fatal(err)
+	}
+	if tt.HasText("Edict") || !tt.HasText("Hymn") {
+		t.Fatalf("same-named groups share state: %q", tt.Texts())
+	}
+}
+
 func TestSidebarSnapshot(t *testing.T) {
 	snapshot(t, "sidebar", 420, 360, func(c *ui.Context) {
 		a, b := "opera", "starred"

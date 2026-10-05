@@ -68,6 +68,8 @@ type menubarState struct {
 	hl      []int
 	focusTo int
 	ptr     [2]float32
+	// reveal scrolls the highlighted item into view once.
+	reveal bool
 }
 
 // Menubar is an in-window menu bar drawn by MujicaUI, with submenus and full keyboard control.
@@ -106,6 +108,10 @@ func Menubar(c *ui.Context, menus []MenubarMenu, opts MenubarOptions) MenubarRes
 	if m.st.open >= 0 {
 		m.overlay(titles)
 	}
+	// Focus stays on the title, so the highlighted item is read out.
+	if name := m.current(); m.moved && name != "" {
+		c.Announce(name)
+	}
 	res.chosen = m.chosen
 	return res
 }
@@ -136,6 +142,20 @@ type menubarRun struct {
 	menus  []MenubarMenu
 	st     *menubarState
 	chosen string
+	moved  bool
+}
+
+// current names the highlighted item of the open menu, "" for none.
+func (m *menubarRun) current() string {
+	st := m.st
+	if st.open < 0 || len(st.hl) == 0 {
+		return ""
+	}
+	l := len(st.hl) - 1
+	if h := st.hl[l]; h >= 0 {
+		return menubarName(m.c, m.items(l)[h])
+	}
+	return ""
 }
 
 func (m *menubarRun) title(i int, label string) *ui.Element {
@@ -152,6 +172,7 @@ func (m *menubarRun) title(i int, label string) *ui.Element {
 	case t.Hovered():
 		t.Background(k.SurfaceHover)
 	}
+	internal.Ease(t, Motion(c, theme.StateDuration), k.Text)
 	if st.focusTo == i {
 		t.Focus()
 		st.focusTo = -1
@@ -165,8 +186,9 @@ func (m *menubarRun) title(i int, label string) *ui.Element {
 		case t.Shortcut(0, ui.KeyDown), t.Shortcut(0, ui.KeyUp):
 			m.openMenu(i, true)
 		}
-	} else {
+	} else if open {
 		m.keys(t)
+		t.Description(m.current())
 	}
 	if t.Clicked() {
 		if open {
@@ -185,6 +207,7 @@ func (m *menubarRun) keys(t *ui.Element) {
 	l := len(st.hl) - 1
 	items := m.items(l)
 	h := st.hl[l]
+	m.moved, st.reveal = true, true
 	switch {
 	case t.Shortcut(0, ui.KeyDown):
 		st.hl[l] = menubarStep(items, h, 1)
@@ -216,6 +239,8 @@ func (m *menubarRun) keys(t *ui.Element) {
 		} else {
 			m.close()
 		}
+	default:
+		m.moved, st.reveal = false, false
 	}
 }
 
@@ -239,6 +264,7 @@ func (m *menubarRun) openMenu(i int, highlight bool) {
 		first = menubarStep(m.menus[i].Items, -1, 1)
 	}
 	m.st.open, m.st.hl = i, []int{first}
+	m.moved = highlight
 	m.focus(i)
 	slog.Debug("mujica: menubar open", "menu", m.menus[i].Label)
 }

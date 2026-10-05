@@ -141,16 +141,19 @@ func paginationButton(c *ui.Context, text string, icon *ui.SVG, name string, on,
 	b := ui.ButtonBase(c).MinHeight(h).MinWidth(h).Padding(0, Density(c).Unit()*2).Radius(theme.ControlRadius).
 		Label(name).Disabled(disabled)
 	internal.Ring(b, k.Focus, theme.ControlRadius)
+	fg := k.Text
 	switch {
 	case on:
-		b.Background(k.Accent).TextColor(k.OnAccent).FontWeight(600)
+		b.Background(k.Accent).Border(theme.BorderWidth, k.Accent).FontWeight(600)
+		fg = k.OnAccent
 	case b.Pressed():
-		b.Background(k.Selection).TextColor(k.Text)
+		b.Background(k.Selection).Border(theme.BorderWidth, k.ControlBorder)
 	case b.Hovered():
-		b.Background(k.SurfaceHover).TextColor(k.Text).Border(theme.BorderWidth, k.ControlBorder)
+		b.Background(k.SurfaceHover).Border(theme.BorderWidth, k.ControlBorder)
 	default:
-		b.TextColor(k.Text).Border(theme.BorderWidth, k.Border)
+		b.Border(theme.BorderWidth, k.Border)
 	}
+	internal.Ease(b, Motion(c, theme.StateDuration), fg)
 	if icon != nil {
 		b.Tooltip(name)
 	}
@@ -176,6 +179,7 @@ func paginationSizes(c *ui.Context, page, pageSize *int, sizes []int, res *Pagin
 	if sel.Trigger.Hovered() {
 		sel.Trigger.Background(k.SurfaceHover)
 	}
+	internal.Ease(sel.Trigger, Motion(c, theme.StateDuration), k.Text)
 	sel.Trigger.Children(func() {
 		ui.Text(c, fmt.Sprintf(msg(c, "pagination.per_page"), *pageSize)).SingleLine()
 		ui.Icon(c, icons.Must("chevron-down")).Size(14, 14).TextColor(k.TextMuted)
@@ -188,6 +192,7 @@ func paginationSizes(c *ui.Context, page, pageSize *int, sizes []int, res *Pagin
 			if it.Highlighted() {
 				it.Background(k.Selection)
 			}
+			internal.Ease(it, Motion(c, theme.StateDuration), k.Text)
 			it.Children(func() {
 				ui.Text(c, fmt.Sprintf(msg(c, "pagination.per_page"), s)).SingleLine().Grow(1)
 				if s == *pageSize {
@@ -239,7 +244,7 @@ func paginationJump(c *ui.Context, pages int, set func(int)) {
 		} else if in.Focused() {
 			border = k.Focus
 		}
-		box.Border(theme.BorderWidth, border)
+		internal.Ease(box.Border(theme.BorderWidth, border), Motion(c, theme.StateDuration), k.Text)
 		if *bad {
 			ui.Text(c, fmt.Sprintf(msg(c, "pagination.range"), pages)).TextColor(k.Danger).SingleLine()
 		}
