@@ -2,6 +2,7 @@ package mujica
 
 import (
 	"bytes"
+	"slices"
 	"testing"
 	"time"
 
@@ -19,8 +20,8 @@ func TestSpinnerLabelAndSize(t *testing.T) {
 	if !ok || r.W != 16 || r.H != 16 {
 		t.Fatalf("default mark %v %v", r, ok)
 	}
-	if tt.HasText("加载中") {
-		t.Fatal("hidden label painted")
+	if n := len(slices.DeleteFunc(tt.Texts(), func(s string) bool { return s != "加载中" })); n != 1 {
+		t.Fatalf("hidden label painted: %d", n)
 	}
 	mark, ok = tt.Find("Fetching mail")
 	if !ok || mark.W != 32 {

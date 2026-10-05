@@ -37,25 +37,32 @@ func Spinner(c *ui.Context, opts SpinnerOptions) *ui.Element {
 	still := c.Preferences().ReduceMotion
 	row := ui.Row(c).Gap(Density(c).Unit() * 2).AlignItems(ui.Center)
 	row.Children(func() {
-		// MyGo's spinner carries the indeterminate progress role.
-		ui.Spinner(c).Key(still).Label(label).Size(size, size).Draw(func(p *ui.Painter, r ui.Rect) {
-			turn := 0.0
-			if !still {
-				turn = float64(p.Now().UnixMilli()%1200) / 1200
-				p.AnimationFrame()
-			}
-			cx, cy, rad := r.X+r.W/2, r.Y+r.H/2, r.W*0.32
-			for i := range 4 {
-				a := 2 * math.Pi * (turn + float64(i)/4)
-				x := cx + rad*float32(math.Cos(a))
-				y := cy + rad*float32(math.Sin(a))
-				alpha := 1 - float32(i)*0.22
-				p.FillPath(internal.Diamond(x, y, r.W*0.3), color.Alpha(alpha))
-			}
-		})
+		// Keyed by motion so a flip repaints; MyGo's spinner carries the progress role.
+		ui.Box(c).Key(still).Shrink(0).Children(func() { spinnerMark(c, label, size, color, still) })
 		if opts.ShowLabel {
 			ui.Text(c, label).TextColor(k.TextMuted).SingleLine()
 		}
 	})
 	return row
+}
+
+func spinnerMark(c *ui.Context, label string, size float32, color ui.Color, still bool) {
+	ui.Spinner(c).Label(label).Size(size, size).Draw(func(p *ui.Painter, r ui.Rect) {
+		turn := 0.0
+		if !still {
+			turn = float64(p.Now().UnixMilli()%1200) / 1200
+			p.AnimationFrame()
+		}
+		cx, cy, rad := r.X+r.W/2, r.Y+r.H/2, r.W*0.32
+		for i := range 4 {
+			a := 2 * math.Pi * (turn + float64(i)/4)
+			x := cx + rad*float32(math.Cos(a))
+			y := cy + rad*float32(math.Sin(a))
+			// Device-pixel centers keep cached shapes rendering alike.
+			s := p.Scale()
+			x, y = float32(math.Round(float64(x*s)))/s, float32(math.Round(float64(y*s)))/s
+			alpha := 1 - float32(i)*0.22
+			p.FillPath(internal.Diamond(x, y, r.W*0.3), color.Alpha(alpha))
+		}
+	})
 }

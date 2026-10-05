@@ -66,7 +66,7 @@ func NotificationCenter(c *ui.Context, items *[]Notification, opts NotificationC
 	u := Density(c).Unit()
 	title := cmp.Or(opts.Title, msg(c, "notification_center.title"))
 	var res NotificationCenterResult
-	panel := ui.Column(c).FillWidth().Radius(theme.CardRadius).Background(k.Surface).Border(theme.BorderWidth, k.Border).
+	panel := ui.Column(c).FillWidth().Shrink(1).MinHeight(0).Radius(theme.CardRadius).Background(k.Surface).Border(theme.BorderWidth, k.Border).
 		Role(ui.RoleGroup).Label(title).Clip()
 	panel.Children(func() {
 		ui.Row(c).AlignItems(ui.Center).Gap(u*2).Padding(u*3, u*3, u*3, u*4).Children(func() {
@@ -98,7 +98,7 @@ func NotificationCenter(c *ui.Context, items *[]Notification, opts NotificationC
 			})
 			return
 		}
-		list := ui.Scroll(c).Grow(1).Shrink(1).FillWidth().Role(ui.RoleList).FocusGroup(ui.Vertical | ui.Horizontal)
+		list := ui.Scroll(c).Shrink(1).FillWidth().Role(ui.RoleList).FocusGroup(ui.Vertical | ui.Horizontal)
 		list.Dividers(theme.BorderWidth, k.Border)
 		list.Children(func() {
 			for i := range *items {
@@ -124,7 +124,7 @@ func notificationRow(c *ui.Context, k theme.Tokens, u float32, n *Notification, 
 		name = msg(c, "notification_center.unread_mark") + ": " + n.Title
 	}
 	row := ui.Row(c).Key(n.ID).FillWidth().AlignItems(ui.Start).Gap(u*2).Padding(u*3, u*3, u*3, u*2).
-		Role(ui.RoleListItem).Label(name)
+		Role(ui.RoleListItem)
 	if row.Hovered() {
 		row.Background(k.SurfaceHover)
 	}
