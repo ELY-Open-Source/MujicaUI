@@ -46,9 +46,9 @@ func PieChart(c *ui.Context, slices []ChartSlice, opts PieChartOptions) ChartRes
 	if total == 0 {
 		n = 0
 	}
-	keys := make([]chartKey, len(parts))
+	keys := make([]ChartLegendItem, len(parts))
 	for i, s := range parts {
-		keys[i] = chartKey{Name: s.Label, Color: pal[i%len(pal)], Shape: i}
+		keys[i] = ChartLegendItem{Name: s.Label, Color: pal[i%len(pal)], Shape: i}
 	}
 	// angle returns slice i's start and end, clockwise.
 	angle := func(i int) (float64, float64) {

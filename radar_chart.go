@@ -27,10 +27,10 @@ func RadarChart(c *ui.Context, axes []string, series []ChartSeries, opts RadarCh
 	k := Tokens(c)
 	pal := internal.Palette(k)
 	size := FontSize(c, theme.CaptionSize)
-	keys := make([]chartKey, len(series))
+	keys := make([]ChartLegendItem, len(series))
 	top := opts.Max
 	for i, s := range series {
-		keys[i] = chartKey{Name: s.Name, Color: pal[i%len(pal)], Shape: i}
+		keys[i] = ChartLegendItem{Name: s.Name, Color: pal[i%len(pal)], Shape: i}
 		for _, v := range s.Values {
 			if v < 0 {
 				panic("mujica: RadarChart values must be ≥ 0")

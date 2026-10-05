@@ -44,18 +44,11 @@ func (r ChartResult) ValueChanged() bool { return r.value }
 // Toggled returns the legend series switched in this frame.
 func (r ChartResult) Toggled() (string, bool) { return r.toggled, r.toggled != "" }
 
-// chartKey is a legend entry: name, color and shape.
-type chartKey struct {
-	Name  string
-	Color ui.Color
-	Shape int
-}
-
 // chartSpec is one chart's drawing and behavior.
 type chartSpec struct {
 	// n counts the marks keys step through; 0 is empty.
 	n    int
-	keys []chartKey
+	keys []ChartLegendItem
 	// toggle lets legend entries hide and show series.
 	toggle bool
 	draw   func(p *ui.Painter, r ui.Rect, active int)
@@ -66,6 +59,10 @@ type chartSpec struct {
 	move func(i int, key ui.Key) int
 	// activate runs on Enter, Space or a click.
 	activate func(i int)
+	// anchor places mark i's tooltip in plot space; nil uses the plot's top middle.
+	anchor func(r ui.Rect, i int) (x, y float32)
+	// tip writes mark i's tooltip; nil splits the readout.
+	tip func(i int) []ChartTooltipLine
 }
 
 type chartState struct {
@@ -105,33 +102,48 @@ func (ch *chart) build(spec chartSpec) (ChartResult, *ui.Element) {
 	var plot *ui.Element
 	ch.res.Element.Children(func() {
 		if len(spec.keys) > 0 {
-			ch.legend(spec)
+			var hidden *map[string]bool
+			if spec.toggle {
+				hidden = &st.hidden
+			}
+			if name, ok := ChartLegend(c, hidden, spec.keys, ChartLegendOptions{}).Toggled(); ok {
+				ch.res.toggled = name
+			}
 		}
-		box := ui.Box(c).Height(ch.frame.Height).FillWidth().MinWidth(0)
 		if ch.frame.Status == DataLoading || ch.frame.Status == DataFailed || spec.n == 0 {
 			st.focus = -1
-			box.Children(func() {
-				ui.Column(c).Fill().Children(func() {
-					ch.res.retry = dataPlaceholder(c, ch.frame.Status, ch.frame.Error, ch.frame.Empty, msg(c, "chart.empty"))
-				})
-			})
+			ch.res.retry = ChartEmptyState(c, ch.frame.Status, ChartEmptyStateOptions{Height: ch.frame.Height, Error: ch.frame.Error, Empty: ch.frame.Empty}).Changed()
 			ch.res.Point = -1
 			ui.Box(c).Height(u * 5)
 			return
 		}
+		box := ui.Box(c).Height(ch.frame.Height).FillWidth().MinWidth(0)
 		plot = box.Focusable().Label(ch.frame.Label).Role(ui.RoleGroup)
 		internal.Ring(plot, k.Focus, theme.ControlRadius)
 		st.focus = min(st.focus, spec.n-1)
 		ch.input(plot, spec)
 		active := -1
-		if x, y, over := plot.PointerPosition(); over && !plot.IsDisabled() {
-			b := plot.Bounds()
-			active = spec.pick(ui.Rect{W: b.W, H: b.H}, x, y)
+		b := plot.Bounds()
+		local := ui.Rect{W: b.W, H: b.H}
+		x, y, over := plot.PointerPosition()
+		if over && !plot.IsDisabled() {
+			active = spec.pick(local, x, y)
 		}
 		if active < 0 && plot.Focused() {
 			active = st.focus
+			x, y = local.W/2, 0
+			if spec.anchor != nil {
+				x, y = spec.anchor(local, active)
+			}
 		}
 		ch.res.Point = active
+		if active >= 0 && b.W > 0 {
+			lines := chartTipLines(spec.readout(active))
+			if spec.tip != nil {
+				lines = spec.tip(active)
+			}
+			ChartTooltip(c, b.X+x, b.Y+y, lines)
+		}
 		plot.Draw(func(p *ui.Painter, r ui.Rect) { spec.draw(p, r, active) })
 		text, col := msg(c, "chart.hint"), k.TextMuted
 		if active >= 0 {
@@ -194,49 +206,6 @@ func (ch *chart) input(plot *ui.Element, spec chartSpec) {
 	if act && spec.activate != nil {
 		spec.activate(st.focus)
 	}
-}
-
-// legend shows the series keys; toggling ones are check boxes.
-func (ch *chart) legend(spec chartSpec) {
-	c, k, st := ch.c, Tokens(ch.c), ch.st
-	u := Density(c).Unit()
-	ui.Row(c).Wrap().Gap(u * 3).Children(func() {
-		for _, key := range spec.keys {
-			ui.Row(c).Key(key.Name).Children(func() {
-				on := !st.hidden[key.Name]
-				var e *ui.Element
-				if spec.toggle {
-					e = ui.CheckboxBase(c, &on).Disabled(ch.res.Element.IsDisabled()).Label(key.Name)
-					internal.Ring(e, k.Focus, theme.ControlRadius)
-					if e.Changed() && !e.IsDisabled() {
-						st.hidden[key.Name] = !on
-						ch.res.toggled = key.Name
-						slog.Debug("mujica: chart toggle", "series", key.Name, "visible", on)
-					}
-				} else {
-					e = ui.Row(c)
-				}
-				e.MinHeight(theme.MinHitSize).Gap(u*2).AlignItems(ui.Center).Padding(0, u).Radius(theme.ControlRadius)
-				col := key.Color
-				if !on {
-					col = k.TextMuted
-				}
-				e.Children(func() {
-					ui.Box(c).Size(12, 12).Shrink(0).Draw(func(p *ui.Painter, r ui.Rect) {
-						if on {
-							internal.Marker(p, key.Shape, r.X+6, r.Y+6, 10, col)
-						} else {
-							p.Stroke(r, col, 2, 1)
-						}
-					})
-					t := ui.Text(c, key.Name).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.Text)
-					if !on {
-						t.Strikethrough().TextColor(k.TextMuted)
-					}
-				})
-			})
-		}
-	})
 }
 
 // chartText draws s anchored at (x, y) by ax, ay.

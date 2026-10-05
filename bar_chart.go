@@ -32,10 +32,10 @@ func BarChart(c *ui.Context, categories []string, series []ChartSeries, opts Bar
 	k := Tokens(c)
 	pal := internal.Palette(k)
 	size := FontSize(c, theme.CaptionSize)
-	keys := make([]chartKey, len(series))
+	keys := make([]ChartLegendItem, len(series))
 	var vis []int
 	for i, s := range series {
-		keys[i] = chartKey{Name: s.Name, Color: pal[i%len(pal)], Shape: i}
+		keys[i] = ChartLegendItem{Name: s.Name, Color: pal[i%len(pal)], Shape: i}
 		if !ch.hidden(s.Name) {
 			vis = append(vis, i)
 		}

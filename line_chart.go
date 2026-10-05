@@ -71,9 +71,9 @@ func chartLines(ch *chart, d chartLineData) ChartResult {
 	c, k := ch.c, Tokens(ch.c)
 	pal := internal.Palette(k)
 	size := FontSize(c, theme.CaptionSize)
-	keys := make([]chartKey, len(d.series))
+	keys := make([]ChartLegendItem, len(d.series))
 	for i, s := range d.series {
-		keys[i] = chartKey{Name: s.Name, Color: pal[i%len(pal)], Shape: i}
+		keys[i] = ChartLegendItem{Name: s.Name, Color: pal[i%len(pal)], Shape: i}
 	}
 	var ticks []float64
 	var step float64
@@ -102,6 +102,19 @@ func chartLines(ch *chart, d chartLineData) ChartResult {
 			}
 		}
 		return strings.Join(parts, " · ")
+	}
+	spec.tip = func(i int) []ChartTooltipLine {
+		lines := []ChartTooltipLine{{Text: d.ax.label(i)}}
+		for si, s := range d.series {
+			if !ch.hidden(s.Name) {
+				lines = append(lines, ChartTooltipLine{Text: s.Name + " " + chartValue(c, s.Values[i], d.format), Color: keys[si].Color, Shape: si})
+			}
+		}
+		return lines
+	}
+	spec.anchor = func(r ui.Rect, i int) (float32, float32) {
+		plot, xs, _ := geom(r)
+		return xs.Map(d.ax.vals[i]), plot.Y
 	}
 	spec.draw = func(p *ui.Painter, r ui.Rect, active int) {
 		plot, xs, ys := geom(r)

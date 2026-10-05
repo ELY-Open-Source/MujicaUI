@@ -43,11 +43,11 @@ func ScatterChart(c *ui.Context, selected *[]ScatterKey, groups []ScatterGroup, 
 	k := Tokens(c)
 	pal := internal.Palette(k)
 	size := FontSize(c, theme.CaptionSize)
-	keys := make([]chartKey, len(groups))
+	keys := make([]ChartLegendItem, len(groups))
 	var marks []ScatterKey
 	b := [6]float64{math.Inf(1), math.Inf(-1), math.Inf(1), math.Inf(-1), math.Inf(1), math.Inf(-1)}
 	for gi, g := range groups {
-		keys[gi] = chartKey{Name: g.Name, Color: pal[gi%len(pal)], Shape: gi}
+		keys[gi] = ChartLegendItem{Name: g.Name, Color: pal[gi%len(pal)], Shape: gi}
 		if g.Name == "" || ch.hidden(g.Name) {
 			continue
 		}
