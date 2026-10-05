@@ -36,7 +36,7 @@ func Spinner(c *ui.Context, opts SpinnerOptions) *ui.Element {
 	still := c.Preferences().ReduceMotion
 	row := ui.Row(c).Gap(Density(c).Unit() * 2).AlignItems(ui.Center).Role(ui.RoleProgress).Label(label)
 	row.Children(func() {
-		ui.Box(c).Size(size, size).Shrink(0).Draw(func(p *ui.Painter, r ui.Rect) {
+		ui.Box(c).Key(still).Size(size, size).Shrink(0).Draw(func(p *ui.Painter, r ui.Rect) {
 			turn := 0.0
 			if !still {
 				turn = float64(p.Now().UnixMilli()%1200) / 1200

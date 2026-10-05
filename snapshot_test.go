@@ -20,11 +20,17 @@ var update = flag.Bool("update", false, "rewrite snapshots")
 func snapshot(t *testing.T, name string, w, h int, view func(c *ui.Context)) {
 	t.Helper()
 	for _, m := range []Mode{Light, Dark} {
+		ready := false
 		tt := ui.NewTester(func(c *ui.Context) {
 			Use(c, Settings{Mode: m})
-			view(c)
+			if ready {
+				view(c)
+			}
 		}, w, h)
+		// Animations must not paint before ReduceMotion applies.
 		tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})
+		ready = true
+		tt.Frame()
 		got := encode(t, tt.Image())
 		path := filepath.Join("testdata", "snapshots", runtime.GOOS, name+"-"+strings.ToLower(m.String())+".png")
 		if *update {
