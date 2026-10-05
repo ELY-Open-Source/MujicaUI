@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/egoist/mygo/ui"
 
@@ -131,5 +132,131 @@ func TestMirrorRejectsBadInput(t *testing.T) {
 	res.Body.Close()
 	if res.StatusCode != http.StatusBadRequest {
 		t.Fatalf("bad json: %d", res.StatusCode)
+	}
+}
+
+// mirrorWith serves view through a mirror for one test.
+func mirrorWith(t *testing.T, view func(c *ui.Context)) (*mirror, *httptest.Server) {
+	m, h := newMirror(view)
+	srv := httptest.NewServer(h)
+	t.Cleanup(srv.Close)
+	return m, srv
+}
+
+func postInput(t *testing.T, srv *httptest.Server, in input) {
+	t.Helper()
+	body, err := json.Marshal(in)
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := http.Post(srv.URL+"/input", "application/json", bytes.NewReader(body))
+	if err != nil {
+		t.Fatal(err)
+	}
+	res.Body.Close()
+	if res.StatusCode != http.StatusNoContent {
+		t.Fatalf("%s: %d", in.Type, res.StatusCode)
+	}
+}
+
+func TestMirrorTimersFireWithoutInput(t *testing.T) {
+	start := time.Now()
+	var late bool
+	m, _ := mirrorWith(t, func(c *ui.Context) {
+		mujica.Use(c, mujica.Settings{})
+		late = c.Now().Sub(start) > 300*time.Millisecond
+		if !late {
+			c.After(350 * time.Millisecond)
+		}
+	})
+	time.Sleep(900 * time.Millisecond)
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if !late {
+		t.Fatal("the view was not rebuilt after its timer with no input")
+	}
+}
+
+func TestMirrorModifiedClickNeedsReleaseInPlace(t *testing.T) {
+	clicks := 0
+	_, srv := mirrorWith(t, func(c *ui.Context) {
+		mujica.Use(c, mujica.Settings{})
+		ui.Column(c).Padding(20).Children(func() {
+			if mujica.Button(c, "Seal", mujica.ButtonOptions{}).Clicked() {
+				clicks++
+			}
+		})
+	})
+	shift := []bool{true}
+	postInput(t, srv, input{Type: "down", X: 40, Y: 35, Mods: shift})
+	postInput(t, srv, input{Type: "up", X: 400, Y: 400, Mods: shift})
+	postInput(t, srv, input{Type: "down", X: 40, Y: 35, Mods: shift})
+	postInput(t, srv, input{Type: "up", X: 41, Y: 35, Mods: shift})
+	if clicks != 1 {
+		t.Fatalf("clicks %d, want 1 (released elsewhere must not click)", clicks)
+	}
+}
+
+func TestMirrorForwardsRepeatedCopy(t *testing.T) {
+	m, _ := mirrorWith(t, func(c *ui.Context) { mujica.Use(c, mujica.Settings{}) })
+	ch := make(chan []byte, 8)
+	m.mu.Lock()
+	m.subs[ch] = struct{}{}
+	notices := 0
+	for range 2 {
+		m.tt.SetClipboard("same")
+		m.copied = true
+		if m.capture() {
+			notices++
+		}
+	}
+	m.mu.Unlock()
+	if notices != 2 {
+		t.Fatalf("repeated copy of the same text notified %d times, want 2", notices)
+	}
+	for range 2 {
+		msg := <-ch
+		if !bytes.Contains(msg, []byte(`"clipboard":"same"`)) {
+			t.Fatalf("notice %s", msg)
+		}
+	}
+}
+
+func TestMirrorMapsNumpad(t *testing.T) {
+	r := newMirrorRig(t)
+	r.post(input{Type: "key", Code: "Tab"})
+	if code := r.post(input{Type: "key", Code: "Numpad7", Text: "7"}); code != http.StatusNoContent {
+		t.Fatalf("numpad: %d", code)
+	}
+	if got := r.value(); got != "7" {
+		t.Fatalf("value %q", got)
+	}
+}
+
+func TestMirrorForwardsEveryAnnouncement(t *testing.T) {
+	m, srv := mirrorWith(t, func(c *ui.Context) {
+		mujica.Use(c, mujica.Settings{})
+		ui.Column(c).Padding(20).Children(func() {
+			if mujica.Button(c, "Ring", mujica.ButtonOptions{}).Clicked() {
+				c.Announce("bell rung")
+			}
+		})
+	})
+	ch := make(chan []byte, 64)
+	m.mu.Lock()
+	m.subs[ch] = struct{}{}
+	m.mu.Unlock()
+	for range 2 {
+		postInput(t, srv, input{Type: "down", X: 40, Y: 35})
+		postInput(t, srv, input{Type: "up", X: 40, Y: 35})
+	}
+	heard := 0
+	for len(ch) > 0 {
+		if bytes.Contains(<-ch, []byte("bell rung")) {
+			heard++
+		}
+	}
+	if heard != 2 {
+		t.Fatalf("announcements forwarded %d times, want 2", heard)
 	}
 }

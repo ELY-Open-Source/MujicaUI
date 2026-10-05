@@ -14,7 +14,7 @@ name := ""
 view := func(c *ui.Context) {
 	mujica.Use(c, mujica.Settings{})
 	res := mujica.Form(c, &state, mujica.FormOptions{}, func(f *mujica.FormScope) {
-		mujica.FormItem(f, "name", &name, mujica.FormItemOptions[string]{Label: "Name", Required: true}, func() *ui.Element {
+		mujica.FormItem(c, f, "name", &name, mujica.FormItemOptions[string]{Label: "Name", Required: true}, func() *ui.Element {
 			return mujica.InputGroup(c, &name, mujica.InputGroupOptions{Invalid: state.Error("name") != ""}).Input
 		})
 	})

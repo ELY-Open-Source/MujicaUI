@@ -4,6 +4,10 @@ import "github.com/egoist/mygo/ui"
 
 // keyCodes maps KeyboardEvent.code to MyGo keys.
 var keyCodes = map[string]ui.Key{
+	"Numpad0": ui.Key0, "Numpad1": ui.Key1, "Numpad2": ui.Key2, "Numpad3": ui.Key3, "Numpad4": ui.Key4,
+	"Numpad5": ui.Key5, "Numpad6": ui.Key6, "Numpad7": ui.Key7, "Numpad8": ui.Key8, "Numpad9": ui.Key9,
+	"NumpadDecimal": ui.KeyPeriod, "NumpadSubtract": ui.KeyMinus, "NumpadAdd": ui.KeyEqual,
+	"NumpadMultiply": ui.Key8, "NumpadDivide": ui.KeySlash, "NumpadEqual": ui.KeyEqual, "NumpadComma": ui.KeyComma,
 	"Enter":          ui.KeyEnter,
 	"NumpadEnter":    ui.KeyEnter,
 	"Escape":         ui.KeyEscape,

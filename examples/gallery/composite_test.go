@@ -111,11 +111,11 @@ func TestCompositeFormInvalidThenValid(t *testing.T) {
 	click(t, tt, "I accept the covenant of the masquerade")
 	if s.name != "Mortis" || s.password != "hunter22secret" || s.debut.Format("2006-01-02") != "2026-12-24" ||
 		!slices.Equal(s.tags, []string{"guitar"}) || !s.terms {
-		t.Fatalf("values %q %q %v %q %v", s.name, s.password, s.debut, s.tags, s.terms)
+		t.Fatalf("values %q, password ok %v, %v %q %v", s.name, s.password == "hunter22secret", s.debut, s.tags, s.terms)
 	}
 	click(t, tt, "Submit entry")
-	await(tt, s.st.Submitting) // the name check finishes first
-	if !s.st.Submitting() || !tt.HasText("Submitting…") {
+	await(tt, func() bool { return tt.HasText("Submitting…") }) // the name check finishes first
+	if !s.st.Submitting() {
 		t.Fatalf("no loading overlay in %q", tt.Texts())
 	}
 	click(t, tt, "Submit entry") // the overlay blocks a second submit
@@ -124,9 +124,9 @@ func TestCompositeFormInvalidThenValid(t *testing.T) {
 		t.Fatalf("phase %d, texts %q", s.phase, tt.Texts())
 	}
 	submits := 0
-	for _, e := range g.events {
+	for i, e := range g.events {
 		if strings.Contains(e.text, "hunter22secret") {
-			t.Fatalf("password logged: %q", e.text)
+			t.Fatalf("password logged in event %d of page %s", i, e.page)
 		}
 		if e.page == formID && strings.HasPrefix(e.text, "submitted ") {
 			submits++
