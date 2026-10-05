@@ -80,11 +80,11 @@ func CommandPalette(c *ui.Context, open *bool, commands []Command, opts CommandP
 	u := d.Unit()
 	res.Element = ui.DialogBase(c, open, func(back, panel *ui.Element) {
 		ww, wh := c.Size()
-		back.Background(ui.RGBA(0, 0, 0, 0.4)).Justify(ui.Start)
-		internal.PopIn(c, back, Motion(c, theme.PopupDuration))
-		panel.Margin(wh*0.12, 0, 0, 0).Width(560).MaxWidth(ww-32).MaxHeight(wh*0.76).
-			Radius(theme.PopupRadius).Background(k.Surface).Border(theme.BorderWidth, k.Border).
-			Shadow(0, 12, 32, 0, ui.RGBA(0, 0, 0, 0.3)).AlignItems(ui.Stretch).Label(msg(c, "command_palette.label"))
+		p := overlayEnter(c, panel)
+		back.Background(ui.RGBA(0, 0, 0, 0.4*p)).Justify(ui.Start)
+		overlayStyle(c, panel, p)
+		panel.Margin(wh*0.12, 0, 0, 0).Width(560).MaxWidth(ww - 32).MaxHeight(wh * 0.76).
+			AlignItems(ui.Stretch).Label(msg(c, "command_palette.label"))
 		found := commandPaletteFilter(commands, st.query)
 		var in *ui.Element
 		ui.Row(c).AlignItems(ui.Center).Gap(u*3).Padding(u*3, u*4).Children(func() {

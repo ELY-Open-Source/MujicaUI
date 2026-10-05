@@ -175,9 +175,8 @@ func paginationSizes(c *ui.Context, page, pageSize *int, sizes []int, res *Choic
 		ui.Icon(c, icons.Must("chevron-down")).Size(14, 14).TextColor(k.TextMuted)
 	})
 	sel.Popup(func(panel *ui.Element) {
-		internal.PopIn(c, panel, Motion(c, theme.PopupDuration))
-		panel.Margin(u, 0, 0, 0).Padding(u).Radius(theme.PopupRadius).Background(k.Surface).
-			Border(theme.BorderWidth, k.Border).Shadow(0, 4, 12, 0, ui.RGBA(0, 0, 0, 0.16))
+		overlayStyle(c, panel, overlayEnter(c, panel))
+		panel.Margin(u, 0, 0, 0).Padding(u)
 		for _, s := range sizes {
 			it := sel.Item(s).Padding(u*1.5, u*3).Radius(theme.ControlRadius).Gap(u * 2)
 			if it.Highlighted() {

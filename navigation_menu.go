@@ -147,12 +147,11 @@ func navigationMenuTop(c *ui.Context, l NavigationLink, path string, push func(s
 		*open = true
 	}
 	ui.PopoverBase(c, b, open, func(panel *ui.Element) {
-		internal.PopIn(c, panel, Motion(c, theme.PopupDuration))
+		overlayStyle(c, panel, overlayEnter(c, panel))
 		// Capped to the room beside the anchor; the links scroll inside.
 		_, wh := c.Size()
 		r := b.Bounds()
-		panel.Margin(u, 0, 0, 0).Padding(u*2).Radius(theme.PopupRadius).Background(k.Surface).MaxHeight(max(r.Y, wh-r.Y-r.H)-16).
-			Border(theme.BorderWidth, k.Border).Shadow(0, 4, 12, 0, ui.RGBA(0, 0, 0, 0.16)).MinWidth(240).MaxWidth(360)
+		panel.Margin(u, 0, 0, 0).Padding(u * 2).MaxHeight(max(r.Y, wh-r.Y-r.H) - 16).MinWidth(240).MaxWidth(360)
 		ui.Scroll(c).Shrink(1).Gap(u).FocusGroup(ui.Vertical).Children(func() {
 			navigationMenuPanel(c, l.Items, path, open, push)
 		})

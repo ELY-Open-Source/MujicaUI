@@ -239,9 +239,8 @@ func selectCheck(c *ui.Context, on bool) {
 
 // selectPanel styles a popup panel.
 func selectPanel(c *ui.Context, panel *ui.Element) {
-	k := Tokens(c)
-	panel.Margin(4, 0, 0, 0).Padding(4).Radius(theme.PopupRadius).Background(k.Surface).
-		Border(theme.BorderWidth, k.Border).Shadow(0, 4, 12, 0, ui.RGBA(0, 0, 0, 0.14))
+	overlayStyle(c, panel, overlayEnter(c, panel))
+	panel.Margin(4, 0, 0, 0).Padding(4)
 }
 
 // selectRow styles an option row: chosen has the selection fill and a check, highlighted a side bar.

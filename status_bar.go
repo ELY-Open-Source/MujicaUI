@@ -108,9 +108,8 @@ func StatusBar(c *ui.Context, opts StatusBarOptions) StatusBarResult {
 			}
 			if *open {
 				ui.PopoverBase(c, more, open, func(panel *ui.Element) {
-					panel.Margin(d.Unit(), 0, 0, 0).Padding(d.Unit()).Gap(d.Unit()).AlignItems(ui.Stretch).
-						Radius(theme.PopupRadius).Background(k.Surface).Border(theme.BorderWidth, k.Border).
-						Shadow(0, 4, 12, 0, ui.RGBA(0, 0, 0, 0.16))
+					overlayStyle(c, panel, overlayEnter(c, panel))
+					panel.Margin(d.Unit(), 0, 0, 0).Padding(d.Unit()).Gap(d.Unit()).AlignItems(ui.Stretch)
 					for _, it := range statusBarAll(opts) {
 						if hidden[it.ID] {
 							item(it)

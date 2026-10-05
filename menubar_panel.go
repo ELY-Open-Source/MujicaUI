@@ -67,10 +67,8 @@ func (m *menubarRun) panel(l int, x, y float32, parent ui.Rect) (*ui.Element, *u
 	items := m.items(l)
 	ww, wh := c.Size()
 	// Long menus scroll within the window instead of running off it.
-	panel := ui.Scroll(c).Absolute().Padding(u).MinWidth(200).MaxHeight(wh-8).AlignItems(ui.Stretch).Role(ui.RolePopup).
-		Radius(theme.PopupRadius).Background(k.Surface).Border(theme.BorderWidth, k.Border).
-		Shadow(0, 6, 16, 0, ui.RGBA(0, 0, 0, 0.18))
-	internal.PopIn(c, panel, Motion(c, theme.PopupDuration))
+	panel := ui.Scroll(c).Absolute().Padding(u).MinWidth(200).MaxHeight(wh - 8).AlignItems(ui.Stretch).Role(ui.RolePopup)
+	overlayStyle(c, panel, overlayEnter(c, panel))
 	pb := panel.Bounds()
 	if x+pb.W > ww-4 {
 		x = ww - 4 - pb.W

@@ -114,8 +114,8 @@ func ColorPicker(c *ui.Context, color *ui.Color, opts ColorPickerOptions) ColorP
 	})
 	opened := st.open && !st.wasOpen
 	ui.PopoverBase(c, trigger, &st.open, func(panel *ui.Element) {
-		panel.Margin(d.Unit(), 0, 0, 0).Padding(d.Unit()*3).Gap(d.Unit()*3).Width(260).Radius(theme.PopupRadius).
-			Background(k.Surface).Border(theme.BorderWidth, k.Border).Shadow(0, 4, 12, 0, ui.RGBA(0, 0, 0, 0.18))
+		overlayStyle(c, panel, overlayEnter(c, panel))
+		panel.Margin(d.Unit(), 0, 0, 0).Padding(d.Unit() * 3).Gap(d.Unit() * 3).Width(260)
 		colorPickerSquare(c, st, set, opened)
 		x := st.hsv
 		h := x.h

@@ -163,22 +163,14 @@ func datetimeTrigger(c *ui.Context, text, placeholder, icon string) *ui.Element 
 
 // datetimePopup shows fn below anchor while *open; a disabled or read-only anchor closes it.
 func datetimePopup(c *ui.Context, anchor *ui.Element, open *bool, readOnly bool, fn func()) *ui.Element {
-	k := Tokens(c)
 	d := Density(c)
 	if *open && (readOnly || anchor.IsDisabled()) {
 		slog.Debug("mujica: datetime popup closed by state", "readOnly", readOnly)
 		*open = false
 	}
 	return ui.PopoverBase(c, anchor, open, func(panel *ui.Element) {
-		born := ui.Local(panel, "datetime-born", func() bool { return true })
-		if *born {
-			panel.Animate("datetime-fade", 0, 0)
-			*born = false
-		}
-		fade := panel.Animate("datetime-fade", 1, Motion(c, theme.PopupDuration))
-		panel.MaxWidth(d.ControlHeight()*7+d.Unit()*6+2*theme.BorderWidth).Margin(d.Unit(), 0, 0, 0).Padding(d.Unit()*3).Gap(d.Unit()*3).Radius(theme.PopupRadius).
-			Background(k.Surface).Border(theme.BorderWidth, k.Border).
-			Shadow(0, 6, 18, 0, ui.RGBA(0, 0, 0, 0.16)).Opacity(fade)
+		overlayStyle(c, panel, overlayEnter(c, panel))
+		panel.MaxWidth(d.ControlHeight()*7+d.Unit()*6+2*theme.BorderWidth).Margin(d.Unit(), 0, 0, 0).Padding(d.Unit() * 3).Gap(d.Unit() * 3)
 		fn()
 	})
 }
