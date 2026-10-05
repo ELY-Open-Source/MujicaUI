@@ -72,10 +72,10 @@ k := mujica.Tokens(c) // 当前窗口的颜色
 
 ```sh
 go run ./examples/gallery            # 原生窗口
-go run ./examples/gallery -web :8080 # 浏览器镜像
+go run ./examples/gallery -web 127.0.0.1:8080 # 浏览器镜像，仅本机
 ```
 
-浏览器镜像不在浏览器里运行组件。Go 进程用 `ui.NewTester` 驱动同一个 Gallery 视图，把帧推给页面，再把指针、键盘、输入法和剪贴板事件送回 Go。
+`-web` 按传入的地址监听；写 `:8080` 会对所有网络接口开放。浏览器镜像不在浏览器里运行组件。Go 进程用 `ui.NewTester` 驱动同一个 Gallery 视图，把帧推给页面，再把指针、键盘、输入法和剪贴板事件送回 Go。
 
 ## 文档
 
