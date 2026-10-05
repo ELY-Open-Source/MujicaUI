@@ -82,7 +82,7 @@ func ExampleLogStream() {
 }
 
 func ExampleTraceWaterfall() {
-	spans := []mujica.TraceSpan{{ID: "root", Name: "GET /api", Service: "gateway", Duration: 200 * time.Millisecond}, {ID: "db", Parent: "root", Name: "Query", Service: "database", Start: 20 * time.Millisecond, Duration: 80 * time.Millisecond}}
+	spans := []mujica.WaterfallSpan{{ID: "root", Name: "GET /api", Service: "gateway", Duration: 200 * time.Millisecond}, {ID: "db", Parent: "root", Name: "Query", Service: "database", Start: 20 * time.Millisecond, Duration: 80 * time.Millisecond}}
 	view := func(c *ui.Context) {
 		mujica.Use(c, mujica.Settings{})
 		if mujica.TraceWaterfall(c, spans, mujica.TraceWaterfallOptions{}).Changed() {

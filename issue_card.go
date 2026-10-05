@@ -12,7 +12,7 @@ import (
 // IssueCardOptions configure an IssueCard.
 type IssueCardOptions struct {
 	Statuses []WorkflowStatus
-	Members  []Member
+	Members  []ProjectMember
 	Labels   []TaskLabel
 	Selected bool
 	Disabled bool

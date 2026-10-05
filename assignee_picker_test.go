@@ -83,9 +83,9 @@ func TestAssigneePickerAncestorDisableCloses(t *testing.T) {
 }
 
 func TestAssigneePickerLargeData(t *testing.T) {
-	members := make([]Member, 100000)
+	members := make([]ProjectMember, 100000)
 	for i := range members {
-		members[i] = Member{ID: fmt.Sprint(i), Name: fmt.Sprintf("Member %d", i)}
+		members[i] = ProjectMember{ID: fmt.Sprint(i), Name: fmt.Sprintf("Member %d", i)}
 	}
 	var ids []string
 	tt := ui.NewTester(func(c *ui.Context) { Use(c, Settings{}); AssigneePicker(c, &ids, members, AssigneePickerOptions{}) }, 500, 520)
@@ -140,7 +140,9 @@ func TestAssigneePickerCompactHitAreas(t *testing.T) {
 	var ids []string
 	tt := ui.NewTester(func(c *ui.Context) {
 		Use(c, Settings{Density: theme.Compact})
-		ui.Column(c).Padding(16).Children(func() { AssigneePicker(c, &ids, []Member{{ID: "only", Name: "Only Member"}}, AssigneePickerOptions{}) })
+		ui.Column(c).Padding(16).Children(func() {
+			AssigneePicker(c, &ids, []ProjectMember{{ID: "only", Name: "Only Member"}}, AssigneePickerOptions{})
+		})
 	}, 500, 520)
 	if err := tt.Click("Assignees"); err != nil {
 		t.Fatal(err)

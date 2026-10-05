@@ -22,12 +22,12 @@ type AssigneePickerOptions struct {
 }
 
 type assigneeState struct {
-	first            *Member
+	first            *ProjectMember
 	n, version       int
 	ready, open      bool
 	query, filtered  string
 	options, shown   []SelectOption[string]
-	members          map[string]Member
+	members          map[string]ProjectMember
 	selected         map[string]bool
 	selectedFirst    *string
 	selectedN, count int
@@ -36,7 +36,7 @@ type assigneeState struct {
 }
 
 // AssigneePicker searches and selects members, showing their avatars.
-func AssigneePicker(c *ui.Context, ids *[]string, members []Member, opts AssigneePickerOptions) ChoiceResult {
+func AssigneePicker(c *ui.Context, ids *[]string, members []ProjectMember, opts AssigneePickerOptions) ChoiceResult {
 	if opts.Max < 0 {
 		panic("mujica: AssigneePicker Max must be non-negative")
 	}
@@ -47,7 +47,7 @@ func AssigneePicker(c *ui.Context, ids *[]string, members []Member, opts Assigne
 	}
 	row := ui.Row(c).Gap(d.Unit() * 2).AlignItems(ui.Center).Disabled(opts.Disabled)
 	st := ui.Local(row, "assignees", func() assigneeState { return assigneeState{} })
-	var first *Member
+	var first *ProjectMember
 	var selectedFirst *string
 	if len(members) > 0 {
 		first = &members[0]
@@ -58,7 +58,7 @@ func AssigneePicker(c *ui.Context, ids *[]string, members []Member, opts Assigne
 	dataChanged := !st.ready || st.first != first || st.n != len(members) || st.version != opts.Version
 	if dataChanged {
 		st.first, st.n, st.version, st.ready = first, len(members), opts.Version, true
-		st.members = make(map[string]Member, len(members))
+		st.members = make(map[string]ProjectMember, len(members))
 		st.options = make([]SelectOption[string], len(members))
 		for i, m := range members {
 			if _, exists := st.members[m.ID]; exists || m.ID == "" {

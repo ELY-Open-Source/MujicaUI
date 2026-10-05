@@ -83,7 +83,7 @@ func TestTraceWaterfallAncestorDisabled(t *testing.T) {
 	tt := ui.NewTester(func(c *ui.Context) {
 		Use(c, Settings{})
 		ui.Column(c).Disabled(disabled).Children(func() {
-			if TraceWaterfall(c, traceSample, TraceWaterfallOptions{}).Changed() {
+			if TraceWaterfall(c, waterfallSample, TraceWaterfallOptions{}).Changed() {
 				changes++
 			}
 		})

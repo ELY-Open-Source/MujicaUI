@@ -76,7 +76,7 @@ func memberListDemo(c *ui.Context, log func(string)) {
 
 func userProfileCardDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		presence          mujica.Presence
+		presence          mujica.PresenceStatus
 		actions, disabled bool
 	}
 	s := ui.Local(c.Root(), "406", func() state { return state{actions: true, presence: mujica.PresenceOnline} })
@@ -98,7 +98,7 @@ func userProfileCardDemo(c *ui.Context, log func(string)) {
 
 func onlineStatusDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		presence mujica.Presence
+		presence mujica.PresenceStatus
 		hidden   bool
 	}
 	s := ui.Local(c.Root(), "407", func() state { return state{presence: mujica.PresenceOnline} })
@@ -125,8 +125,8 @@ func statusSetterDemo(c *ui.Context, log func(string)) {
 	ui.Text(c, fmt.Sprintf("Text: %s; expires: %v", s.status.Text, s.status.Until))
 }
 
-func messagingPresence(c *ui.Context, log func(string), value *mujica.Presence) {
-	items := []mujica.SelectOption[mujica.Presence]{
+func messagingPresence(c *ui.Context, log func(string), value *mujica.PresenceStatus) {
+	items := []mujica.SelectOption[mujica.PresenceStatus]{
 		{Value: mujica.PresenceOnline, Label: "Online"}, {Value: mujica.PresenceAway, Label: "Away"},
 		{Value: mujica.PresenceBusy, Label: "Busy"}, {Value: mujica.PresenceOffline, Label: "Offline"},
 	}

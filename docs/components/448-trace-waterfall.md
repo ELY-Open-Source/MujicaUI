@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-spans := []mujica.TraceSpan{{ID: "root", Name: "GET /api", Service: "gateway", Duration: 200 * time.Millisecond}, {ID: "db", Parent: "root", Name: "Query", Service: "database", Start: 20 * time.Millisecond, Duration: 80 * time.Millisecond}}
+spans := []mujica.WaterfallSpan{{ID: "root", Name: "GET /api", Service: "gateway", Duration: 200 * time.Millisecond}, {ID: "db", Parent: "root", Name: "Query", Service: "database", Start: 20 * time.Millisecond, Duration: 80 * time.Millisecond}}
 view := func(c *ui.Context) {
 	mujica.Use(c, mujica.Settings{})
 	if mujica.TraceWaterfall(c, spans, mujica.TraceWaterfallOptions{}).Changed() {
@@ -19,7 +19,7 @@ ui.Render(view, 720, 480, 1)
 
 ## 参数
 
-Height 默认 320 DIP；TraceSpan.ID 唯一，Name 必填；Parent 关联父跨度；Start、Duration 为非负时间；Error 标记失败。
+Height 默认 320 DIP；WaterfallSpan.ID 唯一，Name 必填；Parent 关联父跨度；Start、Duration 为非负时间；Error 标记失败。
 
 ## 状态
 

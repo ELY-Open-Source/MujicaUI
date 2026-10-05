@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-members := []mujica.Member{{ID: "ann", Name: "Ann"}, {ID: "ben", Name: "Ben"}}
+members := []mujica.ProjectMember{{ID: "ann", Name: "Ann"}, {ID: "ben", Name: "Ben"}}
 ids := []string{"ann"}
 view := func(c *ui.Context) {
 	mujica.Use(c, mujica.Settings{})
@@ -20,7 +20,7 @@ ui.Render(view, 1000, 700, 1)
 
 ## 参数
 
-`ids *[]string`、`members []Member`；`Max=0` 表示自由数量；`Disabled`、`Label` 控制交互与名称；`Version` 用于外部原地修改。
+`ids *[]string`、`members []ProjectMember`；`Max=0` 表示自由数量；`Disabled`、`Label` 控制交互与名称；`Version` 用于外部原地修改。
 
 ## 状态
 

@@ -24,7 +24,7 @@ view := func(c *ui.Context) {
 	mujica.MilestoneProgress(c, milestone, mujica.MilestoneProgressOptions{})
 }
 ui.Render(view, 1000, 700, 1)`},
-	{ID: "378", Name: "WorkloadView", ZhName: "成员负载", Category: projectsCategory, Demo: projectsDemoWorkloadView, Keys: "静态行通过无障碍名称读取负载与超出量；滚动查看更多成员。", Code: `loads := []mujica.Workload{{Member: mujica.Member{ID: "ann", Name: "Ann"}, Assigned: 46, Capacity: 40}}
+	{ID: "378", Name: "WorkloadView", ZhName: "成员负载", Category: projectsCategory, Demo: projectsDemoWorkloadView, Keys: "静态行通过无障碍名称读取负载与超出量；滚动查看更多成员。", Code: `loads := []mujica.Workload{{Member: mujica.ProjectMember{ID: "ann", Name: "Ann"}, Assigned: 46, Capacity: 40}}
 view := func(c *ui.Context) {
 	mujica.Use(c, mujica.Settings{})
 	mujica.WorkloadView(c, loads, mujica.WorkloadViewOptions{})

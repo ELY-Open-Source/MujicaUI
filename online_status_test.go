@@ -10,7 +10,7 @@ func TestOnlineStatusTextAndShape(t *testing.T) {
 	tt := ui.NewTester(func(c *ui.Context) {
 		Use(c, Settings{})
 		ui.Row(c).Gap(12).Children(func() {
-			for _, p := range []Presence{PresenceOnline, PresenceAway, PresenceBusy, PresenceOffline} {
+			for _, p := range []PresenceStatus{PresenceOnline, PresenceAway, PresenceBusy, PresenceOffline} {
 				OnlineStatus(c, p, OnlineStatusOptions{})
 			}
 			OnlineStatus(c, PresenceBusy, OnlineStatusOptions{HideText: true}).Key("hidden")
@@ -27,13 +27,13 @@ func TestOnlineStatusTextAndShape(t *testing.T) {
 	if _, ok := tt.Find("Busy"); !ok {
 		t.Fatal("hidden text not kept as the name")
 	}
-	mediaPanics(t, "bad presence", func(c *ui.Context) { OnlineStatus(c, Presence(9), OnlineStatusOptions{}) })
+	mediaPanics(t, "bad presence", func(c *ui.Context) { OnlineStatus(c, PresenceStatus(9), OnlineStatusOptions{}) })
 }
 
 func TestOnlineStatusSnapshot(t *testing.T) {
 	snapshot(t, "online_status", 420, 60, func(c *ui.Context) {
 		ui.Row(c).Padding(20).Gap(16).Children(func() {
-			for _, p := range []Presence{PresenceOnline, PresenceAway, PresenceBusy, PresenceOffline} {
+			for _, p := range []PresenceStatus{PresenceOnline, PresenceAway, PresenceBusy, PresenceOffline} {
 				OnlineStatus(c, p, OnlineStatusOptions{})
 			}
 		})

@@ -73,7 +73,7 @@ func BurndownChart(c *ui.Context, remaining []float64, opts BurndownChartOptions
 	}
 	lo, top, step := internal.Nice(0, summary, 4)
 	ticks := internal.Ticks(lo, top, step)
-	keys := []chartKey{{Name: msg(c, "burndown_chart.actual"), Color: pal[0], Shape: 0}, {Name: msg(c, "burndown_chart.ideal"), Color: pal[5], Shape: 1}}
+	keys := []ChartLegendItem{{Name: msg(c, "burndown_chart.actual"), Color: pal[0], Shape: 0}, {Name: msg(c, "burndown_chart.ideal"), Color: pal[5], Shape: 1}}
 	geom := func(r ui.Rect) (ui.Rect, internal.Linear, internal.Linear) {
 		plot := chartInset(r, 48, 26)
 		return plot, internal.Linear{D0: 0, D1: float64(days - 1), R0: float64(plot.X), R1: float64(plot.X + plot.W)},
@@ -83,15 +83,15 @@ func BurndownChart(c *ui.Context, remaining []float64, opts BurndownChartOptions
 	if len(remaining) == 0 {
 		n = 0
 	}
-	spec := chartSpec{n: n, keys: keys, toggle: true}
-	spec.pick = func(r ui.Rect, x, y float32) int {
+	spec := ChartSpec{Marks: n, Legend: keys, Hidden: ch.toggles(true)}
+	spec.Pick = func(r ui.Rect, x, y float32) int {
 		plot, xs, _ := geom(r)
 		if x < plot.X-8 || x > plot.X+plot.W+8 {
 			return -1
 		}
 		return max(0, min(days-1, int(math.Round(xs.Invert(x)))))
 	}
-	spec.readout = func(i int) string {
+	spec.Readout = func(i int) string {
 		day := opts.Start.AddDays(i)
 		parts := datetimeMonthName(c, day.Month) + " " + strconv.Itoa(day.Day)
 		if v := actual(i); !math.IsNaN(v) && !ch.hidden(keys[0].Name) {
@@ -102,7 +102,7 @@ func BurndownChart(c *ui.Context, remaining []float64, opts BurndownChartOptions
 		}
 		return parts
 	}
-	spec.draw = func(p *ui.Painter, r ui.Rect, active int) {
+	spec.Draw = func(p *ui.Painter, r ui.Rect, active int) {
 		plot, xs, ys := geom(r)
 		internal.AxisY(p, plot, ys, ticks, func(v float64) string { return internal.FormatTick(v, step) }, size, k)
 		var tx []float32

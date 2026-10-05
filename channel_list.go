@@ -16,7 +16,7 @@ type Channel struct {
 	ID, Name string
 	// Direct marks a private conversation, shown with the person's presence.
 	Direct   bool
-	Presence Presence
+	Presence PresenceStatus
 	Unread   int
 	Muted    bool
 	Pinned   bool

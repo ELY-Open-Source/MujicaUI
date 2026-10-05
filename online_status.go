@@ -9,17 +9,17 @@ import (
 	"mujicaui/theme"
 )
 
-// Presence is a person's availability. The zero value is offline.
-type Presence int
+// PresenceStatus is a person's availability. The zero value is offline.
+type PresenceStatus int
 
 const (
-	PresenceOffline Presence = iota
+	PresenceOffline PresenceStatus = iota
 	PresenceOnline
 	PresenceAway
 	PresenceBusy
 )
 
-func (p Presence) key() string {
+func (p PresenceStatus) key() string {
 	switch p {
 	case PresenceOffline:
 		return "online_status.offline"
@@ -30,7 +30,7 @@ func (p Presence) key() string {
 	case PresenceBusy:
 		return "online_status.busy"
 	}
-	panic(fmt.Sprintf("mujica: unknown Presence %d", int(p)))
+	panic(fmt.Sprintf("mujica: unknown PresenceStatus %d", int(p)))
 }
 
 // OnlineStatusOptions configure an OnlineStatus.
@@ -42,7 +42,7 @@ type OnlineStatusOptions struct {
 }
 
 // OnlineStatus shows presence as a distinct shape plus its name.
-func OnlineStatus(c *ui.Context, p Presence, opts OnlineStatusOptions) *ui.Element {
+func OnlineStatus(c *ui.Context, p PresenceStatus, opts OnlineStatusOptions) *ui.Element {
 	name := msg(c, p.key())
 	if opts.Size < 0 {
 		panic("mujica: OnlineStatus Size must not be negative")
@@ -65,7 +65,7 @@ func OnlineStatus(c *ui.Context, p Presence, opts OnlineStatusOptions) *ui.Eleme
 	return row
 }
 
-func presencePaint(p *ui.Painter, k theme.Tokens, s Presence, r ui.Rect) {
+func presencePaint(p *ui.Painter, k theme.Tokens, s PresenceStatus, r ui.Rect) {
 	cx, cy := internal.Snap(p, r.X+r.W/2), internal.Snap(p, r.Y+r.H/2)
 	rad := r.W / 2
 	var disc ui.Path

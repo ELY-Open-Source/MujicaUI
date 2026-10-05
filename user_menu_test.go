@@ -7,7 +7,7 @@ import (
 )
 
 func TestUserMenuStatusSettingsSignOut(t *testing.T) {
-	status := PresenceOnline
+	status := UserStatusOnline
 	var changes, settings, leaves int
 	tt := accountTester(500, 400, func(c *ui.Context) {
 		r := UserMenu(c, &status, UserMenuOptions{Name: "Sakiko Togawa", Email: "sakiko@court"})
@@ -28,7 +28,7 @@ func TestUserMenuStatusSettingsSignOut(t *testing.T) {
 		t.Fatalf("header: %q", tt.Texts())
 	}
 	_ = tt.Click("Do not disturb")
-	if status != PresenceBusy || changes != 1 {
+	if status != UserStatusBusy || changes != 1 {
 		t.Fatalf("status %v", status)
 	}
 	tt.Key(0, ui.KeyTab)
@@ -44,7 +44,7 @@ func TestUserMenuStatusSettingsSignOut(t *testing.T) {
 func TestUserMenuSnapshot(t *testing.T) {
 	snapshot(t, "user_menu", 220, 90, func(c *ui.Context) {
 		ui.Row(c).Padding(20).Gap(16).Children(func() {
-			for s := PresenceOnline; s <= PresenceInvisible; s++ {
+			for s := UserStatusOnline; s <= UserStatusInvisible; s++ {
 				st := s
 				ui.Box(c).Key(int(s)).Children(func() { UserMenu(c, &st, UserMenuOptions{Name: "Sakiko Togawa"}) })
 			}
@@ -53,7 +53,7 @@ func TestUserMenuSnapshot(t *testing.T) {
 }
 
 func TestUserMenuDisabledAndInvalidStatus(t *testing.T) {
-	status, disabled, actions := PresenceOnline, false, 0
+	status, disabled, actions := UserStatusOnline, false, 0
 	tt := accountTester(600, 500, func(c *ui.Context) {
 		ui.Column(c).Disabled(disabled).Children(func() {
 			r := UserMenu(c, &status, UserMenuOptions{Name: "User"})
@@ -68,7 +68,7 @@ func TestUserMenuDisabledAndInvalidStatus(t *testing.T) {
 	disabled = true
 	tt.Key(0, ui.KeyDown)
 	tt.Key(0, ui.KeyEnter)
-	if status != PresenceOnline || actions != 0 || tt.HasText("Sign out") {
+	if status != UserStatusOnline || actions != 0 || tt.HasText("Sign out") {
 		t.Fatal("disabled user menu acts")
 	}
 	status = UserStatus(99)

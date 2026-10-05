@@ -29,7 +29,7 @@ func channelTester(sel *string, disabled bool, n *int) *ui.Tester {
 func memberTestList(n int) []Member {
 	out := make([]Member, n)
 	for i := range out {
-		out[i] = Member{ID: fmt.Sprint("m", i), Name: fmt.Sprint("Member ", i), Presence: Presence(i % 4)}
+		out[i] = Member{ID: fmt.Sprint("m", i), Name: fmt.Sprint("Member ", i), Presence: PresenceStatus(i % 4)}
 	}
 	out[0].Role = "Owner"
 	return out

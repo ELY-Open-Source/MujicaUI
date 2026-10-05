@@ -32,7 +32,7 @@ view := func(c *ui.Context) {
 	}
 }
 ui.Render(view, 1000, 700, 1)`},
-	{ID: "372", Name: "AssigneePicker", ZhName: "负责人选择", Category: projectsCategory, Demo: projectsDemoAssigneePicker, Keys: "Enter/Space 打开；输入搜索；下键进入选项；Space/Enter 勾选；Backspace 移除最后一项；Escape 关闭。", Code: `members := []mujica.Member{{ID: "ann", Name: "Ann"}, {ID: "ben", Name: "Ben"}}
+	{ID: "372", Name: "AssigneePicker", ZhName: "负责人选择", Category: projectsCategory, Demo: projectsDemoAssigneePicker, Keys: "Enter/Space 打开；输入搜索；下键进入选项；Space/Enter 勾选；Backspace 移除最后一项；Escape 关闭。", Code: `members := []mujica.ProjectMember{{ID: "ann", Name: "Ann"}, {ID: "ben", Name: "Ben"}}
 ids := []string{"ann"}
 view := func(c *ui.Context) {
 	mujica.Use(c, mujica.Settings{})

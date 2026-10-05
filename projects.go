@@ -18,8 +18,8 @@ const (
 	PriorityUrgent
 )
 
-// Member is a person tasks can be assigned to.
-type Member struct {
+// ProjectMember is a person tasks can be assigned to.
+type ProjectMember struct {
 	ID   string
 	Name string
 }
@@ -91,8 +91,8 @@ func projectCheckPriority(p Priority) {
 }
 
 // projectMember resolves a member ID or panics.
-func projectMember(members []Member, id string) Member {
-	i := slices.IndexFunc(members, func(m Member) bool { return m.ID == id })
+func projectMember(members []ProjectMember, id string) ProjectMember {
+	i := slices.IndexFunc(members, func(m ProjectMember) bool { return m.ID == id })
 	if i < 0 {
 		panic(fmt.Sprintf("mujica: unknown member %q", id))
 	}

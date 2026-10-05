@@ -11,7 +11,7 @@ type UserProfile struct {
 	// Name is required.
 	Name     string
 	Image    *ui.Bitmap
-	Presence Presence
+	Presence PresenceStatus
 	// Status is a custom status line, as "In a rehearsal".
 	Status string
 	// Role, as "Admin"; empty shows none.

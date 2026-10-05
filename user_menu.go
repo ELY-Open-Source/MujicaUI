@@ -14,10 +14,10 @@ import (
 type UserStatus int
 
 const (
-	PresenceOnline UserStatus = iota
-	PresenceAway
-	PresenceBusy
-	PresenceInvisible
+	UserStatusOnline UserStatus = iota
+	UserStatusAway
+	UserStatusBusy
+	UserStatusInvisible
 )
 
 // UserMenuOptions configure a UserMenu. Name is required.
@@ -47,7 +47,7 @@ func UserMenu(c *ui.Context, status *UserStatus, opts UserMenuOptions) UserMenuR
 	if opts.Name == "" {
 		panic("mujica: UserMenu needs a Name")
 	}
-	if *status < PresenceOnline || *status > PresenceInvisible {
+	if *status < UserStatusOnline || *status > UserStatusInvisible {
 		panic(fmt.Sprintf("mujica: UserMenu status %d is unknown", *status))
 	}
 	k := Tokens(c)
@@ -73,7 +73,7 @@ func UserMenu(c *ui.Context, status *UserStatus, opts UserMenuOptions) UserMenuR
 			head += " · " + opts.Email
 		}
 		m.Group(head, func() {
-			for s := PresenceOnline; s <= PresenceInvisible; s++ {
+			for s := UserStatusOnline; s <= UserStatusInvisible; s++ {
 				on := s == *status
 				if m.Check(msg(c, fmt.Sprintf("user_menu.status%d", s)), &on, PopupMenuItemOptions{}) && s != *status && !disabled {
 					*status, r.changed = s, true
@@ -97,11 +97,11 @@ func userMenuDot(p *ui.Painter, k theme.Tokens, cx, cy float32, s UserStatus) {
 	r := ui.Rect{X: cx - d/2, Y: cy - d/2, W: d, H: d}
 	p.Fill(ui.Rect{X: r.X - 2, Y: r.Y - 2, W: d + 4, H: d + 4}, k.Surface, d)
 	switch s {
-	case PresenceOnline:
+	case UserStatusOnline:
 		p.Fill(r, k.Success, d)
-	case PresenceAway:
+	case UserStatusAway:
 		p.Stroke(r, k.Warning, d, 3)
-	case PresenceBusy:
+	case UserStatusBusy:
 		p.Fill(r, k.Danger, d)
 		p.Fill(ui.Rect{X: r.X + 2.5, Y: cy - 1, W: d - 5, H: 2}, k.Surface, 0)
 	default:

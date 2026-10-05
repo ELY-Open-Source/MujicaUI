@@ -49,7 +49,7 @@ func TestWorkloadViewOverload(t *testing.T) {
 func TestWorkloadViewLargeAndInvalid(t *testing.T) {
 	var loads []Workload
 	for i := range 100000 {
-		loads = append(loads, Workload{Member: Member{ID: fmt.Sprint(i), Name: "M"}, Assigned: float64(i % 50), Capacity: 40})
+		loads = append(loads, Workload{Member: ProjectMember{ID: fmt.Sprint(i), Name: "M"}, Assigned: float64(i % 50), Capacity: 40})
 	}
 	if n := len(workloadTester(loads, WorkloadViewOptions{}).Texts()); n > 200 {
 		t.Fatalf("built %d labels", n)

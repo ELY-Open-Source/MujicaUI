@@ -14,7 +14,7 @@ import (
 type Member struct {
 	ID, Name string
 	Image    *ui.Bitmap
-	Presence Presence
+	Presence PresenceStatus
 	// Role, as "Owner"; empty shows none.
 	Role string
 }

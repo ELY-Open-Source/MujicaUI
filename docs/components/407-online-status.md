@@ -16,7 +16,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`p Presence` 的零值为离线，支持 `PresenceOnline`、`PresenceAway`、`PresenceBusy`、`PresenceOffline`。`HideText` 默认 false；隐藏文字时保留名称和提示。`Size` 默认 10 DIP，必须 ≥ 0。
+`p PresenceStatus` 的零值为离线，支持 `PresenceOnline`、`PresenceAway`、`PresenceBusy`、`PresenceOffline`。`HideText` 默认 false；隐藏文字时保留名称和提示。`Size` 默认 10 DIP，必须 ≥ 0。
 
 ## 状态
 

@@ -13,7 +13,7 @@ var projectsStatuses = []mujica.WorkflowStatus{
 	{ID: "doing", Name: "In progress", Group: mujica.StatusStarted},
 	{ID: "done", Name: "Done", Group: mujica.StatusCompleted},
 }
-var projectsMembers = []mujica.Member{{ID: "ann", Name: "Ann"}, {ID: "ben", Name: "Ben"}, {ID: "cy", Name: "Cy"}}
+var projectsMembers = []mujica.ProjectMember{{ID: "ann", Name: "Ann"}, {ID: "ben", Name: "Ben"}, {ID: "cy", Name: "Cy"}}
 var projectsLabels = []mujica.TaskLabel{{ID: "ui", Name: "UI", Color: mujica.EventInfo}, {ID: "release", Name: "Release", Color: mujica.EventSuccess}}
 
 func projectsCheck(c *ui.Context, log func(string), value *bool, label string) {

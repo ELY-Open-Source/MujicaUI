@@ -22,7 +22,7 @@ type KanbanColumn struct {
 type KanbanBoardOptions struct {
 	Columns  []KanbanColumn
 	Statuses []WorkflowStatus
-	Members  []Member
+	Members  []ProjectMember
 	Labels   []TaskLabel
 	// Version must change when tasks change in place.
 	Version  int

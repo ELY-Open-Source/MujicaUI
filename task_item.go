@@ -12,7 +12,7 @@ import (
 
 // TaskItemOptions configure a TaskItem.
 type TaskItemOptions struct {
-	Members []Member
+	Members []ProjectMember
 	// Today anchors the overdue mark; zero uses the system clock.
 	Today    Date
 	Disabled bool

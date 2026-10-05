@@ -34,7 +34,7 @@ type TaskListOptions struct {
 	GroupBy TaskGrouping
 	// Statuses order the status groups; required with TaskGroupStatus.
 	Statuses []WorkflowStatus
-	Members  []Member
+	Members  []ProjectMember
 	// Version must change when tasks change in place.
 	Version int
 	// Today anchors overdue marks; zero uses the system clock.

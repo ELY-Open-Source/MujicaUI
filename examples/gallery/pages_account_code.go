@@ -108,7 +108,7 @@ view := func(c *ui.Context) {
 	mujica.WorkspaceSwitcher(c, &current, spaces, mujica.WorkspaceSwitcherOptions{})
 }
 ui.Render(view, 400, 300, 1)`,
-	"UserMenu": `status := mujica.PresenceOnline
+	"UserMenu": `status := mujica.UserStatusOnline
 view := func(c *ui.Context) {
 	mujica.Use(c, mujica.Settings{})
 	if mujica.UserMenu(c, &status, mujica.UserMenuOptions{Name: "Sakiko Togawa"}).SignOut() {

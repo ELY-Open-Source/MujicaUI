@@ -14,7 +14,7 @@ import (
 // TaskDetailPanelOptions configure a TaskDetailPanel.
 type TaskDetailPanelOptions struct {
 	Statuses []WorkflowStatus
-	Members  []Member
+	Members  []ProjectMember
 	Labels   []TaskLabel
 	// Activity builds the caller's activity log below the fields.
 	Activity func()

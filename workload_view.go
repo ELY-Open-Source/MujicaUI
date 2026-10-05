@@ -13,7 +13,7 @@ import (
 
 // Workload is one member's assigned and available hours.
 type Workload struct {
-	Member   Member
+	Member   ProjectMember
 	Assigned float64
 	Capacity float64
 }

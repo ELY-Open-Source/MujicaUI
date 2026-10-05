@@ -15,7 +15,7 @@ var projStatuses = []WorkflowStatus{
 	{ID: "dropped", Name: "Dropped", Group: StatusCanceled},
 }
 
-var projMembers = []Member{{ID: "saki", Name: "Sakiko Togawa"}, {ID: "mutsu", Name: "Mutsumi Wakaba"},
+var projMembers = []ProjectMember{{ID: "saki", Name: "Sakiko Togawa"}, {ID: "mutsu", Name: "Mutsumi Wakaba"},
 	{ID: "uika", Name: "Uika Misumi"}, {ID: "nyamu", Name: "Nyamu Yuutenji"}, {ID: "umiri", Name: "Umiri Yahata"}}
 
 var projLabels = []TaskLabel{{ID: "bug", Name: "Bug", Color: EventDanger}, {ID: "ui", Name: "UI", Color: EventInfo},

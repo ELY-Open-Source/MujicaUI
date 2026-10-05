@@ -38,8 +38,8 @@ func devLogStreamDemo(c *ui.Context, log func(string)) {
 func devTraceWaterfallDemo(c *ui.Context, log func(string)) {
 	dtSection(c, "TraceWaterfall", func() {
 		s := devControls(c, "448", log, false)
-		spans := ui.Local(c.Root(), "448", func() []mujica.TraceSpan {
-			return []mujica.TraceSpan{{ID: "root", Name: "GET /api", Service: "gateway", Duration: 320 * time.Millisecond}, {ID: "db", Parent: "root", Name: "Query", Service: "database", Start: 40 * time.Millisecond, Duration: 90 * time.Millisecond}, {ID: "pay", Parent: "root", Name: "Charge", Service: "payments", Start: 230 * time.Millisecond, Duration: 80 * time.Millisecond, Error: true}}
+		spans := ui.Local(c.Root(), "448", func() []mujica.WaterfallSpan {
+			return []mujica.WaterfallSpan{{ID: "root", Name: "GET /api", Service: "gateway", Duration: 320 * time.Millisecond}, {ID: "db", Parent: "root", Name: "Query", Service: "database", Start: 40 * time.Millisecond, Duration: 90 * time.Millisecond}, {ID: "pay", Parent: "root", Name: "Charge", Service: "payments", Start: 230 * time.Millisecond, Duration: 80 * time.Millisecond, Error: true}}
 		})
 		devPreview(c, s, func() {
 			data := *spans

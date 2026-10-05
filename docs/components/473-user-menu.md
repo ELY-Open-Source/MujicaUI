@@ -9,7 +9,7 @@
 ## 最小示例
 
 ```go
-status := mujica.PresenceOnline
+status := mujica.UserStatusOnline
 view := func(c *ui.Context) {
 	mujica.Use(c, mujica.Settings{})
 	if mujica.UserMenu(c, &status, mujica.UserMenuOptions{Name: "Sakiko Togawa"}).SignOut() {
@@ -23,7 +23,7 @@ ui.Render(view, 400, 300, 1)
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |
-| `status` | `*UserStatus` | 必填 | PresenceOnline、PresenceAway、PresenceBusy、PresenceInvisible。 |
+| `status` | `*UserStatus` | 必填 | UserStatusOnline、UserStatusAway、UserStatusBusy、UserStatusInvisible。 |
 | `Name` | `string` | 必填 | 用户名。 |
 | `Email` | `string` | "" | 邮箱。 |
 | `Avatar` | `*ui.Bitmap` | nil | 头像。 |

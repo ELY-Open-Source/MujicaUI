@@ -140,7 +140,7 @@ func ExampleStatusSelect() {
 }
 
 func ExampleAssigneePicker() {
-	members := []mujica.Member{{ID: "ann", Name: "Ann"}, {ID: "ben", Name: "Ben"}}
+	members := []mujica.ProjectMember{{ID: "ann", Name: "Ann"}, {ID: "ben", Name: "Ben"}}
 	ids := []string{"ann"}
 	view := func(c *ui.Context) {
 		mujica.Use(c, mujica.Settings{})
@@ -207,7 +207,7 @@ func ExampleMilestoneProgress() {
 }
 
 func ExampleWorkloadView() {
-	loads := []mujica.Workload{{Member: mujica.Member{ID: "ann", Name: "Ann"}, Assigned: 46, Capacity: 40}}
+	loads := []mujica.Workload{{Member: mujica.ProjectMember{ID: "ann", Name: "Ann"}, Assigned: 46, Capacity: 40}}
 	view := func(c *ui.Context) {
 		mujica.Use(c, mujica.Settings{})
 		mujica.WorkloadView(c, loads, mujica.WorkloadViewOptions{})
