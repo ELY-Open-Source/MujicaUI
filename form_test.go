@@ -86,7 +86,7 @@ func TestFormSubmitFailureFocusesFirstErrorAndKeepsValues(t *testing.T) {
 	if p.submits != 0 || !tt.HasText("Required") || !tt.HasText("Enter an email address.") {
 		t.Fatalf("submits %d texts %q", p.submits, tt.Texts())
 	}
-	if !tt.Focused("Name *") || p.email != "bad" {
+	if !tt.Focused("Name") || p.email != "bad" {
 		t.Fatal("first error not focused or value lost")
 	}
 	if got := tt.Announcements(); len(got) == 0 || got[len(got)-1] != "Some fields need attention" {
@@ -181,10 +181,72 @@ func TestFormResetRestoresInitialValues(t *testing.T) {
 func TestFormHorizontalLayout(t *testing.T) {
 	p := &formProbe{horizontal: true}
 	tt := ui.NewTester(p.run, 600, 500)
-	name, _ := tt.Find("Name *")
+	star, _ := tt.Find("*")
 	email, _ := tt.Find("Email")
-	if name.X+name.W != email.X+email.W {
-		t.Fatalf("labels not right-aligned: %v %v", name, email)
+	input, _ := tt.Find("Name")
+	if star.X+star.W != email.X+email.W || input.X >= email.X {
+		t.Fatalf("labels not right-aligned: %v %v", star, email)
+	}
+}
+
+// An edit during a pending check must be checked again before the submit goes out.
+func TestFormEditWhilePendingRechecks(t *testing.T) {
+	p := &formProbe{name: "Uika", tags: []string{"x"}, email: "a@b", useAsync: true}
+	tt := ui.NewTester(p.run, 600, 500)
+	_ = tt.Click("Submit")
+	if len(p.asyncCalls) != 1 {
+		t.Fatalf("calls %v", p.asyncCalls)
+	}
+	_ = tt.Click("Email")
+	tt.Key(ui.Cmd, ui.KeyA)
+	tt.Type("taken@b")
+	tt.Frame()
+	if p.submits != 0 || len(p.asyncCalls) != 2 || p.asyncValues[1] != "taken@b" {
+		t.Fatalf("submits %d values %q", p.submits, p.asyncValues)
+	}
+	if p.st.Resolve("email", p.asyncCalls[0], "") {
+		t.Fatal("stale result accepted")
+	}
+	p.st.Resolve("email", p.asyncCalls[1], "Taken")
+	tt.Frame()
+	tt.Frame()
+	if p.submits != 0 || !tt.HasText("Taken") {
+		t.Fatalf("submitted unchecked value: %d", p.submits)
+	}
+}
+
+// Reset also drops drafts and errors kept inside the controls.
+func TestFormResetClearsControlState(t *testing.T) {
+	var st FormState
+	tags, seen := []string{}, ""
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		Form(c, &st, FormOptions{}, func(f *FormScope) {
+			FormItem(f, "tags", &tags, FormItemOptions[[]string]{Label: "Tags"}, func() *ui.Element {
+				return TagsInput(c, &tags, TagsInputOptions{Validate: func(s string) string {
+					seen = s
+					return "Invalid tag"
+				}}).Input
+			})
+		})
+	}, 600, 400)
+	_ = tt.Click("Tags")
+	tt.Type("bad tag")
+	tt.Key(0, ui.KeyEnter)
+	if !tt.HasText("Invalid tag") {
+		t.Fatal("no tag error")
+	}
+	_ = tt.Click("Reset")
+	tt.Frame()
+	if tt.HasText("Invalid tag") {
+		t.Fatal("tag error survived reset")
+	}
+	seen = ""
+	_ = tt.Click("Tags")
+	tt.Type("x")
+	tt.Key(0, ui.KeyEnter)
+	if seen != "x" {
+		t.Fatalf("draft survived reset: %q", seen)
 	}
 }
 

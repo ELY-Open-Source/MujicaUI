@@ -29,7 +29,7 @@ ui.Render(view, 400, 300, 1)
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |
-| `FormOptions.Horizontal` | `bool` | false | 标签放在控件左侧一列，右对齐（MyGo `ui.Form` 布局）。 |
+| `FormOptions.Horizontal` | `bool` | false | 标签放在控件左侧一列，右对齐。 |
 | `FormOptions.SubmitLabel` | `string` | 内置“Submit/提交” | 提交按钮文字。 |
 | `FormOptions.ResetLabel` | `string` | 内置“Reset/重置” | 重置按钮文字。 |
 | `FormItemOptions[T].Label` | `string` | 必填 | 字段标签；空值 panic。 |
@@ -56,4 +56,4 @@ Tab / Shift+Tab 在字段间移动，离开字段即校验。提交失败后焦�
 - 控件由调用方构建，`FormItem` 的 control 回调必须返回可获取焦点的元素，用于错误定位。
 - 校验在失焦与提交时触发；已触碰字段在值变化时重新同步校验，异步校验只在下一次失焦或提交时重跑。
 - 异步结果以版本号对齐：值变化后旧版本的 `Resolve` 返回 false 并被丢弃。`FormState` 的方法只能在界面线程调用，后台任务需经 `Window.Update` 回到界面线程。
-- 必填标记以“ *”附在标签文字后，屏幕阅读器会一起读出；MyGo 的 Field 标签不支持富文本，无法单独着色。
+- 必填标记“*”只作视觉显示，辅助技术通过说明“必填”获知。

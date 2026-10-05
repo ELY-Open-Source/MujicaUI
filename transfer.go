@@ -43,8 +43,7 @@ type transferState struct {
 	query   [2]string
 }
 
-// Transfer moves items between a source list and *target, the IDs chosen, in order.
-// Each side has search, check boxes with select-all, and move buttons between them.
+// Transfer moves items between a source list and *target, the chosen IDs in order.
 func Transfer(c *ui.Context, target *[]string, items []TransferItem, opts TransferOptions) TransferParts {
 	byID := make(map[string]TransferItem, len(items))
 	for _, it := range items {
@@ -158,6 +157,7 @@ func transferPanel(c *ui.Context, st *transferState, side int, title string, ite
 			all := checked > 0 && checked == enabled
 			box := ui.CheckboxBase(c, &all).Label(fmt.Sprintf(msg(c, "transfer.all"), title)).Disabled(enabled == 0)
 			transferMark(c, box, all, checked > 0 && !all)
+			box.Description(transferPartial(c, checked, enabled))
 			if box.Changed() {
 				for _, it := range shown {
 					if !it.Disabled {
@@ -166,7 +166,7 @@ func transferPanel(c *ui.Context, st *transferState, side int, title string, ite
 				}
 			}
 			ui.Text(c, title).Font(theme.SerifFont).FontWeight(600).TextColor(k.Text).Grow(1)
-			ui.Text(c, fmt.Sprintf("%d / %d", checked, len(items))).TextColor(k.TextMuted).FontSize(theme.CaptionSize).FontFeatures("tnum")
+			ui.Text(c, fmt.Sprintf("%d / %d", checked, len(items))).TextColor(k.TextMuted).FontSize(FontSize(c, theme.CaptionSize)).FontFeatures("tnum")
 		})
 		ui.Box(c).Padding(d.Unit() * 2).Children(func() {
 			InputGroup(c, &st.query[side], InputGroupOptions{Placeholder: msg(c, "transfer.search"), Label: fmt.Sprintf(msg(c, "transfer.search_in"), title)})
@@ -200,6 +200,14 @@ func transferPanel(c *ui.Context, st *transferState, side int, title string, ite
 			}
 		})
 	})
+}
+
+// transferPartial describes a select-all box that is neither clear nor full.
+func transferPartial(c *ui.Context, checked, enabled int) string {
+	if checked == 0 || checked == enabled {
+		return ""
+	}
+	return fmt.Sprintf(msg(c, "transfer.partial"), checked, enabled)
 }
 
 // transferMark draws a check box's square inside box, which takes the focus ring.

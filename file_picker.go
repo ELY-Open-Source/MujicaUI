@@ -55,8 +55,7 @@ type filePickerState struct {
 	err    string
 }
 
-// FilePicker opens the system file or folder dialog and stores the chosen paths in *paths.
-// The dialog runs off the UI thread; the button shows loading until it closes.
+// FilePicker opens the system file dialog off the UI thread and stores the chosen paths.
 func FilePicker(c *ui.Context, paths *[]string, opts FilePickerOptions) FilePickerParts {
 	for _, f := range opts.Filters {
 		for _, ext := range f.Extensions {
@@ -118,16 +117,16 @@ func FilePicker(c *ui.Context, paths *[]string, opts FilePickerOptions) FilePick
 		}
 		switch {
 		case st.err != "":
-			ui.Text(c, st.err).TextColor(k.Danger).FontSize(theme.CaptionSize).Role(ui.RoleStatus)
+			ui.Text(c, st.err).TextColor(k.Danger).FontSize(FontSize(c, theme.CaptionSize)).Role(ui.RoleStatus)
 		case len(*paths) == 0:
-			ui.Text(c, msg(c, "file_picker.none")).TextColor(k.TextMuted).FontSize(theme.CaptionSize)
+			ui.Text(c, msg(c, "file_picker.none")).TextColor(k.TextMuted).FontSize(FontSize(c, theme.CaptionSize))
 		default:
 			ui.Column(c).Gap(d.Unit()).Children(func() {
 				for _, p := range *paths {
 					ui.Row(c).Key(p).Gap(d.Unit() * 2).AlignItems(ui.Center).Children(func() {
 						ui.Icon(c, icon).Size(14, 14).TextColor(k.TextMuted)
 						ui.Text(c, filepath.Base(p)).SingleLine()
-						ui.Text(c, filepath.Dir(p)).TextColor(k.TextMuted).FontSize(theme.CaptionSize).SingleLine().Ellipsis("…").MinWidth(0).Shrink(1)
+						ui.Text(c, filepath.Dir(p)).TextColor(k.TextMuted).FontSize(FontSize(c, theme.CaptionSize)).SingleLine().Ellipsis("…").MinWidth(0).Shrink(1)
 					})
 				}
 			})

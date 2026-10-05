@@ -104,3 +104,15 @@ func TestTransferSnapshot(t *testing.T) {
 		})
 	})
 }
+
+// MyGo's tester cannot read descriptions, so this checks the text the select-all box gets.
+func TestTransferPartialDescription(t *testing.T) {
+	var got [3]string
+	ui.Render(func(c *ui.Context) {
+		Use(c, Settings{})
+		got = [3]string{transferPartial(c, 2, 3), transferPartial(c, 3, 3), transferPartial(c, 0, 3)}
+	}, 100, 100, 1)
+	if got != [3]string{"2 of 3 selected", "", ""} {
+		t.Fatalf("descriptions %q", got)
+	}
+}

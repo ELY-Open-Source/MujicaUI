@@ -65,8 +65,7 @@ type fileDropZoneState struct {
 	rejected []fileDropZoneReject
 }
 
-// FileDropZone takes files dropped from the system or chosen with its Browse button,
-// checks type, count and size, and lists them in *files. It never reads or uploads them.
+// FileDropZone checks dropped or browsed files and lists them; it never reads or uploads them.
 func FileDropZone(c *ui.Context, files *[]DroppedFile, opts FileDropZoneOptions) FileDropZoneParts {
 	if opts.MaxFiles < 0 || opts.MaxSize < 0 {
 		panic("mujica: FileDropZone limits must not be negative")
@@ -172,7 +171,7 @@ func FileDropZone(c *ui.Context, files *[]DroppedFile, opts FileDropZoneOptions)
 		zone.Children(func() {
 			ui.Icon(c, icons.Must("upload")).Size(24, 24).TextColor(k.AccentText)
 			ui.Text(c, hint).TextAlign(ui.Center)
-			ui.Text(c, fileDropZoneRules(c, opts)).TextColor(k.TextMuted).FontSize(theme.CaptionSize).TextAlign(ui.Center)
+			ui.Text(c, fileDropZoneRules(c, opts)).TextColor(k.TextMuted).FontSize(FontSize(c, theme.CaptionSize)).TextAlign(ui.Center)
 			b := Button(c, msg(c, "file_drop_zone.browse"), ButtonOptions{Variant: Outline, Loading: st.browse != nil, Disabled: opts.Disabled})
 			if b.Clicked() {
 				ch := make(chan filePickerResult, 1)
@@ -221,7 +220,7 @@ func fileDropZoneList(c *ui.Context, st *fileDropZoneState, files *[]DroppedFile
 			BorderWidth(0, 0, theme.BorderWidth, 0).BorderColor(k.Border).Children(func() {
 			ui.Icon(c, icons.Must(icon)).Size(16, 16).TextColor(color)
 			ui.Text(c, name).SingleLine().Ellipsis("…").MinWidth(0).Shrink(1)
-			ui.Text(c, detail).TextColor(color).FontSize(theme.CaptionSize).SingleLine().Grow(1)
+			ui.Text(c, detail).TextColor(color).FontSize(FontSize(c, theme.CaptionSize)).SingleLine().Grow(1)
 			if remove != nil {
 				x := ui.ButtonBase(c).Size(28, 28).Radius(theme.ControlRadius).TextColor(k.TextMuted).
 					Label(fmt.Sprintf(msg(c, "file_drop_zone.remove"), name)).Disabled(disabled)

@@ -115,3 +115,12 @@ func TestTagsInputSnapshot(t *testing.T) {
 		})
 	})
 }
+
+func TestTagsInputRemoveHitArea(t *testing.T) {
+	tags, n := []string{"rose"}, 0
+	tt := tagsInputTester(&tags, TagsInputOptions{}, &n)
+	r, ok := tt.Find("Remove rose")
+	if !ok || r.W < 28 || r.H < 28 {
+		t.Fatalf("remove button %v", r)
+	}
+}
