@@ -223,7 +223,7 @@ func terminalPaint(p *ui.Painter, r ui.Rect, s *TerminalState, k theme.Tokens, f
 				if st.Strike {
 					ly = y + ch/2
 				}
-				codeRule(p, x0, x0+float32(end-col)*cw, ly, fg)
+				internal.Rule(p, x0, x0+float32(end-col)*cw, ly, fg)
 			}
 			col = end
 		}
@@ -232,7 +232,7 @@ func terminalPaint(p *ui.Painter, r ui.Rect, s *TerminalState, k theme.Tokens, f
 				continue
 			}
 			mr := ui.Rect{X: ox + float32(m.pos.Col)*cw, Y: y, W: float32(m.n) * cw, H: ch}
-			codeRule(p, mr.X, mr.X+mr.W, y+ch-1, k.AccentText)
+			internal.Rule(p, mr.X, mr.X+mr.W, y+ch-1, k.AccentText)
 			if mi == s.current {
 				p.Stroke(mr, k.AccentText, 1, 1.5)
 			}
@@ -248,7 +248,7 @@ func terminalPaint(p *ui.Painter, r ui.Rect, s *TerminalState, k theme.Tokens, f
 	if s.preedit != "" {
 		g := terminalShape(s, s.preedit, font)
 		p.Glyphs(g, cr.X, cr.Y+base, k.AccentText)
-		codeRule(p, cr.X, cr.X+float32(len([]rune(s.preedit)))*cw, cr.Y+ch-1, k.AccentText)
+		internal.Rule(p, cr.X, cr.X+float32(len([]rune(s.preedit)))*cw, cr.Y+ch-1, k.AccentText)
 		return
 	}
 	if !focused {

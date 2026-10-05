@@ -28,7 +28,7 @@ Ordered by PRD sections. Check an item only after its codex review passes. Revie
 - [ ] T12.12 §4.23 Terminal & Code 321–340 (docs/prd)
 - [ ] T12.13 §4.24 Media 341–360 (docs/prd)
 - [ ] T12.14 §4.25 Projects 361–380 (docs/prd)
-- [ ] T12.15 §4.26 Files & Collaboration 381–400 (docs/prd)
+- [x] T12.15 §4.26 Files & Collaboration 381–400 — existing 17 sources only (user scope); missing 393/397/398 dropped; r1 FAIL 7, r2 FAIL 2, r3 PASS; 386 native stem selection and IME Enter remain documented MyGo API limits
 - [ ] T12.16 §4.27 Messaging & Mail 401–420 (docs/prd)
 - [ ] T12.17 §4.28 Calendar 421–440 (docs/prd)
 - [ ] T12.18 §4.29 Dashboards & Dev Tools 441–460 (docs/prd)
