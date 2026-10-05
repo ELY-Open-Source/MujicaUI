@@ -90,3 +90,40 @@ func TestTagSnapshot(t *testing.T) {
 		})
 	})
 }
+
+func TestTagDisabledAncestorBlocksDelete(t *testing.T) {
+	closed, off := 0, false
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Row(c).Disabled(off).Children(func() {
+			if Tag(c, "Velvet", TagOptions{Clickable: true, Closable: true}).Closed {
+				closed++
+			}
+		})
+	}, 300, 100)
+	tt.Key(0, ui.KeyTab)
+	off = true
+	tt.Frame()
+	tt.Key(0, ui.KeyDelete)
+	tt.Key(0, ui.KeyBackspace)
+	if closed != 0 {
+		t.Fatalf("closed %d times under a disabled ancestor", closed)
+	}
+}
+
+func TestTagTextScale(t *testing.T) {
+	var h [2]float32
+	for i, s := range []float32{1, 2} {
+		tt := ui.NewTester(func(c *ui.Context) {
+			Use(c, Settings{})
+			ui.Row(c).AlignItems(ui.Start).Children(func() {
+				h[i] = Tag(c, "Velvet", TagOptions{}).Element.Bounds().W
+			})
+		}, 400, 200)
+		tt.SetPreferences(ui.Preferences{TextScale: s})
+		tt.Frame()
+	}
+	if h[1] < h[0]*1.5 {
+		t.Fatalf("width %v at 2x, %v at 1x", h[1], h[0])
+	}
+}

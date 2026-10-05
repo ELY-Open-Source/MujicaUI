@@ -18,7 +18,7 @@ type AvatarItem struct {
 
 // AvatarGroupOptions configure an AvatarGroup.
 type AvatarGroupOptions struct {
-	// Max is how many avatars show before the "+N" button; zero means 4.
+	// Max avatars show before the "+N" button; zero means 4.
 	Max int
 	// Size is each avatar's diameter; zero means 32.
 	Size float32
@@ -35,8 +35,7 @@ type AvatarGroupView struct {
 	Toggled bool
 }
 
-// AvatarGroup shows overlapping avatars. Past Max, a "+N" button opens a
-// popover with the full list of names.
+// AvatarGroup overlaps avatars; "+N" opens the full list.
 func AvatarGroup(c *ui.Context, items []AvatarItem, opts AvatarGroupOptions) AvatarGroupView {
 	limit := opts.Max
 	if limit < 0 {
@@ -71,10 +70,7 @@ func AvatarGroup(c *ui.Context, items []AvatarItem, opts AvatarGroupOptions) Ava
 			*open = false
 			return
 		}
-		more := avatarGroupMore(c, k, size, ring, rest, len(items))
-		if more.Clicked() {
-			*open = !*open
-		}
+		more := avatarGroupMore(c, k, open, size, ring, rest, len(items))
 		ui.PopoverBase(c, more, open, func(panel *ui.Element) {
 			avatarGroupList(c, k, panel, items)
 		})
@@ -86,23 +82,29 @@ func AvatarGroup(c *ui.Context, items []AvatarItem, opts AvatarGroupOptions) Ava
 	return v
 }
 
-func avatarGroupMore(c *ui.Context, k theme.Tokens, size, ring float32, rest, total int) *ui.Element {
-	cell := ui.Box(c).Key("more").Padding(ring).Radius(size/2+ring).Background(k.Background).
-		Margin(0, 0, 0, -size/4).Shrink(0)
+// avatarGroupMore is the "+N" disclosure toggling *open.
+func avatarGroupMore(c *ui.Context, k theme.Tokens, open *bool, size, ring float32, rest, total int) *ui.Element {
+	hit := max(size+2*ring, theme.MinHitSize)
 	var b *ui.Element
-	cell.Children(func() {
-		b = ui.ButtonBase(c).Size(size, size).Radius(size / 2).Label(fmt.Sprintf(msg(c, "avatar_group.more"), total))
+	ui.Box(c).Key("more").Margin(0, 0, 0, -size/4).Shrink(0).Children(func() {
+		b = ui.CollapsibleBase(c, open).Trigger.Size(hit, hit).Center().Radius(hit / 2).
+			Label(fmt.Sprintf(msg(c, "avatar_group.more"), total))
+		internal.Ring(b, k.Focus, hit/2)
 		bg := k.Surface
 		if b.Pressed() {
 			bg = k.Selection
 		} else if b.Hovered() {
 			bg = k.SurfaceHover
 		}
-		b.Background(bg).Border(theme.BorderWidth, k.ControlBorder).TextColor(k.Text)
-		internal.Ring(b, k.Focus, size/2)
-		internal.Fade(b, Motion(c, theme.StateDuration))
 		b.Children(func() {
-			ui.Text(c, fmt.Sprintf("+%d", rest)).FontSize(size * 0.36).FontWeight(600).SingleLine()
+			ui.Box(c).Padding(ring).Radius(size/2 + ring).Background(k.Background).Children(func() {
+				disc := ui.Box(c).Size(size, size).Center().Radius(size/2).Background(bg).
+					Border(theme.BorderWidth, k.ControlBorder).TextColor(k.Text)
+				internal.Fade(disc, Motion(c, theme.StateDuration))
+				disc.Children(func() {
+					ui.Text(c, fmt.Sprintf("+%d", rest)).FontSize(size * 0.36).FontWeight(600).SingleLine()
+				})
+			})
 		})
 	})
 	return b

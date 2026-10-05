@@ -10,14 +10,13 @@ import (
 
 // AvatarOptions configure an Avatar.
 type AvatarOptions struct {
-	// Image is the picture; nil falls back to initials, then a person icon.
+	// Image is the picture; nil falls back to initials, icon.
 	Image *ui.Bitmap
 	// Size is the diameter in DIPs; zero means 32.
 	Size float32
 }
 
-// Avatar shows a person as a round picture, their initials or an icon.
-// Assistive technology reads it as an image named name.
+// Avatar shows a person as picture, initials or icon.
 func Avatar(c *ui.Context, name string, opts AvatarOptions) *ui.Element {
 	size := opts.Size
 	if size < 0 {
@@ -49,7 +48,7 @@ func Avatar(c *ui.Context, name string, opts AvatarOptions) *ui.Element {
 	return e
 }
 
-// avatarInitials returns the first letters of the first and last words.
+// avatarInitials returns first letters of first and last words.
 func avatarInitials(name string) string {
 	var first, last rune
 	inWord := false

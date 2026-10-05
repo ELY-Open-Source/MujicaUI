@@ -88,3 +88,17 @@ func TestAvatarGroupSnapshot(t *testing.T) {
 		})
 	})
 }
+
+func TestAvatarGroupSmallButtonHitArea(t *testing.T) {
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		ui.Row(c).AlignItems(ui.Start).Children(func() {
+			AvatarGroup(c, avatarGroupPeople, AvatarGroupOptions{Max: 2, Size: 20})
+		})
+	}, 400, 300)
+	tt.Frame()
+	r, ok := tt.Find("Show all 6 people")
+	if !ok || r.W < 28 || r.H < 28 {
+		t.Fatalf("hit area %v", r)
+	}
+}

@@ -9,9 +9,7 @@ import (
 	"mujicaui/theme"
 )
 
-// Kbd shows a key or key combination as key caps. It registers nothing.
-// "Mod" is Command on macOS and Ctrl elsewhere; Ctrl, Alt, Shift, Enter,
-// Esc, Tab, Backspace, Delete, Up, Down, Left and Right follow the platform.
+// Kbd shows keys as caps; "Mod" is Command or Ctrl.
 func Kbd(c *ui.Context, keys ...string) *ui.Element {
 	if len(keys) == 0 {
 		panic("mujica: Kbd needs at least one key")
@@ -29,20 +27,20 @@ func Kbd(c *ui.Context, keys ...string) *ui.Element {
 	row.Children(func() {
 		for i, key := range keys {
 			if i > 0 && !mac {
-				ui.Text(c, "+").FontSize(theme.CaptionSize).TextColor(k.TextMuted)
+				ui.Text(c, "+").FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.TextMuted)
 			}
 			face, _ := kbdKey(key, mac)
-			ui.Box(c).Key(i).Row().Center().MinWidth(20).Height(20).Padding(0, 5).
+			ui.Box(c).Key(i).Row().Center().MinWidth(FontSize(c, 20)).MinHeight(FontSize(c, 20)).Padding(0, 5).
 				Radius(theme.ControlRadius).Background(k.Surface).BorderColor(k.ControlBorder).
 				BorderWidth(1, 1, 2, 1).Children(func() {
-				ui.Text(c, face).Font(theme.MonoFont).FontSize(theme.CaptionSize).TextColor(k.Text).SingleLine()
+				ui.Text(c, face).Font(theme.MonoFont).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.Text).SingleLine()
 			})
 		}
 	})
 	return row
 }
 
-// kbdNames maps a key to its macOS cap, macOS word and other platforms' cap.
+// kbdNames maps keys to macOS cap, word, other cap.
 var kbdNames = map[string]struct{ macCap, macWord, other string }{
 	"mod":       {"⌘", "Command", "Ctrl"},
 	"ctrl":      {"⌃", "Control", "Ctrl"},
@@ -59,7 +57,7 @@ var kbdNames = map[string]struct{ macCap, macWord, other string }{
 	"right":     {"→", "Right", "→"},
 }
 
-// kbdKey returns how key shows and how it is read on the platform.
+// kbdKey returns how key shows and reads on the platform.
 func kbdKey(key string, mac bool) (shown, spoken string) {
 	n, ok := kbdNames[strings.ToLower(key)]
 	if !ok {

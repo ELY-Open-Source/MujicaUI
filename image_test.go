@@ -49,8 +49,8 @@ func TestImageStates(t *testing.T) {
 		label string
 	}{
 		{"placeholder", nil, ImageOptions{}, "No image"},
-		{"loading", imageTestBitmap(), ImageOptions{Loading: true}, "Loading image"},
-		{"error", imageTestBitmap(), ImageOptions{Loading: true, Err: errors.New("404")}, "Image failed to load"},
+		{"loading", nil, ImageOptions{Loading: true}, "Loading image"},
+		{"error", nil, ImageOptions{Loading: true, Err: errors.New("404")}, "Image failed to load"},
 	} {
 		var r ui.Rect
 		tt := ui.NewTester(func(c *ui.Context) {
@@ -110,4 +110,28 @@ func TestImageSnapshot(t *testing.T) {
 			Image(c, nil, ImageOptions{Width: 160, Height: 140, Err: errors.New("404")})
 		})
 	})
+}
+
+func TestImageKeepsSizeWhileLoading(t *testing.T) {
+	bmp := imageTestBitmap()
+	for _, tc := range []struct {
+		opts ImageOptions
+		w, h float32
+	}{
+		{ImageOptions{Loading: true}, 80, 40},
+		{ImageOptions{Width: 160, Loading: true}, 160, 80},
+		{ImageOptions{Err: errors.New("x")}, 80, 40},
+	} {
+		var r ui.Rect
+		tt := ui.NewTester(func(c *ui.Context) {
+			Use(c, Settings{})
+			ui.Column(c).AlignItems(ui.Start).Children(func() {
+				r = Image(c, bmp, tc.opts).Element.Bounds()
+			})
+		}, 400, 400)
+		tt.Frame()
+		if r.W != tc.w || r.H != tc.h {
+			t.Errorf("%+v: %v, want %vx%v", tc.opts, r, tc.w, tc.h)
+		}
+	}
 }

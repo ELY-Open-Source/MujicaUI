@@ -34,7 +34,7 @@ view := func(c *ui.Context) {
 
 ## 状态
 
-纯展示。强调和危险色调使用实色填充（`OnAccent` 配 `Accent`，`OnDanger` 配 `DangerFill`）；成功、警告、信息色调只把语义色用在文字和边框上。
+纯展示。字号与最小尺寸随系统文本缩放放大。强调和危险色调使用实色填充（`OnAccent` 配 `Accent`，`OnDanger` 配 `DangerFill`）；成功、警告、信息色调只把语义色用在文字和边框上。
 
 ## 事件
 

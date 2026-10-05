@@ -78,3 +78,20 @@ func TestKbdSnapshot(t *testing.T) {
 		})
 	})
 }
+
+func TestKbdTextScale(t *testing.T) {
+	var h [2]float32
+	for i, s := range []float32{1, 2} {
+		tt := ui.NewTester(func(c *ui.Context) {
+			Use(c, Settings{})
+			ui.Row(c).AlignItems(ui.Start).Children(func() {
+				h[i] = Kbd(c, "Mod", "K").Bounds().H
+			})
+		}, 400, 200)
+		tt.SetPreferences(ui.Preferences{TextScale: s})
+		tt.Frame()
+	}
+	if h[1] < h[0]*1.5 {
+		t.Fatalf("height %v at 2x, %v at 1x", h[1], h[0])
+	}
+}
