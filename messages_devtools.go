@@ -38,6 +38,11 @@ func init() {
 		"service_status.counts":        {"%d up · %d degraded · %d down", "%d 正常 · %d 降级 · %d 中断"},
 		"service_status.empty":         {"No services", "没有服务"},
 
+		"uptime_bar.ok":       {"Operational", "正常"},
+		"uptime_bar.degraded": {"Degraded", "降级"},
+		"uptime_bar.down":     {"Outage", "中断"},
+		"uptime_bar.nodata":   {"No data", "无数据"},
+
 		"alert_list.empty": {"No alerts", "没有告警"},
 	})
 }
