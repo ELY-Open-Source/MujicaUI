@@ -12,7 +12,7 @@ res := mujica.CommandPalette(c, &open, []mujica.Command{
 	{ID: "theme", Label: "Toggle dark mode", Group: "View", Keywords: []string{"night"}},
 }, mujica.CommandPaletteOptions{})
 if id, ok := res.Chosen(); ok {
-	run(id)
+	fmt.Println("run", id)
 }
 ```
 

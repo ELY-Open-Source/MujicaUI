@@ -7,7 +7,7 @@
 ## 最小示例
 
 ```go
-ui.Row(c).Gap(12).Children(func() {
+ui.Row(c).Padding(16).Gap(12).Children(func() {
 	mujica.Skeleton(c, mujica.SkeletonOptions{Shape: mujica.SkeletonCircle})
 	ui.Column(c).Grow(1).Children(func() {
 		mujica.Skeleton(c, mujica.SkeletonOptions{Lines: 2})

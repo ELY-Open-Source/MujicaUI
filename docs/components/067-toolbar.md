@@ -14,7 +14,7 @@ mujica.Toolbar(c, mujica.ToolbarOptions{Label: "Format"}, func() {
 	})
 	mujica.ToolbarSeparator(c)
 	if mujica.ToolbarButton(c, "Copy", mujica.ToolbarButtonOptions{Icon: icons.Must("copy"), ShowLabel: true}).Clicked() {
-		copySelection()
+		fmt.Println("copy")
 	}
 })
 ```
