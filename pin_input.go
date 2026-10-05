@@ -86,6 +86,10 @@ func PinInput(c *ui.Context, value *string, opts PinInputOptions) PinInputParts 
 			slog.Debug("mujica: pin input completed", "length", n)
 		}
 	}
+	disabled := e.IsDisabled()
+	if disabled {
+		st.queue, st.compose = st.queue[:0], ""
+	}
 	for _, ev := range st.queue {
 		switch {
 		case ev.paste:
@@ -97,9 +101,7 @@ func PinInput(c *ui.Context, value *string, opts PinInputOptions) PinInputParts 
 		}
 	}
 	st.queue = st.queue[:0]
-	if opts.Disabled {
-		st.compose = ""
-	} else {
+	if !disabled {
 		e.Focusable().FocusRing(false).HandleInput(func(ev ui.InputEvent) bool {
 			switch {
 			case ev.Kind == ui.InputText:

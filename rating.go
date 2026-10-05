@@ -48,6 +48,8 @@ func Rating(c *ui.Context, value *float64, opts RatingOptions) RatingParts {
 	}
 	k := Tokens(c)
 	size := Density(c).ControlHeight() * 0.6
+	// Each star sits centered in a hit area of at least the minimum size.
+	hit := max(size, theme.MinHitSize)
 	label := opts.Label
 	if label == "" {
 		label = msg(c, "rating.label")
@@ -64,10 +66,10 @@ func Rating(c *ui.Context, value *float64, opts RatingOptions) RatingParts {
 	e := ui.Row(c).AlignItems(ui.Center).Gap(Density(c).Unit() * 2).Shrink(0)
 	parts.Element = e
 	e.Label(label)
-	interactive := !opts.ReadOnly && !opts.Disabled
-	if opts.Disabled {
-		e.Disabled(true)
-	} else {
+	e.Disabled(opts.Disabled)
+	disabled := e.IsDisabled()
+	interactive := !opts.ReadOnly && !disabled
+	if !disabled {
 		e.Focusable()
 		internal.Ring(e, k.Focus, theme.ControlRadius)
 	}
@@ -85,10 +87,10 @@ func Rating(c *ui.Context, value *float64, opts RatingOptions) RatingParts {
 		}
 	}
 	e.Children(func() {
-		stars := ui.Box(c).Size(size*float32(n), size).Shrink(0)
+		stars := ui.Box(c).Size(hit*float32(n), hit).Shrink(0)
 		shown, fill := *value, k.AccentText
 		if interactive {
-			at := func(x float32) float64 { return math.Ceil(float64(x/size)/step-1e-9) * step }
+			at := func(x float32) float64 { return math.Ceil(float64(x/hit)/step-1e-9) * step }
 			if _, _, ok := stars.Dragged(); ok {
 				x, _, _ := stars.PointerPosition()
 				set(at(x))
@@ -99,7 +101,7 @@ func Rating(c *ui.Context, value *float64, opts RatingOptions) RatingParts {
 		}
 		stars.Draw(func(p *ui.Painter, r ui.Rect) {
 			for i := range n {
-				cell := ui.Rect{X: r.X + float32(i)*size, Y: r.Y, W: size, H: size}
+				cell := ui.Rect{X: r.X + float32(i)*hit + (hit-size)/2, Y: r.Y + (hit-size)/2, W: size, H: size}
 				path := ratingStar(cell)
 				p.StrokePath(path, 1.25, k.ControlBorder)
 				part := float32(math.Max(0, math.Min(1, shown-float64(i))))

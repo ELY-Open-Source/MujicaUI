@@ -89,9 +89,10 @@ func TagsInput(c *ui.Context, tags *[]string, opts TagsInputOptions) TagsInputPa
 		parts.changed, st.err = true, ""
 		slog.Debug("mujica: tags input removed", "count", len(*tags))
 	}
+	disabled := opts.Disabled || outer.IsDisabled()
 	if st.backspace {
 		st.backspace = false
-		if len(*tags) > 0 && st.query == "" {
+		if !disabled && len(*tags) > 0 && st.query == "" {
 			remove(len(*tags) - 1)
 		}
 	}
@@ -117,14 +118,15 @@ func TagsInput(c *ui.Context, tags *[]string, opts TagsInputOptions) TagsInputPa
 				})
 			}
 			// The input keeps its identity whatever chips come before it.
-			ui.Box(c).Key("input").Grow(1).MinWidth(d.Unit() * 24).Children(func() {
-				in := ui.TextInputBase(c, &st.query).FocusRing(false).FillWidth().Placeholder(opts.Placeholder)
+			holder := ui.Box(c).Key("input").Grow(1).MinWidth(d.Unit() * 24)
+			holder.Children(func() {
+				in := inputGroupEditor(c, holder, &st.query, disabled).FocusRing(false).FillWidth().Placeholder(opts.Placeholder)
 				parts.Input = in
 				if opts.Label != "" {
 					in.Label(opts.Label)
 				}
 				in.HandleInput(func(ev ui.InputEvent) bool {
-					if ev.Kind == ui.InputKeyDown && ev.Mods == 0 && ev.Key == ui.KeyBackspace && st.query == "" {
+					if !disabled && ev.Kind == ui.InputKeyDown && ev.Mods == 0 && ev.Key == ui.KeyBackspace && st.query == "" {
 						st.backspace = true
 						return true
 					}
@@ -137,22 +139,8 @@ func TagsInput(c *ui.Context, tags *[]string, opts TagsInputOptions) TagsInputPa
 		}
 	})
 	in := parts.Input
-	if in.Changed() {
-		st.err = ""
-	}
-	if strings.ContainsAny(st.query, seps) {
-		pieces := strings.FieldsFunc(st.query+"\x00", func(r rune) bool { return strings.ContainsRune(seps, r) })
-		last := strings.TrimSuffix(pieces[len(pieces)-1], "\x00")
-		var kept []string
-		for _, p := range pieces[:len(pieces)-1] {
-			if !add(p) {
-				kept = append(kept, strings.TrimSpace(p))
-			}
-		}
-		st.query = strings.Join(append(kept, last), string([]rune(seps)[0]))
-	}
-	if in.Submitted() && add(st.query) {
-		st.query = ""
+	if !disabled {
+		tagsInputCommit(st, in, seps, add)
 	}
 	if box.Clicked() {
 		in.Focus()
@@ -173,4 +161,25 @@ func TagsInput(c *ui.Context, tags *[]string, opts TagsInputOptions) TagsInputPa
 		}
 	})
 	return parts
+}
+
+// tagsInputCommit adds the text before each separator, and all of it on Enter.
+func tagsInputCommit(st *tagsInputState, in *ui.Element, seps string, add func(string) bool) {
+	if in.Changed() {
+		st.err = ""
+	}
+	if strings.ContainsAny(st.query, seps) {
+		pieces := strings.FieldsFunc(st.query+"\x00", func(r rune) bool { return strings.ContainsRune(seps, r) })
+		last := strings.TrimSuffix(pieces[len(pieces)-1], "\x00")
+		var kept []string
+		for _, p := range pieces[:len(pieces)-1] {
+			if !add(p) {
+				kept = append(kept, strings.TrimSpace(p))
+			}
+		}
+		st.query = strings.Join(append(kept, last), string([]rune(seps)[0]))
+	}
+	if in.Submitted() && add(st.query) {
+		st.query = ""
+	}
 }
