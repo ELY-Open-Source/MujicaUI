@@ -196,6 +196,12 @@ func datetimePopup(c *ui.Context, anchor *ui.Element, open *bool, readOnly bool,
 	})
 }
 
+// datetimeSelectedMark strokes the 1 DIP inset frame that marks a chosen cell.
+func datetimeSelectedMark(p *ui.Painter, r ui.Rect, c ui.Color) {
+	const inset = 2
+	p.Stroke(ui.Rect{X: r.X + inset, Y: r.Y + inset, W: r.W - 2*inset, H: r.H - 2*inset}, c, theme.ControlRadius/2, theme.BorderWidth)
+}
+
 // datetimeError shows a field error in Danger beneath a control.
 func datetimeError(c *ui.Context, text string) {
 	if text == "" {

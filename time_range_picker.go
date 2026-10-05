@@ -53,8 +53,9 @@ func TimeRangePicker(c *ui.Context, value *TimeRange, opts TimeRangePickerOption
 	draft := ui.Local(col, "time-range-draft", func() TimeRange { return *value })
 	seen := ui.Local(col, "time-range-seen", func() TimeRange { return *value })
 	problem := ui.Local(col, "time-range-error", func() string { return "" })
+	pending := ui.Local(col, "time-range-pending", func() bool { return false })
 	if *seen != *value {
-		*draft, *seen = *value, *value
+		*draft, *seen, *pending = *value, *value, false
 	}
 	changed := false
 	col.Children(func() {
@@ -82,9 +83,13 @@ func TimeRangePicker(c *ui.Context, value *TimeRange, opts TimeRangePickerOption
 			*problem = p
 			c.Invalidate()
 		}
-		if edited && p == "" && *draft != *value {
-			slog.Debug("mujica: time_range_picker change", "from", *value, "to", *draft)
-			*value, *seen, changed = *draft, *draft, true
+		*pending = *pending || edited
+		if *pending && p == "" {
+			if *draft != *value {
+				slog.Debug("mujica: time_range_picker change", "from", *value, "to", *draft)
+				*value, *seen, changed = *draft, *draft, true
+			}
+			*pending = false
 		}
 		datetimeError(c, *problem)
 	})

@@ -125,6 +125,9 @@ func datetimeGridCell(c *ui.Context, o, start, cursor int, cfg datetimeGridConfi
 	current := cfg.current(o)
 	ring := cell.FocusVisible() || cell.Focused() && keyed
 	cell.DrawOver(func(p *ui.Painter, r ui.Rect) {
+		if chosen {
+			datetimeSelectedMark(p, r, k.OnAccent)
+		}
 		if current {
 			p.FillPath(internal.Diamond(r.X+r.W/2, r.Y+r.H-6, 5), fg)
 		}

@@ -10,7 +10,7 @@ import (
 )
 
 // timeColumns lists choosable values per segment and reports whether a choice edited *draft.
-func timeColumns(c *ui.Context, draft *TimeOfDay, cfg timeConfig, fresh bool) (edited bool) {
+func timeColumns(c *ui.Context, draft *TimeOfDay, cfg timeConfig, fresh bool) (picked timePart, edited bool) {
 	k := Tokens(c)
 	d := Density(c)
 	h := d.ControlHeight() - 4
@@ -77,14 +77,17 @@ func timeColumns(c *ui.Context, draft *TimeOfDay, cfg timeConfig, fresh bool) (e
 							item.Background(k.SurfaceHover)
 						}
 						internal.Ring(item, k.Focus, theme.ControlRadius)
+						if o == t {
+							item.Draw(func(p *ui.Painter, r ui.Rect) { datetimeSelectedMark(p, r, k.OnAccent) })
+						}
 						item.Children(func() { ui.Text(c, text).TextColor(fg).FontFeatures("tnum") })
-						if item.Clicked() && o != *draft {
-							*draft, edited = o, true
+						if item.Clicked() {
+							*draft, picked, edited = o, part, true
 						}
 					}
 				})
 			})
 		}
 	})
-	return edited
+	return picked, edited
 }

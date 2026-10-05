@@ -245,6 +245,9 @@ func calendarDay(c *ui.Context, day, cur Date, cfg calendarConfig, size float32,
 	}
 	ring := cell.FocusVisible() || cell.Focused() && keyed
 	cell.DrawOver(func(p *ui.Painter, r ui.Rect) {
+		if chosen {
+			datetimeSelectedMark(p, r, k.OnAccent)
+		}
 		if day == cfg.today {
 			p.FillPath(internal.Diamond(r.X+r.W/2, r.Y+r.H-5, 5), fg)
 		}

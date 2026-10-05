@@ -140,3 +140,22 @@ func TestDateRangePickerConfirmChecksCurrentBounds(t *testing.T) {
 		t.Fatalf("valid draft not committed: %v", v)
 	}
 }
+
+func TestTimePickerPopupPickClearsSegmentError(t *testing.T) {
+	v, n := TimeOfDay{9, 30, 0}, 0
+	tt := timePickerTester(&v, TimePickerOptions{}, &n)
+	_ = tt.Click("Alarm: Hours")
+	tt.Key(0, ui.Key2)
+	tt.Key(0, ui.Key9)
+	if v != (TimeOfDay{2, 30, 0}) || !tt.HasText("Hours must be from 0 to 23.") {
+		t.Fatalf("setup: %v %v", v, tt.Texts())
+	}
+	n = 0
+	_ = tt.Click("Choose time")
+	if err := tt.Click("03"); err != nil {
+		t.Fatal(err)
+	}
+	if v != (TimeOfDay{3, 30, 0}) || n != 1 || tt.HasText("Hours must be") {
+		t.Fatalf("popup pick: value %v, %d changes, %v", v, n, tt.Texts())
+	}
+}
