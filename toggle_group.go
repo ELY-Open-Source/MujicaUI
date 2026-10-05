@@ -59,17 +59,21 @@ func ToggleGroup[T comparable](c *ui.Context, value *[]T, items []ToggleItem[T],
 	}
 	g.Dividers(theme.BorderWidth, k.ControlBorder)
 	changed := false
+	known := ui.Local(g, "values", func() []T { return nil })
 	g.Children(func() {
 		for _, it := range items {
 			on := slices.Contains(*value, it.Value)
 			pressed := on
-			b := ui.ToggleBase(c, &pressed).Disabled(it.Disabled)
-			// The base took input before Disabled applied: drop a disabled item's press.
-			if b.Changed() && !it.Disabled && !opts.Disabled && toggleGroupApply(value, it.Value, pressed, opts) {
-				changed = true
-				on = pressed
-			}
-			toggleGroupLook(c, k, b, on, it)
+			// Keyed by value so focus follows the item, not its position.
+			ui.Box(c).Key(stableKey(known, it.Value)).Children(func() {
+				b := ui.ToggleBase(c, &pressed).Disabled(it.Disabled)
+				// The base took input before Disabled applied: drop a disabled item's press.
+				if b.Changed() && !it.Disabled && !opts.Disabled && toggleGroupApply(value, it.Value, pressed, opts) {
+					changed = true
+					on = pressed
+				}
+				toggleGroupLook(c, k, b, on, it)
+			})
 		}
 	})
 	if changed {

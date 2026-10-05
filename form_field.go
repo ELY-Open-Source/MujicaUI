@@ -20,10 +20,10 @@ type FormFieldOptions struct {
 // FormField labels the element control returns and shows help and error text for it.
 func FormField(c *ui.Context, label string, opts FormFieldOptions, control func() *ui.Element) *ui.Element {
 	if !opts.Horizontal {
-		return formFieldBuild(c, label, opts, false, control)
+		return formFieldBuild(c, "", label, opts, false, control)
 	}
 	var f *ui.Element
-	formFieldGrid(c, func() { f = formFieldBuild(c, label, opts, true, control) })
+	formFieldGrid(c, func() { f = formFieldBuild(c, "", label, opts, true, control) })
 	return f
 }
 
@@ -35,7 +35,8 @@ func formFieldGrid(c *ui.Context, fields func()) *ui.Element {
 }
 
 // formFieldBuild builds the label and the control column; beside makes them two grid cells.
-func formFieldBuild(c *ui.Context, label string, opts FormFieldOptions, beside bool, control func() *ui.Element) *ui.Element {
+// formFieldBuild keys its cells by key when set, so focus follows a reordered field.
+func formFieldBuild(c *ui.Context, key, label string, opts FormFieldOptions, beside bool, control func() *ui.Element) *ui.Element {
 	if label == "" {
 		panic("mujica: FormField needs a label")
 	}
@@ -43,7 +44,11 @@ func formFieldBuild(c *ui.Context, label string, opts FormFieldOptions, beside b
 	d := Density(c)
 	var head, content, ctrl *ui.Element
 	body := func() {
-		head = ui.Row(c).Gap(d.Unit()).AlignItems(ui.Center)
+		head = ui.Row(c)
+		if key != "" && beside {
+			head.Key(key + "/label")
+		}
+		head.Gap(d.Unit()).AlignItems(ui.Center)
 		if beside {
 			head.MinHeight(d.ControlHeight()).Justify(ui.End)
 		}
@@ -55,7 +60,11 @@ func formFieldBuild(c *ui.Context, label string, opts FormFieldOptions, beside b
 			}
 		})
 		clicked := head.Clicked()
-		content = ui.Column(c).Gap(d.Unit() * 1.5).MinWidth(0)
+		content = ui.Column(c)
+		if key != "" && beside {
+			content.Key(key + "/control")
+		}
+		content.Gap(d.Unit() * 1.5).MinWidth(0)
 		content.Children(func() {
 			ctrl = control()
 			if ctrl == nil {
@@ -82,5 +91,9 @@ func formFieldBuild(c *ui.Context, label string, opts FormFieldOptions, beside b
 		body()
 		return content
 	}
-	return ui.Column(c).Gap(d.Unit() * 1.5).Children(body)
+	root := ui.Column(c)
+	if key != "" {
+		root.Key(key)
+	}
+	return root.Gap(d.Unit() * 1.5).Children(body)
 }
