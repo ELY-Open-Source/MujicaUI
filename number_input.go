@@ -36,8 +36,9 @@ type NumberInputOptions struct {
 
 // numberInputSpec is NumberInputOptions resolved.
 type numberInputSpec struct {
-	lo, hi, step float64
-	decimals     int
+	// lo and hi are the bounds on the precision grid; min and max the original ones.
+	lo, hi, min, max, step float64
+	decimals               int
 }
 
 func (s numberInputSpec) format(v float64) string {
@@ -47,13 +48,18 @@ func (s numberInputSpec) format(v float64) string {
 	return strconv.FormatFloat(v, 'f', s.decimals, 64)
 }
 
-// clamp rounds v to the precision, then bounds it; the bounds sit on that grid.
-func (s numberInputSpec) clamp(v float64) float64 {
+// round rounds v to the precision.
+func (s numberInputSpec) round(v float64) float64 {
 	p := math.Pow(10, float64(s.decimals))
-	return math.Max(s.lo, math.Min(s.hi, math.Round(v*p)/p)) + 0 // + 0 turns -0 into 0
+	return math.Round(v*p)/p + 0 // + 0 turns -0 into 0
 }
 
-// stepBy moves v n steps along the grid of Step from Min, stopping at the bounds.
+// clamp rounds v to the precision, then bounds it; the bounds sit on that grid.
+func (s numberInputSpec) clamp(v float64) float64 {
+	return math.Max(s.lo, math.Min(s.hi, s.round(v)))
+}
+
+// stepBy moves v n grid steps from Min, exactly checked against the original bounds.
 func (s numberInputSpec) stepBy(v float64, n int) float64 {
 	if math.IsNaN(v) {
 		// From empty, the first step lands next to zero.
@@ -63,20 +69,24 @@ func (s numberInputSpec) stepBy(v float64, n int) float64 {
 	if math.IsInf(base, 0) {
 		base = 0
 	}
-	k := (v - base) / s.step
-	if n > 0 {
-		k = numberInputFloor(k) + float64(n)
-	} else {
-		k = numberInputCeil(k) + float64(n)
+	at := func(k float64) float64 { return s.round(base + k*s.step) }
+	k := math.Round((v - base) / s.step)
+	// Off the grid, the nearest point in the direction is the first step.
+	if n > 0 && at(k) <= v || n < 0 && at(k) >= v {
+		k += float64(n)
 	}
-	return s.clamp(base + k*s.step)
+	r := at(k)
+	switch {
+	case r > s.max:
+		r = at(k - 1)
+	case r < s.min:
+		r = at(k + 1)
+	}
+	if r > s.max || r < s.min {
+		return v
+	}
+	return r
 }
-
-// numberInputFloor floors x, forgiving floating-point error just below an integer.
-func numberInputFloor(x float64) float64 { return math.Floor(x + math.Max(1e-9, 1e-12*math.Abs(x))) }
-
-// numberInputCeil ceils x, forgiving floating-point error just above an integer.
-func numberInputCeil(x float64) float64 { return math.Ceil(x - math.Max(1e-9, 1e-12*math.Abs(x))) }
 
 // numberInputSame reports equal values, counting NaN (empty) as equal.
 func numberInputSame(a, b float64) bool { return a == b || math.IsNaN(a) && math.IsNaN(b) }
@@ -103,10 +113,15 @@ func numberInputResolve(opts NumberInputOptions) numberInputSpec {
 			s.decimals = len(t) - strings.IndexByte(t, '.') - 1
 		}
 	}
-	// Bounds move inward onto the precision grid, so clamped values keep both.
+	// Bounds move inward onto the precision grid, compared exactly with the originals.
+	s.min, s.max = s.lo, s.hi
 	p := math.Pow(10, float64(s.decimals))
-	s.lo = numberInputCeil(s.lo*p)/p + 0 // + 0 turns -0 into 0
-	s.hi = numberInputFloor(s.hi*p)/p + 0
+	if s.lo = s.round(s.lo); s.lo < s.min {
+		s.lo = s.round(s.lo + 1/p)
+	}
+	if s.hi = s.round(s.hi); s.hi > s.max {
+		s.hi = s.round(s.hi - 1/p)
+	}
 	if s.lo > s.hi {
 		panic("mujica: NumberInput has no value in range at this precision")
 	}
