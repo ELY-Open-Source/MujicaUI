@@ -106,7 +106,7 @@ func DatePicker(c *ui.Context, value *Date, opts DatePickerOptions) DateTimeResu
 	col.Children(func() {
 		field = datetimeField(c, ui.Row(c), *problem != "", opts.ReadOnly)
 		field.Children(func() {
-			in := textInputEditor(c, field, text, opts.ReadOnly, false).Grow(1).Shrink(1).Placeholder(placeholder).FontFeatures("tnum")
+			in := textInputEditor(c, field, text, opts.ReadOnly, ui.TextInputBase).Grow(1).Shrink(1).Placeholder(placeholder).FontFeatures("tnum")
 			label := opts.Label
 			if label == "" {
 				label = placeholder
