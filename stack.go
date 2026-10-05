@@ -26,7 +26,7 @@ type StackOptions struct {
 	Wrap bool
 }
 
-// Stack arranges children in a row or column. Build children with StackItem to hide them without leaving a gap.
+// Stack arranges children in a row or column. A child not built takes no room and no gap.
 func Stack(c *ui.Context, opts StackOptions, children func()) *ui.Element {
 	if children == nil {
 		panic("mujica: Stack needs children")
@@ -56,14 +56,4 @@ func Stack(c *ui.Context, opts StackOptions, children func()) *ui.Element {
 		e.Wrap()
 	}
 	return e.Children(children)
-}
-
-// StackItem builds one child of a Stack unless hidden; a hidden item takes no room and no gap.
-func StackItem(hidden bool, build func()) {
-	if build == nil {
-		panic("mujica: StackItem needs build")
-	}
-	if !hidden {
-		build()
-	}
 }

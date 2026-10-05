@@ -2,14 +2,16 @@
 
 ## 用途
 
-按横向或纵向排列子元素，统一间距、对齐与换行。用 `StackItem` 包裹可隐藏的子项，隐藏时不占位置也不留间距。
+按横向或纵向排列子元素，统一间距、对齐与换行。要隐藏子项就不构建它（`if !hidden { build() }`），未构建的子项不占位置也不留间距。
 
 ## 最小示例
 
 ```go
 mujica.Stack(c, mujica.StackOptions{Horizontal: true, Gap: mujica.SpaceM}, func() {
 	mujica.Button(c, "Save", mujica.ButtonOptions{})
-	mujica.StackItem(!showDraft, func() { mujica.Button(c, "Draft", mujica.ButtonOptions{Variant: mujica.Secondary}) })
+	if showDraft {
+		mujica.Button(c, "Draft", mujica.ButtonOptions{Variant: mujica.Secondary})
+	}
 	mujica.Button(c, "Cancel", mujica.ButtonOptions{Variant: mujica.Ghost})
 })
 ```
@@ -17,7 +19,6 @@ mujica.Stack(c, mujica.StackOptions{Horizontal: true, Gap: mujica.SpaceM}, func(
 签名：
 
 - `func Stack(c *ui.Context, opts StackOptions, children func()) *ui.Element`
-- `func StackItem(hidden bool, build func())`
 
 ## 参数
 
@@ -28,8 +29,6 @@ mujica.Stack(c, mujica.StackOptions{Horizontal: true, Gap: mujica.SpaceM}, func(
 | `Align` | `StackAlign` | `StackAlignAuto` | 交叉轴对齐：Auto（纵向拉伸、横向居中）、Start、Center、End、Stretch；非法值 panic。 |
 | `Justify` | `ui.Align` | `ui.Start` | 主轴分布：Start、Center、End、SpaceBetween、SpaceAround、SpaceEvenly。 |
 | `Wrap` | `bool` | false | 横向换行；纵向时设置会 panic。 |
-
-`StackItem`：`hidden` 为 true 时不构建 `build`，因此既不占空间也不产生间距。`build` 为 nil 时 panic。
 
 ## 状态
 

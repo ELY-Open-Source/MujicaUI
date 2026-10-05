@@ -30,7 +30,9 @@ func TestStackHiddenItemTakesNoGap(t *testing.T) {
 			Use(c, Settings{})
 			Stack(c, StackOptions{Horizontal: true, Gap: SpaceL}, func() {
 				a = ui.Box(c).Size(30, 10).Bounds()
-				StackItem(hide, func() { ui.Box(c).Size(30, 10) })
+				if !hide {
+					ui.Box(c).Size(30, 10)
+				}
 				last = ui.Box(c).Size(30, 10).Bounds()
 			})
 		}, 300, 300).Frame()
@@ -105,7 +107,6 @@ func TestStackSnapshot(t *testing.T) {
 			})
 			Stack(c, StackOptions{Horizontal: true, Justify: ui.SpaceBetween}, func() {
 				chip("Start")
-				StackItem(true, func() { chip("Hidden") })
 				chip("Between")
 				chip("End")
 			})

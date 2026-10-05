@@ -245,7 +245,9 @@ func layoutContainerDemo(c *ui.Context, log func(string)) {
 
 const layoutStackCode = `mujica.Stack(c, mujica.StackOptions{Horizontal: true, Gap: mujica.SpaceM}, func() {
 	mujica.Button(c, "Save", mujica.ButtonOptions{})
-	mujica.StackItem(!showDraft, func() { mujica.Button(c, "Draft", mujica.ButtonOptions{Variant: mujica.Secondary}) })
+	if showDraft {
+		mujica.Button(c, "Draft", mujica.ButtonOptions{Variant: mujica.Secondary})
+	}
 	mujica.Button(c, "Cancel", mujica.ButtonOptions{Variant: mujica.Ghost})
 })`
 
@@ -276,11 +278,9 @@ func layoutStackDemo(c *ui.Context, log func(string)) {
 			mujica.Stack(c, mujica.StackOptions{Horizontal: s.horizontal, Wrap: s.wrap, Gap: layoutSpace(s.gap),
 				Align: align, Justify: justifies[s.justify]}, func() {
 				for _, n := range []string{"Save", "Draft", "Publish", "Archive", "Cancel"} {
-					mujica.StackItem(s.hide && n == "Draft", func() {
-						if mujica.Button(c, n, mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
-							log(n + " clicked")
-						}
-					})
+					if (!s.hide || n != "Draft") && mujica.Button(c, n, mujica.ButtonOptions{Variant: mujica.Secondary}).Clicked() {
+						log(n + " clicked")
+					}
 				}
 			}).Grow(1).Padding(12)
 		})

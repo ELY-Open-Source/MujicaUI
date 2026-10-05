@@ -61,7 +61,9 @@ func ExampleStack() {
 		mujica.Use(c, mujica.Settings{})
 		mujica.Stack(c, mujica.StackOptions{Horizontal: true, Gap: mujica.SpaceM}, func() {
 			mujica.Button(c, "Save", mujica.ButtonOptions{})
-			mujica.StackItem(!showDraft, func() { mujica.Button(c, "Draft", mujica.ButtonOptions{Variant: mujica.Secondary}) })
+			if showDraft {
+				mujica.Button(c, "Draft", mujica.ButtonOptions{Variant: mujica.Secondary})
+			}
 			mujica.Button(c, "Cancel", mujica.ButtonOptions{Variant: mujica.Ghost})
 		})
 	}
