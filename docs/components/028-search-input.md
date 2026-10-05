@@ -48,5 +48,5 @@ if r.Moved() {
 ## 限制
 
 - MyGo 单行编辑器把 Shift+Enter 当作普通提交且不公开修饰键（`editor.go:489`，`submitMods` 未导出），组件用 `HandleInput` 先截获 Shift+Enter。
-- 输入法组合期间无法阻止提交与匹配跳转：MyGo 不公开组合状态，组合文本存在未导出的 `editor.compose`（`ui/editor.go:73`），带编辑器的元素收不到 `InputCompose` 事件（`ui/input.go:689`）。各平台输入法在组合时通常自己消费 Enter；只有未被输入法消费的按键会触发提交或跳转。
+- 输入法组合期间无法阻止提交与匹配跳转：MyGo 不公开组合状态，组合文本存在未导出的 `editor.compose`（`ui/editor.go:73`），带编辑器的元素收不到 `InputCompose` 事件（`ui/input.go:689`）。各平台输入法在组合时通常自己消费 Enter；只有未被输入法消费的按键会触发提交或跳转。公开接口也无法间接得知：`Element.TextCaret`（`ui/handler.go:82`）只是自绘控件声明输入位置的设置方法，`Tester.TextCaret` 返回的 `Active`（`ui/headless.go:370-373`）只表示可编辑元素持有键盘，不表示正在组合。
 - 没有“完成/关闭”按钮；是否显示查找栏由调用方决定。
