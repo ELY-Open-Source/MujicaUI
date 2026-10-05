@@ -1,0 +1,127 @@
+package mujica
+
+func init() {
+	addMessages(map[string][2]string{
+		"agent_status.pending":  {"Pending", "待开始"},
+		"agent_status.planning": {"Planning", "规划中"},
+		"agent_status.running":  {"Running", "执行中"},
+		"agent_status.waiting":  {"Waiting", "等待中"},
+		"agent_status.done":     {"Done", "已完成"},
+		"agent_status.failed":   {"Failed", "失败"},
+		"agent_status.skipped":  {"Skipped", "已跳过"},
+
+		"tool_call_card.args":   {"Arguments", "参数"},
+		"tool_call_card.result": {"Result", "结果"},
+		"tool_call_card.error":  {"Error", "错误"},
+
+		"tool_call_group.count":  {"%d tool calls", "%d 次工具调用"},
+		"tool_call_group.failed": {"%d failed", "%d 次失败"},
+
+		"tool_approval_dialog.title": {"Allow this tool to run?", "允许运行此工具？"},
+		"tool_approval_dialog.tool":  {"Tool", "工具"},
+		"tool_approval_dialog.allow": {"Allow", "允许"},
+		"tool_approval_dialog.deny":  {"Deny", "拒绝"},
+
+		"permission_prompt.deny":   {"Deny", "拒绝"},
+		"permission_prompt.always": {"Always allow", "始终允许"},
+		"permission_prompt.once":   {"Allow once", "允许一次"},
+		"permission_prompt.scope":  {"Always allowing covers", "始终允许的范围"},
+
+		"agent_step_list.current": {"Current", "当前"},
+		"agent_step_list.retry":   {"Retry", "重试"},
+
+		"agent_progress.label":    {"Progress", "进度"},
+		"sub_agent_tree.children": {"%d sub-agents", "%d 个子智能体"},
+
+		"file_change_card.stats":    {"%d added, %d removed lines", "新增 %d 行，删除 %d 行"},
+		"file_change_card.pending":  {"Pending", "待审阅"},
+		"file_change_card.accepted": {"Accepted", "已接受"},
+		"file_change_card.rejected": {"Rejected", "已拒绝"},
+		"file_change_card.new":      {"New file", "新文件"},
+		"file_change_card.deleted":  {"Deleted", "已删除"},
+		"file_change_card.open":     {"Open diff", "打开差异"},
+		"file_change_card.undo":     {"Undo", "撤销"},
+		"file_change_card.reject":   {"Reject", "拒绝"},
+		"file_change_card.accept":   {"Accept", "接受"},
+
+		"multi_file_diff_review.title":      {"Review changes", "审阅变更"},
+		"multi_file_diff_review.progress":   {"%d of %d files reviewed", "已审阅 %d / %d 个文件"},
+		"multi_file_diff_review.accept_all": {"Accept all", "全部接受"},
+		"multi_file_diff_review.empty":      {"No changes to review", "没有需要审阅的变更"},
+
+		"command_execution_card.abort":     {"Abort", "中止"},
+		"command_execution_card.exit":      {"Exit %d", "退出码 %d"},
+		"command_execution_card.output":    {"Output", "输出"},
+		"command_execution_card.no_output": {"No output", "没有输出"},
+
+		"screenshot_stream.label":     {"Agent screen", "智能体画面"},
+		"screenshot_stream.waiting":   {"Waiting for frames", "等待画面"},
+		"screenshot_stream.prev":      {"Previous frame", "上一帧"},
+		"screenshot_stream.next":      {"Next frame", "下一帧"},
+		"screenshot_stream.pause":     {"Pause", "暂停"},
+		"screenshot_stream.live":      {"Go live", "回到实时"},
+		"screenshot_stream.counter":   {"Frame %d of %d", "第 %d / %d 帧"},
+		"screenshot_stream.following": {"Live", "实时"},
+
+		"artifact_panel.copy":    {"Copy", "复制"},
+		"artifact_panel.copied":  {"Copied", "已复制"},
+		"artifact_panel.export":  {"Export", "导出"},
+		"artifact_panel.preview": {"Preview", "预览"},
+		"artifact_panel.source":  {"Source", "源码"},
+
+		"artifact_version_switcher.label":   {"Versions", "版本"},
+		"artifact_version_switcher.older":   {"Older version", "较早版本"},
+		"artifact_version_switcher.newer":   {"Newer version", "较新版本"},
+		"artifact_version_switcher.count":   {"%d of %d", "%d / %d"},
+		"artifact_version_switcher.compare": {"Compare with %s", "与 %s 比较"},
+
+		"sandbox_status.starting": {"Starting", "启动中"},
+		"sandbox_status.running":  {"Running", "运行中"},
+		"sandbox_status.stopped":  {"Stopped", "已停止"},
+		"sandbox_status.failed":   {"Failed", "故障"},
+		"sandbox_status.high":     {"Near the limit", "接近上限"},
+		"sandbox_status.left":     {"%s left", "剩余 %s"},
+		"sandbox_status.expired":  {"Time is up", "已到时"},
+
+		"mcp_server_list.label":      {"MCP servers", "MCP 服务器"},
+		"mcp_server_list.empty":      {"No MCP servers", "没有 MCP 服务器"},
+		"mcp_server_list.stopped":    {"Stopped", "已停止"},
+		"mcp_server_list.connecting": {"Connecting", "连接中"},
+		"mcp_server_list.connected":  {"Connected", "已连接"},
+		"mcp_server_list.error":      {"Connection failed", "连接失败"},
+		"mcp_server_list.tools":      {"%d tools", "%d 个工具"},
+		"mcp_server_list.start":      {"Start", "启动"},
+		"mcp_server_list.stop":       {"Stop", "停止"},
+		"mcp_server_list.reconnect":  {"Reconnect", "重新连接"},
+
+		"memory_panel.title":   {"Memory", "记忆"},
+		"memory_panel.count":   {"%d entries", "%d 条"},
+		"memory_panel.search":  {"Search memory", "搜索记忆"},
+		"memory_panel.empty":   {"No memories match", "没有匹配的记忆"},
+		"memory_panel.edit":    {"Edit", "编辑"},
+		"memory_panel.save":    {"Save", "保存"},
+		"memory_panel.cancel":  {"Cancel", "取消"},
+		"memory_panel.delete":  {"Delete", "删除"},
+		"memory_panel.confirm": {"Forget this memory?", "删除这条记忆？"},
+
+		"checkpoint_list.label":    {"Checkpoints", "检查点"},
+		"checkpoint_list.empty":    {"No checkpoints yet", "暂无检查点"},
+		"checkpoint_list.current":  {"Current", "当前"},
+		"checkpoint_list.rollback": {"Roll back", "回滚"},
+		"checkpoint_list.confirm":  {"Roll back to “%s”?", "回滚到“%s”？"},
+		"checkpoint_list.warning":  {"Changes made after this checkpoint will be discarded.", "此检查点之后的更改将被丢弃。"},
+
+		"human_input_request.free":    {"Or write your own answer", "或填写你的回答"},
+		"human_input_request.send":    {"Send answer", "发送回答"},
+		"human_input_request.left":    {"Answer within %s", "请在 %s 内回答"},
+		"human_input_request.timeout": {"The agent stopped waiting", "智能体已停止等待"},
+
+		"agent_plan.title":       {"Plan", "计划"},
+		"agent_plan.progress":    {"%d / %d done", "已完成 %d / %d"},
+		"agent_plan.doing":       {"In progress", "进行中"},
+		"agent_plan.skip":        {"Skip", "跳过"},
+		"agent_plan.restore":     {"Restore", "恢复"},
+		"agent_plan.add":         {"Add", "添加"},
+		"agent_plan.placeholder": {"Add a step", "新增一项"},
+	})
+}
