@@ -87,6 +87,14 @@ func init() {
 		"json_editor.valid":  {"Valid JSON", "JSON 有效"},
 		"json_editor.at":     {"Error at line %d, column %d", "错误位于第 %d 行第 %d 列"},
 
+		"schema_tree.label":    {"Schema", "数据库结构"},
+		"schema_tree.empty":    {"No databases", "没有数据库"},
+		"schema_tree.database": {"Database", "数据库"},
+		"schema_tree.table":    {"Table", "表"},
+		"schema_tree.view":     {"View", "视图"},
+		"schema_tree.column":   {"Column", "列"},
+		"schema_tree.index":    {"Index", "索引"},
+
 		"alert_list.empty": {"No alerts", "没有告警"},
 	})
 }
