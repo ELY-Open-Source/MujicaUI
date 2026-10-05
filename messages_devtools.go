@@ -72,6 +72,12 @@ func init() {
 		"log_stream.waiting": {"%d new lines", "%d 条新日志"},
 		"log_stream.empty":   {"No log lines", "没有日志"},
 
+		"trace_waterfall.label":   {"Trace", "调用链"},
+		"trace_waterfall.empty":   {"No spans", "没有跨度"},
+		"trace_waterfall.summary": {"%d spans · %s", "%d 个跨度 · %s"},
+		"trace_waterfall.detail":  {"%s · starts at %s · takes %s", "%s · 起于 %s · 耗时 %s"},
+		"trace_waterfall.error":   {"Error", "错误"},
+
 		"alert_list.empty": {"No alerts", "没有告警"},
 	})
 }
