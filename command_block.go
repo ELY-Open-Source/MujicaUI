@@ -12,17 +12,6 @@ import (
 	"mujicaui/theme"
 )
 
-// CommandRun is a command and its output from the caller.
-type CommandRun struct {
-	Command string
-	// Output may hold ANSI escapes.
-	Output   string
-	ExitCode int
-	Duration time.Duration
-	// Running hides ExitCode and Duration behind a live mark.
-	Running bool
-}
-
 // CommandBlockOptions configure a CommandBlock.
 type CommandBlockOptions struct {
 	// Prompt precedes the command; empty means "$".

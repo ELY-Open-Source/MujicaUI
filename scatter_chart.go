@@ -158,5 +158,3 @@ func ScatterChart(c *ui.Context, selected *[]ScatterKey, groups []ScatterGroup, 
 func scatterRect(d scatterDrag, ox, oy float32) ui.Rect {
 	return ui.Rect{X: ox + min(d.x0, d.x1), Y: oy + min(d.y0, d.y1), W: abs32(d.x1 - d.x0), H: abs32(d.y1 - d.y0)}
 }
-
-func abs32(v float32) float32 { return max(v, -v) }

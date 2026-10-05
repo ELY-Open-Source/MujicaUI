@@ -10,15 +10,6 @@ import (
 	"mujicaui/theme"
 )
 
-// ArtifactKind is what an artifact holds; zero is ArtifactCode.
-type ArtifactKind int
-
-const (
-	ArtifactCode ArtifactKind = iota
-	ArtifactDocument
-	ArtifactWeb
-)
-
 // ArtifactCardOptions configure an ArtifactCard. Title is required.
 type ArtifactCardOptions struct {
 	Kind  ArtifactKind

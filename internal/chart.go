@@ -189,12 +189,6 @@ func Sector(cx, cy, r0, r1 float32, a0, a1 float64) *ui.Path {
 	return &path
 }
 
-// Rule draws a pixel-aligned 1 DIP horizontal line at y.
-func Rule(p *ui.Painter, x0, x1, y float32, c ui.Color) {
-	yy := ruleY(p, y)
-	p.Line(x0, yy, x1, yy, 1, c)
-}
-
 // AxisY draws grid lines and tick labels left of plot.
 func AxisY(p *ui.Painter, plot ui.Rect, s Linear, ticks []float64, label func(float64) string, size float32, k theme.Tokens) {
 	for _, t := range ticks {
