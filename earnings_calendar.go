@@ -10,7 +10,6 @@ import (
 	"mujicaui/theme"
 )
 
-// EarningsTiming is when a report comes. The zero value is EarningsUnknown.
 type EarningsTiming int
 
 const (
@@ -19,7 +18,6 @@ const (
 	EarningsAfterClose
 )
 
-// EarningsEvent is a scheduled report; NaN actuals are not yet reported.
 type EarningsEvent struct {
 	ID, Symbol, Name string
 	Date             Date
@@ -36,7 +34,6 @@ type EarningsCalendarOptions struct {
 	Disabled bool
 }
 
-// EarningsCalendar lists reports with before-open or after-close timing, estimate, actual and surprise.
 func EarningsCalendar(c *ui.Context, s *DataTableState[string], events []EarningsEvent, opts EarningsCalendarOptions) DataTableView {
 	if s == nil {
 		panic("mujica: EarningsCalendar needs a state")
@@ -59,7 +56,7 @@ func EarningsCalendar(c *ui.Context, s *DataTableState[string], events []Earning
 		{ID: "actual", Title: msg(c, "earnings_calendar.actual"), Width: 90, Align: ui.End, Sortable: true,
 			Compare: func(a, b EarningsEvent) int { return cmp.Compare(a.EPSActual, b.EPSActual) },
 			Text:    func(e EarningsEvent) string { return earningsValue(e.EPSActual) }},
-		{ID: "surprise", Title: msg(c, "earnings_calendar.surprise"), Width: 110, Align: ui.End,
+		{ID: "surprise", Title: msg(c, "earnings_calendar.surprise"), Width: 150, Align: ui.End,
 			Text: func(e EarningsEvent) string { return earningsSurpriseText(e) },
 			Cell: func(e EarningsEvent) {
 				if d := e.EPSActual - e.EPSEstimate; !math.IsNaN(d) {
@@ -71,6 +68,11 @@ func EarningsCalendar(c *ui.Context, s *DataTableState[string], events []Earning
 	}
 	var v DataTableView
 	col := ui.Column(c).MinHeight(0).Grow(1).Disabled(opts.Disabled)
+	opts.Disabled = col.IsDisabled()
+	if opts.Disabled {
+		copy := *s
+		s = &copy
+	}
 	col.Children(func() {
 		v = DataTable(c, s, events, DataTableOptions[EarningsEvent, string]{Columns: cols, Key: func(e EarningsEvent) string { return e.ID },
 			Version: opts.Version, Status: opts.Status, Error: opts.Error, Empty: msg(c, "earnings_calendar.empty")})
@@ -108,7 +110,6 @@ func earningsValue(v float64) string {
 	return statisticFormat(v, 2)
 }
 
-// earningsSurpriseText is actual minus estimate, with the percent of the estimate.
 func earningsSurpriseText(e EarningsEvent) string {
 	d := e.EPSActual - e.EPSEstimate
 	if math.IsNaN(d) {

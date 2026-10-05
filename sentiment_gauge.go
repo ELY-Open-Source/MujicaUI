@@ -15,21 +15,23 @@ type SentimentGaugeOptions struct {
 	// Label names the index, such as "Fear & Greed".
 	Label string
 	// Size is the dial width; zero is 240 DIPs.
-	Size float32
+	Size   float32
+	Status DataStatus
+	Error  string
+	Empty  bool
+	Retry  func()
 }
 
 var sentimentBands = [5]string{"sentiment_gauge.extreme_fear", "sentiment_gauge.fear", "sentiment_gauge.neutral",
 	"sentiment_gauge.greed", "sentiment_gauge.extreme_greed"}
 
-// sentimentBand is the band index of a 0 to 100 value.
 func sentimentBand(v float64) int { return min(4, int(v/20)) }
 
-// SentimentGauge is a half dial from extreme fear to extreme greed, with the value and its word.
 func SentimentGauge(c *ui.Context, value float64, opts SentimentGaugeOptions) *ui.Element {
 	if math.IsNaN(value) || value < 0 || value > 100 {
 		panic("mujica: SentimentGauge value must be in 0..100")
 	}
-	if opts.Size < 0 {
+	if math.IsNaN(float64(opts.Size)) || math.IsInf(float64(opts.Size), 0) || opts.Size != 0 && opts.Size < 48 {
 		panic("mujica: SentimentGauge Size is negative")
 	}
 	w := opts.Size
@@ -38,22 +40,48 @@ func SentimentGauge(c *ui.Context, value float64, opts SentimentGaugeOptions) *u
 	}
 	k := Tokens(c)
 	u := Density(c).Unit()
+	dialHeight := max(w/2+8, u*30)
 	band := sentimentBand(value)
 	word := msg(c, sentimentBands[band])
 	label := fmt.Sprintf("%.0f, %s", value, word)
+	if opts.Status == DataLoading || opts.Status == DataLoadingMore || opts.Status == DataUnloaded {
+		label = msg(c, "list.loading")
+	} else if opts.Status == DataFailed {
+		label = dataError(c, opts.Error)
+	} else if opts.Empty {
+		label = msg(c, "chart.empty")
+	}
 	if opts.Label != "" {
 		label = opts.Label + ": " + label
 	}
-	// Fear to greed runs from the fall color to the rise color.
-	fear, greed := trendColor(c, -1), trendColor(c, 1)
-	cols := [5]ui.Color{fear, fear.Mix(k.Surface, 0.45), k.TextMuted, greed.Mix(k.Surface, 0.45), greed}
+	pal := internal.Palette(k)
+	cols := [5]ui.Color{pal[0], pal[3], pal[5], pal[1], pal[2]}
 	size := FontSize(c, theme.CaptionSize)
-	col := ui.Column(c).Gap(u).AlignItems(ui.Center).Role(ui.RoleMeter).Label(label)
+	col := ui.Column(c).Gap(u).AlignItems(ui.Center).Role(ui.RoleMeter).Label(label).Focusable()
+	internal.Ring(col, k.Focus, theme.ControlRadius)
+	if !col.IsDisabled() {
+		for _, key := range []ui.Key{ui.KeyLeft, ui.KeyRight, ui.KeyUp, ui.KeyDown, ui.KeyHome, ui.KeyEnd} {
+			if col.Shortcut(0, key) {
+				c.Announce(label)
+			}
+		}
+	}
 	col.Children(func() {
 		if opts.Label != "" {
 			ui.Text(c, opts.Label).Font(theme.SerifFont).TextColor(k.TextMuted)
 		}
-		ui.Box(c).Size(w, w/2+8).Draw(func(p *ui.Painter, r ui.Rect) {
+		if opts.Status != DataReady || opts.Empty {
+			ui.Box(c).Size(w, dialHeight).Children(func() {
+				ui.Column(c).Fill().Children(func() {
+					if dataPlaceholder(c, opts.Status, opts.Error, "", msg(c, "chart.empty")) && opts.Retry != nil {
+						opts.Retry()
+					}
+				})
+			})
+			ui.Box(c).Height(FontSize(c, theme.H1Size)*theme.LineHeight + u + FontSize(c, theme.BodySize)*theme.LineHeight)
+			return
+		}
+		ui.Box(c).Size(w, dialHeight).Draw(func(p *ui.Painter, r ui.Rect) {
 			cx, cy := r.X+r.W/2, r.Y+r.W/2
 			outer, inner := r.W/2-2, r.W/2-18
 			for i := range 5 {
@@ -70,7 +98,7 @@ func SentimentGauge(c *ui.Context, value float64, opts SentimentGaugeOptions) *u
 			chartText(p, "100", r.X+r.W-2, cy+4, size, k.TextMuted, 1, 0)
 		})
 		ui.Text(c, fmt.Sprintf("%.0f", value)).Font(theme.SerifFont).FontSize(FontSize(c, theme.H1Size)).TextColor(k.Text).FontFeatures("tnum")
-		ui.Text(c, word).FontWeight(600).TextColor(cols[band].Mix(k.Text, 0.25))
+		ui.Text(c, word).FontWeight(600).TextColor(k.Text)
 	})
 	return col
 }

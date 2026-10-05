@@ -13,13 +13,11 @@ import (
 	"mujicaui/theme"
 )
 
-// ScreenerField is a numeric field conditions test, such as P/E or market cap.
 type ScreenerField struct {
 	ID, Label string
 	Decimals  int
 }
 
-// ScreenerOp compares a field with a value. The zero value is ScreenerAbove.
 type ScreenerOp int
 
 const (
@@ -39,7 +37,6 @@ type ScreenerCondition struct {
 	Value float64
 }
 
-// ScreenerRow is a symbol and its field values by field ID; missing values fail every test.
 type ScreenerRow struct {
 	Symbol, Name string
 	Values       map[string]float64
@@ -86,22 +83,38 @@ type ScreenerOptions struct {
 
 // ScreenerView is a built Screener and this frame's events.
 type ScreenerView struct {
-	Element *ui.Element
-	// Changed reports edited conditions; Save asks the caller to store them.
+	Element       *ui.Element
 	Changed, Save bool
 	Table         DataTableView
 }
 
-// Screener builds field, comparison and value conditions and lists the rows that pass them.
 func Screener(c *ui.Context, s *ScreenerState, fields []ScreenerField, rows []ScreenerRow, opts ScreenerOptions) ScreenerView {
 	if s == nil || len(fields) == 0 {
 		panic("mujica: Screener needs a state and fields")
+	}
+	seen := map[string]bool{}
+	for _, f := range fields {
+		if f.ID == "" || seen[f.ID] || f.Decimals < 0 || f.Decimals > 12 {
+			panic("mujica: Screener fields need unique IDs and decimals in 0..12")
+		}
+		seen[f.ID] = true
+	}
+	for _, cd := range s.Conditions {
+		if cd.Op < ScreenerAbove || cd.Op > ScreenerEqual || math.IsNaN(cd.Value) || math.IsInf(cd.Value, 0) {
+			panic("mujica: Screener condition is invalid")
+		}
 	}
 	k := Tokens(c)
 	u := Density(c).Unit()
 	before := fmt.Sprint(s.Conditions)
 	var v ScreenerView
-	v.Element = ui.Column(c).Gap(u * 3).MinHeight(0).Disabled(opts.Disabled)
+	v.Element = ui.Column(c).Gap(u * 3).Grow(1).MinHeight(0).Disabled(opts.Disabled)
+	opts.Disabled = v.Element.IsDisabled()
+	if opts.Disabled {
+		copy := *s
+		copy.Conditions = slices.Clone(s.Conditions)
+		s = &copy
+	}
 	v.Element.Children(func() {
 		fieldItems := make([]SelectOption[string], len(fields))
 		for i, f := range fields {
@@ -152,7 +165,7 @@ func Screener(c *ui.Context, s *ScreenerState, fields []ScreenerField, rows []Sc
 				Text:    func(r ScreenerRow) string { return statisticFormat(r.Values[f.ID], f.Decimals) }})
 		}
 		v.Table = DataTable(c, &s.Table, matched, DataTableOptions[ScreenerRow, string]{Columns: cols, Key: func(r ScreenerRow) string { return r.Symbol },
-			Status: opts.Status, Error: opts.Error, Empty: msg(c, "screener.empty")})
+			Version: opts.Version, Status: opts.Status, Error: opts.Error, Empty: msg(c, "screener.empty")})
 		v.Table.Element.Grow(1)
 	})
 	v.Changed = fmt.Sprint(s.Conditions) != before
@@ -177,7 +190,6 @@ func screenerField(fields []ScreenerField, id string) ScreenerField {
 	panic("mujica: Screener condition on unknown field " + id)
 }
 
-// screenerFilter keeps passing rows, refiltering only when rows, version or conditions change.
 func screenerFilter(s *ScreenerState, rows []ScreenerRow, version int) []ScreenerRow {
 	key := fmt.Sprint(chartID(rows), version, s.Conditions)
 	if key != s.cache.key {

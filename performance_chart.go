@@ -14,7 +14,8 @@ import (
 
 // PerformanceChartOptions configure a PerformanceChart.
 type PerformanceChartOptions struct {
-	Frame ChartFrame
+	Frame   ChartFrame
+	Version int
 	// Times dates each value; required, ascending.
 	Times []time.Time
 	// Benchmark is compared against the portfolio; nil shows none.
@@ -22,13 +23,11 @@ type PerformanceChartOptions struct {
 	Name, BenchmarkName string
 }
 
-// Drawdown is the deepest fall from a peak: indices and the fall in percent.
 type Drawdown struct {
 	Peak, Trough int
 	Percent      float64
 }
 
-// MaxDrawdown finds the largest peak-to-trough fall of positive values; Percent ≤ 0.
 func MaxDrawdown(values []float64) Drawdown {
 	var dd Drawdown
 	peak := 0
@@ -43,17 +42,12 @@ func MaxDrawdown(values []float64) Drawdown {
 	return dd
 }
 
-// PerformanceChart plots cumulative return against a benchmark and shades the maximum drawdown.
 func PerformanceChart(c *ui.Context, values []float64, opts PerformanceChartOptions) ChartResult {
-	for _, vs := range [][]float64{values, opts.Benchmark} {
-		for _, v := range vs {
-			if !(v > 0) || math.IsInf(v, 0) {
-				panic("mujica: PerformanceChart values must be positive")
-			}
-		}
-	}
 	if opts.Benchmark != nil && len(opts.Benchmark) != len(values) {
 		panic("mujica: PerformanceChart Benchmark length differs")
+	}
+	if len(opts.Times) != len(values) {
+		panic("mujica: PerformanceChart Times length differs")
 	}
 	ch := newChart(c, opts.Frame)
 	k := Tokens(c)
@@ -67,7 +61,18 @@ func PerformanceChart(c *ui.Context, values []float64, opts PerformanceChartOpti
 	if bname == "" {
 		bname = msg(c, "performance_chart.benchmark")
 	}
-	series := chartMemo(ch, "returns", [4]string{chartID(values), chartID(opts.Benchmark), name, bname}, func() []ChartSeries {
+	if opts.Benchmark != nil && name == bname {
+		panic("mujica: PerformanceChart series names must differ")
+	}
+	series := chartMemo(ch, "returns", [4]string{chartID(values), chartID(opts.Benchmark), name + fmt.Sprint(opts.Version), bname}, func() []ChartSeries {
+		for _, vs := range [][]float64{values, opts.Benchmark} {
+			for _, v := range vs {
+				if !(v > 0) || math.IsInf(v, 0) {
+					panic("mujica: PerformanceChart values must be positive")
+				}
+			}
+		}
+
 		out := []ChartSeries{{Name: name, Values: performanceReturns(values)}}
 		if opts.Benchmark != nil {
 			out = append(out, ChartSeries{Name: bname, Values: performanceReturns(opts.Benchmark)})
@@ -75,8 +80,8 @@ func PerformanceChart(c *ui.Context, values []float64, opts PerformanceChartOpti
 		return out
 	})
 	n := len(values)
-	ax := chartMemo(ch, "x", chartID(opts.Times), func() chartX { return newChartX(n, nil, opts.Times) })
-	dd := chartMemo(ch, "dd", chartID(values), func() Drawdown { return MaxDrawdown(values) })
+	ax := chartMemo(ch, "x", chartID(opts.Times)+fmt.Sprint(opts.Version), func() chartX { return newChartX(n, nil, opts.Times) })
+	dd := chartMemo(ch, "dd", chartID(values)+fmt.Sprint(opts.Version), func() Drawdown { return MaxDrawdown(values) })
 	lo, hi, ok := chartYRange(ch, series, true, nil)
 	if !ok {
 		n = 0
@@ -133,7 +138,9 @@ func PerformanceChart(c *ui.Context, values []float64, opts PerformanceChartOpti
 				continue
 			}
 			var line ui.Path
-			idx := internal.Columns(n, func(i int) float32 { return xs.Map(ax.vals[i]) }, func(i int) float64 { return s.Values[i] })
+			idx := chartMemo(ch, "performance.geometry."+s.Name, [3]any{chartID(s.Values), chartID(ax.vals), plot.W}, func() []int {
+				return internal.Columns(n, func(i int) float32 { return xs.Map(ax.vals[i]) - plot.X }, func(i int) float64 { return s.Values[i] })
+			})
 			for j, i := range idx {
 				if j == 0 {
 					line.MoveTo(x(i), internal.Snap(p, ys.Map(s.Values[i])))

@@ -10,7 +10,6 @@ import (
 	"mujicaui/theme"
 )
 
-// MarketPhase is a market's trading state. The zero value is MarketClosed.
 type MarketPhase int
 
 const (
@@ -29,15 +28,13 @@ var marketPhases = [5]struct{ key, icon string }{
 // MarketStatusOptions configure a MarketStatus.
 type MarketStatusOptions struct {
 	// Market names the venue, such as "NYSE".
-	Market string
-	// Next and NextPhase say when the phase changes; zero Next hides it.
+	Market    string
 	Next      time.Time
 	NextPhase MarketPhase
 	// Now counts down to Next; zero uses the window clock.
 	Now time.Time
 }
 
-// MarketStatus shows a market's phase with an icon and word, and when it changes next.
 func MarketStatus(c *ui.Context, phase MarketPhase, opts MarketStatusOptions) *ui.Element {
 	marketPhaseCheck(phase)
 	marketPhaseCheck(opts.NextPhase)
@@ -61,8 +58,7 @@ func MarketStatus(c *ui.Context, phase MarketPhase, opts MarketStatusOptions) *u
 		next = fmt.Sprintf(msg(c, "market_status.next"), msg(c, marketPhases[opts.NextPhase].key), opts.Next.Format("15:04"),
 			marketStatusIn(c, opts.Next.Sub(now)))
 		label += ", " + next
-		// The countdown changes once a minute.
-		c.After(time.Minute - time.Duration(now.Second())*time.Second)
+
 	}
 	row := ui.Row(c).Gap(u * 2).AlignItems(ui.Center).Role(ui.RoleStatus).Label(label)
 	row.Children(func() {
@@ -77,6 +73,9 @@ func MarketStatus(c *ui.Context, phase MarketPhase, opts MarketStatusOptions) *u
 			ui.Text(c, next).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.TextMuted).SingleLine()
 		}
 	})
+	if opts.Now.IsZero() && opts.Next.After(now) {
+		row.DrawOver(func(p *ui.Painter, _ ui.Rect) { c.After(time.Minute - time.Duration(p.Now().Second())*time.Second) })
+	}
 	return row
 }
 
@@ -86,7 +85,6 @@ func marketPhaseCheck(p MarketPhase) {
 	}
 }
 
-// marketStatusIn writes a duration as "2h 05m" or "12m"; past times read "now".
 func marketStatusIn(c *ui.Context, d time.Duration) string {
 	if d <= 0 {
 		return msg(c, "market_status.now")

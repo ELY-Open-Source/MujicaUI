@@ -31,9 +31,8 @@ type GreeksTableOptions struct {
 
 var greekNames = [5]string{"Delta", "Gamma", "Theta", "Vega", "Rho"}
 
-// GreeksTable lists Delta, Gamma, Theta, Vega and Rho per contract; headers explain each.
 func GreeksTable(c *ui.Context, rows []GreeksRow, opts GreeksTableOptions) *ui.Element {
-	if opts.Decimals < 0 {
+	if opts.Decimals < 0 || opts.Decimals > 12 {
 		panic("mujica: GreeksTable Decimals is negative")
 	}
 	dec := cmp.Or(opts.Decimals, 4)
@@ -42,8 +41,8 @@ func GreeksTable(c *ui.Context, rows []GreeksRow, opts GreeksTableOptions) *ui.E
 	u := d.Unit()
 	col := ui.Column(c).Gap(u * 2)
 	col.Children(func() {
-		g := ui.Grid(c).ColumnTracks(ui.Fr(1), ui.FitContent(), ui.FitContent(), ui.FitContent(), ui.FitContent(), ui.FitContent()).
-			GapX(u*5).Padding(u*2, u*3).Background(k.Surface).Border(theme.BorderWidth, k.Border).Radius(theme.CardRadius).
+		g := ui.Grid(c).ColumnTracks(ui.Fr(2), ui.Fr(1), ui.Fr(1), ui.Fr(1), ui.Fr(1), ui.Fr(1)).
+			GapX(u*2).Padding(u*2, u*3).Background(k.Surface).Border(theme.BorderWidth, k.Border).Radius(theme.CardRadius).
 			Role(ui.RoleTable).Label(msg(c, "greeks_table.title"))
 		g.Children(func() {
 			ui.Text(c, msg(c, "greeks_table.contract")).TextColor(k.TextMuted).FontSize(FontSize(c, theme.CaptionSize)).
@@ -53,11 +52,16 @@ func GreeksTable(c *ui.Context, rows []GreeksRow, opts GreeksTableOptions) *ui.E
 					Role(ui.RoleColumnHeader).Label(name).Description(msg(c, "greeks_table.note_"+greekKey(i)))
 				h.Tooltip(msg(c, "greeks_table.note_"+greekKey(i)))
 				h.Children(func() {
-					ui.Text(c, name).Font(theme.SerifFont).TextColor(k.Text)
+					ui.Text(c, name).SingleLine().Font(theme.SerifFont).TextColor(k.Text)
 					ui.Icon(c, icons.Must("info")).Size(12, 12).TextColor(k.TextMuted)
 				})
 			}
-			for ri, r := range rows {
+
+		})
+		state := ui.Local(col, "mujica.greeks.rows", func() ui.ListState { return ui.ListState{} })
+		ui.List(c, state, len(rows), func(ri int) {
+			ui.Grid(c).ColumnTracks(ui.Fr(2), ui.Fr(1), ui.Fr(1), ui.Fr(1), ui.Fr(1), ui.Fr(1)).GapX(u*2).Padding(0, u*3).MinHeight(d.ControlHeight()).Children(func() {
+				r := rows[ri]
 				vals := [5]float64{r.Greeks.Delta, r.Greeks.Gamma, r.Greeks.Theta, r.Greeks.Vega, r.Greeks.Rho}
 				ui.Text(c, r.Label).Key(ri).SingleLine().MinHeight(d.ControlHeight()).Role(ui.RoleCell)
 				for i, v := range vals {
@@ -68,8 +72,9 @@ func GreeksTable(c *ui.Context, rows []GreeksRow, opts GreeksTableOptions) *ui.E
 					ui.Text(c, s).Key([2]int{ri, i}).JustifySelf(ui.End).FontFeatures("tnum").TextColor(k.Text).
 						Role(ui.RoleCell).Label(greekNames[i] + " " + s)
 				}
-			}
-		})
+			})
+		}).Height(min(float32(len(rows))*d.ControlHeight(), 240)).Background(k.Surface).Border(theme.BorderWidth, k.Border).Radius(theme.CardRadius)
+
 		if opts.Notes {
 			ui.Column(c).Gap(u).Children(func() {
 				for i, name := range greekNames {

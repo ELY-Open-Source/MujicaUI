@@ -13,7 +13,6 @@ import (
 	"mujicaui/theme"
 )
 
-// HeatNode is a sector or a stock: market cap sizes it, Change (percent) colors it.
 type HeatNode struct {
 	Name     string
 	Cap      float64
@@ -23,9 +22,19 @@ type HeatNode struct {
 
 // MarketHeatmapOptions configure a MarketHeatmap.
 type MarketHeatmapOptions struct {
-	Frame ChartFrame
-	// Scale is the change in percent at full color; zero means 3.
-	Scale float64
+	Frame   ChartFrame
+	Version int
+	Scale   float64
+}
+
+type marketHeatMemo struct {
+	id            string
+	tiles         []marketHeatTile
+	caps          []float64
+	width, height float32
+	rects         []ui.Rect
+	visible       []int
+	small         []marketHeatCell
 }
 
 type marketHeatTile struct {
@@ -34,13 +43,11 @@ type marketHeatTile struct {
 	branch      bool
 }
 
-// MarketHeatmap tiles sectors and stocks by market cap, colored by change; branches drill in.
 func MarketHeatmap(c *ui.Context, path *[]string, root HeatNode, opts MarketHeatmapOptions) ChartResult {
-	if opts.Scale < 0 {
+	if opts.Scale < 0 || math.IsNaN(opts.Scale) || math.IsInf(opts.Scale, 0) || path == nil {
 		panic("mujica: MarketHeatmap Scale is negative")
 	}
 	scale := cmp.Or(opts.Scale, 3)
-	marketHeatCheck(root)
 	k := Tokens(c)
 	u := Density(c).Unit()
 	size := FontSize(c, theme.CaptionSize)
@@ -49,18 +56,23 @@ func MarketHeatmap(c *ui.Context, path *[]string, root HeatNode, opts MarketHeat
 	wrap.Children(func() {
 		res.value = chartPath(c, root.Name, path, wrap.IsDisabled())
 		node := marketHeatDescend(root, *path)
-		var tiles []marketHeatTile
-		for _, ch := range node.Children {
-			t := marketHeatTile{ch.Name, ch.total(), ch.change(), len(ch.Children) > 0}
-			if t.cap > 0 {
-				tiles = append(tiles, t)
+		memo := ui.Local(wrap, "mujica.heat", func() marketHeatMemo { return marketHeatMemo{} })
+		if id := strings.Join(*path, "/") + "|" + chartID(node.Children) + fmt.Sprint(opts.Version); id != memo.id {
+			marketHeatCheck(root)
+			memo.id, memo.tiles, memo.caps = id, nil, nil
+			memo.rects = nil
+			for _, ch := range node.Children {
+				t := marketHeatTile{ch.Name, ch.total(), ch.change(), len(ch.Children) > 0}
+				if t.cap > 0 {
+					memo.tiles = append(memo.tiles, t)
+				}
+			}
+			slices.SortStableFunc(memo.tiles, func(a, b marketHeatTile) int { return cmp.Compare(b.cap, a.cap) })
+			for _, t := range memo.tiles {
+				memo.caps = append(memo.caps, t.cap)
 			}
 		}
-		slices.SortStableFunc(tiles, func(a, b marketHeatTile) int { return cmp.Compare(b.cap, a.cap) })
-		caps := make([]float64, len(tiles))
-		for i, t := range tiles {
-			caps[i] = t.cap
-		}
+		tiles, caps := memo.tiles, memo.caps
 		color := func(ch float64) ui.Color {
 			return k.Surface.Mix(trendColor(c, trendSign(ch)), float32(0.15+0.85*min(math.Abs(ch)/scale, 1)))
 		}
@@ -75,7 +87,8 @@ func MarketHeatmap(c *ui.Context, path *[]string, root HeatNode, opts MarketHeat
 			return s
 		}
 		spec.Pick = func(r ui.Rect, x, y float32) int {
-			for i, t := range squarify(caps, r) {
+			memo.layout(caps, r)
+			for i, t := range memo.rects {
 				if t.Contains(x, y) {
 					return i
 				}
@@ -90,7 +103,13 @@ func MarketHeatmap(c *ui.Context, path *[]string, root HeatNode, opts MarketHeat
 			}
 		}
 		spec.Draw = func(p *ui.Painter, r ui.Rect, active int) {
-			for i, t := range squarify(caps, r) {
+			memo.layout(caps, r)
+			for _, cell := range memo.small {
+				p.Fill(ui.Rect{X: r.X + cell.x, Y: r.Y + cell.y, W: 4, H: 4}, color(cell.change), 0)
+			}
+			for _, i := range memo.visible {
+				t := memo.rects[i]
+				t.X, t.Y = t.X+r.X, t.Y+r.Y
 				bg := color(tiles[i].change)
 				p.Fill(t, bg, 2)
 				p.Stroke(t, k.Surface, 2, 2)
@@ -116,7 +135,6 @@ func MarketHeatmap(c *ui.Context, path *[]string, root HeatNode, opts MarketHeat
 	return res
 }
 
-// marketHeatLegend is the color scale from −Scale to +Scale with signed labels.
 func marketHeatLegend(c *ui.Context, scale float64, color func(float64) ui.Color) {
 	k := Tokens(c)
 	size := FontSize(c, theme.CaptionSize)
@@ -142,7 +160,6 @@ func (n HeatNode) total() float64 {
 	return s
 }
 
-// change is the node's own change, or its children's cap-weighted mean.
 func (n HeatNode) change() float64 {
 	if len(n.Children) == 0 {
 		return n.Change
@@ -183,4 +200,40 @@ func marketHeatDescend(root HeatNode, path []string) HeatNode {
 		n = n.Children[i]
 	}
 	return n
+}
+
+type marketHeatCell struct {
+	x, y   float32
+	change float64
+}
+
+func (m *marketHeatMemo) layout(caps []float64, r ui.Rect) {
+	if m.rects != nil && m.width == r.W && m.height == r.H {
+		return
+	}
+	m.width, m.height = r.W, r.H
+	m.rects = squarify(caps, ui.Rect{W: r.W, H: r.H})
+	m.visible, m.small = nil, nil
+	type aggregate struct{ weight, change float64 }
+	bins := map[[2]int]aggregate{}
+	for i, t := range m.rects {
+		if t.W >= 4 && t.H >= 4 {
+			m.visible = append(m.visible, i)
+			continue
+		}
+		key := [2]int{int((t.X + t.W/2) / 4), int((t.Y + t.H/2) / 4)}
+		a := bins[key]
+		a.weight += caps[i]
+		a.change += caps[i] * m.tiles[i].change
+		bins[key] = a
+	}
+	for key, a := range bins {
+		m.small = append(m.small, marketHeatCell{float32(key[0]) * 4, float32(key[1]) * 4, a.change / a.weight})
+	}
+	slices.SortFunc(m.small, func(a, b marketHeatCell) int {
+		if a.y != b.y {
+			return cmp.Compare(a.y, b.y)
+		}
+		return cmp.Compare(a.x, b.x)
+	})
 }

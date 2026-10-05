@@ -12,7 +12,6 @@ import (
 	"mujicaui/theme"
 )
 
-// OptionLegKind is what a leg holds. The zero value is LegCall.
 type OptionLegKind int
 
 const (
@@ -22,7 +21,6 @@ const (
 	LegStock
 )
 
-// OptionLeg is one position of a strategy; Quantity is negative for short.
 type OptionLeg struct {
 	Kind     OptionLegKind
 	Strike   float64
@@ -30,7 +28,6 @@ type OptionLeg struct {
 	Quantity float64
 }
 
-// PayoffAt is the strategy's profit at expiry with the underlying at price.
 func PayoffAt(legs []OptionLeg, price float64) float64 {
 	sum := 0.0
 	for _, l := range legs {
@@ -48,7 +45,6 @@ func PayoffAt(legs []OptionLeg, price float64) float64 {
 	return sum
 }
 
-// Breakevens are the prices in lo..hi where the strategy's payoff crosses zero, ascending.
 func Breakevens(legs []OptionLeg, lo, hi float64) []float64 {
 	kinks := []float64{lo, hi}
 	for _, l := range legs {
@@ -76,17 +72,13 @@ func Breakevens(legs []OptionLeg, lo, hi float64) []float64 {
 
 // PayoffDiagramOptions configure a PayoffDiagram.
 type PayoffDiagramOptions struct {
-	Frame ChartFrame
-	// Spot is the current price, marked on the chart; zero hides it.
-	Spot float64
-	// Low and High bound the price axis; both zero span the strikes ±30%.
+	Frame     ChartFrame
+	Spot      float64
 	Low, High float64
-	// Points is how many prices the keys step through; zero means 101.
-	Points int
-	Format func(v float64) string
+	Points    int
+	Format    func(v float64) string
 }
 
-// PayoffDiagram plots a strategy's profit at expiry with breakevens and the current price.
 func PayoffDiagram(c *ui.Context, legs []OptionLeg, opts PayoffDiagramOptions) ChartResult {
 	lo, hi := payoffRange(legs, opts)
 	n := opts.Points
@@ -101,6 +93,7 @@ func PayoffDiagram(c *ui.Context, legs []OptionLeg, opts PayoffDiagramOptions) C
 	size := FontSize(c, theme.CaptionSize)
 	type data struct {
 		px, pl, be []float64
+		gx, gp     []float64
 		ylo, yhi   float64
 	}
 	d := chartMemo(ch, "payoff", fmt.Sprint(legs, lo, hi, n), func() data {
@@ -111,6 +104,20 @@ func PayoffDiagram(c *ui.Context, legs []OptionLeg, opts PayoffDiagramOptions) C
 			x := lo + (hi-lo)*float64(i)/float64(n-1)
 			v.px, v.pl = append(v.px, x), append(v.pl, PayoffAt(legs, x))
 			v.ylo, v.yhi = min(v.ylo, v.pl[i]), max(v.yhi, v.pl[i])
+		}
+		v.gx = slices.Clone(v.px)
+		for _, l := range legs {
+			if l.Kind != LegStock && l.Strike > lo && l.Strike < hi {
+				v.gx = append(v.gx, l.Strike)
+			}
+		}
+		v.gx = append(v.gx, v.be...)
+		slices.Sort(v.gx)
+		v.gx = slices.Compact(v.gx)
+		for _, x := range v.gx {
+			value := PayoffAt(legs, x)
+			v.gp = append(v.gp, value)
+			v.ylo, v.yhi = min(v.ylo, value), max(v.yhi, value)
 		}
 		return v
 	})
@@ -128,7 +135,8 @@ func PayoffDiagram(c *ui.Context, legs []OptionLeg, opts PayoffDiagramOptions) C
 	up, down := trendColor(c, 1), trendColor(c, -1)
 	spec := ChartSpec{Marks: n}
 	spec.Readout = func(i int) string {
-		return fmt.Sprintf(msg(c, "payoff_diagram.readout"), format(d.px[i]), trendWord(c, trendSign(d.pl[i])), format(d.pl[i]))
+		word := [3]string{"payoff_diagram.loss", "payoff_diagram.even", "payoff_diagram.profit"}[trendSign(d.pl[i])+1]
+		return fmt.Sprintf(msg(c, "payoff_diagram.readout"), format(d.px[i]), msg(c, word), format(d.pl[i]))
 	}
 	spec.Pick = func(r ui.Rect, x, y float32) int {
 		plot, xs, _ := geom(r)
@@ -152,17 +160,14 @@ func PayoffDiagram(c *ui.Context, legs []OptionLeg, opts PayoffDiagramOptions) C
 		zero := internal.Snap(p, ys.Map(0))
 		pt := func(x, v float64) (float32, float32) { return internal.Snap(p, xs.Map(x)), internal.Snap(p, ys.Map(v)) }
 		// Exact corners: the grid plus strikes and breakevens.
-		xsAll := slices.Clone(d.px)
-		for _, l := range legs {
-			if l.Kind != LegStock && l.Strike > lo && l.Strike < hi {
-				xsAll = append(xsAll, l.Strike)
-			}
-		}
-		xsAll = append(xsAll, d.be...)
-		slices.Sort(xsAll)
-		for i := 1; i < len(xsAll); i++ {
-			a, b := xsAll[i-1], xsAll[i]
-			fa, fb := PayoffAt(legs, a), PayoffAt(legs, b)
+		indices := chartMemo(ch, "payoff.geometry", [2]any{chartID(d.gx), plot.W}, func() []int {
+			return internal.Columns(len(d.gx), func(i int) float32 { return float32((d.gx[i]-lo)/(hi-lo)) * plot.W }, func(i int) float64 { return d.gp[i] })
+		})
+
+		for j := 1; j < len(indices); j++ {
+			prev, i := indices[j-1], indices[j]
+			a, b := d.gx[prev], d.gx[i]
+			fa, fb := d.gp[prev], d.gp[i]
 			col := up
 			if fa+fb < 0 {
 				col = down
@@ -175,11 +180,11 @@ func PayoffDiagram(c *ui.Context, legs []OptionLeg, opts PayoffDiagramOptions) C
 		}
 		p.Line(plot.X, zero, plot.X+plot.W, zero, 1, k.ControlBorder)
 		var line ui.Path
-		for i, x := range xsAll {
-			if i == 0 {
-				line.MoveTo(pt(x, PayoffAt(legs, x)))
+		for j, i := range indices {
+			if j == 0 {
+				line.MoveTo(pt(d.gx[i], d.gp[i]))
 			} else {
-				line.LineTo(pt(x, PayoffAt(legs, x)))
+				line.LineTo(pt(d.gx[i], d.gp[i]))
 			}
 		}
 		p.StrokePath(&line, 2, k.AccentText)
@@ -215,7 +220,6 @@ func PayoffDiagram(c *ui.Context, legs []OptionLeg, opts PayoffDiagramOptions) C
 	return res
 }
 
-// payoffRange is the price axis: the options' range, or the strikes ±30%.
 func payoffRange(legs []OptionLeg, opts PayoffDiagramOptions) (lo, hi float64) {
 	if opts.Low != 0 || opts.High != 0 {
 		if !(opts.High > opts.Low) || opts.Low < 0 {

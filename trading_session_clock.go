@@ -9,13 +9,11 @@ import (
 	"mujicaui/theme"
 )
 
-// TradingSession is a phase from Start to End, in minutes after the market's local midnight.
 type TradingSession struct {
 	Phase      MarketPhase
 	Start, End int
 }
 
-// SessionMarket is a market, its time zone from the caller, and its daily sessions.
 type SessionMarket struct {
 	Name     string
 	Location *time.Location
@@ -30,7 +28,6 @@ type TradingSessionClockOptions struct {
 	Now time.Time
 }
 
-// TradingSessionClock shows each market's local time, phase, next change and a day bar of its sessions.
 func TradingSessionClock(c *ui.Context, markets []SessionMarket, opts TradingSessionClockOptions) *ui.Element {
 	now := opts.Now
 	if now.IsZero() {
@@ -70,7 +67,9 @@ func TradingSessionClock(c *ui.Context, markets []SessionMarket, opts TradingSes
 		}
 	})
 	// Times and phases move on the minute.
-	c.After(time.Minute - time.Duration(now.Second())*time.Second)
+	if opts.Now.IsZero() && len(markets) > 0 {
+		g.DrawOver(func(p *ui.Painter, _ ui.Rect) { c.After(time.Minute - time.Duration(p.Now().Second())*time.Second) })
+	}
 	return g
 }
 
@@ -88,13 +87,14 @@ func tradingSessionCheck(m SessionMarket) {
 	}
 }
 
-// tradingSessionPhase is the phase at local, the next change, and the phase it brings.
 func tradingSessionPhase(m SessionMarket, local time.Time) (MarketPhase, time.Time, MarketPhase) {
 	if m.Holiday || len(m.Sessions) == 0 {
 		return MarketHoliday, time.Time{}, MarketClosed
 	}
 	mid := time.Date(local.Year(), local.Month(), local.Day(), 0, 0, 0, 0, m.Location)
-	at := func(min int) time.Time { return mid.Add(time.Duration(min) * time.Minute) }
+	at := func(min int) time.Time {
+		return time.Date(mid.Year(), mid.Month(), mid.Day(), min/60, min%60, 0, 0, m.Location)
+	}
 	cur := local.Hour()*60 + local.Minute()
 	for i, s := range m.Sessions {
 		switch {

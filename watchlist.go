@@ -7,6 +7,7 @@ import (
 	"github.com/egoist/mygo/ui"
 
 	"mujicaui/icons"
+	"mujicaui/internal"
 	"mujicaui/theme"
 )
 
@@ -36,7 +37,6 @@ const (
 
 var watchColumns = [3]string{"watchlist.price", "watchlist.change", "watchlist.volume"}
 
-// WatchlistState is the open group, the chosen symbol and the hidden columns.
 type WatchlistState struct {
 	Group    int
 	Selected string
@@ -54,28 +54,33 @@ type WatchlistOptions struct {
 
 // WatchlistView is a built Watchlist and this frame's events.
 type WatchlistView struct {
-	Element *ui.Element
-	// Changed reports a new State.Selected; Submitted is Enter or a double click.
+	Element            *ui.Element
 	Changed, Submitted bool
-	// Moved asks the caller to move rows Rows of the open group before index To.
-	Moved bool
-	Rows  []int
-	To    int
+	Moved              bool
+	Rows               []int
+	To                 int
 }
 
-// Watchlist shows grouped watched symbols with chosen columns; rows reorder by dragging and keep the choice through updates.
 func Watchlist(c *ui.Context, s *WatchlistState, groups []WatchGroup, opts WatchlistOptions) WatchlistView {
 	if s == nil || len(groups) == 0 {
 		panic("mujica: Watchlist needs a state and a group")
 	}
 	dec := priceDecimals("Watchlist", opts.Decimals)
+
+	if s.Group < 0 || s.Group >= len(groups) {
+		panic("mujica: Watchlist Group out of range")
+	}
+	d := Density(c)
+	var v WatchlistView
+	v.Element = ui.Column(c).Gap(d.Unit() * 2).Grow(1).MinHeight(0).Disabled(opts.Disabled)
+	opts.Disabled = v.Element.IsDisabled()
+	if opts.Disabled {
+		copy := *s
+		s = &copy
+	}
 	if s.Hidden == nil {
 		s.Hidden = map[WatchColumn]bool{}
 	}
-	s.Group = max(0, min(s.Group, len(groups)-1))
-	d := Density(c)
-	var v WatchlistView
-	v.Element = ui.Column(c).Gap(d.Unit() * 2).MinHeight(0).Disabled(opts.Disabled)
 	v.Element.Children(func() {
 		ui.Row(c).Gap(d.Unit() * 2).AlignItems(ui.Center).Children(func() {
 			tabs := make([]Tab, len(groups))
@@ -122,7 +127,10 @@ func watchlistRows(c *ui.Context, s *WatchlistState, items []WatchItem, dec int,
 	s.rows.Key = func(i int) any { return items[i].Symbol }
 	s.rows.Label = func(i int) string { return items[i].Symbol }
 	s.rows.Selected = cursor
-	s.rows.Reorder = func(rows []int, to int) { v.Moved, v.Rows, v.To = true, slices.Clone(rows), to }
+	s.rows.Reorder = nil
+	if !disabled {
+		s.rows.Reorder = func(rows []int, to int) { v.Moved, v.Rows, v.To = true, slices.Clone(rows), to }
+	}
 	if len(items) == 0 {
 		ui.Text(c, msg(c, "watchlist.empty")).TextColor(k.TextMuted).Padding(d.Unit() * 3)
 		return false, false
@@ -155,6 +163,7 @@ func watchlistRows(c *ui.Context, s *WatchlistState, items []WatchItem, dec int,
 		})
 	}).Grow(1).MinHeight(0).Padding(d.Unit()).Background(k.Surface).Border(theme.BorderWidth, k.Border).Radius(theme.ControlRadius)
 	restore()
+	internal.Ring(list, k.Focus, theme.ControlRadius)
 	if !disabled && s.cursor != before && s.cursor >= 0 {
 		s.Selected, changed = items[s.cursor].Symbol, true
 	}
