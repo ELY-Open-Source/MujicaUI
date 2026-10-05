@@ -75,7 +75,7 @@ func (v ListView) Changed() bool { return v.changed }
 // Submitted reports Enter or a double click on an item.
 func (v ListView) Submitted() bool { return v.submitted }
 
-// Retried reports a click on the retry action of a failed load.
+// Retried reports a click on a failed load's retry.
 func (v ListView) Retried() bool { return v.retry }
 
 // List shows n items, building only those in view, as rows or a grid.

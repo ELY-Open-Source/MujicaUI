@@ -98,7 +98,7 @@ func (v DataTableView) Submitted() bool { return v.submitted }
 // SortChanged reports a header click or menu choice that changed State.Sort.
 func (v DataTableView) SortChanged() bool { return v.sorted }
 
-// Retried reports a click on the retry action of a failed load.
+// Retried reports a click on a failed load's retry.
 func (v DataTableView) Retried() bool { return v.retry }
 
 const dataTableMarkID = "mujica.select"
