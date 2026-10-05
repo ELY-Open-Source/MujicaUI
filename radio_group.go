@@ -51,12 +51,7 @@ func RadioGroup[T comparable](c *ui.Context, value *T, items []RadioItem[T], opt
 	wrap.Children(func() {
 		r.Element = ui.RadioGroup(c, func() {
 			for _, it := range items {
-				key := slices.Index(*known, it.Value)
-				if key < 0 {
-					key = len(*known)
-					*known = append(*known, it.Value)
-				}
-				if radioGroupItem(c, k, d, value, it, key) {
+				if radioGroupItem(c, k, d, value, it, stableKey(known, it.Value)) {
 					r.changed = true
 					slog.Debug("mujica: radio_group choose", "label", it.Label)
 				}
@@ -102,4 +97,14 @@ func radioGroupItem[T comparable](c *ui.Context, k theme.Tokens, d theme.Density
 		ui.Text(c, it.Label)
 	})
 	return row.Changed()
+}
+
+// stableKey keys v by its first appearance in *known, so equal-looking values stay apart.
+func stableKey[T comparable](known *[]T, v T) int {
+	i := slices.Index(*known, v)
+	if i < 0 {
+		i = len(*known)
+		*known = append(*known, v)
+	}
+	return i
 }

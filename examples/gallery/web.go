@@ -31,6 +31,7 @@ type mirror struct {
 	urls   int
 	clip   string
 	copied bool
+	probes int
 	cursor ui.Cursor
 	down   *input
 	enc    png.Encoder
