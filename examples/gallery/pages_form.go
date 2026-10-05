@@ -31,10 +31,9 @@ func formToggles(c *ui.Context, names []string, values ...*bool) {
 
 type formDemo struct {
 	st                     mujica.FormState
-	name, email, password  string
+	name, email            string
 	tags                   []string
 	horizontal, slowServer bool
-	pending                int
 }
 
 type fieldDemo struct {
