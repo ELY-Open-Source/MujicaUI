@@ -13,8 +13,7 @@ type ToolbarOptions struct {
 	Label string
 }
 
-// Toolbar is a row of actions built by fn, one Tab stop with arrow keys inside.
-// Actions that do not fit move, from the last, into an overflow menu.
+// Toolbar is one Tab stop of actions; those that do not fit go to an overflow menu.
 func Toolbar(c *ui.Context, opts ToolbarOptions, fn func()) *ui.Element {
 	k := Tokens(c)
 	tb := ui.Toolbar(c, fn).Background(k.Surface).Border(theme.BorderWidth, k.Border).Radius(theme.CardRadius).

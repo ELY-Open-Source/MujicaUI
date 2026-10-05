@@ -150,6 +150,34 @@ func TestMenubarKeyboard(t *testing.T) {
 	}
 }
 
+func TestMenubarKeysAfterClickInMenu(t *testing.T) {
+	a := &menubarApp{}
+	tt := ui.NewTester(a.view, 700, 500)
+	_ = tt.Click("File")
+	if err := tt.Click("Export"); err != nil {
+		t.Fatal(err)
+	}
+	if !tt.Focused("File") {
+		t.Fatal("click into the menu left the title without focus")
+	}
+	tt.Key(0, ui.KeyDown) // PDF to Vector, skipping disabled Image
+	tt.Key(0, ui.KeyEnter)
+	if len(a.chosen) != 1 || a.chosen[0] != "svg" {
+		t.Fatalf("arrows after a click chose %q", a.chosen)
+	}
+	_ = tt.Click("File")
+	_ = tt.Click("Export")
+	_ = tt.Click("Image") // disabled: the press still keeps keys working
+	tt.Key(0, ui.KeyEscape)
+	if tt.HasText("Vector") || !tt.HasText("Quit") {
+		t.Fatalf("Escape did not close only the submenu: %q", tt.Texts())
+	}
+	tt.Key(0, ui.KeyEscape)
+	if tt.HasText("Quit") {
+		t.Fatal("second Escape did not close the menu")
+	}
+}
+
 func TestMenubarLongMenuScrolls(t *testing.T) {
 	var items []MenubarItem
 	for i := range 30 {

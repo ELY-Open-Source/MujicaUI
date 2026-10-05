@@ -147,34 +147,46 @@ func navigationMenuTop(c *ui.Context, l NavigationLink, path string, push func(s
 		*open = true
 	}
 	ui.PopoverBase(c, b, open, func(panel *ui.Element) {
-		panel.Margin(u, 0, 0, 0).Padding(u*2).Gap(u).Radius(theme.PopupRadius).Background(k.Surface).
+		internal.PopIn(c, panel, Motion(c, theme.PopupDuration))
+		// Capped to the room beside the anchor; the links scroll inside.
+		_, wh := c.Size()
+		r := b.Bounds()
+		panel.Margin(u, 0, 0, 0).Padding(u*2).Radius(theme.PopupRadius).Background(k.Surface).MaxHeight(max(r.Y, wh-r.Y-r.H)-16).
 			Border(theme.BorderWidth, k.Border).Shadow(0, 4, 12, 0, ui.RGBA(0, 0, 0, 0.16)).MinWidth(240).MaxWidth(360)
-		panel.FocusGroup(ui.Vertical)
-		first := true
-		var list func(items []NavigationLink)
-		list = func(items []NavigationLink) {
-			for _, it := range items {
-				if it.Label == "" {
-					panic("mujica: NavigationLink needs a Label")
-				}
-				if it.Items != nil {
-					ui.Text(c, it.Label).Font(theme.SerifFont).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.Ornament.Mix(k.Text, 0.35)).
-						Padding(u*2, u*2, u, u*2).SingleLine()
-					list(it.Items)
-					continue
-				}
-				if it.Path == "" {
-					panic("mujica: NavigationLink needs a Path or Items")
-				}
-				if navigationMenuItem(c, it, it.Path == path, first).Clicked() {
-					*open = false
-					push(it.Path)
-				}
-				first = false
-			}
-		}
-		list(l.Items)
+		ui.Scroll(c).Shrink(1).Gap(u).FocusGroup(ui.Vertical).Children(func() {
+			navigationMenuPanel(c, l.Items, path, open, push)
+		})
 	})
+}
+
+// navigationMenuPanel lists a group's links, its subgroups under serif headings.
+func navigationMenuPanel(c *ui.Context, items []NavigationLink, path string, open *bool, push func(string)) {
+	k := Tokens(c)
+	u := Density(c).Unit()
+	first := true
+	var list func(items []NavigationLink)
+	list = func(items []NavigationLink) {
+		for _, it := range items {
+			if it.Label == "" {
+				panic("mujica: NavigationLink needs a Label")
+			}
+			if it.Items != nil {
+				ui.Text(c, it.Label).Font(theme.SerifFont).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.Ornament.Mix(k.Text, 0.35)).
+					Padding(u*2, u*2, u, u*2).SingleLine()
+				list(it.Items)
+				continue
+			}
+			if it.Path == "" {
+				panic("mujica: NavigationLink needs a Path or Items")
+			}
+			if navigationMenuItem(c, it, it.Path == path, first).Clicked() {
+				*open = false
+				push(it.Path)
+			}
+			first = false
+		}
+	}
+	list(items)
 }
 
 func navigationMenuItem(c *ui.Context, l NavigationLink, on, first bool) *ui.Element {
