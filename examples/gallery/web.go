@@ -20,18 +20,18 @@ var indexHTML []byte
 
 // mirror runs the gallery view headless and streams its frames.
 type mirror struct {
-	mu      sync.Mutex
-	tt      *ui.Tester
-	frame   []byte
-	seq     int
-	hash    uint64
-	seed    maphash.Seed
-	subs    map[chan []byte]struct{}
-	wake    chan struct{}
-	urls    int
-	told    int
-	clip    string
-	enc     png.Encoder
+	mu    sync.Mutex
+	tt    *ui.Tester
+	frame []byte
+	seq   int
+	hash  uint64
+	seed  maphash.Seed
+	subs  map[chan []byte]struct{}
+	wake  chan struct{}
+	urls  int
+	told  int
+	clip  string
+	enc   png.Encoder
 }
 
 func serveWeb(addr string, view func(c *ui.Context)) error {

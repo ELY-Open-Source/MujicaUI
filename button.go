@@ -34,7 +34,7 @@ func Button(c *ui.Context, label string, opts ButtonOptions) *ui.Element {
 	k := Tokens(c)
 	d := Density(c)
 	b := ui.ButtonBase(c).MinHeight(d.ControlHeight()).MinWidth(theme.MinHitSize).
-		Padding(0, d.Unit()*4).Gap(d.Unit()*2).Radius(theme.ControlRadius).
+		Padding(0, d.Unit()*4).Gap(d.Unit() * 2).Radius(theme.ControlRadius).
 		Disabled(opts.Disabled || opts.Loading)
 	internal.Ring(b, k.Focus, theme.ControlRadius)
 	if opts.Label != "" {
