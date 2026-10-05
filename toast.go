@@ -32,6 +32,7 @@ type ToastMessage struct {
 type ToasterResult struct {
 	Action string
 	Closed string
+	wake   time.Time // when this frame asked for the next one; zero for none
 }
 
 type toastItem struct {
@@ -46,7 +47,6 @@ type toastItem struct {
 // toastQueue holds a window's toasts, visible ones first in order shown.
 type toastQueue struct {
 	items []toastItem
-	wake  time.Time // when Toaster last asked for a frame; zero for none
 }
 
 type toastKey struct{}
@@ -231,9 +231,8 @@ func Toaster(c *ui.Context) ToasterResult {
 		}
 	}
 	// Scheduled after resuming, so a toast released this frame still expires.
-	q.wake = time.Time{}
 	if next := q.settle(now, held); next > 0 {
-		q.wake = now.Add(next)
+		res.wake = now.Add(next)
 		c.After(next)
 	}
 	return res
