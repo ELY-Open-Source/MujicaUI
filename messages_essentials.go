@@ -21,6 +21,11 @@ func init() {
 		"currency_input.invalid":   {"Enter an amount, such as 1,234.50", "请输入金额，例如 1,234.50"},
 		"currency_input.precision": {"Use at most %d decimal places", "最多保留 %d 位小数"},
 
+		"signature_pad.label": {"Signature", "签名"},
+		"signature_pad.hint":  {"Draw with the pointer; Delete clears", "用鼠标书写；Delete 键清除"},
+		"signature_pad.empty": {"Sign here", "请在此签名"},
+		"signature_pad.clear": {"Clear", "清除"},
+
 		"qr_code.label":    {"QR code", "二维码"},
 		"qr_code.too_long": {"Text too long for a QR code", "文字过长，无法生成二维码"},
 	})

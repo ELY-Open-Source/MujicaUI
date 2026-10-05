@@ -57,7 +57,7 @@ func MentionInput(c *ui.Context, value *string, mentions *[]Mention, opts Mentio
 	var r InputResult
 	look := &textInputLook{disabled: opts.Disabled, err: opts.Error}
 	r.Element, r.Input = textInputFrame(c, look, func(frame *ui.Element) *ui.Element {
-		in := ui.Box(c).Grow(1).MinWidth(Density(c).Unit()*20).Focusable().Clip().Role(ui.RoleTextField).Label(opts.Label).Cursor(ui.CursorText)
+		in := ui.Box(c).Grow(1).MinWidth(Density(c).Unit() * 20).Focusable().Clip().Role(ui.RoleTextField).Label(opts.Label).Cursor(ui.CursorText)
 		s := *ui.Local(in, "mention_input", func() *mentionInputState { return &mentionInputState{at: -1} })
 		if s.doc.text == nil || s.synced != *value || !slices.Equal(s.syncedMentions, *mentions) {
 			// Set from outside: start over at the end.
@@ -314,7 +314,9 @@ func mentionInputPopup(c *ui.Context, k theme.Tokens, s *mentionInputState, fram
 						Radius(theme.ControlRadius).Role(ui.RoleListItem).Label(m.Name).Cursor(ui.CursorPointer)
 					if i == s.pick {
 						it.Selected(true).Background(k.Selection).TextColor(k.AccentText)
-						it.Draw(func(p *ui.Painter, r ui.Rect) { p.Fill(ui.Rect{X: r.X, Y: r.Y + 6, W: 2, H: r.H - 12}, k.AccentText, 0) })
+						it.Draw(func(p *ui.Painter, r ui.Rect) {
+							p.Fill(ui.Rect{X: r.X, Y: r.Y + 6, W: 2, H: r.H - 12}, k.AccentText, 0)
+						})
 					} else if it.Hovered() {
 						it.Background(k.SurfaceHover)
 					}
