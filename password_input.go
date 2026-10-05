@@ -36,14 +36,14 @@ func PasswordInput(c *ui.Context, value *string, opts PasswordInputOptions) Inpu
 			mode = "shown"
 		}
 		ui.Row(c).Key(mode).Grow(1).Children(func() {
-			in = textInputEditor(c, frame, value, opts.Disabled, ui.TextInputBase).Grow(1).MinWidth(Density(c).Unit() * 10).
+			in = textInputEditor(c, frame, value, look.disabled, ui.TextInputBase).Grow(1).MinWidth(Density(c).Unit() * 10).
 				Placeholder(opts.Placeholder).Label(opts.Label)
 			if !*shown {
 				in.Password()
 			}
 		})
-		r.changed = in.Changed() && !opts.Disabled
-		r.submitted = in.Submitted() && !opts.Disabled
+		r.changed = in.Changed() && !look.disabled
+		r.submitted = in.Submitted() && !look.disabled
 		if passwordInputToggle(c, *shown) {
 			*shown = !*shown
 			slog.Debug("mujica: password_input reveal", "shown", *shown)

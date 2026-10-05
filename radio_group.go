@@ -2,6 +2,7 @@ package mujica
 
 import (
 	"log/slog"
+	"slices"
 
 	"github.com/egoist/mygo/ui"
 
@@ -45,10 +46,17 @@ func RadioGroup[T comparable](c *ui.Context, value *T, items []RadioItem[T], opt
 	var r InputResult
 	// Disabled on a wrapper blocks the bases' clicks before they choose.
 	wrap := ui.Box(c).Shrink(0).Disabled(opts.Disabled)
+	// Keys by first appearance of each value: fmt keys would merge equal-looking values.
+	known := ui.Local(wrap, "values", func() []T { return nil })
 	wrap.Children(func() {
 		r.Element = ui.RadioGroup(c, func() {
 			for _, it := range items {
-				if radioGroupItem(c, k, d, value, it) {
+				key := slices.Index(*known, it.Value)
+				if key < 0 {
+					key = len(*known)
+					*known = append(*known, it.Value)
+				}
+				if radioGroupItem(c, k, d, value, it, key) {
 					r.changed = true
 					slog.Debug("mujica: radio_group choose", "label", it.Label)
 				}
@@ -58,21 +66,21 @@ func RadioGroup[T comparable](c *ui.Context, value *T, items []RadioItem[T], opt
 	if opts.Horizontal {
 		r.Element.Row().Gap(d.Unit() * 6)
 	}
-	if opts.Disabled && wrap.FocusWithin() {
+	if wrap.IsDisabled() && wrap.FocusWithin() {
 		wrap.FocusRing(false).Focus()
 	}
 	return r
 }
 
 // radioGroupItem builds one radio and reports whether it was chosen.
-func radioGroupItem[T comparable](c *ui.Context, k theme.Tokens, d theme.Density, value *T, it RadioItem[T]) bool {
+func radioGroupItem[T comparable](c *ui.Context, k theme.Tokens, d theme.Density, value *T, it RadioItem[T], key int) bool {
 	// Keyed by value so focus follows the item, not its position.
 	var row *ui.Element
-	item := ui.Box(c).Key(it.Value).Disabled(it.Disabled)
+	item := ui.Box(c).Key(key).Disabled(it.Disabled)
 	item.Children(func() {
 		row = ui.RadioBase(c, value, it.Value).Gap(d.Unit() * 2).MinHeight(d.ControlHeight()).FocusRing(false)
 	})
-	if it.Disabled && item.FocusWithin() {
+	if item.IsDisabled() && item.FocusWithin() {
 		item.FocusRing(false).Focus()
 	}
 	on := *value == it.Value

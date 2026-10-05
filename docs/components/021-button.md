@@ -21,7 +21,7 @@ if mujica.Button(c, "Save", mujica.ButtonOptions{Icon: icons.Must("check")}).Cli
 | `label` | `string` | 必填（仅图标时可为空） | 按钮文字；为空时必须提供 `Label`，否则 panic。 |
 | `Variant` | `ButtonVariant` | `Primary` | `Primary`、`Secondary`、`Outline`、`Ghost`、`Danger`。 |
 | `Icon` | `*ui.SVG` | `nil` | 文字前的 16 DIP 图标。 |
-| `Loading` | `bool` | `false` | 有图标时加载标记占用图标位置；纯文字时标记居中覆盖在隐藏的文字上，宽度不变；阻止点击。 |
+| `Loading` | `bool` | `false` | 加载标记出现在前置 16 DIP 图标位置，文字保持可见；有图标时替换图标，纯文字时从左右内边距中让出该位置，宽度不变；阻止点击。 |
 | `Disabled` | `bool` | `false` | 不可点击、不进入 Tab 序列。 |
 | `Label` | `string` | `""` | 无障碍名称；`label` 为空时必填。 |
 

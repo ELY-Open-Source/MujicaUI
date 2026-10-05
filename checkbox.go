@@ -32,7 +32,7 @@ func Checkbox(c *ui.Context, value *bool, label string, opts CheckboxOptions) *u
 	wrap.Children(func() {
 		row = ui.CheckboxBase(c, value).Gap(d.Unit() * 2).MinHeight(d.ControlHeight()).FocusRing(false)
 	})
-	if opts.Disabled && wrap.FocusWithin() {
+	if wrap.IsDisabled() && wrap.FocusWithin() {
 		wrap.FocusRing(false).Focus()
 	}
 	if row.Changed() && opts.Indeterminate && !*value {

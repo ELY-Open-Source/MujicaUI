@@ -50,8 +50,33 @@ func (s numberInputSpec) format(v float64) string {
 // clamp rounds v to the precision, then bounds it; the bounds sit on that grid.
 func (s numberInputSpec) clamp(v float64) float64 {
 	p := math.Pow(10, float64(s.decimals))
-	return math.Max(s.lo, math.Min(s.hi, math.Round(v*p)/p))
+	return math.Max(s.lo, math.Min(s.hi, math.Round(v*p)/p)) + 0 // + 0 turns -0 into 0
 }
+
+// stepBy moves v n steps along the grid of Step from Min, stopping at the bounds.
+func (s numberInputSpec) stepBy(v float64, n int) float64 {
+	if math.IsNaN(v) {
+		// From empty, the first step lands next to zero.
+		v = s.clamp(0)
+	}
+	base := s.lo
+	if math.IsInf(base, 0) {
+		base = 0
+	}
+	k := (v - base) / s.step
+	if n > 0 {
+		k = numberInputFloor(k) + float64(n)
+	} else {
+		k = numberInputCeil(k) + float64(n)
+	}
+	return s.clamp(base + k*s.step)
+}
+
+// numberInputFloor floors x, forgiving floating-point error just below an integer.
+func numberInputFloor(x float64) float64 { return math.Floor(x + math.Max(1e-9, 1e-12*math.Abs(x))) }
+
+// numberInputCeil ceils x, forgiving floating-point error just above an integer.
+func numberInputCeil(x float64) float64 { return math.Ceil(x - math.Max(1e-9, 1e-12*math.Abs(x))) }
 
 // numberInputSame reports equal values, counting NaN (empty) as equal.
 func numberInputSame(a, b float64) bool { return a == b || math.IsNaN(a) && math.IsNaN(b) }
@@ -80,8 +105,8 @@ func numberInputResolve(opts NumberInputOptions) numberInputSpec {
 	}
 	// Bounds move inward onto the precision grid, so clamped values keep both.
 	p := math.Pow(10, float64(s.decimals))
-	s.lo = math.Ceil(math.Round(s.lo*p*1e6)/1e6) / p
-	s.hi = math.Floor(math.Round(s.hi*p*1e6)/1e6) / p
+	s.lo = numberInputCeil(s.lo*p)/p + 0 // + 0 turns -0 into 0
+	s.hi = numberInputFloor(s.hi*p)/p + 0
 	if s.lo > s.hi {
 		panic("mujica: NumberInput has no value in range at this precision")
 	}
@@ -113,13 +138,7 @@ func NumberInput(c *ui.Context, value *float64, opts NumberInputOptions) InputRe
 			r.changed = true
 		}
 	}
-	stepBy := func(n float64) {
-		base := *value
-		if math.IsNaN(base) {
-			base = math.Max(s.lo, math.Min(s.hi, 0))
-		}
-		set(base + n*s.step)
-	}
+	stepBy := func(n int) { set(s.stepBy(*value, n)) }
 	look := &textInputLook{disabled: opts.Disabled, err: opts.Error}
 	r.Element, r.Input = textInputFrame(c, look, func(frame *ui.Element) *ui.Element {
 		text := ui.Local(frame, "text", func() string { return s.format(*value) })
@@ -129,13 +148,13 @@ func NumberInput(c *ui.Context, value *float64, opts NumberInputOptions) InputRe
 			// Set from outside: the text follows, and a typing error goes.
 			*text, *invalid = s.format(*value), ""
 		}
-		in := textInputEditor(c, frame, text, opts.Disabled, ui.TextInputBase).Grow(1).MinWidth(Density(c).Unit() * 12).
+		in := textInputEditor(c, frame, text, look.disabled, ui.TextInputBase).Grow(1).MinWidth(Density(c).Unit() * 12).
 			Placeholder(opts.Placeholder).Label(opts.Label)
-		if in.Changed() && !opts.Disabled {
+		if in.Changed() && !look.disabled {
 			*invalid = numberInputParse(c, s, *text, opts.AllowEmpty, set)
 		}
 		switch {
-		case opts.Disabled:
+		case look.disabled:
 		case in.Shortcut(0, ui.KeyUp):
 			stepBy(1)
 			*text, *invalid = s.format(*value), ""
@@ -151,7 +170,7 @@ func NumberInput(c *ui.Context, value *float64, opts NumberInputOptions) InputRe
 		for _, b := range []struct {
 			name  string
 			icon  string
-			delta float64
+			delta int
 			can   bool
 		}{
 			{msg(c, "number_input.decrease"), "minus", -1, math.IsNaN(*value) || *value > s.lo},
@@ -209,37 +228,78 @@ func numberInputButton(c *ui.Context, icon, name string, can bool) bool {
 	return b.Clicked()
 }
 
-// numberInputStepper shows the value beside MyGo's stepper, restyled.
+// numberInputStepper shows the value beside up and down arrows; it steps itself.
 func numberInputStepper(c *ui.Context, value *float64, s numberInputSpec, opts NumberInputOptions) InputResult {
 	k := Tokens(c)
 	d := Density(c)
 	var r InputResult
 	r.Element = ui.Column(c).Gap(d.Unit()).Shrink(0).Disabled(opts.Disabled)
+	disabled := r.Element.IsDisabled()
+	set := func(v float64) {
+		if v != *value && !disabled {
+			*value = v
+			r.changed = true
+		}
+	}
 	r.Element.Children(func() {
 		ui.Row(c).Gap(d.Unit() * 2).MinHeight(d.ControlHeight()).Children(func() {
 			ui.Text(c, s.format(*value)).FontFeatures("tnum").MinWidth(d.Unit() * 8).TextAlign(ui.End)
-			// MyGo's stepper arrows ignore Disabled: give them a copy.
-			target := value
-			if opts.Disabled {
-				held := *value
-				target = &held
-			}
-			st := ui.Stepper(c, target, s.lo, s.hi, s.step).Label(opts.Label).Width(d.Unit()*6).
-				Radius(theme.ControlRadius).Background(k.Surface).Border(theme.BorderWidth, k.ControlBorder)
+			border := k.ControlBorder
 			if opts.Error != "" {
-				st.Error(opts.Error).Border(theme.BorderWidth, k.Danger)
+				border = k.Danger
 			}
+			st := ui.Column(c).Focusable().Shrink(0).Width(d.Unit()*6).Radius(theme.ControlRadius).Clip().
+				Background(k.Surface).Border(theme.BorderWidth, border).Role(ui.RoleStepper).Label(opts.Label).
+				Description(s.format(*value)).Error(opts.Error)
 			internal.Ring(st, k.Focus, theme.ControlRadius)
+			switch {
+			case st.Shortcut(0, ui.KeyUp), st.Shortcut(0, ui.KeyRight):
+				set(s.stepBy(*value, 1))
+			case st.Shortcut(0, ui.KeyDown), st.Shortcut(0, ui.KeyLeft):
+				set(s.stepBy(*value, -1))
+			case st.Shortcut(0, ui.KeyHome):
+				set(s.lo)
+			case st.Shortcut(0, ui.KeyEnd):
+				set(s.hi)
+			}
+			st.Children(func() {
+				if numberInputArrow(c, "chevron-up", *value < s.hi, false) {
+					set(s.stepBy(*value, 1))
+					st.Focus()
+				}
+				if numberInputArrow(c, "chevron-down", *value > s.lo, true) {
+					set(s.stepBy(*value, -1))
+					st.Focus()
+				}
+			})
 			r.Input = st
-			r.changed = st.Changed() && !opts.Disabled
 		})
 		if opts.Error != "" {
-			ui.Text(c, opts.Error).TextColor(k.Danger).FontSize(theme.CaptionSize)
+			ui.Text(c, opts.Error).TextColor(k.Danger).FontSize(FontSize(c, theme.CaptionSize))
 		}
 	})
 	if r.changed {
-		*value = s.clamp(*value)
 		slog.Debug("mujica: number_input step", "value", *value)
 	}
 	return r
+}
+
+// numberInputArrow builds one half of the stepper and reports a click.
+func numberInputArrow(c *ui.Context, icon string, can, lower bool) bool {
+	k := Tokens(c)
+	h := Density(c).ControlHeight()/2 - theme.BorderWidth
+	a := ui.Box(c).Height(h).Center().Role(ui.RoleNone).Cursor(ui.CursorPointer).Disabled(!can)
+	if lower {
+		a.BorderWidth(theme.BorderWidth, 0, 0, 0).BorderColor(k.Border)
+	}
+	fg := k.TextMuted
+	if a.Pressed() {
+		a.Background(k.Selection)
+		fg = k.Text
+	} else if a.Hovered() {
+		a.Background(k.SurfaceHover)
+		fg = k.Text
+	}
+	a.Children(func() { ui.Icon(c, icons.Must(icon)).Size(12, 12).TextColor(fg) })
+	return a.Clicked()
 }

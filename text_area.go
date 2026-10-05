@@ -55,7 +55,7 @@ func TextArea(c *ui.Context, value *string, opts TextAreaOptions) InputResult {
 	var r InputResult
 	look := &textInputLook{disabled: opts.Disabled, readOnly: opts.ReadOnly, err: errMsg, area: true}
 	r.Element, r.Input = textInputFrame(c, look, func(frame *ui.Element) *ui.Element {
-		in := textInputEditor(c, frame, value, opts.ReadOnly || opts.Disabled, ui.TextAreaBase).Grow(1).Padding(d.Unit()*2, d.Unit()*3).
+		in := textInputEditor(c, frame, value, opts.ReadOnly || look.disabled, ui.TextAreaBase).Grow(1).Padding(d.Unit()*2, d.Unit()*3).
 			Placeholder(opts.Placeholder).Label(opts.Label)
 		if opts.MinHeight > 0 {
 			in.MinHeight(opts.MinHeight)
@@ -63,7 +63,7 @@ func TextArea(c *ui.Context, value *string, opts TextAreaOptions) InputResult {
 		if opts.MaxHeight > 0 {
 			in.MaxHeight(opts.MaxHeight)
 		}
-		r.changed = in.Changed() && !opts.ReadOnly && !opts.Disabled
+		r.changed = in.Changed() && !opts.ReadOnly && !look.disabled
 		// Taken before the editor, which would make a plain Enter a newline.
 		submit := ui.Local(frame, "submit", func() bool { return false })
 		in.HandleInput(func(ev ui.InputEvent) bool {
@@ -73,7 +73,7 @@ func TextArea(c *ui.Context, value *string, opts TextAreaOptions) InputResult {
 			}
 			return false
 		})
-		r.submitted = *submit && !opts.Disabled
+		r.submitted = *submit && !look.disabled
 		*submit = false
 		return in
 	}, count)
