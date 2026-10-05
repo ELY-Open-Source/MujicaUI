@@ -146,3 +146,29 @@ func TestCarouselEmptyAutoplayKeys(t *testing.T) {
 		t.Fatalf("index %d", index)
 	}
 }
+
+func TestCarouselDotsFollowArrows(t *testing.T) {
+	h := &carouselHarness{}
+	tt := ui.NewTester(h.view, 420, 280)
+	for range 10 {
+		if tt.Focused("Slide 1 of 4") {
+			break
+		}
+		tt.Key(0, ui.KeyTab)
+	}
+	if !tt.Focused("Slide 1 of 4") {
+		t.Fatal("Tab never reached the first dot")
+	}
+	tt.Key(0, ui.KeyRight)
+	if h.index != 1 || !tt.Focused("Slide 2 of 4") {
+		t.Fatalf("Right: index %d, focus on dot 2 %v", h.index, tt.Focused("Slide 2 of 4"))
+	}
+	tt.Key(0, ui.KeyEnter)
+	if h.index != 1 {
+		t.Fatalf("Enter on the focused dot moved to %d", h.index)
+	}
+	tt.Key(0, ui.KeyEnd)
+	if h.index != 3 || !tt.Focused("Slide 4 of 4") {
+		t.Fatalf("End: index %d", h.index)
+	}
+}

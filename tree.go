@@ -76,6 +76,15 @@ func (t *treeCore[K]) begin(label func(K) string, sel *ui.Selection[K], multiple
 	}
 }
 
+// clear drops the choice and row state when the tree has no items.
+func (t *treeCore[K]) clear(sel *ui.Selection[K]) {
+	var zero K
+	t.cursor, t.sel, t.has = -1, zero, false
+	sel.Clear()
+	clear(t.asked)
+	t.outline = ui.OutlineState[K]{Open: t.outline.Open}
+}
+
 // end reads a new choice, or finds the chosen item again after rows moved.
 func (t *treeCore[K]) end(c *ui.Context, changed bool) {
 	rows := t.outline.Rows()
@@ -178,6 +187,7 @@ func Tree[K comparable](c *ui.Context, s *TreeState[K], opts TreeOptions[K]) Tre
 	v.Element = ui.Column(c).MinHeight(0)
 	v.Children(func() {
 		if len(opts.Roots) == 0 {
+			t.clear(&s.Selection)
 			v.retry = dataPlaceholder(c, opts.Status, opts.Error, opts.Empty, msg(c, "list.empty"))
 			return
 		}
@@ -199,7 +209,9 @@ func Tree[K comparable](c *ui.Context, s *TreeState[K], opts TreeOptions[K]) Tre
 		v.changed, v.submitted = e.Changed(), e.Submitted()
 		v.retry = dataFooter(c, opts.Status, opts.Error)
 	})
-	t.end(c, v.changed)
+	if len(opts.Roots) > 0 {
+		t.end(c, v.changed)
+	}
 	if v.changed {
 		slog.Debug("mujica: tree changed", "row", t.cursor, "count", s.Selection.Len())
 	}

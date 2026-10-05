@@ -137,7 +137,7 @@ func DataTable[R any, K comparable](c *ui.Context, s *DataTableState[K], rows []
 			v.retry = dataPlaceholder(c, opts.Status, opts.Error, empty, msg(c, "list.empty"))
 			return
 		}
-		vis, cols := dataTableColumns(c, s, opts)
+		vis, cols := dataTableColumns(dataRowUnit(c), s, opts)
 		s.rows.Key = func(i int) any { return opts.Key(rows[view[i]]) }
 		s.rows.Label = func(i int) string { return opts.Columns[vis[0]].Text(rows[view[i]]) }
 		s.rows.Selected, s.rows.Sort, s.rows.Columns = &s.cursor, &s.Sort, s.Layout
@@ -146,7 +146,8 @@ func DataTable[R any, K comparable](c *ui.Context, s *DataTableState[K], rows []
 			s.rows.Selection = &s.Selection
 		}
 		// Rows reach the data-row height of the density.
-		restore := dataSelectTheme(c, d.ControlHeight()/8)
+		unit := dataRowUnit(c)
+		restore := dataSelectTheme(c, unit)
 		head := s.Sort
 		e := ui.Table(c, &s.rows, cols, len(view), func(row, col int) {
 			r := rows[view[row]]
@@ -265,8 +266,15 @@ func dataTableMenu[R any, K comparable](opts DataTableOptions[R, K]) []tableColu
 	return cols
 }
 
-func dataTableColumns[R any, K comparable](c *ui.Context, s *DataTableState[K], opts DataTableOptions[R, K]) ([]int, []ui.TableColumn) {
-	w := Density(c).ControlHeight()
+// dataRowUnit is the table spacing unit: rows reach the density's height and fit scaled text.
+func dataRowUnit(c *ui.Context) float32 {
+	// MyGo rows and the header are 8 units high with 1.5 units of padding above and below.
+	return max(Density(c).ControlHeight()/8, FontSize(c, theme.BodySize)*theme.LineHeight/5)
+}
+
+func dataTableColumns[R any, K comparable](unit float32, s *DataTableState[K], opts DataTableOptions[R, K]) ([]int, []ui.TableColumn) {
+	// The check box keeps its full hit width inside MyGo's 2.5-unit cell padding.
+	w := theme.MinHitSize + 5*unit
 	cols := []ui.TableColumn{{ID: dataTableMarkID, Width: w, Fixed: true, Align: ui.Center}}
 	var vis []int
 	for i, col := range opts.Columns {

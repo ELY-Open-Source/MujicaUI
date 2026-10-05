@@ -36,6 +36,8 @@ func (v CarouselView) Changed() bool { return v.changed }
 type carouselState struct {
 	paused bool
 	next   time.Time
+	// dotFocus leaves the arrows to the dots' focus group.
+	dotFocus bool
 }
 
 // Carousel shows slide *index of n with previous, next and position controls.
@@ -86,6 +88,7 @@ func Carousel(c *ui.Context, index *int, n int, opts CarouselOptions, slide func
 		c.After(st.next.Sub(now))
 	}
 	switch {
+	case st.dotFocus:
 	case v.Shortcut(0, ui.KeyLeft):
 		goTo(*index - 1)
 	case v.Shortcut(0, ui.KeyRight):
@@ -113,10 +116,17 @@ func Carousel(c *ui.Context, index *int, n int, opts CarouselOptions, slide func
 			}
 		})
 		ui.Row(c).Justify(ui.Center).AlignItems(ui.Center).Gap(u * 2).Children(func() {
+			st.dotFocus = false
 			ui.Row(c).Gap(u).FocusGroup(ui.Horizontal).Children(func() {
 				for i := range n {
-					if carouselDot(c, i, n, i == *index).Clicked() {
+					dot := carouselDot(c, i, n, i == *index)
+					if dot.Focused() {
+						st.dotFocus = true
+					}
+					// The arrows move the focus among the dots; the slide follows it.
+					if dot.Clicked() || dot.Focused() && i != *index {
 						goTo(i)
+						c.Invalidate()
 					}
 				}
 			})

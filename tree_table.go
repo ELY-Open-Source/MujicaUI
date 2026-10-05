@@ -124,6 +124,7 @@ func TreeTable[K comparable](c *ui.Context, s *TreeTableState[K], opts TreeTable
 	v.Element = ui.Column(c).MinHeight(0).Gap(d.Unit() * 2)
 	v.Children(func() {
 		if len(opts.Roots) == 0 {
+			t.clear(&s.Selection)
 			v.retry = dataPlaceholder(c, opts.Status, opts.Error, opts.Empty, msg(c, "list.empty"))
 			return
 		}
@@ -137,7 +138,7 @@ func TreeTable[K comparable](c *ui.Context, s *TreeTableState[K], opts TreeTable
 		roots := sorted(opts.Roots, &s.roots)
 		head := s.Sort
 		t.outline.List.Sort, t.outline.List.Columns = &s.Sort, s.Layout
-		restore := dataSelectTheme(c, d.ControlHeight()/8)
+		restore := dataSelectTheme(c, dataRowUnit(c))
 		e := ui.OutlineTable(c, &t.outline, cols, roots, children, func(item K, col int) {
 			if col > 0 {
 				opts.Columns[col].Cell(item)
@@ -160,7 +161,9 @@ func TreeTable[K comparable](c *ui.Context, s *TreeTableState[K], opts TreeTable
 		v.retry = dataFooter(c, opts.Status, opts.Error)
 	})
 	v.sorted = s.Sort != before
-	t.end(c, v.changed)
+	if len(opts.Roots) > 0 {
+		t.end(c, v.changed)
+	}
 	if v.sorted {
 		slog.Debug("mujica: tree_table sort", "column", s.Sort.Column, "descending", s.Sort.Descending)
 	}

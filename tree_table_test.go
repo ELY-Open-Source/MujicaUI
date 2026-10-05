@@ -244,3 +244,20 @@ func TestTreeTableColumnMenuKeyboard(t *testing.T) {
 		t.Fatalf("rows not sorted by size: %s", got)
 	}
 }
+
+func TestTreeTableEmptyClearsSelection(t *testing.T) {
+	h := newTTHarness()
+	h.opts.Multiple = true
+	tt := ui.NewTester(h.view, 400, 360)
+	if err := tt.Click("Organ"); err != nil {
+		t.Fatal(err)
+	}
+	if k, ok := h.st.Selected(); !ok || k != "Organ" || h.st.Selection.Len() != 1 {
+		t.Fatalf("selected %q %v", k, ok)
+	}
+	h.opts.Roots = nil
+	tt.Frame()
+	if k, ok := h.st.Selected(); ok || h.st.Selection.Len() != 0 {
+		t.Fatalf("empty table still selects %q (%d chosen)", k, h.st.Selection.Len())
+	}
+}
