@@ -96,9 +96,11 @@ func SplitPane(c *ui.Context, state *SplitPaneState, opts SplitPaneOptions, firs
 func splitPaneBuild(c *ui.Context, in *ui.Element, state *SplitPaneState, opts SplitPaneOptions, lo, minSecond float32, res *SplitPaneResult, first, second func()) {
 	k := Tokens(c)
 	u := Density(c).Unit()
-	total := in.Bounds().W
+	was := in.Bounds()
+	internal.Remeasure(c, in, was.W, was.H)
+	total := was.W
 	if opts.Vertical {
-		total = in.Bounds().H
+		total = was.H
 	}
 	hi := max(lo, total-theme.BorderWidth-minSecond)
 	clamp := func(v float32) float32 { return max(lo, min(v, hi)) }
@@ -106,10 +108,6 @@ func splitPaneBuild(c *ui.Context, in *ui.Element, state *SplitPaneState, opts S
 		state.Size = clamp((total - theme.BorderWidth) / 2)
 	} else if total > 0 {
 		state.Size = clamp(state.Size)
-	} else if once := ui.Local(in, "split_pane.first", func() bool { return true }); *once {
-		// Not laid out yet: measure, then size in the next frame.
-		*once = false
-		c.Invalidate()
 	}
 	resize := func(v float32) {
 		if v = clamp(v); v != state.Size {

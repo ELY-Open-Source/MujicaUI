@@ -7,6 +7,7 @@ import (
 	"github.com/egoist/mygo/ui"
 
 	"mujicaui/icons"
+	"mujicaui/theme"
 )
 
 func statusBarSample() StatusBarOptions {
@@ -71,7 +72,6 @@ func TestStatusBarCollapsesSecondary(t *testing.T) {
 		}
 	}
 	tt.SetSize(330, 100)
-	tt.Frame()
 	for _, s := range []string{"Ln 12, Col 4", "UTF-8", "2 warnings"} {
 		if tt.HasText(s) {
 			t.Fatalf("narrow bar still shows secondary %q; texts %q", s, tt.Texts())
@@ -85,21 +85,18 @@ func TestStatusBarCollapsesSecondary(t *testing.T) {
 	}
 	// Medium width drops only the last secondary items.
 	tt.SetSize(400, 100)
-	tt.Frame()
 	if !tt.HasText("2 warnings") || tt.HasText("Ln 12, Col 4") {
 		t.Fatalf("medium bar hid the wrong items: %q", tt.Texts())
 	}
 	// At every width the visible items stay inside the bar.
 	for w := 320; w <= 800; w += 10 {
 		tt.SetSize(w, 100)
-		tt.Frame()
 		bell, ok := tt.Find("Notifications")
 		if !ok || bell.X+bell.W > float32(w)-8+0.5 || bell.W < 28 {
 			t.Fatalf("width %d: action at %+v", w, bell)
 		}
 	}
 	tt.SetSize(800, 100)
-	tt.Frame()
 	if !tt.HasText("UTF-8") {
 		t.Fatal("secondary items did not come back when wide")
 	}
@@ -232,4 +229,60 @@ func TestStatusBarSnapshot(t *testing.T) {
 			StatusBar(c, o)
 		})
 	})
+}
+
+func TestStatusBarFoldsOnResizeAlone(t *testing.T) {
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{})
+		StatusBar(c, statusBarSample())
+	}, 400, 100)
+	tt.SetSize(160, 100)
+	for _, s := range []string{"2 warnings", "UTF-8", "Ln 12, Col 4"} {
+		if tt.HasText(s) {
+			t.Fatalf("160 DIP bar still shows %q", s)
+		}
+	}
+	if !tt.HasText("3 more items") {
+		t.Fatalf("no hidden count: %q", tt.Texts())
+	}
+}
+
+func TestStatusBarKeepsFocusAcrossDensity(t *testing.T) {
+	density := theme.Default
+	n := 0
+	// At 155 DIP the secondary item fits at Default and folds into "+1" at Comfortable.
+	o := StatusBarOptions{
+		Left:  []StatusItem{{ID: "main", Text: "main"}, {ID: "enc", Text: "UTF-8", Secondary: true}},
+		Right: []StatusItem{{ID: "bell", Label: "Notifications", Icon: icons.Must("bell"), Action: true}},
+	}
+	tt := ui.NewTester(func(c *ui.Context) {
+		Use(c, Settings{Density: density})
+		if StatusBar(c, o).Clicked == "bell" {
+			n++
+		}
+	}, 155, 100)
+	if !tt.HasText("UTF-8") {
+		t.Fatal("secondary item folded at Default density")
+	}
+	for range 4 {
+		if tt.Focused("Notifications") {
+			break
+		}
+		tt.Key(0, ui.KeyTab)
+	}
+	if !tt.Focused("Notifications") {
+		t.Fatal("Tab never reached Notifications")
+	}
+	density = theme.Comfortable
+	tt.Frame()
+	if tt.HasText("UTF-8") || !tt.HasText("1 more items") {
+		t.Fatalf("Comfortable did not fold the secondary item: %q", tt.Texts())
+	}
+	if !tt.Focused("Notifications") {
+		t.Fatal("density switch lost the focus")
+	}
+	tt.Key(0, ui.KeyEnter)
+	if n != 1 {
+		t.Fatalf("Enter after the switch activated %d times, want 1", n)
+	}
 }
