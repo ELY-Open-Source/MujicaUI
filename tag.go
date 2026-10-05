@@ -56,7 +56,7 @@ func Tag(c *ui.Context, label string, opts TagOptions) TagView {
 			} else if main.Hovered() {
 				main.Background(k.SurfaceHover)
 			}
-			internal.Fade(main, Motion(c, theme.StateDuration))
+			main.Transition(colorFade)
 		}
 		if opts.Closable {
 			main.Padding(0, u, 0, u*2)
@@ -100,7 +100,7 @@ func tagClose(c *ui.Context, k theme.Tokens, label string) *ui.Element {
 		fg = k.Text
 	}
 	internal.Ring(b, k.Focus, theme.ControlRadius)
-	internal.Fade(b, Motion(c, theme.StateDuration))
+	b.Transition(colorFade)
 	b.TextColor(fg).Children(func() {
 		Icon(c, "x", IconOptions{Size: 12})
 	})

@@ -72,9 +72,6 @@ func TextInput(c *ui.Context, value *string, opts TextInputOptions) InputResult 
 	return r
 }
 
-// textInputFade eases hover, focus and error colors.
-var textInputFade = ui.ElementTransition{Colors: true, Duration: theme.StateDuration}
-
 // textInputLook is the state a field frame shows; disabled gains any disabled ancestor.
 type textInputLook struct {
 	disabled, readOnly, area bool
@@ -120,7 +117,7 @@ func textInputFrame(c *ui.Context, look *textInputLook, build func(frame *ui.Ele
 		case in.Focused() && !look.readOnly:
 			border = k.Focus
 		}
-		frame.Background(bg).Border(theme.BorderWidth, border).Transition(textInputFade)
+		frame.Background(bg).Border(theme.BorderWidth, border).Transition(colorFade)
 		frame.DrawOver(func(p *ui.Painter, r ui.Rect) {
 			if in.FocusVisible() {
 				internal.FocusRing(p, r, theme.ControlRadius, k.Focus)

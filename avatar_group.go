@@ -100,7 +100,7 @@ func avatarGroupMore(c *ui.Context, k theme.Tokens, open *bool, size, ring float
 			ui.Box(c).Padding(ring).Radius(size/2 + ring).Background(k.Background).Children(func() {
 				disc := ui.Box(c).Size(size, size).Center().Radius(size/2).Background(bg).
 					Border(theme.BorderWidth, k.ControlBorder).TextColor(k.Text)
-				internal.Fade(disc, Motion(c, theme.StateDuration))
+				disc.Transition(colorFade)
 				disc.Children(func() {
 					ui.Text(c, fmt.Sprintf("+%d", rest)).FontSize(size * 0.36).FontWeight(600).SingleLine()
 				})

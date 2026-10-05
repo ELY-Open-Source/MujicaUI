@@ -48,7 +48,7 @@ func Checkbox(c *ui.Context, value *bool, label string, opts CheckboxOptions) *u
 		bg, border := checkboxColors(k, on || mixed, hover, pressed)
 		box := ui.Box(c).Size(checkboxSize, checkboxSize).Shrink(0).Radius(theme.ControlRadius).
 			Background(bg).Border(theme.BorderWidth, border)
-		box.Transition(textInputFade)
+		box.Transition(colorFade)
 		box.DrawOver(func(p *ui.Painter, r ui.Rect) {
 			switch {
 			case mixed:

@@ -2,18 +2,9 @@ package internal
 
 import (
 	"math"
-	"time"
 
 	"github.com/egoist/mygo/ui"
 )
-
-// Fade animates e's colors over d; zero skips it.
-func Fade(e *ui.Element, d time.Duration) *ui.Element {
-	if d > 0 {
-		e.Transition(ui.ElementTransition{Colors: true, Duration: d})
-	}
-	return e
-}
 
 // Rule draws a pixel-aligned 1 DIP horizontal line at y.
 func Rule(p *ui.Painter, x0, x1, y float32, c ui.Color) {

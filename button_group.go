@@ -70,7 +70,7 @@ func ButtonGroup(c *ui.Context, items []ButtonGroupItem, opts ButtonGroupOptions
 			} else if b.Hovered() {
 				bg = k.SurfaceHover
 			}
-			b.Background(bg).TextColor(k.Text).Transition(textInputFade)
+			b.Background(bg).TextColor(k.Text).Transition(colorFade)
 			b.Radius(buttonGroupCorners(i, last, opts.Vertical)...)
 			b.Border(theme.BorderWidth, k.ControlBorder).BorderWidth(buttonGroupEdges(i, opts.Vertical)...)
 			b.Children(func() {

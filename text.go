@@ -109,7 +109,7 @@ func editableTextField(c *ui.Context, k theme.Tokens, value *string, opts Editab
 		if box.Hovered() {
 			box.Background(k.SurfaceHover)
 		}
-		internal.Fade(box, Motion(c, theme.StateDuration))
+		box.Transition(colorFade)
 		if !box.IsDisabled() && (box.DoubleClicked() || box.Shortcut(0, ui.KeyEnter)) {
 			st.editing, st.fresh, st.draft = true, true, *value
 		} else {

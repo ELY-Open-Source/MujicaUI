@@ -133,7 +133,7 @@ func imageRetry(c *ui.Context, k theme.Tokens, problem string) *ui.Element {
 	}
 	b.Background(bg).Border(theme.BorderWidth, k.ControlBorder).TextColor(k.Danger)
 	internal.Ring(b, k.Focus, theme.ControlRadius)
-	internal.Fade(b, Motion(c, theme.StateDuration))
+	b.Transition(colorFade)
 	b.Children(func() { Icon(c, "refresh-cw", IconOptions{Size: 16}) })
 	return b
 }

@@ -89,7 +89,7 @@ func radioGroupItem[T comparable](c *ui.Context, k theme.Tokens, d theme.Density
 		bg, border := checkboxColors(k, on, hover, pressed)
 		dot := ui.Box(c).Size(checkboxSize, checkboxSize).Shrink(0).Radius(checkboxSize/2).
 			Background(bg).Border(theme.BorderWidth, border)
-		dot.Transition(textInputFade)
+		dot.Transition(colorFade)
 		dot.DrawOver(func(p *ui.Painter, r ui.Rect) {
 			if on {
 				s := r.W * 0.375
