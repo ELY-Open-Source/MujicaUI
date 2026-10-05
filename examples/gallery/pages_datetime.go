@@ -137,7 +137,7 @@ func dtDatePickerDemo(c *ui.Context, log func(string)) {
 
 func dtDateRangeDemo(c *ui.Context, log func(string)) {
 	type state struct {
-		a, b         mujica.DateRange
+		a            mujica.DateRange
 		noTuesdays   bool
 		frozen       bool
 		fromThisWeek bool
