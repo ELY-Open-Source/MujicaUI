@@ -14,13 +14,13 @@ type EventChipOptions struct {
 	// Location is the zone the time shows in; required.
 	Location *time.Location
 	Hour12   bool
-	// Inline puts time and title on one line.
+	// Inline puts the start time and title on one line.
 	Inline   bool
 	Selected bool
 	Disabled bool
 }
 
-// EventChip is a clickable event block: color stripe, time and title, truncated to fit.
+// EventChip is a clickable, truncating event block.
 func EventChip(c *ui.Context, ev CalendarEvent, opts EventChipOptions) *ui.Element {
 	loc := eventLocation("EventChip", opts.Location)
 	k := Tokens(c)
@@ -32,7 +32,7 @@ func EventChip(c *ui.Context, ev CalendarEvent, opts EventChipOptions) *ui.Eleme
 		title = msg(c, "event_chip.untitled")
 	}
 	b := ui.ButtonBase(c).MinHeight(theme.MinHitSize).MinWidth(theme.MinHitSize).Justify(ui.Start).AlignItems(ui.Start).
-		Radius(theme.ControlRadius).Padding(d.Unit(), d.Unit()*2).PaddingX(d.Unit()*2).Gap(d.Unit()).
+		Radius(theme.ControlRadius).Padding(d.Unit(), d.Unit()*2).PaddingX(d.Unit() * 2).Gap(d.Unit()).
 		Label(title + ", " + when).Disabled(opts.Disabled).Clip()
 	internal.Ring(b, k.Focus, theme.ControlRadius)
 	bg := col.Alpha(0.14).Over(k.Surface)
@@ -60,7 +60,7 @@ func EventChip(c *ui.Context, ev CalendarEvent, opts EventChipOptions) *ui.Eleme
 	b.Children(func() {
 		small := FontSize(c, theme.CaptionSize)
 		if opts.Inline {
-			ui.Text(c, when).FontSize(small).TextColor(k.TextMuted).SingleLine().Shrink(0).FontFeatures("tnum")
+			ui.Text(c, eventStartText(c, ev, loc, opts.Hour12)).FontSize(small).TextColor(k.TextMuted).SingleLine().Shrink(0).FontFeatures("tnum")
 		}
 		ui.Text(c, title).FontSize(small).Bold().TextColor(k.Text).SingleLine().Ellipsis("…").Shrink(1)
 		if !opts.Inline {
@@ -68,4 +68,13 @@ func EventChip(c *ui.Context, ev CalendarEvent, opts EventChipOptions) *ui.Eleme
 		}
 	})
 	return b
+}
+
+// eventStartText is the start time alone, or "All day".
+func eventStartText(c *ui.Context, ev CalendarEvent, loc *time.Location, hour12 bool) string {
+	if ev.AllDay {
+		return msg(c, "event_chip.all_day")
+	}
+	s := ev.Start.In(loc)
+	return timeText(c, TimeOfDay{s.Hour(), s.Minute(), 0}, timeConfig{hour12: hour12})
 }

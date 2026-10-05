@@ -22,7 +22,7 @@ const (
 	EventNeutral
 )
 
-// CalendarEvent is one entry of the calendar views. End is exclusive.
+// CalendarEvent is one entry of the views; End is exclusive.
 type CalendarEvent struct {
 	ID       string
 	Title    string
@@ -46,7 +46,7 @@ const (
 	CalendarCreate
 )
 
-// CalendarChange is a move, resize or new event a view asks the caller to apply.
+// CalendarChange is a move, resize or creation to apply.
 type CalendarChange struct {
 	Kind       CalendarChangeKind
 	ID         string
@@ -54,7 +54,7 @@ type CalendarChange struct {
 	AllDay     bool
 }
 
-// CalendarViewResult is a calendar view and what the user asked of it.
+// CalendarViewResult is a view and what the user asked.
 type CalendarViewResult struct {
 	Element *ui.Element
 	opened  string
@@ -76,7 +76,7 @@ func (r CalendarViewResult) Changed() (CalendarChange, bool) {
 // DayChosen returns the day the user activated.
 func (r CalendarViewResult) DayChosen() (Date, bool) { return r.day, !r.day.IsZero() }
 
-// eventPalette maps EventColor to tokens that keep 3:1 on Surface in both themes.
+// eventPalette maps EventColor to tokens at 3:1 on Surface.
 func eventPalette(k theme.Tokens) [6]ui.Color {
 	return [6]ui.Color{k.AccentText, k.Info, k.Success, k.Warning, k.Danger, k.TextMuted}
 }
@@ -100,24 +100,25 @@ func eventsCheck(name string, events []CalendarEvent) {
 	}
 }
 
-// eventsIndex caches the events overlapping a span, rebuilt only when data or span change.
-type eventsIndex struct {
+// eventsCache holds data derived from events overlapping a span.
+type eventsCache[T any] struct {
 	first    *CalendarEvent
 	n        int
 	version  int
 	from, to time.Time
-	hits     []int
+	value    T
+	valid    bool
 }
 
-// eventsIn returns the indexes of events overlapping [from, to), by start time.
-func eventsIn(e *ui.Element, events []CalendarEvent, version int, from, to time.Time) []int {
-	ix := ui.Local(e, "mujica.events.index", func() *eventsIndex { return &eventsIndex{} })
+// eventsDerived rebuilds build(hits) only when events or span change.
+func eventsDerived[T any](e *ui.Element, key string, events []CalendarEvent, version int, from, to time.Time, build func(hits []int) T) T {
+	cache := ui.Local(e, key, func() *eventsCache[T] { return &eventsCache[T]{} })
 	var first *CalendarEvent
 	if len(events) > 0 {
 		first = &events[0]
 	}
-	if c := *ix; c.first == first && c.n == len(events) && c.version == version && c.from.Equal(from) && c.to.Equal(to) && c.hits != nil {
-		return c.hits
+	if x := *cache; x.valid && x.first == first && x.n == len(events) && x.version == version && x.from.Equal(from) && x.to.Equal(to) {
+		return x.value
 	}
 	hits := []int{}
 	for i, ev := range events {
@@ -132,14 +133,15 @@ func eventsIn(e *ui.Element, events []CalendarEvent, version int, from, to time.
 		}
 		return x.End.After(y.End)
 	})
-	**ix = eventsIndex{first, len(events), version, from, to, hits}
-	return hits
+	v := build(hits)
+	**cache = eventsCache[T]{first, len(events), version, from, to, v, true}
+	return v
 }
 
 // eventSpan is a placed interval, in any unit.
 type eventSpan struct{ from, to float64 }
 
-// eventColumns lays out overlapping spans side by side: each gets a column and its cluster's width.
+// eventColumns gives overlapping spans side-by-side columns and cluster widths.
 func eventColumns(spans []eventSpan) (col, cols []int) {
 	col, cols = make([]int, len(spans)), make([]int, len(spans))
 	order := make([]int, len(spans))
@@ -179,7 +181,7 @@ func eventColumns(spans []eventSpan) (col, cols []int) {
 	return col, cols
 }
 
-// eventDayStart is midnight of d in loc; a missing midnight resolves to the day's first instant.
+// eventDayStart is d's first instant in loc.
 func eventDayStart(d Date, loc *time.Location) time.Time {
 	return time.Date(d.Year, d.Month, d.Day, 0, 0, 0, 0, loc)
 }
@@ -193,6 +195,38 @@ func eventTimeText(c *ui.Context, ev CalendarEvent, loc *time.Location, hour12 b
 	s, e := ev.Start.In(loc), ev.End.In(loc)
 	text := timeText(c, TimeOfDay{s.Hour(), s.Minute(), 0}, cfg) + " – " + timeText(c, TimeOfDay{e.Hour(), e.Minute(), 0}, cfg)
 	return text
+}
+
+// eventShift moves ev by days, keeping wall time.
+func eventShift(c *ui.Context, ev CalendarEvent, days int, loc *time.Location) (CalendarChange, string) {
+	s, e := ev.Start.In(loc), ev.End.In(loc)
+	ch := CalendarChange{Kind: CalendarMove, ID: ev.ID, AllDay: ev.AllDay}
+	if ev.AllDay {
+		ch.Start, ch.End = eventDayStart(DateOf(s).AddDays(days), loc), eventDayStart(DateOf(e).AddDays(days), loc)
+		return ch, ""
+	}
+	day := DateOf(s).AddDays(days)
+	wall := TimeOfDay{s.Hour(), s.Minute(), s.Second()}
+	at, n := dateTimeResolve(day, wall, loc)
+	if p := eventWallProblem(c, day, wall, loc, n); p != "" {
+		return ch, p
+	}
+	ch.Start, ch.End = at, at.Add(ev.End.Sub(ev.Start))
+	return ch, ""
+}
+
+// eventWallProblem reports a wall time DST skips or repeats.
+func eventWallProblem(c *ui.Context, day Date, wall TimeOfDay, loc *time.Location, n int) string {
+	key := ""
+	switch {
+	case n == 0:
+		key = "date_time_picker.gap"
+	case n > 1:
+		key = "date_time_picker.ambiguous"
+	default:
+		return ""
+	}
+	return fmt.Sprintf(msg(c, key), day.String()+" "+fmt.Sprintf("%02d:%02d", wall.Hour, wall.Minute), loc.String())
 }
 
 // eventLocation panics without a caller zone; views never assume UTC.

@@ -46,7 +46,7 @@ type AttendeeListResult struct {
 // Removed returns the index of the attendee the user removed.
 func (r AttendeeListResult) Removed() (int, bool) { return r.removed, r.removed >= 0 }
 
-// AttendeeList shows invitees with their reply, in words and an icon, and a reply summary.
+// AttendeeList shows invitees, their replies and a summary.
 func AttendeeList(c *ui.Context, attendees []Attendee, opts AttendeeListOptions) AttendeeListResult {
 	k := Tokens(c)
 	d := Density(c)
@@ -71,7 +71,7 @@ func AttendeeList(c *ui.Context, attendees []Attendee, opts AttendeeListOptions)
 			ui.Text(c, msg(c, "attendee_list.empty")).TextColor(k.TextMuted)
 		}
 		for i, a := range attendees {
-			ui.Row(c).Key(i).MinHeight(d.ControlHeight()).Gap(d.Unit()*2).AlignItems(ui.Center).Role(ui.RoleListItem).Children(func() {
+			ui.Row(c).Key(i).MinHeight(d.ControlHeight()).Gap(d.Unit() * 2).AlignItems(ui.Center).Role(ui.RoleListItem).Children(func() {
 				Avatar(c, a.Name, AvatarOptions{Size: 28})
 				ui.Column(c).Grow(1).Shrink(1).Children(func() {
 					name := a.Name
