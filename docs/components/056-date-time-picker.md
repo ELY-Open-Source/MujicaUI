@@ -47,7 +47,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 事件
 
-`Changed()`：确认且时刻改变时为 true，写入的值位于 `Location`。`Cancelled()`：取消、Escape 或点击外部关闭时为 true。
+`Changed()`：确认且时刻改变时为 true，写入的值位于 `Location`。`Canceled()`：取消、Escape 或点击外部关闭时为 true。
 
 ## 键盘操作
 

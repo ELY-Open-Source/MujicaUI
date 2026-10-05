@@ -140,8 +140,8 @@ func alertDialogDemo(c *ui.Context, log func(string)) {
 	if r.Confirmed {
 		log("confirmed")
 	}
-	if r.Cancelled {
-		log("cancelled")
+	if r.Canceled {
+		log("canceled")
 	}
 }
 
@@ -428,8 +428,8 @@ func popconfirmDemo(c *ui.Context, log func(string)) {
 	if r.Confirmed {
 		log("confirmed")
 	}
-	if r.Cancelled {
-		log("cancelled")
+	if r.Canceled {
+		log("canceled")
 	}
 }
 

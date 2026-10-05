@@ -64,7 +64,7 @@ func DateTimePicker(c *ui.Context, value *time.Time, opts DateTimePickerOptions)
 		opts.Layout = "2006-01-02"
 	}
 	format := func(t time.Time) string { return dateTimeText(c, t.In(loc), opts.Layout, cfg) }
-	changed, cancelled, done := false, false, false
+	changed, canceled, done := false, false, false
 	label := opts.Label
 	if label == "" {
 		label = msg(c, "date_time_picker.placeholder")
@@ -137,13 +137,13 @@ func DateTimePicker(c *ui.Context, value *time.Time, opts DateTimePickerOptions)
 	})
 	if *wasOpen && !*open && !done {
 		slog.Debug("mujica: date_time_picker cancel")
-		cancelled = true
+		canceled = true
 	}
 	*wasOpen = *open
 	if !*open {
 		*problem = ""
 	}
-	return DateTimeResult{Element: col, changed: changed, cancelled: cancelled}
+	return DateTimeResult{Element: col, changed: changed, canceled: canceled}
 }
 
 // dateTimeConfirm turns the draft into an instant, or explains why it cannot.

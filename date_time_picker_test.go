@@ -19,7 +19,7 @@ func dateTimeTester(t *testing.T, value *time.Time, opts DateTimePickerOptions, 
 			if r.Changed() {
 				*changes++
 			}
-			if r.Cancelled() {
+			if r.Canceled() {
 				*cancels++
 			}
 		})

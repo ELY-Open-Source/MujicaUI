@@ -40,7 +40,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 事件
 
-`Changed()`：点击“确定”或“清空”使值改变时为 true。`Cancelled()`：按 Escape、点击“取消”或点击弹层外关闭、草稿被丢弃时为 true。
+`Changed()`：点击“确定”或“清空”使值改变时为 true。`Canceled()`：按 Escape、点击“取消”或点击弹层外关闭、草稿被丢弃时为 true。
 
 ## 键盘操作
 

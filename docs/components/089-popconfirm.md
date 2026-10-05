@@ -33,7 +33,7 @@ ui.Render(view, 400, 300, 1)
 | `CancelLabel` | `string` | 内置“取消 / Cancel” | 取消按钮文字。 |
 | `Danger` | `bool` | `false` | 确认按钮使用危险变体，图标改为 Danger 色，打开时焦点改在取消。 |
 
-`PopconfirmResult{Confirmed, Cancelled bool}` 只在发生选择的那一帧为 true。
+`PopconfirmResult{Confirmed, Canceled bool}` 只在发生选择的那一帧为 true。
 
 ## 状态
 
@@ -42,7 +42,7 @@ ui.Render(view, 400, 300, 1)
 ## 事件
 
 - `Confirmed`：点击确认或在其上按 Enter / Space。
-- `Cancelled`：点击取消、Escape、外部点击。
+- `Canceled`：点击取消、Escape、外部点击。
 
 ## 键盘操作
 

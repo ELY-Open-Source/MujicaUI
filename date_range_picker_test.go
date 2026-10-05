@@ -17,7 +17,7 @@ func dateRangeTester(value *DateRange, opts DateRangePickerOptions, changes, can
 			if r.Changed() {
 				*changes++
 			}
-			if r.Cancelled() {
+			if r.Canceled() {
 				*cancels++
 			}
 		})

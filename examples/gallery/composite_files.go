@@ -351,7 +351,7 @@ func (g *gallery) deleteDialog(c *ui.Context, log func(string)) {
 		mujica.ShowToast(c, mujica.ToastMessage{ID: "files-deleted", Severity: mujica.SeveritySuccess,
 			Message: fmt.Sprintf(g.t("Deleted %d files", "已删除 %d 个文件"), len(s.doomed))})
 		s.doomed = nil
-	case r.Cancelled:
+	case r.Canceled:
 		s.doomed = nil
 		log("delete canceled")
 	}

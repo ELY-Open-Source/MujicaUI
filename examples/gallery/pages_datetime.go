@@ -163,8 +163,8 @@ func dtDateRangeDemo(c *ui.Context, log func(string)) {
 		if r.Changed() {
 			log(fmt.Sprintf("DateRangePicker changed: %v – %v (%d days)", s.a.Start, s.a.End, s.a.Days()))
 		}
-		if r.Cancelled() {
-			log("DateRangePicker cancelled")
+		if r.Canceled() {
+			log("DateRangePicker canceled")
 		}
 	})
 }
@@ -264,8 +264,8 @@ func dtDateTimeDemo(c *ui.Context, log func(string)) {
 		if r.Changed() {
 			log("DateTimePicker changed: " + s.v.Format(time.RFC3339))
 		}
-		if r.Cancelled() {
-			log("DateTimePicker cancelled")
+		if r.Canceled() {
+			log("DateTimePicker canceled")
 		}
 		k := mujica.Tokens(c)
 		ui.Text(c, "Try 2026-03-08 02:30 in America/New_York: the picker reports the DST gap.").

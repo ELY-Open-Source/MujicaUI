@@ -49,11 +49,13 @@ type EditableTextOptions struct {
 // EditableTextView is a shown EditableText and this frame's outcome.
 type EditableTextView struct {
 	Element *ui.Element
-	// Changed reports a confirmed new value, already in *value.
-	Changed bool
 	// Canceled reports Escape discarded an edit.
 	Canceled bool
+	changed  bool
 }
+
+// Changed reports a confirmed new value, already in *value.
+func (v EditableTextView) Changed() bool { return v.changed }
 
 type editableTextState struct {
 	editing, fresh bool
@@ -83,7 +85,7 @@ func EditableText(c *ui.Context, value *string, opts EditableTextOptions) Editab
 		}
 	})
 	switch {
-	case v.Changed:
+	case v.changed:
 		slog.Debug("mujica: editabletext changed", "len", len(*value))
 	case v.Canceled:
 		slog.Debug("mujica: editabletext canceled")
@@ -131,14 +133,14 @@ func editableTextField(c *ui.Context, k theme.Tokens, value *string, opts Editab
 		st.fresh = false
 		in.Focus()
 	case in.Submitted():
-		v.Changed = st.draft != *value
+		v.changed = st.draft != *value
 		*value = st.draft
 		done()
 	case in.Shortcut(0, ui.KeyEscape):
 		v.Canceled = true
 		done()
 	case !in.Focused():
-		v.Changed = st.draft != *value
+		v.changed = st.draft != *value
 		*value = st.draft
 		st.editing = false
 	}

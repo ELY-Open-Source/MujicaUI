@@ -8,8 +8,8 @@ import (
 )
 
 type popconfirmApp struct {
-	open                 bool
-	confirmed, cancelled int
+	open                bool
+	confirmed, canceled int
 }
 
 func (a *popconfirmApp) view(c *ui.Context) {
@@ -23,8 +23,8 @@ func (a *popconfirmApp) view(c *ui.Context) {
 		if r.Confirmed {
 			a.confirmed++
 		}
-		if r.Cancelled {
-			a.cancelled++
+		if r.Canceled {
+			a.canceled++
 		}
 	})
 }
@@ -38,8 +38,8 @@ func TestPopconfirmConfirmByKeyboard(t *testing.T) {
 		t.Fatalf("open %v, Confirm focused %v", a.open, tt.Focused("Confirm"))
 	}
 	tt.Key(0, ui.KeyEnter)
-	if a.confirmed != 1 || a.cancelled != 0 || a.open {
-		t.Fatalf("confirmed %d cancelled %d open %v", a.confirmed, a.cancelled, a.open)
+	if a.confirmed != 1 || a.canceled != 0 || a.open {
+		t.Fatalf("confirmed %d canceled %d open %v", a.confirmed, a.canceled, a.open)
 	}
 	if !tt.Focused("Archive") {
 		t.Fatal("focus not restored to the anchor")
@@ -78,8 +78,8 @@ func TestPopconfirmCancelPaths(t *testing.T) {
 	tt.Key(0, ui.KeyEscape)
 	_ = tt.Click("Archive")
 	tt.ClickAt(390, 290)
-	if a.cancelled != 3 || a.confirmed != 0 || a.open {
-		t.Fatalf("cancelled %d confirmed %d open %v", a.cancelled, a.confirmed, a.open)
+	if a.canceled != 3 || a.confirmed != 0 || a.open {
+		t.Fatalf("canceled %d confirmed %d open %v", a.canceled, a.confirmed, a.open)
 	}
 }
 

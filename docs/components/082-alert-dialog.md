@@ -37,7 +37,7 @@ ui.Render(view, 400, 300, 1)
 | `CancelLabel` | `string` | 内置“取消 / Cancel” | 取消按钮文字。 |
 | `ConfirmText` | `string` | `""` | 非空时显示输入框，输入内容与之完全相同后确认按钮才可用。 |
 
-`AlertDialogResult{Confirmed, Cancelled bool}` 只在发生选择的那一帧为 true，之后对话框关闭。
+`AlertDialogResult{Confirmed, Canceled bool}` 只在发生选择的那一帧为 true，之后对话框关闭。
 
 ## 状态
 
@@ -47,7 +47,7 @@ ui.Render(view, 400, 300, 1)
 ## 事件
 
 - `Confirmed`：点击确认，或焦点在已解锁的确认按钮上按 Enter / Space。
-- `Cancelled`：点击取消、在取消上按 Enter / Space、或按 Escape。
+- `Canceled`：点击取消、在取消上按 Enter / Space、或按 Escape。
 - 点击遮罩不产生事件。
 
 ## 键盘操作

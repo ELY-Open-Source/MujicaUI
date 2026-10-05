@@ -13,7 +13,7 @@ view := func(c *ui.Context) {
 	mujica.Use(c, mujica.Settings{})
 	mujica.Text(c, "Order ID: 4821-AX", mujica.TextOptions{Selectable: true})
 	mujica.Text(c, "A long note that stops after two lines.", mujica.TextOptions{MaxLines: 2})
-	if mujica.EditableText(c, &name, mujica.EditableTextOptions{Error: saveErr}).Changed {
+	if mujica.EditableText(c, &name, mujica.EditableTextOptions{Error: saveErr}).Changed() {
 		saveErr = "" // save name here; set saveErr on failure
 	}
 }
@@ -36,7 +36,7 @@ view := func(c *ui.Context) {
 | `Error` | `string` | `""` | 调用方保存失败的说明，显示在文本下方并报告给辅助技术。 |
 | `Label` | `string` | `""` | 辅助技术读出的名称；同时用在显示状态和编辑输入框上。 |
 
-返回值 `EditableTextView`：`Element`；`Changed` 表示本帧确认了新值；`Canceled` 表示本帧按 Escape 放弃了编辑。
+返回值 `EditableTextView`：`Element`；`Changed()` 表示本帧确认了新值；`Canceled` 表示本帧按 Escape 放弃了编辑。
 
 ## 状态
 
@@ -49,7 +49,7 @@ view := func(c *ui.Context) {
 
 ## 事件
 
-- `EditableTextView.Changed`：用户确认了新值，`*value` 已更新。调用方在此保存，并通过 `Saving` 与 `Error` 回传结果。
+- `EditableTextView.Changed()`：用户确认了新值，`*value` 已更新。调用方在此保存，并通过 `Saving` 与 `Error` 回传结果。
 - `EditableTextView.Canceled`：用户按 Escape 放弃编辑，`*value` 不变。
 
 ## 键盘操作

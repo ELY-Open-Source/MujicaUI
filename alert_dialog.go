@@ -25,7 +25,7 @@ type AlertDialogOptions struct {
 // AlertDialogResult reports the choice made in this frame.
 type AlertDialogResult struct {
 	Confirmed bool
-	Cancelled bool
+	Canceled  bool
 }
 
 // alertDialogState is the typed confirmation, kept while the alert shows.
@@ -76,7 +76,7 @@ func AlertDialog(c *ui.Context, open *bool, opts AlertDialogOptions) AlertDialog
 		unlocked := opts.ConfirmText == "" || st.typed == opts.ConfirmText
 		dialogActions(c, func() {
 			if Button(c, cancelLabel, ButtonOptions{Variant: Secondary}).AutoFocus().Clicked() {
-				res.Cancelled = true
+				res.Canceled = true
 			}
 			if Button(c, confirmLabel, ButtonOptions{Variant: Danger, Disabled: !unlocked}).Clicked() {
 				res.Confirmed = true
@@ -85,12 +85,12 @@ func AlertDialog(c *ui.Context, open *bool, opts AlertDialogOptions) AlertDialog
 	})
 	focus.shown(panel)
 	if !shown && !backClicked {
-		res.Cancelled = true // Escape
+		res.Canceled = true // Escape
 	}
 	if res.Confirmed {
-		res.Cancelled = false
+		res.Canceled = false
 	}
-	if res.Confirmed || res.Cancelled {
+	if res.Confirmed || res.Canceled {
 		slog.Debug("mujica: alert_dialog close", "confirmed", res.Confirmed)
 		*open = false
 	}

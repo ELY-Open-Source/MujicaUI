@@ -7,9 +7,9 @@ import (
 )
 
 type alertApp struct {
-	open                 bool
-	opts                 AlertDialogOptions
-	confirmed, cancelled int
+	open                bool
+	opts                AlertDialogOptions
+	confirmed, canceled int
 }
 
 func (a *alertApp) view(c *ui.Context) {
@@ -21,8 +21,8 @@ func (a *alertApp) view(c *ui.Context) {
 	if r.Confirmed {
 		a.confirmed++
 	}
-	if r.Cancelled {
-		a.cancelled++
+	if r.Canceled {
+		a.canceled++
 	}
 }
 
@@ -40,8 +40,8 @@ func TestAlertDialogFocusesCancelAndEnterCancels(t *testing.T) {
 		t.Fatalf("open %v, Cancel focused %v", a.open, tt.Focused("Cancel"))
 	}
 	tt.Key(0, ui.KeyEnter)
-	if a.confirmed != 0 || a.cancelled != 1 || a.open {
-		t.Fatalf("Enter: confirmed %d cancelled %d open %v", a.confirmed, a.cancelled, a.open)
+	if a.confirmed != 0 || a.canceled != 1 || a.open {
+		t.Fatalf("Enter: confirmed %d canceled %d open %v", a.confirmed, a.canceled, a.open)
 	}
 	if !tt.Focused("Remove") {
 		t.Fatal("focus not restored")
@@ -51,12 +51,12 @@ func TestAlertDialogFocusesCancelAndEnterCancels(t *testing.T) {
 func TestAlertDialogIgnoresBackdropEscapeCancels(t *testing.T) {
 	a, tt := newAlertApp(AlertDialogOptions{})
 	tt.ClickAt(8, 392)
-	if !a.open || a.cancelled != 0 {
-		t.Fatalf("backdrop click: open %v cancelled %d", a.open, a.cancelled)
+	if !a.open || a.canceled != 0 {
+		t.Fatalf("backdrop click: open %v canceled %d", a.open, a.canceled)
 	}
 	tt.Key(0, ui.KeyEscape)
-	if a.open || a.cancelled != 1 || a.confirmed != 0 {
-		t.Fatalf("Escape: open %v cancelled %d confirmed %d", a.open, a.cancelled, a.confirmed)
+	if a.open || a.canceled != 1 || a.confirmed != 0 {
+		t.Fatalf("Escape: open %v canceled %d confirmed %d", a.open, a.canceled, a.confirmed)
 	}
 }
 
@@ -65,8 +65,8 @@ func TestAlertDialogConfirmOnce(t *testing.T) {
 	if err := tt.Click("Erase"); err != nil {
 		t.Fatal(err)
 	}
-	if a.confirmed != 1 || a.cancelled != 0 || a.open {
-		t.Fatalf("confirmed %d cancelled %d open %v", a.confirmed, a.cancelled, a.open)
+	if a.confirmed != 1 || a.canceled != 0 || a.open {
+		t.Fatalf("confirmed %d canceled %d open %v", a.confirmed, a.canceled, a.open)
 	}
 }
 

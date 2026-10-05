@@ -70,16 +70,16 @@ func (d Date) within(lo, hi Date) bool {
 type DateTimeResult struct {
 	Element *ui.Element
 	// Input is the text field inside, for labels and focus; nil without one.
-	Input     *ui.Element
-	changed   bool
-	cancelled bool
+	Input    *ui.Element
+	changed  bool
+	canceled bool
 }
 
 // Changed reports whether the component wrote a new value this frame.
 func (r DateTimeResult) Changed() bool { return r.changed }
 
-// Cancelled reports whether the user discarded a pending edit this frame.
-func (r DateTimeResult) Cancelled() bool { return r.cancelled }
+// Canceled reports whether the user discarded a pending edit this frame.
+func (r DateTimeResult) Canceled() bool { return r.canceled }
 
 // datetimeCheckDate panics when a non-empty date is not a real day.
 func datetimeCheckDate(name string, d Date) {

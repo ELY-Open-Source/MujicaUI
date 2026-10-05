@@ -22,7 +22,7 @@ type PopconfirmOptions struct {
 // PopconfirmResult reports the choice made in this frame.
 type PopconfirmResult struct {
 	Confirmed bool
-	Cancelled bool
+	Canceled  bool
 }
 
 // Popconfirm asks for a light confirmation by anchor; use AlertDialog for high-risk actions.
@@ -65,7 +65,7 @@ func Popconfirm(c *ui.Context, anchor *ui.Element, open *bool, opts PopconfirmOp
 				cb.AutoFocus()
 			}
 			if cb.Clicked() {
-				res.Cancelled = true
+				res.Canceled = true
 			}
 			ok := Button(c, confirm, ButtonOptions{Variant: variant})
 			if !opts.Danger {
@@ -77,9 +77,9 @@ func Popconfirm(c *ui.Context, anchor *ui.Element, open *bool, opts PopconfirmOp
 		})
 	})
 	if !shown {
-		res.Cancelled = true
+		res.Canceled = true
 	}
-	if res.Confirmed || res.Cancelled {
+	if res.Confirmed || res.Canceled {
 		slog.Debug("mujica: popconfirm close", "confirmed", res.Confirmed)
 		*open = false
 	}

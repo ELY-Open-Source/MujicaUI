@@ -44,7 +44,7 @@ func TestEditableTextBlurConfirms(t *testing.T) {
 	changed := 0
 	tt := ui.NewTester(func(c *ui.Context) {
 		Use(c, Settings{})
-		if EditableText(c, &name, EditableTextOptions{}).Changed {
+		if EditableText(c, &name, EditableTextOptions{}).Changed() {
 			changed++
 		}
 		Button(c, "Other", ButtonOptions{})
@@ -107,7 +107,7 @@ func TestEditableTextConfirm(t *testing.T) {
 	changed := 0
 	tt := ui.NewTester(func(c *ui.Context) {
 		Use(c, Settings{})
-		if EditableText(c, &name, EditableTextOptions{Label: "File name"}).Changed {
+		if EditableText(c, &name, EditableTextOptions{Label: "File name"}).Changed() {
 			changed++
 		}
 	}, 300, 120)
@@ -133,7 +133,7 @@ func TestEditableTextCancel(t *testing.T) {
 	tt := ui.NewTester(func(c *ui.Context) {
 		Use(c, Settings{})
 		v := EditableText(c, &name, EditableTextOptions{})
-		if v.Changed {
+		if v.Changed() {
 			changed++
 		}
 		if v.Canceled {

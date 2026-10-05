@@ -15,7 +15,7 @@ func ExampleText() {
 		mujica.Use(c, mujica.Settings{})
 		mujica.Text(c, "Order ID: 4821-AX", mujica.TextOptions{Selectable: true})
 		mujica.Text(c, "A long note that stops after two lines.", mujica.TextOptions{MaxLines: 2})
-		if mujica.EditableText(c, &name, mujica.EditableTextOptions{Error: saveErr}).Changed {
+		if mujica.EditableText(c, &name, mujica.EditableTextOptions{Error: saveErr}).Changed() {
 			saveErr = "" // save name here; set saveErr on failure
 		}
 	}

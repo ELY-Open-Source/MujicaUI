@@ -61,7 +61,7 @@ func textDemo(c *ui.Context, log func(string)) {
 	})
 	displaySection(c, "Editable", func() {
 		e := mujica.EditableText(c, &s.name, mujica.EditableTextOptions{Saving: s.saving, Error: s.saveErr, Label: "File name"})
-		if e.Changed {
+		if e.Changed() {
 			if s.failNext {
 				s.saveErr = "Save failed: the name is already taken."
 				log("save failed: " + s.name)
@@ -78,7 +78,7 @@ func textDemo(c *ui.Context, log func(string)) {
 
 const textCode = `mujica.Text(c, "Order ID: 4821-AX", mujica.TextOptions{Selectable: true})
 mujica.Text(c, "A long note that stops after two lines.", mujica.TextOptions{MaxLines: 2})
-if mujica.EditableText(c, &name, mujica.EditableTextOptions{Error: saveErr}).Changed {
+if mujica.EditableText(c, &name, mujica.EditableTextOptions{Error: saveErr}).Changed() {
 	saveErr = "" // save name here; set saveErr on failure
 }`
 

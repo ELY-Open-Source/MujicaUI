@@ -66,7 +66,7 @@ func DateRangePicker(c *ui.Context, value *DateRange, opts DateRangePickerOption
 	cursor := ui.Local(col, "date-range-cursor", func() Date { return Date{} })
 	hover := ui.Local(col, "date-range-hover", func() Date { return Date{} })
 	problem := ui.Local(col, "date-range-error", func() string { return "" })
-	changed, cancelled, done := false, false, false
+	changed, canceled, done := false, false, false
 	finish := func(to DateRange, how string) {
 		if to != *value {
 			slog.Debug("mujica: date_range_picker change", "from", *value, "to", to, "by", how)
@@ -147,13 +147,13 @@ func DateRangePicker(c *ui.Context, value *DateRange, opts DateRangePickerOption
 	})
 	if *wasOpen && !*open && !done {
 		slog.Debug("mujica: date_range_picker cancel")
-		cancelled = true
+		canceled = true
 	}
 	*wasOpen = *open
 	if !*open {
 		*problem = ""
 	}
-	return DateTimeResult{Element: col, changed: changed, cancelled: cancelled}
+	return DateTimeResult{Element: col, changed: changed, canceled: canceled}
 }
 
 // dateRangeProblem checks a whole draft against the current bounds and filter.
