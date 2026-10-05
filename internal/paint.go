@@ -2,6 +2,8 @@
 package internal
 
 import (
+	"math"
+
 	"github.com/egoist/mygo/ui"
 
 	"mujicaui/theme"
@@ -32,4 +34,10 @@ func Diamond(cx, cy, s float32) *ui.Path {
 	p.LineTo(cx-h, cy)
 	p.Close()
 	return &p
+}
+
+// Snap rounds v to MyGo's quarter-device-pixel path cache grid.
+func Snap(p *ui.Painter, v float32) float32 {
+	g := 4 * p.Scale()
+	return float32(math.Round(float64(v*g))) / g
 }

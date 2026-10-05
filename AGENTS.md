@@ -37,6 +37,7 @@ testdata/snapshots/  <os>/<name>-<light|dark>.png
 - Focus: `internal.Ring(e, k.Focus, radius)` for the 2 DIP ring with 2 DIP gap.
 - State marks (checked, selected, progress) use `OnAccent` on `Accent`, or `AccentText`, never `Accent` alone on dark surfaces (2.44:1).
 - Ornament color only for dividers, corners, panel titles. No gradients, glow, glass or texture.
+- Animated paths: pass coordinates through `internal.Snap(p, v)`. MyGo caches path masks by quarter-pixel keys (ui/path.go); unsnapped motion reuses near-miss masks and breaks snapshots.
 - Durations: `mujica.Motion(c, theme.StateDuration)`; popups use `theme.PopupDuration`.
 - Disabled blocks input before handling it (`Disabled(true)`); MyGo dims disabled elements, do not add opacity.
 - Copy shown by a component comes from `msg(c, key)`; business copy comes from the caller.

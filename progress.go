@@ -7,6 +7,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
+	"mujicaui/internal"
 	"mujicaui/theme"
 )
 
@@ -112,21 +113,21 @@ func progressRing(c *ui.Context, k theme.Tokens, u float32, acc float64, name, c
 		}
 		stroke := max(3, d/10)
 		ring.Draw(func(p *ui.Painter, r ui.Rect) {
-			cx, cy, rad := r.X+r.W/2, r.Y+r.H/2, (r.W-stroke)/2
+			cx, cy, rad := internal.Snap(p, r.X+r.W/2), internal.Snap(p, r.Y+r.H/2), internal.Snap(p, (r.W-stroke)/2)
 			var track ui.Path
 			track.Circle(cx, cy, rad)
 			p.StrokePath(&track, stroke, k.Border)
 			switch {
 			case !opts.Indeterminate:
 				if shown > 0 {
-					p.StrokePath(progressArc(cx, cy, rad, 0, shown), stroke, k.AccentText)
+					p.StrokePath(progressArc(p, cx, cy, rad, 0, shown), stroke, k.AccentText)
 				}
 			case still:
 				p.StrokePath(&track, stroke, k.AccentText.Alpha(0.4))
 			default:
 				p.AnimationFrame()
 				start := float32(p.Now().UnixMilli()%1200) / 1200
-				p.StrokePath(progressArc(cx, cy, rad, start, start+0.25), stroke, k.AccentText)
+				p.StrokePath(progressArc(p, cx, cy, rad, start, start+0.25), stroke, k.AccentText)
 			}
 		})
 		if caption != "" && d >= 44 && !opts.Indeterminate {
@@ -150,7 +151,7 @@ func progressRing(c *ui.Context, k theme.Tokens, u float32, acc float64, name, c
 }
 
 // progressArc is the arc from turn a to turn b, clockwise from twelve o'clock.
-func progressArc(cx, cy, r float32, a, b float32) *ui.Path {
+func progressArc(pt *ui.Painter, cx, cy, r float32, a, b float32) *ui.Path {
 	var p ui.Path
 	n := max(2, int(math.Ceil(float64((b-a)*64))))
 	for i := 0; i <= n; i++ {
@@ -158,9 +159,9 @@ func progressArc(cx, cy, r float32, a, b float32) *ui.Path {
 		x := cx + r*float32(math.Sin(2*math.Pi*t))
 		y := cy - r*float32(math.Cos(2*math.Pi*t))
 		if i == 0 {
-			p.MoveTo(x, y)
+			p.MoveTo(internal.Snap(pt, x), internal.Snap(pt, y))
 		} else {
-			p.LineTo(x, y)
+			p.LineTo(internal.Snap(pt, x), internal.Snap(pt, y))
 		}
 	}
 	return &p

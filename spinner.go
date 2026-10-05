@@ -58,11 +58,8 @@ func spinnerMark(c *ui.Context, label string, size float32, color ui.Color, stil
 			a := 2 * math.Pi * (turn + float64(i)/4)
 			x := cx + rad*float32(math.Cos(a))
 			y := cy + rad*float32(math.Sin(a))
-			// Device-pixel centers keep cached shapes rendering alike.
-			s := p.Scale()
-			x, y = float32(math.Round(float64(x*s)))/s, float32(math.Round(float64(y*s)))/s
 			alpha := 1 - float32(i)*0.22
-			p.FillPath(internal.Diamond(x, y, r.W*0.3), color.Alpha(alpha))
+			p.FillPath(internal.Diamond(internal.Snap(p, x), internal.Snap(p, y), internal.Snap(p, r.W*0.3)), color.Alpha(alpha))
 		}
 	})
 }
