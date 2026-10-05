@@ -12,8 +12,10 @@ import (
 
 // DateTimePickerOptions configure a DateTimePicker.
 type DateTimePickerOptions struct {
-	// Location is the time zone the user edits in. Required.
+	// Location is the time zone the user edits in; required.
 	Location *time.Location
+	// Layout is the Go layout of the date part; empty uses 2006-01-02.
+	Layout string
 	// Min and Max bound the instant; zero leaves a side open.
 	Min, Max   time.Time
 	Seconds    bool
@@ -23,12 +25,13 @@ type DateTimePickerOptions struct {
 	// Today is marked in the calendar; zero uses the system clock.
 	Today    Date
 	Disabled bool
+	// ReadOnly keeps the field focusable and copyable but blocks the popup.
+	ReadOnly bool
 	// Label names the field for assistive technology.
 	Label string
 }
 
-// DateTimePicker edits *value as a date and a wall-clock time in opts.Location, confirmed together.
-// Times a DST change skips or repeats are reported, never shifted.
+// DateTimePicker edits *value as wall time in opts.Location.
 func DateTimePicker(c *ui.Context, value *time.Time, opts DateTimePickerOptions) DateTimeResult {
 	loc := opts.Location
 	if loc == nil {
@@ -56,7 +59,11 @@ func DateTimePicker(c *ui.Context, value *time.Time, opts DateTimePickerOptions)
 	clock := ui.Local(col, "date-time-clock", func() TimeOfDay { return TimeOfDay{} })
 	cursor := ui.Local(col, "date-time-cursor", func() Date { return Date{} })
 	problem := ui.Local(col, "date-time-error", func() string { return "" })
-	format := func(t time.Time) string { return dateTimeText(c, t.In(loc), cfg) }
+	typedBad := ui.Local(col, "date-time-typed-bad", func() bool { return false })
+	if opts.Layout == "" {
+		opts.Layout = "2006-01-02"
+	}
+	format := func(t time.Time) string { return dateTimeText(c, t.In(loc), opts.Layout, cfg) }
 	changed, cancelled, done := false, false, false
 	label := opts.Label
 	if label == "" {
@@ -67,10 +74,10 @@ func DateTimePicker(c *ui.Context, value *time.Time, opts DateTimePickerOptions)
 		text = format(*value)
 	}
 	col.Children(func() {
-		field := datetimeField(c, ui.Row(c), false)
+		field := datetimeField(c, ui.Row(c), *problem != "", opts.ReadOnly)
 		field.Children(func() {
-			t := datetimeTrigger(c, text, msg(c, "date_time_picker.placeholder"), "calendar").Label(label).Description(text)
-			if t.Clicked() || !*open && t.Shortcut(0, ui.KeyDown) {
+			t := datetimeTrigger(c, text, msg(c, "date_time_picker.placeholder"), "calendar").Label(label).Description(text).Error(*problem)
+			if !opts.ReadOnly && (t.Clicked() || !*open && t.Shortcut(0, ui.KeyDown)) {
 				*open = !*open
 				if *open {
 					*day, *clock, *problem = today, TimeOfDay{}, ""
@@ -83,7 +90,7 @@ func DateTimePicker(c *ui.Context, value *time.Time, opts DateTimePickerOptions)
 				}
 			}
 		})
-		datetimePopup(c, field, open, func() {
+		datetimePopup(c, field, open, opts.ReadOnly, func() {
 			picked, _ := calendarMonth(c, cursor, calendarConfig{
 				chosen:    func(x Date) bool { return x == *day },
 				enabled:   calendarEnabled(lo, hi, nil),
@@ -94,11 +101,17 @@ func DateTimePicker(c *ui.Context, value *time.Time, opts DateTimePickerOptions)
 			if !picked.IsZero() {
 				*day, *problem = picked, ""
 			}
+			bad := ""
 			ui.Row(c).Gap(d.Unit() * 2).AlignItems(ui.Center).Children(func() {
-				if _, edited := timeEditor(c, clock, cfg); edited {
-					*problem = ""
+				cfg.problem = *problem
+				_, edited, b := timeEditor(c, clock, cfg)
+				switch {
+				case b != "":
+					*problem, *typedBad, bad = b, true, b
+				case edited || *typedBad:
+					*problem, *typedBad = "", false
 				}
-				ui.Text(c, loc.String()).FontSize(theme.CaptionSize).TextColor(k.TextMuted)
+				ui.Text(c, loc.String()).FontSize(FontSize(c, theme.CaptionSize)).TextColor(k.TextMuted)
 			})
 			datetimeError(c, *problem)
 			datetimeFooter(c, func() {
@@ -107,6 +120,9 @@ func DateTimePicker(c *ui.Context, value *time.Time, opts DateTimePickerOptions)
 				}
 				if Button(c, msg(c, "calendar.confirm"), ButtonOptions{}).Clicked() {
 					at, p := dateTimeConfirm(c, *day, *clock, loc, opts, cfg)
+					if bad != "" {
+						p = bad
+					}
 					*problem = p
 					if p == "" {
 						if !at.Equal(*value) {
@@ -124,6 +140,9 @@ func DateTimePicker(c *ui.Context, value *time.Time, opts DateTimePickerOptions)
 		cancelled = true
 	}
 	*wasOpen = *open
+	if !*open {
+		*problem = ""
+	}
 	return DateTimeResult{Element: col, changed: changed, cancelled: cancelled}
 }
 
@@ -132,7 +151,7 @@ func dateTimeConfirm(c *ui.Context, d Date, t TimeOfDay, loc *time.Location, opt
 	if p := timePickerProblem(c, t, cfg); p != "" {
 		return time.Time{}, p
 	}
-	wall := fmt.Sprintf("%v %s", d, timeText(c, t, cfg))
+	wall := d.Format(opts.Layout) + " " + timeText(c, t, cfg)
 	at, n := dateTimeResolve(d, t, loc)
 	switch {
 	case n == 0:
@@ -142,14 +161,14 @@ func dateTimeConfirm(c *ui.Context, d Date, t TimeOfDay, loc *time.Location, opt
 		slog.Debug("mujica: date_time_picker ambiguous", "wall", wall, "zone", loc.String())
 		return at, fmt.Sprintf(msg(c, "date_time_picker.ambiguous"), wall, loc.String())
 	case !opts.Min.IsZero() && at.Before(opts.Min):
-		return at, fmt.Sprintf(msg(c, "calendar.before_min"), dateTimeText(c, opts.Min.In(loc), cfg))
+		return at, fmt.Sprintf(msg(c, "calendar.before_min"), dateTimeText(c, opts.Min.In(loc), opts.Layout, cfg))
 	case !opts.Max.IsZero() && at.After(opts.Max):
-		return at, fmt.Sprintf(msg(c, "calendar.after_max"), dateTimeText(c, opts.Max.In(loc), cfg))
+		return at, fmt.Sprintf(msg(c, "calendar.after_max"), dateTimeText(c, opts.Max.In(loc), opts.Layout, cfg))
 	}
 	return at, ""
 }
 
-// dateTimeResolve finds the instants showing wall time d t in loc: none in a DST gap, two in an overlap.
+// dateTimeResolve counts instants for a wall time: 0 gap, 2 overlap.
 func dateTimeResolve(d Date, t TimeOfDay, loc *time.Location) (time.Time, int) {
 	wall := time.Date(d.Year, d.Month, d.Day, t.Hour, t.Minute, t.Second, 0, time.UTC)
 	guess := time.Date(d.Year, d.Month, d.Day, t.Hour, t.Minute, t.Second, 0, loc)
@@ -175,7 +194,7 @@ func dateTimeResolve(d Date, t TimeOfDay, loc *time.Location) (time.Time, int) {
 	return hits[0], len(hits)
 }
 
-// dateTimeText formats a wall time with the picker's clock style.
-func dateTimeText(c *ui.Context, w time.Time, cfg timeConfig) string {
-	return DateOf(w).String() + " " + timeText(c, TimeOfDay{w.Hour(), w.Minute(), w.Second()}, cfg) + " " + w.Format("MST")
+// dateTimeText formats a wall time with the picker's date layout and clock style.
+func dateTimeText(c *ui.Context, w time.Time, layout string, cfg timeConfig) string {
+	return w.Format(layout) + " " + timeText(c, TimeOfDay{w.Hour(), w.Minute(), w.Second()}, cfg) + " " + w.Format("MST")
 }

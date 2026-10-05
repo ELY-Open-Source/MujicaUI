@@ -17,12 +17,13 @@ type YearPickerOptions struct {
 	// Today marks the current year; zero uses the system clock.
 	Today    Date
 	Disabled bool
+	// ReadOnly keeps the field focusable and copyable but blocks the popup and clearing.
+	ReadOnly bool
 	// Label names the field for assistive technology.
 	Label string
 }
 
-// YearPicker chooses a year into *value, zero meaning none, from a decade page.
-// Arrows move by year and row, PageUp and PageDown by decade.
+// YearPicker chooses a year into *value from a decade page; zero is none.
 func YearPicker(c *ui.Context, value *int, opts YearPickerOptions) DateTimeResult {
 	if *value < 0 || opts.Min < 0 || opts.Max < 0 || opts.Min != 0 && opts.Max != 0 && opts.Min > opts.Max {
 		panic(fmt.Sprintf("mujica: YearPicker value %d or range %d..%d is not valid", *value, opts.Min, opts.Max))
@@ -43,7 +44,7 @@ func YearPicker(c *ui.Context, value *int, opts YearPickerOptions) DateTimeResul
 	}
 	col, picked, ok, cleared := datetimeGridPicker(c, datetimeGridField{
 		text: text, placeholder: msg(c, "year_picker.placeholder"), label: label,
-		clearable: opts.Clearable, hasValue: *value != 0, disabled: opts.Disabled, home: home,
+		clearable: opts.Clearable, hasValue: *value != 0, disabled: opts.Disabled, readOnly: opts.ReadOnly, home: home,
 	}, datetimeGridConfig{
 		pageOf:  func(o int) (int, int) { return decade(o) - 1, 12 },
 		cols:    3,

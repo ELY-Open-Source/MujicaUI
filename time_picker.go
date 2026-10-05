@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"strconv"
+	"strings"
 
 	"github.com/egoist/mygo/ui"
 
@@ -49,12 +50,13 @@ type TimePickerOptions struct {
 	// Min and Max bound the time; a zero Max means 23:59:59.
 	Min, Max TimeOfDay
 	Disabled bool
+	// ReadOnly keeps the segments focusable and copyable but blocks edits and the popup.
+	ReadOnly bool
 	// Label names the field for assistive technology.
 	Label string
 }
 
-// TimePicker edits *value by typing into hour, minute and second segments or by choosing in a popup.
-// Times outside the range or off the step are reported and not written.
+// TimePicker edits *value in segments or a popup.
 func TimePicker(c *ui.Context, value *TimeOfDay, opts TimePickerOptions) DateTimeResult {
 	cfg := timePickerConfig("TimePicker", opts)
 	if !value.Valid() {
@@ -65,17 +67,23 @@ func TimePicker(c *ui.Context, value *TimeOfDay, opts TimePickerOptions) DateTim
 	seen := ui.Local(col, "time-picker-seen", func() TimeOfDay { return *value })
 	problem := ui.Local(col, "time-picker-error", func() string { return "" })
 	if *seen != *value {
-		*draft, *seen, *problem = *value, *value, ""
+		*draft, *seen = *value, *value
 	}
 	changed := false
 	col.Children(func() {
-		cfg.invalid = *problem != ""
-		if _, edited := timeEditor(c, draft, cfg); edited {
-			*problem = timePickerProblem(c, *draft, cfg)
-			if *problem == "" && *draft != *value {
-				slog.Debug("mujica: time_picker change", "from", *value, "to", *draft)
-				*value, *seen, changed = *draft, *draft, true
-			}
+		cfg.problem = *problem
+		_, edited, bad := timeEditor(c, draft, cfg)
+		p := bad
+		if p == "" {
+			p = timePickerProblem(c, *draft, cfg)
+		}
+		if p != *problem {
+			*problem = p
+			c.Invalidate()
+		}
+		if edited && p == "" && *draft != *value {
+			slog.Debug("mujica: time_picker change", "from", *value, "to", *draft)
+			*value, *seen, changed = *draft, *draft, true
 		}
 		datetimeError(c, *problem)
 	})
@@ -88,13 +96,15 @@ type timeConfig struct {
 	minuteStep, secondStep int
 	min, max               TimeOfDay
 	label                  string
-	invalid                bool
+	// problem is the error shown last frame, attached to the segments.
+	problem  string
+	readOnly bool
 }
 
 // timePickerConfig checks opts and fills in defaults.
 func timePickerConfig(name string, opts TimePickerOptions) timeConfig {
 	cfg := timeConfig{seconds: opts.Seconds, hour12: opts.Hour12, minuteStep: max(opts.MinuteStep, 1),
-		secondStep: max(opts.SecondStep, 1), min: opts.Min, max: opts.Max, label: opts.Label}
+		secondStep: max(opts.SecondStep, 1), min: opts.Min, max: opts.Max, label: opts.Label, readOnly: opts.ReadOnly}
 	for _, s := range []int{opts.MinuteStep, opts.SecondStep} {
 		if s < 0 || s > 0 && 60%s != 0 {
 			panic(fmt.Sprintf("mujica: %s step %d does not divide 60", name, s))
@@ -174,15 +184,18 @@ func timeParts(cfg timeConfig) []timePart {
 	return parts
 }
 
-// timeEditor draws a segmented time field with a popup and reports whether the user edited *draft.
-func timeEditor(c *ui.Context, draft *TimeOfDay, cfg timeConfig) (field *ui.Element, edited bool) {
+// timeEditor draws segments and popup; reports edits and invalid entry.
+func timeEditor(c *ui.Context, draft *TimeOfDay, cfg timeConfig) (field *ui.Element, edited bool, bad string) {
 	k := Tokens(c)
 	d := Density(c)
-	field = datetimeField(c, ui.Row(c), cfg.invalid).Gap(d.Unit() * 2)
+	field = datetimeField(c, ui.Row(c), cfg.problem != "", cfg.readOnly).Gap(d.Unit() * 2)
 	open := ui.Local(field, "time-open", func() bool { return false })
 	fresh := ui.Local(field, "time-fresh", func() bool { return false })
 	field.Children(func() {
-		segs := ui.Row(c).AlignItems(ui.Center).FocusGroup(ui.Horizontal).Role(ui.RoleGroup).Label(cfg.label)
+		segs := ui.Row(c).AlignItems(ui.Center).Gap(d.Unit() * 1.5).FocusGroup(ui.Horizontal).Role(ui.RoleGroup).Label(cfg.label)
+		if segs.Shortcut(ui.Cmd, ui.KeyC) {
+			c.WriteClipboard(timeText(c, *draft, cfg))
+		}
 		segs.Children(func() {
 			focusNext := false
 			for i, part := range timeParts(cfg) {
@@ -192,84 +205,107 @@ func timeEditor(c *ui.Context, draft *TimeOfDay, cfg timeConfig) (field *ui.Elem
 				if part == timePeriodPart {
 					ui.Box(c).Width(d.Unit())
 				}
-				seg, done := timeSegment(c, draft, part, cfg, &edited)
+				seg, done, segBad := timeSegment(c, draft, part, cfg, &edited)
 				if focusNext {
 					seg.Focus()
-					focusNext = false
 				}
 				focusNext = done
+				if bad == "" {
+					bad = segBad
+				}
 			}
 		})
-		b := datetimeIconButton(c, "clock", msg(c, "time_picker.open"))
+		if cfg.readOnly {
+			return
+		}
+		b := datetimeIconButton(c, "clock", msg(c, "time_picker.open")).Role(ui.RolePopUpButton)
 		if b.Clicked() {
 			*open, *fresh = !*open, true
 		}
 	})
-	if !*open && field.Shortcut(ui.Alt, ui.KeyDown) {
+	if !*open && !cfg.readOnly && field.Shortcut(ui.Alt, ui.KeyDown) {
 		*open, *fresh = true, true
 	}
-	datetimePopup(c, field, open, func() {
+	datetimePopup(c, field, open, cfg.readOnly, func() {
 		if timeColumns(c, draft, cfg, *fresh) {
 			edited = true
 		}
 		*fresh = false
 	})
-	return field, edited
+	return field, edited, bad
 }
 
-// timeSegment draws one focusable segment; done reports a fully typed value.
-func timeSegment(c *ui.Context, draft *TimeOfDay, part timePart, cfg timeConfig, edited *bool) (seg *ui.Element, done bool) {
+// timeLimits returns the lowest and highest value a segment accepts.
+func timeLimits(part timePart, cfg timeConfig) (lo, hi int) {
+	switch {
+	case part != timeHourPart:
+		return 0, 59
+	case cfg.hour12:
+		return 1, 12
+	}
+	return 0, 23
+}
+
+// timeSegment draws one segment; done reports a complete valid entry, bad an invalid one.
+func timeSegment(c *ui.Context, draft *TimeOfDay, part timePart, cfg timeConfig, edited *bool) (seg *ui.Element, done bool, bad string) {
 	k := Tokens(c)
 	d := Density(c)
 	name := msg(c, timePartNames[part])
 	if cfg.label != "" {
 		name = cfg.label + ": " + name
 	}
-	seg = ui.Box(c).Focusable().FocusRing(false).Role(ui.RoleStepper).Label(name).
-		Padding(d.Unit()/2, d.Unit()).Radius(theme.ControlRadius).MinWidth(theme.BodySize * 1.6).Center()
+	seg = ui.Box(c).Focusable().Role(ui.RoleStepper).Label(name).
+		Padding(0, d.Unit()).Radius(theme.ControlRadius).MinWidth(theme.BodySize * 1.6).Shrink(0).Center()
+	internal.Ring(seg, k.Focus, theme.ControlRadius)
 	typed := ui.Local(seg, "time-typed", func() string { return "" })
+	badText := ui.Local(seg, "time-bad", func() string { return "" })
+	badFor := ui.Local(seg, "time-bad-for", func() TimeOfDay { return TimeOfDay{} })
 	if !seg.Focused() {
 		*typed = ""
 	}
+	if *badFor != *draft {
+		*badText = ""
+	}
 	set := func(t TimeOfDay) {
+		*badText = ""
 		if t != *draft {
 			*draft = t
 			*edited = true
 		}
 	}
 	t := *draft
-	step := func(dir int) {
-		switch part {
-		case timeHourPart:
-			t.Hour = (t.Hour + dir + 24) % 24
-		case timeMinutePart:
-			t.Minute = timeStep(t.Minute, cfg.minuteStep, dir)
-		case timeSecondPart:
-			t.Second = timeStep(t.Second, cfg.secondStep, dir)
-		case timePeriodPart:
-			t.Hour = (t.Hour + 12) % 24
+	lo, hi := timeLimits(part, cfg)
+	if !cfg.readOnly {
+		switch {
+		case seg.Shortcut(0, ui.KeyUp):
+			set(timeStepPart(t, part, cfg, 1))
+		case seg.Shortcut(0, ui.KeyDown):
+			set(timeStepPart(t, part, cfg, -1))
 		}
-		set(t)
-	}
-	switch {
-	case seg.Shortcut(0, ui.KeyUp):
-		step(1)
-	case seg.Shortcut(0, ui.KeyDown):
-		step(-1)
-	}
-	if part == timePeriodPart {
-		if seg.Shortcut(0, ui.KeyA) && t.Hour >= 12 || seg.Shortcut(0, ui.KeyP) && t.Hour < 12 {
-			t.Hour = (t.Hour + 12) % 24
-			set(t)
-		}
-	} else {
-		for n := range 10 {
-			if seg.Shortcut(0, ui.Key0+ui.Key(n)) {
-				done = timeType(typed, n, part, cfg, &t)
+		t = *draft
+		if part == timePeriodPart {
+			if seg.Shortcut(0, ui.KeyA) && t.Hour >= 12 || seg.Shortcut(0, ui.KeyP) && t.Hour < 12 {
+				t.Hour = (t.Hour + 12) % 24
 				set(t)
+			}
+		} else {
+			for n := range 10 {
+				if !seg.Shortcut(0, ui.Key0+ui.Key(n)) {
+					continue
+				}
+				v, ok, complete := timeType(typed, n, lo, hi)
+				switch {
+				case ok:
+					set(timeWithPart(t, part, v, cfg))
+					done = complete
+				case complete:
+					*badText, *badFor = fmt.Sprintf("%02d", v), *draft
+					slog.Debug("mujica: time_picker invalid segment", "part", int(part), "typed", v)
+				}
 			}
 		}
 	}
+	t = *draft
 	text := ""
 	switch part {
 	case timeHourPart:
@@ -284,16 +320,64 @@ func timeSegment(c *ui.Context, draft *TimeOfDay, part timePart, cfg timeConfig,
 	case timePeriodPart:
 		text = timePeriod(c, t.Hour)
 	}
+	if *badText != "" {
+		text = *badText
+		bad = fmt.Sprintf(msg(c, "time_picker.part_range"), msg(c, timePartNames[part]), lo, hi)
+	}
+	seg.Description(timeSegmentDescription(c, part, text, lo, hi)).Error(cfg.problem)
 	fg := k.Text
 	switch {
-	case seg.Focused():
+	case *badText != "":
+		fg = k.Danger
+	case seg.Focused() && !cfg.readOnly:
 		seg.Background(k.Accent)
 		fg = k.OnAccent
+	case seg.Focused():
+		seg.Background(k.Selection)
 	case seg.Hovered():
 		seg.Background(k.SurfaceHover)
 	}
 	seg.Children(func() { ui.Text(c, text).TextColor(fg).FontFeatures("tnum").SingleLine() })
-	return seg, done
+	return seg, done, bad
+}
+
+// timeSegmentDescription gives assistive technology a segment's value and range.
+func timeSegmentDescription(c *ui.Context, part timePart, text string, lo, hi int) string {
+	if part == timePeriodPart {
+		return text
+	}
+	return fmt.Sprintf(msg(c, "time_picker.segment"), strings.TrimSpace(text), lo, hi)
+}
+
+// timeStepPart steps one segment of t by dir, wrapping round its cycle.
+func timeStepPart(t TimeOfDay, part timePart, cfg timeConfig, dir int) TimeOfDay {
+	switch part {
+	case timeHourPart:
+		t.Hour = (t.Hour + dir + 24) % 24
+	case timeMinutePart:
+		t.Minute = timeStep(t.Minute, cfg.minuteStep, dir)
+	case timeSecondPart:
+		t.Second = timeStep(t.Second, cfg.secondStep, dir)
+	case timePeriodPart:
+		t.Hour = (t.Hour + 12) % 24
+	}
+	return t
+}
+
+// timeWithPart sets one segment of t to v, keeping the period on a 12-hour clock.
+func timeWithPart(t TimeOfDay, part timePart, v int, cfg timeConfig) TimeOfDay {
+	switch part {
+	case timeHourPart:
+		if cfg.hour12 {
+			v = v%12 + t.Hour/12*12
+		}
+		t.Hour = v
+	case timeMinutePart:
+		t.Minute = v
+	case timeSecondPart:
+		t.Second = v
+	}
+	return t
 }
 
 // timeStep moves v to the next multiple of step in dir, wrapping within an hour.
@@ -307,42 +391,22 @@ func timeStep(v, step, dir int) int {
 	return (v - step + 60) % 60
 }
 
-// timeType adds digit n to a segment's typed digits and reports when the segment is complete.
-func timeType(typed *string, n int, part timePart, cfg timeConfig, t *TimeOfDay) bool {
-	lo, hi := 0, 59
-	if part == timeHourPart {
-		hi = 23
-		if cfg.hour12 {
-			lo, hi = 1, 12
-		}
+// timeType appends digit n; reports value, validity and completion.
+func timeType(typed *string, n, lo, hi int) (v int, ok, complete bool) {
+	s := *typed + strconv.Itoa(n)
+	if len(s) > 2 {
+		s = strconv.Itoa(n)
 	}
-	s := *typed + fmt.Sprint(n)
 	v, err := strconv.Atoi(s)
 	if err != nil {
 		panic(err)
 	}
-	if len(s) > 2 || v > hi {
-		s, v = fmt.Sprint(n), n
+	complete = len(s) == 2 || v*10 > hi
+	if complete {
+		s = ""
 	}
 	*typed = s
-	if v >= lo {
-		switch part {
-		case timeHourPart:
-			if cfg.hour12 {
-				v = v%12 + t.Hour/12*12
-			}
-			t.Hour = v
-		case timeMinutePart:
-			t.Minute = v
-		case timeSecondPart:
-			t.Second = v
-		}
-	}
-	if len(s) == 2 || n*10 > hi && len(s) == 1 {
-		*typed = ""
-		return true
-	}
-	return false
+	return v, v >= lo && v <= hi, complete
 }
 
 // timeColumns lists choosable values per segment and reports whether a choice edited *draft.

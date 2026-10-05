@@ -63,6 +63,8 @@ func init() {
 		"time_picker.open":         {"Choose time", "选择时间"},
 		"time_picker.minute_step":  {"Minutes must be a multiple of %d.", "分钟须为 %d 的倍数。"},
 		"time_picker.second_step":  {"Seconds must be a multiple of %d.", "秒须为 %d 的倍数。"},
+		"time_picker.segment":      {"%[1]s, from %[2]d to %[3]d", "%[1]s，范围 %[2]d–%[3]d"},
+		"time_picker.part_range":   {"%[1]s must be from %[2]d to %[3]d.", "%[1]s须在 %[2]d 至 %[3]d 之间。"},
 		"time_picker.out_of_range": {"Choose a time from %s to %s.", "请选择 %s 至 %s 之间的时间。"},
 
 		"time_range_picker.start":    {"Start time", "开始时间"},
