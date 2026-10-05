@@ -11,7 +11,6 @@ type appShellProbe struct {
 	collapsed bool
 	toggled   int
 	content   ui.ScrollState
-	side      ui.Rect
 }
 
 func (p *appShellProbe) view(c *ui.Context) {

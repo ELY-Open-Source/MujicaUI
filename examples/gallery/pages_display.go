@@ -84,7 +84,6 @@ if mujica.EditableText(c, &name, mujica.EditableTextOptions{Error: saveErr}).Cha
 type headingState struct {
 	level            float64
 	subtitle, divide bool
-	scale            float64
 }
 
 func headingDemo(c *ui.Context, log func(string)) {
