@@ -5,8 +5,8 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/ZacharyZhang-NY/MujicaUI/chart"
-	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/chart"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
 )
 
 func ExampleMarketHeatmap() {

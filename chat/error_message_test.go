@@ -6,7 +6,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
 )
 
 const errorMessageText = `429 Too Many Requests: {"error":"rate_limit","retry_after":30}`

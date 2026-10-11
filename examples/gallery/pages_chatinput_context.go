@@ -6,8 +6,8 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/ZacharyZhang-NY/MujicaUI/chat"
-	"github.com/ZacharyZhang-NY/MujicaUI/input"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/chat"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/input"
 )
 
 func chatinputDemoSlashCommandMenu(c *ui.Context, log func(string)) {

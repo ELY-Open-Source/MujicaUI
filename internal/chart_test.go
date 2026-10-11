@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ZacharyZhang-NY/MujicaUI/theme"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/theme"
 )
 
 func TestNiceAndTicks(t *testing.T) {

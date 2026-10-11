@@ -6,8 +6,8 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/ZacharyZhang-NY/MujicaUI/agent"
-	"github.com/ZacharyZhang-NY/MujicaUI/input"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/agent"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/input"
 )
 
 const agentCategory = "Agent"

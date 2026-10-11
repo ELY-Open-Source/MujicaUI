@@ -6,8 +6,8 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/ZacharyZhang-NY/MujicaUI/input"
-	"github.com/ZacharyZhang-NY/MujicaUI/overlay"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/input"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/overlay"
 )
 
 func splitButtonDemo(c *ui.Context, log func(string)) {

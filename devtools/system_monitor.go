@@ -8,11 +8,11 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/ZacharyZhang-NY/MujicaUI/agent"
-	"github.com/ZacharyZhang-NY/MujicaUI/chart"
-	"github.com/ZacharyZhang-NY/MujicaUI/core"
-	"github.com/ZacharyZhang-NY/MujicaUI/data"
-	"github.com/ZacharyZhang-NY/MujicaUI/theme"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/agent"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/chart"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/data"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/theme"
 )
 
 // MonitorMetric holds samples aligned with the shared timestamps.

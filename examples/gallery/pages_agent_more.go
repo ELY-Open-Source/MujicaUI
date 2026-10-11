@@ -7,9 +7,9 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/ZacharyZhang-NY/MujicaUI/agent"
-	"github.com/ZacharyZhang-NY/MujicaUI/display"
-	"github.com/ZacharyZhang-NY/MujicaUI/input"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/agent"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/display"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/input"
 )
 
 type multiFileDemoState struct {

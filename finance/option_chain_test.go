@@ -5,7 +5,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
 )
 
 func optionChainTester(s *OptionChainState, strikes []OptionStrike, opts OptionChainOptions, got *OptionChainView) *ui.Tester {

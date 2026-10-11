@@ -6,7 +6,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
 )
 
 var pieSlices = []ChartSlice{{"Wax", 50}, {"Oil", 30}, {"Myrrh", 12}, {"Salt", 4}, {"Ash", 4}}

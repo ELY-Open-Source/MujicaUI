@@ -8,11 +8,11 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/ZacharyZhang-NY/MujicaUI/core"
-	"github.com/ZacharyZhang-NY/MujicaUI/display"
-	"github.com/ZacharyZhang-NY/MujicaUI/input"
-	"github.com/ZacharyZhang-NY/MujicaUI/internal"
-	"github.com/ZacharyZhang-NY/MujicaUI/theme"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/display"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/input"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/internal"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/theme"
 )
 
 // AssigneePickerOptions configure an AssigneePicker.

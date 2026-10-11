@@ -6,7 +6,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/ZacharyZhang-NY/MujicaUI/internal/snaptest"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/internal/snaptest"
 )
 
 // snapshot compares view in both themes with testdata/snapshots/<os>/<name>-<mode>.png.

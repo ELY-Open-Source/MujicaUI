@@ -5,7 +5,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/ZacharyZhang-NY/MujicaUI/display"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/display"
 )
 
 // displaySection shows a titled block of a demo.

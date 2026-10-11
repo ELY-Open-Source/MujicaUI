@@ -6,7 +6,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/ZacharyZhang-NY/MujicaUI/internal"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/internal"
 )
 
 // SpinnerOptions configure a Spinner. Size is 16 DIPs when zero.

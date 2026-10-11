@@ -7,7 +7,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
 )
 
 var kanbanColumns3 = []KanbanColumn{{Status: "todo"}, {Status: "doing", WIP: 3}, {Status: "review"}, {Status: "done"}}

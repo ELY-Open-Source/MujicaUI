@@ -6,7 +6,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
 )
 
 var audioMessageWave = []float32{0.2, 0.5, 0.9, 0.4, 0.7, 0.3, 0.8, 0.6, 0.2, 0.5}

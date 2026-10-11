@@ -6,7 +6,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
 )
 
 var projSprint = Sprint{Name: "Sprint 12", Goal: "Ready the masquerade", Start: oct(1), End: oct(14)}

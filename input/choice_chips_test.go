@@ -6,7 +6,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
 )
 
 var chipItems = []ToggleItem[string]{{Value: "open", Label: "Open"}, {Value: "draft", Label: "Draft"}, {Value: "closed", Label: "Closed", Disabled: true}, {Value: "merged", Label: "Merged"}}

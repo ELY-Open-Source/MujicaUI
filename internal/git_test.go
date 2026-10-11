@@ -3,7 +3,7 @@ package internal
 import (
 	"testing"
 
-	"github.com/ZacharyZhang-NY/MujicaUI/theme"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/theme"
 )
 
 func TestAnsiPaletteReadable(t *testing.T) {

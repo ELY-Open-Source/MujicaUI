@@ -7,7 +7,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
 )
 
 var mentionPeople = []MentionCandidate{{ID: "u1", Name: "Alice"}, {ID: "u2", Name: "Albert"}, {ID: "u3", Name: "Bob"}}

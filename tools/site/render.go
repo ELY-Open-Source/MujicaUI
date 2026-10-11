@@ -27,7 +27,7 @@ var extraPages = []struct{ Slug, Src, Title string }{
 
 var compLinkRe = regexp.MustCompile(`^(?:\.\./|docs/components/|\./)?(\d{3}-[a-z0-9-]+)\.md(#.*)?$`)
 
-// link rewrites repository-relative hrefs to site routes or GitHub URLs.
+// link rewrites repository-relative hrefs to site routes or repository URLs.
 func (s *site) link(from string) func(string) string {
 	return func(href string) string {
 		if strings.Contains(href, "://") || strings.HasPrefix(href, "#") || strings.HasPrefix(href, "mailto:") {
@@ -45,7 +45,7 @@ func (s *site) link(from string) func(string) string {
 		if resolved == "docs/components" {
 			return "/#components"
 		}
-		return repoURL + "/blob/main/" + resolved
+		return repoURL + "/src/branch/main/" + resolved
 	}
 }
 
@@ -106,7 +106,7 @@ func (s *site) page(title, current, main string) string {
 	b.WriteString(`<meta name="color-scheme" content="light dark"><title>` + e(title) + ` · MujicaUI</title>`)
 	b.WriteString(`<link rel="stylesheet" href="/style.css">` + themeBoot + `</head><body>`)
 	b.WriteString(`<a class="skip" href="#main">跳到正文</a><header class="top"><a class="brand" href="/"><span class="lozenge" aria-hidden="true"></span>MujicaUI</a><nav class="toplinks">`)
-	b.WriteString(`<a href="/#components">组件</a><a href="/readme/">README</a><a href="/compat/">兼容</a><a href="/upstream/">上游</a><a href="` + repoURL + `" rel="noopener">GitHub</a></nav>`)
+	b.WriteString(`<a href="/#components">组件</a><a href="/readme/">README</a><a href="/compat/">兼容</a><a href="/upstream/">上游</a><a href="` + repoURL + `" rel="noopener">Git</a></nav>`)
 	b.WriteString(`<button type="button" class="theme" aria-label="切换浅色或深色主题">主题</button></header>`)
 	if current != "" {
 		b.WriteString(`<div class="layout"><button type="button" class="navtoggle" aria-expanded="false" aria-controls="sidenav">组件目录</button>`)
@@ -116,7 +116,7 @@ func (s *site) page(title, current, main string) string {
 		b.WriteString(`<main id="main" class="solo">` + main + `</main>`)
 	}
 	b.WriteString(`<footer class="foot"><div class="rule" aria-hidden="true"><span></span></div><p>MujicaUI 的组件是原生 Go（MyGo）控件，在桌面窗口里由 GPU 自绘。本站图片是这些控件渲染出的快照，浏览器不运行任何组件代码。</p>`)
-	b.WriteString(`<p>MujicaUI components are native Go (MyGo) widgets. The images here are rendered snapshots; this site runs no component code. Source: <a href="` + repoURL + `" rel="noopener">github.com/ZacharyZhang-NY/MujicaUI</a></p></footer>`)
+	b.WriteString(`<p>MujicaUI components are native Go (MyGo) widgets. The images here are rendered snapshots; this site runs no component code. Source: <a href="` + repoURL + `" rel="noopener">git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI</a></p></footer>`)
 	b.WriteString(`<script src="/app.js"></script></body></html>`)
 	return b.String()
 }
@@ -211,7 +211,7 @@ func (s *site) index() string {
 	b.WriteString(`<div class="rule" aria-hidden="true"><span></span></div>`)
 	b.WriteString(`<p class="honest"><strong>说明：</strong>这些组件是原生 Go（MyGo）控件，在桌面窗口里由 GPU 自绘。本站展示的是渲染快照图片，浏览器不运行任何组件代码。<br>`)
 	b.WriteString(`<strong>Note:</strong> the components are native Go (MyGo) widgets. The images are rendered snapshots; your browser runs no component code.</p>`)
-	b.WriteString(`<p class="ctas"><a class="btn" href="/readme/">开始使用</a><a class="btn ghost" href="` + repoURL + `" rel="noopener">GitHub 源码</a></p></section>`)
+	b.WriteString(`<p class="ctas"><a class="btn" href="/readme/">开始使用</a><a class="btn ghost" href="` + repoURL + `" rel="noopener">源码</a></p></section>`)
 
 	b.WriteString(`<section class="search" aria-label="搜索组件"><label for="q">搜索组件</label><input id="q" type="search" autocomplete="off" placeholder="名称、中文名或编号，如 Button、按钮、042"><p id="qcount" class="qcount" aria-live="polite"></p><ul id="results" class="results"></ul></section>`)
 

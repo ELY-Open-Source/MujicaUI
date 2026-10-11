@@ -5,7 +5,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
 )
 
 var funnelStages = []ChartSlice{{"Visitors", 1000}, {"Novices", 400}, {"Vows", 100}, {"Abbots", 0}}

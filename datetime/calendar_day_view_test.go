@@ -6,7 +6,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
 )
 
 func dayViewTester(day *core.Date, events []CalendarEvent, opts CalendarDayViewOptions, changes *[]CalendarChange) *ui.Tester {

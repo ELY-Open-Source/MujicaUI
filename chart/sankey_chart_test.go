@@ -6,7 +6,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
 )
 
 var sankeyNodes = []SankeyNode{{"tithe", "Tithes"}, {"alms", "Alms"}, {"fund", "Fund"}, {"roof", "Roof"}, {"bread", "Bread"}, {"bells", "Bells"}}

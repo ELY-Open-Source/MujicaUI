@@ -7,7 +7,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"github.com/ZacharyZhang-NY/MujicaUI/core"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
 )
 
 const jsonSample = `{"ball":{"hall":"east wing","guests":[{"name":"Sakiko","seat":1},{"name":"Uika","seat":2}],"wine":null},"open":true,"two words":3.5}`

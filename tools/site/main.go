@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-const repoURL = "https://github.com/ZacharyZhang-NY/MujicaUI"
+const repoURL = "https://git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI"
 
 // component is one documented component and everything its page needs.
 type component struct {
