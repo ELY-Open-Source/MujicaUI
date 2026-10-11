@@ -21,7 +21,6 @@ func TestPerformanceChartBenchmarkDrawdownAndKeys(t *testing.T) {
 	}
 	tt.Key(0, ui.KeyTab)
 	tt.Key(0, ui.KeyTab)
-	tt.Key(0, ui.KeyTab)
 	tt.Key(0, ui.KeyEnd)
 	if last.Point != 3 || !tt.HasText("2026-01-04 · Portfolio +20.00% · Benchmark +12.00%") {
 		t.Fatalf("point %d text %q", last.Point, tt.Texts())

@@ -3,6 +3,7 @@ package chat
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/egoist/mygo/ui"
 
@@ -66,7 +67,7 @@ func TestSharedConversationViewDisabledAndChecks(t *testing.T) {
 func TestSharedConversationViewSnapshot(t *testing.T) {
 	snapshot(t, "shared_conversation_view", 560, 380, func(c *ui.Context) {
 		ui.Column(c).Padding(16).Height(380).Children(func() {
-			SharedConversationView(c, chatMessages(), SharedConversationViewOptions{Title: "Banquet seating", SharedBy: "Lady Ann", SharedAt: chatNow})
+			SharedConversationView(c, chatMessages(), SharedConversationViewOptions{Title: "Banquet seating", SharedBy: "Lady Ann", SharedAt: time.Now()})
 		})
 	})
 }
