@@ -63,6 +63,11 @@ func (m *mktCore) input(plot *ui.Element) {
 	used := false
 	if d := m.opts.Drawings; d != nil {
 		used = d.input(m, plot, g, x, y, over, held, dx, dy)
+		// A click is placed by input at the pointer; only a key press lands here.
+		if i := m.act - 1; i >= 0 && !used && !d.Locked && d.Tool != ToolSelect {
+			d.place(m, DrawingPoint{m.candles[i].Time, m.candles[i].Close})
+			used = true
+		}
 	}
 	if !used {
 		m.alertsKeyboard(plot)

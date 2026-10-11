@@ -47,7 +47,7 @@ func ChartTooltip(c *ui.Context, x, y float32, lines []ChartTooltipLine) *ui.Ele
 	}
 	var tip *ui.Element
 	ui.Overlay(c, func() {
-		tip = ui.Column(c).Absolute().Left(left).Top(top).Size(w, h).Role(ui.RoleNone)
+		tip = ui.Column(c).Absolute().Left(left).Top(top).Size(w, h).Role(ui.RoleNone).PassThrough()
 		core.OverlayStyle(c, tip, core.OverlayEnter(c, tip))
 		tip.Children(func() {
 			inner := max(1, w-2*pad)
@@ -60,8 +60,8 @@ func ChartTooltip(c *ui.Context, x, y float32, lines []ChartTooltipLine) *ui.Ele
 				_, lh[i] = c.MeasureText(width, ui.Span{Text: l.Text, Size: size, Weight: chartTipWeight(i)})
 				content += lh[i]
 			}
-			ui.Scroll(c).Fill().Padding(pad).Children(func() {
-				ui.Box(c).Width(inner).Height(content).Shrink(0).Draw(func(p *ui.Painter, r ui.Rect) {
+			ui.Scroll(c).Fill().Padding(pad).PassThrough().Children(func() {
+				ui.Box(c).Width(inner).Height(content).Shrink(0).PassThrough().Draw(func(p *ui.Painter, r ui.Rect) {
 					at := r.Y
 					for i, l := range lines {
 						tx, width := r.X, inner

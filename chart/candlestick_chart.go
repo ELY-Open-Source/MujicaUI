@@ -67,6 +67,7 @@ type mktCore struct {
 	candles  []Candle
 	view     *MarketView
 	from, to int
+	act      int // keyboard or click activation, mark plus one; zero is none
 	lo, hi   float64
 	base     float64 // percent mode divides by this close; 0 is prices
 	dec      int
@@ -277,9 +278,7 @@ func (m *mktCore) spec() ChartSpec {
 	}
 	if d := m.opts.Drawings; d != nil {
 		spec.Activate = func(i int) {
-			if !d.Locked && d.Tool != ToolSelect {
-				d.place(m, DrawingPoint{m.candles[i].Time, m.candles[i].Close})
-			}
+			m.act = i + 1
 		}
 	}
 	spec.Readout = m.readout
