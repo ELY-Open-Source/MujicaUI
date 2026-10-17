@@ -286,7 +286,7 @@ func tagDemo(c *ui.Context, log func(string)) {
 			for i := 0; i < len(s.tags); i++ {
 				t := s.tags[i]
 				var v display.TagView
-				ui.Box(c).Key(t).Children(func() {
+				ui.Box(c.Key(t)).Children(func() {
 					v = display.Tag(c, t, display.TagOptions{Icon: icon, Clickable: s.clickable, Closable: s.closable, Disabled: s.dis})
 				})
 				if v.Clicked {

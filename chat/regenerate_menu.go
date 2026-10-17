@@ -41,7 +41,7 @@ type RegenerateMenuOptions struct {
 
 // RegenerateMenuView is a built menu and the chosen retry.
 type RegenerateMenuView struct {
-	Element *ui.Element
+	Element ui.Element
 	Chosen  bool
 	Choice  RegenerateChoice
 }

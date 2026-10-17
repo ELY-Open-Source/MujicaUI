@@ -16,7 +16,7 @@ input.CheckboxGroup(c, "Notifications", []input.CheckboxItem{
 签名：
 
 ```go
-func Checkbox(c *ui.Context, value *bool, label string, opts CheckboxOptions) *ui.Element
+func Checkbox(c *ui.Context, value *bool, label string, opts CheckboxOptions) ui.Element
 func CheckboxGroup(c *ui.Context, label string, items []CheckboxItem, opts CheckboxGroupOptions) ChoiceResult
 ```
 

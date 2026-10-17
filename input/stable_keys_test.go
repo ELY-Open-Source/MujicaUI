@@ -18,12 +18,12 @@ func TestFormFocusFollowsFieldAfterReorder(t *testing.T) {
 		Form(c, &st, FormOptions{}, func(f *FormScope) {
 			fields := []func(){
 				func() {
-					FormItem(c, f, "first", &first, FormItemOptions[string]{Label: "First"}, func() *ui.Element {
+					FormItem(c, f, "first", &first, FormItemOptions[string]{Label: "First"}, func() ui.Element {
 						return TextInput(c, &first, TextInputOptions{Label: "First"}).Input
 					})
 				},
 				func() {
-					FormItem(c, f, "second", &second, FormItemOptions[string]{Label: "Second"}, func() *ui.Element {
+					FormItem(c, f, "second", &second, FormItemOptions[string]{Label: "Second"}, func() ui.Element {
 						return TextInput(c, &second, TextInputOptions{Label: "Second"}).Input
 					})
 				},

@@ -13,8 +13,7 @@ func overlayUntil(tt *ui.Tester, cond func() bool) bool {
 		if time.Now().After(end) {
 			return false
 		}
-		time.Sleep(2 * time.Millisecond)
-		tt.Frame()
+		tt.Advance(2 * time.Millisecond)
 	}
 	return true
 }

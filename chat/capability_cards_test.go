@@ -35,10 +35,10 @@ func TestCapabilityCardsExample(t *testing.T) {
 
 func TestCapabilityCardsColumnsAndDisabled(t *testing.T) {
 	got := ""
-	var g *ui.Element
+	built := false
 	tt := chatTester(900, 600, func(c *ui.Context) {
 		v := CapabilityCards(c, chatCards(), CapabilityCardsOptions{Columns: 1, Disabled: true})
-		g = v.Element
+		built = v.Element.Valid()
 		if v.Example != "" {
 			got = v.Example
 		}
@@ -51,7 +51,7 @@ func TestCapabilityCardsColumnsAndDisabled(t *testing.T) {
 	}
 	a, _ := tt.Find("Write")
 	b, _ := tt.Find("Plan")
-	if b.Y <= a.Y || g == nil {
+	if b.Y <= a.Y || !built {
 		t.Fatalf("one column should stack cards: %v %v", a, b)
 	}
 }

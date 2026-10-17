@@ -160,7 +160,7 @@ func traceAttrs(c *ui.Context, sp TraceSpan, height float32) {
 			})
 		}
 		if len(sp.Attrs) > 0 {
-			ui.Column(c).Key(sp.ID).Height(min(float32(len(sp.Attrs))*core.Density(c).ControlHeight(), max(core.Density(c).ControlHeight(), min(200, height/4)))).Children(func() {
+			ui.Column(c.Key(sp.ID)).Height(min(float32(len(sp.Attrs))*core.Density(c).ControlHeight(), max(core.Density(c).ControlHeight(), min(200, height/4)))).Children(func() {
 				ui.List(c, nil, len(sp.Attrs), func(i int) {
 					a := sp.Attrs[i]
 					row(a.Key, a.Value)

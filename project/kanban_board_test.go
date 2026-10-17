@@ -166,8 +166,8 @@ func TestKanbanBoardForeignDrop(t *testing.T) {
 	tt := ui.NewTester(func(c *ui.Context) {
 		core.Use(c, core.Settings{})
 		ui.Row(c).Height(400).Children(func() {
-			ui.Box(c).Key("left").Width(300).Height(400).Children(func() { KanbanBoard(c, &left, opts) })
-			ui.Box(c).Key("right").Width(300).Height(400).Children(func() { KanbanBoard(c, &right, opts) })
+			ui.Box(c.Key("left")).Width(300).Height(400).Children(func() { KanbanBoard(c, &left, opts) })
+			ui.Box(c.Key("right")).Width(300).Height(400).Children(func() { KanbanBoard(c, &right, opts) })
 		})
 	}, 640, 420)
 	src, _ := tt.Find("A-1 First")

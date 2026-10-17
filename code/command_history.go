@@ -38,7 +38,7 @@ type CommandHistoryOptions struct {
 
 // CommandHistoryResult carries the entry to replay.
 type CommandHistoryResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Replayed is the entry to run again, or nil.
 	Replayed *HistoryEntry
 }

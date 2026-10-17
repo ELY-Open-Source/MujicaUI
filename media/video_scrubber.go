@@ -51,7 +51,7 @@ func VideoScrubber(c *ui.Context, pos *time.Duration, opts VideoScrubberOptions)
 	dur := opts.Duration.Seconds()
 	g, h := input.SliderSetup(0, dur, min(step.Seconds(), dur), nil, false, c)
 	old := *pos
-	var s *ui.Element
+	var s ui.Element
 	var next float64
 	wrap := ui.Box(c).MinWidth(120).Shrink(0).Disabled(opts.Disabled)
 	wrap.Children(func() {

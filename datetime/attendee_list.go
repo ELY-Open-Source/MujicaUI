@@ -41,7 +41,7 @@ type AttendeeListOptions struct {
 
 // AttendeeListResult is the list and the attendee the user removed.
 type AttendeeListResult struct {
-	Element *ui.Element
+	Element ui.Element
 	removed int
 }
 
@@ -73,7 +73,7 @@ func AttendeeList(c *ui.Context, attendees []Attendee, opts AttendeeListOptions)
 			ui.Text(c, core.Msg(c, "attendee_list.empty")).TextColor(k.TextMuted)
 		}
 		for i, a := range attendees {
-			ui.Row(c).Key(i).MinHeight(d.ControlHeight()).Gap(d.Unit() * 2).AlignItems(ui.Center).Role(ui.RoleListItem).Children(func() {
+			ui.Row(c.Key(i)).MinHeight(d.ControlHeight()).Gap(d.Unit() * 2).AlignItems(ui.Center).Role(ui.RoleListItem).Children(func() {
 				display.Avatar(c, a.Name, display.AvatarOptions{Size: 28})
 				ui.Column(c).Grow(1).Shrink(1).Children(func() {
 					name := a.Name

@@ -48,7 +48,7 @@ func cropperClampSize(w, h int, room image.Point, aspect float64) (int, int) {
 }
 
 // cropperKeys: arrows move, Shift+arrows resize, 1% per press.
-func cropperKeys(stage *ui.Element, cr *ImageCrop, size image.Point, aspect float64) {
+func cropperKeys(stage ui.Element, cr *ImageCrop, size image.Point, aspect float64) {
 	step := max(1, size.X/100)
 	r := cr.Rect
 	move := func(dx, dy int) { cr.Rect = cropperDragRect(r, 1, dx, dy, size, aspect) }

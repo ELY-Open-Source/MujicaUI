@@ -12,7 +12,7 @@
 email := ""
 view := func(c *ui.Context) {
 	core.Use(c, core.Settings{})
-	input.FormField(c, "Email", input.FormFieldOptions{Required: true, Description: "For receipts."}, func() *ui.Element {
+	input.FormField(c, "Email", input.FormFieldOptions{Required: true, Description: "For receipts."}, func() ui.Element {
 		return input.InputGroup(c, &email, input.InputGroupOptions{}).Input
 	})
 }
@@ -28,7 +28,7 @@ ui.Render(view, 400, 300, 1)
 | `FormFieldOptions.Description` | `string` | "" | 控件下方的说明。 |
 | `FormFieldOptions.Error` | `string` | "" | 控件下方的错误，并把控件标记为无效。 |
 | `FormFieldOptions.Horizontal` | `bool` | false | 标签在左、控件在右。 |
-| `control` | `func() *ui.Element` | 必填 | 构建控件并返回要关联的可聚焦元素（如 `InputGroupParts.Input`）；返回 nil 时 panic。 |
+| `control` | `func() ui.Element` | 必填 | 构建控件并返回要关联的可聚焦元素（如 `InputGroupParts.Input`）；返回零值 `ui.Element{}` 时 panic。 |
 
 ## 状态
 

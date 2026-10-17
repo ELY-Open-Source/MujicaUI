@@ -14,7 +14,7 @@ ui.Box(c).Size(320, 240).Children(func() {
 })
 ```
 
-签名：`func AspectRatio(c *ui.Context, opts AspectRatioOptions, child func()) *ui.Element`
+签名：`func AspectRatio(c *ui.Context, opts AspectRatioOptions, child func()) ui.Element`
 
 ## 参数
 

@@ -30,7 +30,7 @@ type RemoteCursorOptions struct {
 
 // RemoteCursor overlays collaborator carets, selections and names; input passes through.
 // Place it filling the editor's box, after the editor.
-func RemoteCursor(c *ui.Context, carets []RemoteCaret, opts RemoteCursorOptions) *ui.Element {
+func RemoteCursor(c *ui.Context, carets []RemoteCaret, opts RemoteCursorOptions) ui.Element {
 	if opts.Caret == nil {
 		panic("mujica: RemoteCursor needs Caret")
 	}

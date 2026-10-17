@@ -38,7 +38,7 @@ type FeedbackFormOptions struct {
 
 // FeedbackFormView is a built FeedbackForm and this frame's outcome.
 type FeedbackFormView struct {
-	Element              *ui.Element
+	Element              ui.Element
 	Submitted, Cancelled bool
 }
 

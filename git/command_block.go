@@ -24,7 +24,7 @@ type CommandBlockOptions struct {
 
 // CommandBlockResult is a built CommandBlock and its events.
 type CommandBlockResult struct {
-	Element *ui.Element
+	Element ui.Element
 	toggled bool
 	copied  string
 }

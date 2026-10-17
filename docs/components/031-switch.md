@@ -19,7 +19,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func Switch(c *ui.Context, on *bool, label string, opts SwitchOptions) *ui.Element`。`label` 为空时请在返回值上调用 `Label` 命名。
+`func Switch(c *ui.Context, on *bool, label string, opts SwitchOptions) ui.Element`。`label` 为空时请在返回值上调用 `Label` 命名。
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |

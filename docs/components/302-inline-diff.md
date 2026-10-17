@@ -14,7 +14,7 @@ view := func(c *ui.Context) {
 ui.Render(view, 400, 300, 1)
 ```
 
-签名：`func InlineDiff(c *ui.Context, from, to string, opts InlineDiffOptions) *ui.Element`
+签名：`func InlineDiff(c *ui.Context, from, to string, opts InlineDiffOptions) ui.Element`
 
 ## 参数
 

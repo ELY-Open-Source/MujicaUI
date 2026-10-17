@@ -50,8 +50,7 @@ func TestCitationBadgeActivatesAndPreviews(t *testing.T) {
 	if a.st.hover != 3 {
 		t.Fatalf("hover %d, want 3", a.st.hover)
 	}
-	time.Sleep(600 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(600 * time.Millisecond)
 	if n := len(tt.Texts()); n == 0 || !tt.HasText("example.net") {
 		t.Fatalf("no preview card: %q", tt.Texts())
 	}
@@ -114,8 +113,7 @@ func TestCitationBadgeHitAreaAndDisabledPreview(t *testing.T) {
 		t.Errorf("hit area %v, want at least 28x28", b)
 	}
 	tt.Key(0, ui.KeyTab)
-	time.Sleep(550 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(550 * time.Millisecond)
 	off = true
 	tt.Frame()
 	tt.Key(0, ui.KeyEnter)
@@ -133,8 +131,7 @@ func TestCitationBadgePreviewFitsNarrowWindow(t *testing.T) {
 		ui.Row(c).Padding(8).Children(func() { CitationBadge(c, 1, src, &st) })
 	}, 180, 120)
 	tt.Key(0, ui.KeyTab)
-	time.Sleep(550 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(550 * time.Millisecond)
 	preview, ok := tt.Find("Source preview")
 	if !ok || preview.X < 0 || preview.X+preview.W > 180 || preview.Y+preview.H > 120 {
 		t.Fatalf("preview content outside window: %v found %v", preview, ok)
@@ -147,12 +144,12 @@ func TestCitationBadgeRemovedOwnerClearsHover(t *testing.T) {
 	tt := ui.NewTester(func(c *ui.Context) {
 		core.Use(c, core.Settings{})
 		ui.Column(c).Children(func() {
-			ui.Row(c).Key("badge").Height(36).Children(func() {
+			ui.Row(c.Key("badge")).Height(36).Children(func() {
 				if show {
 					CitationBadge(c, 1, sourcesSample[0], &st)
 				}
 			})
-			ui.Row(c).Key("card").Width(300).Children(func() { SourceCard(c, 1, sourcesSample[0], &st) })
+			ui.Row(c.Key("card")).Width(300).Children(func() { SourceCard(c, 1, sourcesSample[0], &st) })
 		})
 	}, 400, 300)
 	b, _ := tt.Find("Source 1: The Palace of Versailles")

@@ -49,7 +49,7 @@ func IncomingCallDialog(c *ui.Context, open *bool, call IncomingCall, opts Incom
 	u := core.Density(c).Unit()
 	title := fmt.Sprintf(core.Msg(c, "incoming_call_dialog.title"), call.Caller)
 	shown, accepted, video, declined, backClicked := true, false, false, false, false
-	panel := ui.DialogBase(c, &shown, func(back, panel *ui.Element) {
+	panel := ui.DialogBase(c, &shown, func(back, panel ui.Element) {
 		backClicked = back.Clicked() // a click outside neither answers nor refuses
 		p := core.OverlayEnter(c, panel)
 		back.Background(overlay.OverlayScrim(k).Alpha(p)).Padding(16)
@@ -68,9 +68,9 @@ func IncomingCallDialog(c *ui.Context, open *bool, call IncomingCall, opts Incom
 			decline := input.Button(c, core.Msg(c, "incoming_call_dialog.decline"), input.ButtonOptions{Variant: input.Danger, Icon: msgHangUp, Label: core.Msg(c, "incoming_call_dialog.decline")})
 			accept := input.Button(c, core.Msg(c, "incoming_call_dialog.accept"), input.ButtonOptions{Icon: msgPhone, Label: core.Msg(c, "incoming_call_dialog.accept")})
 			if opts.FocusAccept {
-				accept.AutoFocus()
+				core.AutoFocus(c, accept)
 			} else {
-				decline.AutoFocus()
+				core.AutoFocus(c, decline)
 			}
 			declined, accepted = decline.Clicked(), accept.Clicked()
 			if call.Video && input.Button(c, core.Msg(c, "incoming_call_dialog.acceptVideo"), input.ButtonOptions{Variant: input.Secondary, Icon: core.MediaCamera, Label: core.Msg(c, "incoming_call_dialog.acceptVideo")}).Clicked() {

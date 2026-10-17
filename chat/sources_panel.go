@@ -12,7 +12,7 @@ import (
 
 // OpenResult carries the list and opened 1-based source number.
 type OpenResult struct {
-	Element *ui.Element
+	Element ui.Element
 	opened  int
 }
 

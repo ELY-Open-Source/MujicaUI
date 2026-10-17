@@ -30,7 +30,7 @@ func StopGeneratingButton(c *ui.Context, opts StopGeneratingButtonOptions) core.
 	if runtime.GOOS == "darwin" {
 		mods = ui.Cmd
 	}
-	var b *ui.Element
+	var b ui.Element
 	wrap := ui.Row(c).Shrink(0).Disabled(opts.Disabled)
 	wrap.Children(func() {
 		b = ui.ButtonBase(c).MinHeight(max(theme.MinHitSize, d.ControlHeight()-4)).Padding(0, d.Unit()*3).Gap(d.Unit()*2).

@@ -26,7 +26,7 @@ type TrendIndicatorOptions struct {
 }
 
 // TrendIndicator shows signed change, direction, and semantic color.
-func TrendIndicator(c *ui.Context, change float64, opts TrendIndicatorOptions) *ui.Element {
+func TrendIndicator(c *ui.Context, change float64, opts TrendIndicatorOptions) ui.Element {
 	if opts.Precision < 0 || math.IsNaN(change) || math.IsInf(change, 0) {
 		panic("mujica: TrendIndicator needs a number and Precision ≥ 0")
 	}

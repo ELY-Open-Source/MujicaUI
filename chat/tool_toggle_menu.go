@@ -27,7 +27,7 @@ type ToolItem struct {
 
 // ToolToggleResult carries the trigger and requested action.
 type ToolToggleResult struct {
-	Element            *ui.Element
+	Element            ui.Element
 	changed, authorize string
 }
 
@@ -93,7 +93,7 @@ func toolToggleRow(c *ui.Context, t ToolItem, r *ToolToggleResult) {
 	u := core.Density(c).Unit()
 	small := core.FontSize(c, theme.CaptionSize)
 	locked := t.NeedsAuth && !t.Authorized
-	ui.Row(c).Key(t.ID).Gap(u * 3).AlignItems(ui.Center).Children(func() {
+	ui.Row(c.Key(t.ID)).Gap(u * 3).AlignItems(ui.Center).Children(func() {
 		ui.Column(c).Grow(1).MinWidth(0).Children(func() {
 			ui.Row(c).Gap(u).AlignItems(ui.Center).MinHeight(core.Density(c).ControlHeight()).Children(func() {
 				if locked {

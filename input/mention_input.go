@@ -41,6 +41,14 @@ type mentionInputState struct {
 	panel              ui.Rect // the popup's box last frame, which keeps it through a click
 	offset             float32
 	changed, submitted bool
+	field              ui.Handle
+	pointer            []mentionPointer // presses and drags, hit-tested at the next build
+}
+
+// mentionPointer is a pointer event waiting for the build, where text can be measured.
+type mentionPointer struct {
+	x      float32
+	extend bool
 }
 
 // MentionInput edits *value with "@" mentions kept in *mentions; a mention is deleted and stepped over whole.
@@ -57,7 +65,7 @@ func MentionInput(c *ui.Context, value *string, mentions *[]Mention, opts Mentio
 	k := core.Tokens(c)
 	var r InputResult
 	look := &textInputLook{disabled: opts.Disabled, err: opts.Error}
-	r.Element, r.Input = textInputFrame(c, look, func(frame *ui.Element) *ui.Element {
+	r.Element, r.Input = textInputFrame(c, look, func(frame ui.Element) ui.Element {
 		in := ui.Box(c).Grow(1).MinWidth(core.Density(c).Unit() * 20).Focusable().Clip().Role(ui.RoleTextField).Label(opts.Label).Cursor(ui.CursorText)
 		s := *ui.Local(in, "mention_input", func() *mentionInputState { return &mentionInputState{at: -1} })
 		if s.doc.text == nil || s.synced != *value || !slices.Equal(s.syncedMentions, *mentions) {
@@ -66,16 +74,23 @@ func MentionInput(c *ui.Context, value *string, mentions *[]Mention, opts Mentio
 			s.undo, s.redo = nil, nil
 			s.synced, s.syncedMentions = *value, slices.Clone(*mentions)
 		}
+		for _, p := range s.pointer {
+			s.doc.moveTo(mentionInputHit(c, s, p.x), p.extend)
+		}
+		s.pointer = s.pointer[:0]
 		mentionInputQuery(s, opts)
 		px, py, _ := frame.PointerPosition()
 		fb := frame.Bounds()
 		onPanel := s.panel.Contains(fb.X+px, fb.Y+py)
 		popup := (in.Focused() || onPanel) && s.at >= 0 && !s.dismissed && len(s.found) > 0
+		disabled := in.IsDisabled()
+		in.Bind(&s.field)
+		svc := c.Services()
 		in.HandleInput(func(ev ui.InputEvent) bool {
-			if in.IsDisabled() {
+			if disabled {
 				return false
 			}
-			return mentionInputEvent(c, s, ev, popup, in)
+			return mentionInputEvent(svc, s, ev, popup)
 		})
 		if s.changed && !look.disabled {
 			*value, *mentions = string(s.doc.text), slices.Clone(s.doc.mentions)
@@ -110,7 +125,7 @@ func mentionInputQuery(s *mentionInputState, opts MentionInputOptions) {
 }
 
 // mentionInputEvent applies one input event to the document and reports whether it took it.
-func mentionInputEvent(c *ui.Context, s *mentionInputState, ev ui.InputEvent, popup bool, in *ui.Element) bool {
+func mentionInputEvent(svc ui.Services, s *mentionInputState, ev ui.InputEvent, popup bool) bool {
 	edit := func(f func()) {
 		s.undo = append(s.undo, s.doc.clone())
 		s.redo = nil
@@ -125,23 +140,23 @@ func mentionInputEvent(c *ui.Context, s *mentionInputState, ev ui.InputEvent, po
 	case ui.InputCompose:
 		s.compose = ev.Text
 	case ui.InputPointerDown:
-		in.Focus()
-		s.doc.moveTo(mentionInputHit(c, s, ev.X), extend)
+		s.field.Focus()
+		s.pointer = append(s.pointer, mentionPointer{ev.X, extend})
 	case ui.InputPointerMove:
 		if ev.Button != 0 {
 			return false
 		}
-		s.doc.moveTo(mentionInputHit(c, s, ev.X), true)
+		s.pointer = append(s.pointer, mentionPointer{ev.X, true})
 	case ui.InputCommand:
 		a, b := s.doc.span()
 		switch ev.Text {
 		case "copy", "cut":
-			c.WriteClipboard(string(s.doc.text[a:b]))
+			svc.WriteClipboard(string(s.doc.text[a:b]))
 			if ev.Text == "cut" && a != b {
 				edit(func() { s.doc.erase(false) })
 			}
 		case "paste":
-			edit(func() { s.doc.insert(c.ReadClipboard()) })
+			edit(func() { s.doc.insert(svc.ReadClipboard()) })
 		case "selectAll":
 			s.doc.anchor, s.doc.caret = 0, len(s.doc.text)
 		case "delete":
@@ -230,7 +245,7 @@ func mentionInputHit(c *ui.Context, s *mentionInputState, x float32) int {
 }
 
 // mentionInputView draws the text with mention chips, the selection and the caret, scrolled to keep the caret in view.
-func mentionInputView(c *ui.Context, k theme.Tokens, s *mentionInputState, in *ui.Element, placeholder string) {
+func mentionInputView(c *ui.Context, k theme.Tokens, s *mentionInputState, in ui.Element, placeholder string) {
 	size := core.FontSize(c, theme.BodySize)
 	measure := func(i int) float32 {
 		w, _ := c.MeasureText(0, ui.Span{Text: string(s.doc.text[:i]), Size: size})
@@ -298,7 +313,7 @@ func mentionInputSpans(k theme.Tokens, s *mentionInputState, size float32, place
 }
 
 // mentionInputPopup lists the candidates under the field; a click or Enter picks one.
-func mentionInputPopup(c *ui.Context, k theme.Tokens, s *mentionInputState, frame, in *ui.Element) {
+func mentionInputPopup(c *ui.Context, k theme.Tokens, s *mentionInputState, frame, in ui.Element) {
 	b := frame.Bounds()
 	u := core.Density(c).Unit()
 	ui.Overlay(c, func() {
@@ -311,7 +326,7 @@ func mentionInputPopup(c *ui.Context, k theme.Tokens, s *mentionInputState, fram
 		panel.Children(func() {
 			ui.Scroll(c).Shrink(1).Children(func() {
 				for i, m := range s.found {
-					it := ui.Row(c).Key(m.ID).MinHeight(core.Density(c).ControlHeight()).AlignItems(ui.Center).Padding(0, u*2).
+					it := ui.Row(c.Key(m.ID)).MinHeight(core.Density(c).ControlHeight()).AlignItems(ui.Center).Padding(0, u*2).
 						Radius(theme.ControlRadius).Role(ui.RoleListItem).Label(m.Name).Cursor(ui.CursorPointer)
 					if i == s.pick {
 						it.Selected(true).Background(k.Selection).TextColor(k.AccentText)

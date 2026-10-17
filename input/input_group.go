@@ -37,9 +37,9 @@ type InputGroupOptions struct {
 
 // InputGroupParts are the parts of an InputGroup.
 type InputGroupParts struct {
-	Group *ui.Element
+	Group ui.Element
 	// Input takes the focus; it is selectable text when ReadOnly.
-	Input *ui.Element
+	Input ui.Element
 	// Clicked is the index in Buttons of the button clicked, or -1.
 	Clicked int
 	locked  bool
@@ -77,7 +77,7 @@ func InputGroup(c *ui.Context, value *string, opts InputGroupOptions) InputGroup
 		n++
 	}
 	seg := 0
-	segment := func(e *ui.Element) {
+	segment := func(e ui.Element) {
 		var left, right float32
 		if seg == 0 {
 			left = r
@@ -180,15 +180,15 @@ type inputGroupLock struct {
 }
 
 // inputGroupEditor builds the input, or plain selectable text while locked, so no edit command runs.
-func inputGroupEditor(c *ui.Context, box *ui.Element, value *string, locked bool) *ui.Element {
+func inputGroupEditor(c *ui.Context, box ui.Element, value *string, locked bool) ui.Element {
 	lk := ui.Local(box, "lock", func() inputGroupLock { return inputGroupLock{} })
 	if lk.locked && !locked {
 		// A new identity drops the edits queued in the old editor while locked.
 		lk.gen++
 	}
 	lk.locked = locked
-	var in *ui.Element
-	ui.Row(c).Key(lk.gen).FillWidth().MinWidth(0).Children(func() {
+	var in ui.Element
+	ui.Row(c.Key(lk.gen)).FillWidth().MinWidth(0).Children(func() {
 		if locked {
 			in = ui.Text(c, *value).SingleLine().Selectable()
 		} else {

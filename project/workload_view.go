@@ -30,7 +30,7 @@ type WorkloadViewOptions struct {
 }
 
 // WorkloadView virtualizes member loads with capacity and overload marks.
-func WorkloadView(c *ui.Context, loads []Workload, opts WorkloadViewOptions) *ui.Element {
+func WorkloadView(c *ui.Context, loads []Workload, opts WorkloadViewOptions) ui.Element {
 	k := core.Tokens(c)
 	d := core.Density(c)
 	unit := opts.Unit

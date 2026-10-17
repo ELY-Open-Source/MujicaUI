@@ -19,7 +19,7 @@ type TextOptions struct {
 }
 
 // Text shows body text wrapping at its width.
-func Text(c *ui.Context, s string, opts TextOptions) *ui.Element {
+func Text(c *ui.Context, s string, opts TextOptions) ui.Element {
 	if opts.MaxLines < 0 {
 		panic("mujica: Text MaxLines must not be negative")
 	}
@@ -49,7 +49,7 @@ type EditableTextOptions struct {
 
 // EditableTextView is a shown EditableText and this frame's outcome.
 type EditableTextView struct {
-	Element *ui.Element
+	Element ui.Element
 	// Canceled reports Escape discarded an edit.
 	Canceled bool
 	changed  bool
@@ -118,7 +118,7 @@ func editableTextField(c *ui.Context, k theme.Tokens, value *string, opts Editab
 			return v
 		}
 	}
-	var in *ui.Element
+	var in ui.Element
 	box.Children(func() {
 		in = ui.TextInputBase(c, &st.draft).Grow(1).MinWidth(theme.MinHitSize*3).Padding(pad, pad*2).
 			Radius(theme.ControlRadius).Background(k.Surface).Border(theme.BorderWidth, k.Accent).TextColor(k.Text).

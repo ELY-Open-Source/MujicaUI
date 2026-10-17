@@ -30,7 +30,7 @@ type AgentStepListOptions struct {
 
 // AgentStepListResult reports this frame's events.
 type AgentStepListResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Retry is the failed step to retry, else "".
 	Retry string
 	// Toggled is the step whose detail toggled, else "".
@@ -55,7 +55,7 @@ func AgentStepList(c *ui.Context, steps []AgentStep, opts AgentStepListOptions) 
 	open := ui.Local(r.Element, "mujica.steps.open", func() map[string]bool { return map[string]bool{} })
 	r.Element.Children(func() {
 		for i, s := range steps {
-			ui.Column(c).Key(s.ID).Children(func() {
+			ui.Column(c.Key(s.ID)).Children(func() {
 				if agentStepRow(c, s, i, len(steps), i == current, (*open)[s.ID], opts.Still, &r) {
 					(*open)[s.ID] = !(*open)[s.ID]
 					r.Toggled = s.ID

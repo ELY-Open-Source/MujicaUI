@@ -47,7 +47,7 @@ func ImageViewer(c *ui.Context, open *bool, index *int, images []ViewerImage) co
 	k := core.Tokens(c)
 	u := core.Density(c).Unit()
 	w, h := c.Size()
-	v.Element = ui.DialogBase(c, open, func(back, panel *ui.Element) {
+	v.Element = ui.DialogBase(c, open, func(back, panel ui.Element) {
 		back.Background(ui.RGBA(0, 0, 0, 0.55))
 		panel.Background(k.Surface).Border(theme.BorderWidth, k.Border).Radius(theme.PopupRadius).
 			Size(w-u*12, h-u*12).Padding(u * 3).Gap(u * 3).Label(core.Msg(c, "image_viewer.title"))
@@ -92,7 +92,7 @@ func ImageViewer(c *ui.Context, open *bool, index *int, images []ViewerImage) co
 			if tool("chevron-left", "image_viewer.prev", *index == 0) {
 				goTo(*index - 1)
 			}
-			stage := ui.Box(c).Grow(1).FillHeight().MinWidth(0).Focusable().AutoFocus().Clip().
+			stage := core.AutoFocus(c, ui.Box(c).Grow(1).FillHeight().MinWidth(0).Focusable()).Clip().
 				Radius(theme.ControlRadius).Background(k.Background).Role(ui.RoleImage).Label(img.Alt).Cursor(ui.CursorGrab)
 			internal.Ring(stage, k.Focus, theme.ControlRadius)
 			if dx, dy, ok := stage.Dragged(); ok {
@@ -143,7 +143,7 @@ func ImageViewer(c *ui.Context, open *bool, index *int, images []ViewerImage) co
 }
 
 // viewerKeys, anywhere in the panel, zooms with + - 0, switches with Left and Right, and pans with Shift+arrows.
-func viewerKeys(panel *ui.Element, st *viewerState, zoom func(float32), goTo func(int), at int) {
+func viewerKeys(panel ui.Element, st *viewerState, zoom func(float32), goTo func(int), at int) {
 	switch {
 	case panel.Shortcut(0, ui.KeyEqual), panel.Shortcut(ui.Shift, ui.KeyEqual):
 		zoom(viewerZoomStep)

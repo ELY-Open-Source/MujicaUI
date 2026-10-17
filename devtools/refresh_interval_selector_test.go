@@ -31,8 +31,7 @@ func TestRefreshIntervalSelectorManualAndAuto(t *testing.T) {
 	if refreshes != 1 {
 		t.Fatalf("manual refreshes %d", refreshes)
 	}
-	time.Sleep(1100 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(1100 * time.Millisecond)
 	if refreshes != 1 {
 		t.Fatal("refreshed while off")
 	}
@@ -41,11 +40,11 @@ func TestRefreshIntervalSelectorManualAndAuto(t *testing.T) {
 	if interval != time.Second || changes != 1 {
 		t.Fatalf("interval %v changes %d", interval, changes)
 	}
-	start := time.Now()
+	start := tt.Now()
 	if !overlayUntil(tt, func() bool { return refreshes == 2 }) {
 		t.Fatal("no automatic refresh")
 	}
-	if time.Since(start) < 900*time.Millisecond {
+	if tt.Now().Sub(start) < 900*time.Millisecond {
 		t.Fatal("refreshed before the interval")
 	}
 }
@@ -56,15 +55,13 @@ func TestRefreshIntervalSelectorRefreshingAndDisabled(t *testing.T) {
 	refreshes, changes := 0, 0
 	tt := refreshTester(&interval, &opts, &refreshes, &changes)
 	_ = tt.Click("Refresh")
-	time.Sleep(1100 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(1100 * time.Millisecond)
 	if refreshes != 0 || !tt.HasText("Refresh") {
 		t.Fatalf("refreshing: %d", refreshes)
 	}
 	opts = RefreshIntervalSelectorOptions{Intervals: []time.Duration{time.Second}, Disabled: true}
 	tt.Frame()
-	time.Sleep(1100 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(1100 * time.Millisecond)
 	_ = tt.Click("Refresh")
 	if refreshes != 0 {
 		t.Fatalf("disabled refreshed %d", refreshes)

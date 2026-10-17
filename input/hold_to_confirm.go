@@ -63,9 +63,10 @@ func HoldToConfirm(c *ui.Context, label string, opts HoldToConfirmOptions) core.
 	internal.Ring(b, k.Focus, theme.ControlRadius)
 	st := ui.Local(b, "hold_to_confirm", func() *holdToConfirmState { return &holdToConfirmState{} })
 	s := *st
+	disabled := b.IsDisabled()
 	// Space holds; Enter and Space never click, so no single key press confirms.
 	b.HandleInput(func(ev ui.InputEvent) bool {
-		if ev.Key != ui.KeySpace && ev.Key != ui.KeyEnter || b.IsDisabled() {
+		if ev.Key != ui.KeySpace && ev.Key != ui.KeyEnter || disabled {
 			return false
 		}
 		if ev.Key == ui.KeySpace && (ev.Kind == ui.InputKeyDown || ev.Kind == ui.InputKeyUp) {
@@ -74,7 +75,6 @@ func HoldToConfirm(c *ui.Context, label string, opts HoldToConfirmOptions) core.
 		return true
 	})
 	_ = b.Clicked() // a click alone does nothing; it keeps the base pressable
-	disabled := b.IsDisabled()
 	held := !disabled && (s.key || b.Pressed())
 	if !b.Focused() {
 		s.key = false

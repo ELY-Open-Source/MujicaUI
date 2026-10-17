@@ -37,7 +37,7 @@ type FilePreviewOptions struct {
 
 // FilePreviewResult exposes the panel and requested actions.
 type FilePreviewResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Closed, Opened and Retried report requested actions.
 	Closed, Opened, Retried bool
 }

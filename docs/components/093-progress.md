@@ -17,8 +17,8 @@ feedback.Meter(c, 93, feedback.MeterOptions{
 
 签名：
 
-- `func Progress(c *ui.Context, value float64, opts ProgressOptions) *ui.Element`
-- `func Meter(c *ui.Context, value float64, opts MeterOptions) *ui.Element`
+- `func Progress(c *ui.Context, value float64, opts ProgressOptions) ui.Element`
+- `func Meter(c *ui.Context, value float64, opts MeterOptions) ui.Element`
 
 ## 参数
 

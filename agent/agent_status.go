@@ -16,7 +16,7 @@ type AgentStatusOptions struct {
 }
 
 // AgentStatus shows a state by icon shape and word.
-func AgentStatus(c *ui.Context, state AgentState, opts AgentStatusOptions) *ui.Element {
+func AgentStatus(c *ui.Context, state AgentState, opts AgentStatusOptions) ui.Element {
 	label := opts.Label
 	if label == "" {
 		label = agentWord(c, state) // panics on an unknown state

@@ -40,7 +40,7 @@ type level2Mark struct {
 }
 
 // Level2Quotes lists bid and ask levels; changes flash and mark.
-func Level2Quotes(c *ui.Context, data Level2Data, opts Level2QuotesOptions) *ui.Element {
+func Level2Quotes(c *ui.Context, data Level2Data, opts Level2QuotesOptions) ui.Element {
 	dec := core.PriceDecimals("Level2Quotes", opts.Decimals)
 	if opts.SizeDecimals < 0 || opts.Levels < 0 {
 		panic("mujica: Level2Quotes SizeDecimals and Levels cannot be negative")

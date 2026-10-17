@@ -10,7 +10,7 @@
 core.Spinner(c, core.SpinnerOptions{Size: 20, Label: "Syncing", ShowLabel: true})
 ```
 
-签名：`func Spinner(c *ui.Context, opts SpinnerOptions) *ui.Element`
+签名：`func Spinner(c *ui.Context, opts SpinnerOptions) ui.Element`
 
 ## 参数
 

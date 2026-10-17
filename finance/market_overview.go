@@ -23,7 +23,7 @@ type MarketOverviewOptions struct {
 }
 
 type MarketOverviewView struct {
-	Element *ui.Element
+	Element ui.Element
 	Chosen  int
 }
 
@@ -39,7 +39,7 @@ func MarketOverview(c *ui.Context, indices []IndexQuote, opts MarketOverviewOpti
 	v.Element.Children(func() {
 		ui.Row(c).Wrap().Gap(u * 3).Children(func() {
 			for i, q := range indices {
-				ui.Column(c).Key(q.Name).Children(func() {
+				ui.Column(c.Key(q.Name)).Children(func() {
 					if IndexCard(c, q, IndexCardOptions{Decimals: opts.Decimals, Clickable: true, Disabled: opts.Disabled}).Changed() {
 						v.Chosen = i
 					}

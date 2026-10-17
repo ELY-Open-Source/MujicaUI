@@ -54,7 +54,7 @@ type TransferQueueOptions struct {
 
 // TransferQueueResult exposes the queue and requested item action.
 type TransferQueueResult struct {
-	Element *ui.Element
+	Element ui.Element
 	Action  TransferAction
 	// ID is the transfer the action is for.
 	ID string

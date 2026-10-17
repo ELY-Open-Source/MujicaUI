@@ -12,7 +12,7 @@ if input.IconButton(c, icons.Must("settings"), "Settings", input.IconButtonOptio
 }
 ```
 
-签名：`func IconButton(c *ui.Context, icon *ui.SVG, label string, opts IconButtonOptions) *ui.Element`
+签名：`func IconButton(c *ui.Context, icon *ui.SVG, label string, opts IconButtonOptions) ui.Element`
 
 ## 参数
 

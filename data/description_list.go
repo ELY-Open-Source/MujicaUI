@@ -33,7 +33,7 @@ type DescriptionListOptions struct {
 
 // DescriptionListView is a built DescriptionList and what happened to it in this frame.
 type DescriptionListView struct {
-	Element *ui.Element
+	Element ui.Element
 	copied  int
 }
 

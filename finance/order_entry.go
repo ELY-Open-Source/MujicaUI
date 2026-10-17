@@ -78,7 +78,7 @@ func (s *OrderEntryState) EndSubmit(formError string) { s.Form.EndSubmit(formErr
 
 // OrderEntryResult is a built OrderEntry and its submitted order.
 type OrderEntryResult struct {
-	Element   *ui.Element
+	Element   ui.Element
 	order     OrderDraft
 	submitted bool
 }
@@ -167,13 +167,13 @@ func orderEntryFields(c *ui.Context, f *input.FormScope, s *OrderEntryState, opt
 	input.FormItem(c, f, "quantity", &s.Draft, input.FormItemOptions[OrderDraft]{Label: core.Msg(c, "order_entry.quantity"), Required: true, Initial: initial,
 		Validate: func(o OrderDraft) string { return orderEntryCheck(c, o, opts, maxQ) },
 		Async:    opts.Check,
-	}, func() *ui.Element {
+	}, func() ui.Element {
 		return input.NumberInput(c, &s.Draft.Quantity, input.NumberInputOptions{Step: lot, Disabled: disabled, Error: s.Form.Error("quantity")}).Input
 	})
 	if s.Draft.Type == OrderStop || s.Draft.Type == OrderStopLimit {
 		input.FormItem(c, f, "trigger", &s.Draft.Trigger, input.FormItemOptions[float64]{Label: core.Msg(c, "order_entry.trigger"), Required: true, Initial: initial.Trigger,
 			Validate: func(v float64) string { return orderEntryTrigger(c, s.Draft, opts.Last) },
-		}, func() *ui.Element {
+		}, func() ui.Element {
 			return input.NumberInput(c, &s.Draft.Trigger, input.NumberInputOptions{Step: tick, Disabled: disabled, Error: s.Form.Error("trigger")}).Input
 		})
 	}
@@ -185,7 +185,7 @@ func orderEntryFields(c *ui.Context, f *input.FormScope, s *OrderEntryState, opt
 				}
 				return ""
 			},
-		}, func() *ui.Element {
+		}, func() ui.Element {
 			return input.NumberInput(c, &s.Draft.Price, input.NumberInputOptions{Step: tick, Disabled: disabled, Error: s.Form.Error("price")}).Input
 		})
 	}
@@ -193,7 +193,7 @@ func orderEntryFields(c *ui.Context, f *input.FormScope, s *OrderEntryState, opt
 	for t := TIFDay; t <= TIFFillOrKill; t++ {
 		tifs = append(tifs, input.SelectOption[TimeInForce]{Value: t, Label: core.Msg(c, fmt.Sprintf("order_entry.tif%d", t))})
 	}
-	input.FormItem(c, f, "tif", &s.Draft.TIF, input.FormItemOptions[TimeInForce]{Label: core.Msg(c, "order_entry.tif"), Initial: initial.TIF}, func() *ui.Element {
+	input.FormItem(c, f, "tif", &s.Draft.TIF, input.FormItemOptions[TimeInForce]{Label: core.Msg(c, "order_entry.tif"), Initial: initial.TIF}, func() ui.Element {
 		return input.Select(c, &s.Draft.TIF, tifs, input.SelectOptions{Label: core.Msg(c, "order_entry.tif"), Disabled: disabled}).Element
 	})
 }

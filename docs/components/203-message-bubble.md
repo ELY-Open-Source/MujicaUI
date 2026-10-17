@@ -12,7 +12,7 @@ chat.MessageBubble(c, chat.MessageAssistant, chat.MessageBubbleOptions{Name: "He
 })
 ```
 
-签名：`func MessageBubble(c *ui.Context, role MessageRole, opts MessageBubbleOptions, content func()) *ui.Element`
+签名：`func MessageBubble(c *ui.Context, role MessageRole, opts MessageBubbleOptions, content func()) ui.Element`
 
 ## 参数
 

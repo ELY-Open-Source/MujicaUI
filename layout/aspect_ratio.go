@@ -13,7 +13,7 @@ type AspectRatioOptions struct {
 }
 
 // AspectRatio centers the largest Ratio frame that fits; the child is centered, not stretched.
-func AspectRatio(c *ui.Context, opts AspectRatioOptions, child func()) *ui.Element {
+func AspectRatio(c *ui.Context, opts AspectRatioOptions, child func()) ui.Element {
 	if opts.Ratio < 0 {
 		panic("mujica: AspectRatio Ratio must be positive")
 	}

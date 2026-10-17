@@ -42,7 +42,7 @@ type DebugToolbarOptions struct {
 
 // DebugToolbarResult carries the requested action.
 type DebugToolbarResult struct {
-	Element *ui.Element
+	Element ui.Element
 	Action  DebugAction
 }
 

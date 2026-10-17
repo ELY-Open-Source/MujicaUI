@@ -18,7 +18,7 @@ type MessageEditorOptions struct {
 
 // MessageEditorResult is the editor's element and its outcome this frame.
 type MessageEditorResult struct {
-	Element         *ui.Element
+	Element         ui.Element
 	saved, canceled bool
 }
 

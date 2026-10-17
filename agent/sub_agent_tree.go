@@ -74,7 +74,7 @@ func subAgentRow(c *ui.Context, a SubAgent, depth int, open, still bool) bool {
 	d := core.Density(c)
 	u := d.Unit()
 	parent := len(a.Children) > 0
-	row := ui.ButtonBase(c).Key(a.ID).Justify(ui.Start).Gap(u*2).MinHeight(d.ControlHeight()).
+	row := ui.ButtonBase(c.Key(a.ID)).Justify(ui.Start).Gap(u*2).MinHeight(d.ControlHeight()).
 		Padding(0, u*2, 0, u*2+float32(depth)*u*5).Radius(theme.ControlRadius).
 		Label(a.Name + ", " + agentWord(c, a.State))
 	internal.Ring(row, k.Focus, theme.ControlRadius)

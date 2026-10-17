@@ -30,7 +30,7 @@ type JsonEditorOptions struct {
 
 // JsonEditorResult reports this frame's events and the parse state.
 type JsonEditorResult struct {
-	Element *ui.Element
+	Element ui.Element
 	Changed bool
 	// Valid reports *text parses as one JSON value.
 	Valid bool

@@ -8,6 +8,7 @@ import (
 	"github.com/egoist/mygo/ui"
 
 	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/theme"
 )
 
 func TestReorderTransitionSlides(t *testing.T) {
@@ -24,9 +25,9 @@ func TestReorderTransitionSlides(t *testing.T) {
 	if *n-before < 3 {
 		t.Fatal("reorder did not animate")
 	}
+	tt.Advance(theme.StateDuration / 2)
 	mid, _ := tt.Find("Item a")
-	time.Sleep(260 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(260 * time.Millisecond)
 	end, _ := tt.Find("Item a")
 	if !(mid.Y > ra.Y && mid.Y < end.Y) || motionBusy(tt, n) {
 		t.Fatalf("a moved %v → %v → %v", ra.Y, mid.Y, end.Y)

@@ -47,7 +47,7 @@ type TradeHistoryTableState struct {
 
 // TradeHistoryResult is a built table and its export request.
 type TradeHistoryResult struct {
-	Element  *ui.Element
+	Element  ui.Element
 	Table    data.DataTableView
 	exported []FillRow
 	export   bool

@@ -28,7 +28,7 @@ type AppShellOptions struct {
 
 // AppShellResult is an AppShell and its event in this frame.
 type AppShellResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Toggled reports the sidebar opened or collapsed.
 	Toggled bool
 }

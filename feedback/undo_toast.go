@@ -27,7 +27,7 @@ type UndoToastOptions struct {
 
 // UndoToastResult reports how an UndoToast ended this frame, if it did.
 type UndoToastResult struct {
-	Element *ui.Element
+	Element ui.Element
 	Undone  bool
 	// Expired: the countdown ran out, or the user closed it; the action stands.
 	Expired bool

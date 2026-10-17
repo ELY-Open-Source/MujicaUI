@@ -16,7 +16,7 @@ navigation.NavigationMenu(c, router, []navigation.NavigationLink{
 router.View(c, func(r *ui.Route) { ui.Text(c, r.Path()) })
 ```
 
-签名：`func NavigationMenu(c *ui.Context, router *ui.Router, links []NavigationLink, opts NavigationMenuOptions) *ui.Element`
+签名：`func NavigationMenu(c *ui.Context, router *ui.Router, links []NavigationLink, opts NavigationMenuOptions) ui.Element`
 
 ## 参数
 

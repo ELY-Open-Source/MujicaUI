@@ -57,7 +57,7 @@ type SearchOpen struct {
 
 // SearchPanelResult is a SearchPanel and what happened in this frame.
 type SearchPanelResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Changed asks the caller to search again.
 	Changed bool
 	Opened  *SearchOpen

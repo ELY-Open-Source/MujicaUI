@@ -55,7 +55,7 @@ func Collapsible(c *ui.Context, open *bool, opts CollapsibleOptions, content fun
 				ui.Text(c, opts.Title).FontWeight(600).SingleLine()
 			}
 		})
-		if panel := collapsiblePanel(c, *open, prog, content); panel != nil {
+		if panel := collapsiblePanel(c, *open, prog, content); panel.Valid() {
 			panel.Padding(u*2, u*2, u*2, u*8).Gap(u * 2)
 		}
 	})
@@ -73,13 +73,13 @@ func collapsibleTarget(open bool) float32 {
 }
 
 // collapsiblePanel builds fn while open or animating, clipped to its progress.
-func collapsiblePanel(c *ui.Context, open bool, prog float32, fn func()) *ui.Element {
+func collapsiblePanel(c *ui.Context, open bool, prog float32, fn func()) ui.Element {
 	if !open && prog == 0 {
-		return nil
+		return ui.Element{}
 	}
 	// Closing content takes no input or focus while it shrinks away.
 	clip := ui.Column(c).Shrink(0).Disabled(!open)
-	var inner *ui.Element
+	var inner ui.Element
 	clip.Children(func() {
 		inner = ui.Column(c).Shrink(0)
 		inner.Children(fn)

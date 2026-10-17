@@ -14,7 +14,7 @@ name := ""
 view := func(c *ui.Context) {
 	core.Use(c, core.Settings{})
 	res := input.Form(c, &state, input.FormOptions{}, func(f *input.FormScope) {
-		input.FormItem(c, f, "name", &name, input.FormItemOptions[string]{Label: "Name", Required: true}, func() *ui.Element {
+		input.FormItem(c, f, "name", &name, input.FormItemOptions[string]{Label: "Name", Required: true}, func() ui.Element {
 			return input.InputGroup(c, &name, input.InputGroupOptions{Invalid: state.Error("name") != ""}).Input
 		})
 	})

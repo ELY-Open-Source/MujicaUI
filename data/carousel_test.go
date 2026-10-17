@@ -82,8 +82,7 @@ func TestCarouselKeyboard(t *testing.T) {
 func TestCarouselNoAutoplayByDefault(t *testing.T) {
 	h := &carouselHarness{opts: CarouselOptions{Interval: 10 * time.Millisecond}}
 	tt := ui.NewTester(h.view, 420, 280)
-	time.Sleep(30 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(30 * time.Millisecond)
 	if h.index != 0 || tt.HasText("Pause autoplay") {
 		t.Fatalf("advanced without Autoplay: %d", h.index)
 	}
@@ -92,8 +91,7 @@ func TestCarouselNoAutoplayByDefault(t *testing.T) {
 func TestCarouselAutoplayPause(t *testing.T) {
 	h := &carouselHarness{opts: CarouselOptions{Autoplay: true, Interval: 20 * time.Millisecond}}
 	tt := ui.NewTester(h.view, 420, 280)
-	time.Sleep(30 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(30 * time.Millisecond)
 	if h.index != 1 {
 		t.Fatalf("autoplay did not advance: %d", h.index)
 	}
@@ -102,8 +100,7 @@ func TestCarouselAutoplayPause(t *testing.T) {
 	tt.SetFocused(false)
 	tt.SetFocused(true)
 	at := h.index
-	time.Sleep(50 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(50 * time.Millisecond)
 	if h.index != at || !tt.HasText("") {
 		t.Fatalf("paused carousel advanced: %d -> %d", at, h.index)
 	}
@@ -113,8 +110,7 @@ func TestCarouselAutoplayPause(t *testing.T) {
 	r, _ := tt.Find("Window " + fmt.Sprint(at+1))
 	_ = tt.Click("Resume autoplay")
 	tt.Move(r.X+2, r.Y+2) // hover pauses too
-	time.Sleep(50 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(50 * time.Millisecond)
 	if h.index != at {
 		t.Fatalf("hovered carousel advanced: %d -> %d", at, h.index)
 	}

@@ -42,7 +42,7 @@ type VideoPlayerOptions struct {
 var VideoBlack = ui.Hex("#0E0C0D")
 
 // VideoPlayer draws the caller's frame and reports controls through callbacks.
-func VideoPlayer(c *ui.Context, st VideoState, opts VideoPlayerOptions) *ui.Element {
+func VideoPlayer(c *ui.Context, st VideoState, opts VideoPlayerOptions) ui.Element {
 	if opts.OnPlay == nil || opts.OnPause == nil || opts.OnSeek == nil {
 		panic("mujica: VideoPlayer needs OnPlay, OnPause and OnSeek")
 	}
@@ -106,7 +106,7 @@ func videoStage(c *ui.Context, k theme.Tokens, st VideoState, opts VideoPlayerOp
 	})
 }
 
-func videoKeys(stage *ui.Element, st VideoState, opts VideoPlayerOptions) {
+func videoKeys(stage ui.Element, st VideoState, opts VideoPlayerOptions) {
 	seek := func(d time.Duration) {
 		to := min(max(0, st.Position+d), st.Duration)
 		slog.Debug("mujica: video_player seek", "pos", to)
@@ -153,7 +153,7 @@ func videoButtons(c *ui.Context, st VideoState, opts VideoPlayerOptions) {
 }
 
 // MediaToggleAction is an iconAction that shows when it is on.
-func MediaToggleAction(c *ui.Context, icon *ui.SVG, label string, on bool) *ui.Element {
+func MediaToggleAction(c *ui.Context, icon *ui.SVG, label string, on bool) ui.Element {
 	k := core.Tokens(c)
 	b := core.IconAction(c, icon, label).Role(ui.RoleToggleButton).Selected(on)
 	if on {

@@ -34,7 +34,7 @@ type EvalResultTableOptions struct {
 
 // EvalResultTableResult is a built EvalResultTable and its events.
 type EvalResultTableResult struct {
-	Element *ui.Element
+	Element ui.Element
 	Table   data.DataTableView
 	diff    string
 }

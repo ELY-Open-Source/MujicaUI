@@ -29,7 +29,7 @@ type ConversationDrag struct{ ID string }
 
 // ConversationItemView is a built ConversationItem and its requests.
 type ConversationItemView struct {
-	Element *ui.Element
+	Element ui.Element
 	// Opened, Deleted, Exported and PinToggled are requests for the caller.
 	Opened, Deleted, Exported, PinToggled bool
 	// Renamed reports a confirmed new title, already in conv.Title.
@@ -54,7 +54,7 @@ func ConversationItem(c *ui.Context, conv *ChatConversation, opts ConversationIt
 	if today.IsZero() {
 		today = core.DateOf(c.Now())
 	}
-	row := ui.Row(c).Key(conv.ID).FillWidth().MinHeight(d.ControlHeight()).Gap(d.Unit()).AlignItems(ui.Center).
+	row := ui.Row(c.Key(conv.ID)).FillWidth().MinHeight(d.ControlHeight()).Gap(d.Unit()).AlignItems(ui.Center).
 		Radius(theme.ControlRadius).Disabled(opts.Disabled)
 	v := ConversationItemView{Element: row}
 	st := ui.Local(row, conversationItemKey{}, func() conversationItemState { return conversationItemState{} })
@@ -145,7 +145,7 @@ func conversationItemEditor(c *ui.Context, k theme.Tokens, conv *ChatConversatio
 }
 
 // conversationItemMenu is a borderless ellipsis button opening a menu.
-func conversationItemMenu(c *ui.Context, label string, build func(m *overlay.PopupMenu)) *ui.Element {
+func conversationItemMenu(c *ui.Context, label string, build func(m *overlay.PopupMenu)) ui.Element {
 	b := core.IconAction(c, icons.Must("ellipsis"), label).Role(ui.RoleMenuButton).Shrink(0)
 	open := ui.Local(b, conversationItemKey{}, func() bool { return false })
 	if b.IsDisabled() {

@@ -29,7 +29,7 @@ type UsageQuotaOptions struct {
 }
 
 // UsageQuota displays usage bars and reset time.
-func UsageQuota(c *ui.Context, items []QuotaItem, opts UsageQuotaOptions) *ui.Element {
+func UsageQuota(c *ui.Context, items []QuotaItem, opts UsageQuotaOptions) ui.Element {
 	warn := opts.Warn
 	if warn == 0 {
 		warn = 0.8
@@ -54,7 +54,7 @@ func UsageQuota(c *ui.Context, items []QuotaItem, opts UsageQuotaOptions) *ui.El
 				col, icon, note = k.Warning, "triangle-alert", core.Msg(c, "usage_quota.near")
 			}
 			amount := fmt.Sprintf(core.Msg(c, "usage_quota.amount"), data.StatisticFormat(it.Used, 0), data.StatisticFormat(it.Limit, 0), it.Unit)
-			ui.Column(c).Key(i).Gap(d.Unit()).Role(ui.RoleMeter).Label(it.Label).
+			ui.Column(c.Key(i)).Gap(d.Unit()).Role(ui.RoleMeter).Label(it.Label).
 				Description(fmt.Sprintf("%s, %s%% %s", amount, data.StatisticFormat(share*100, 0), note)).Children(func() {
 				ui.Row(c).Gap(d.Unit() * 2).AlignItems(ui.Center).Children(func() {
 					ui.Text(c, it.Label).FontWeight(500).Grow(1)

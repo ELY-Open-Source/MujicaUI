@@ -53,7 +53,7 @@ type ContextMentionOptions struct {
 
 // ContextMentionResult carries the popup, query and chosen item.
 type ContextMentionResult struct {
-	Element      *ui.Element
+	Element      ui.Element
 	query        string
 	queryChanged bool
 	chosen       ContextItem
@@ -70,7 +70,7 @@ func (r ContextMentionResult) Chosen() (ContextItem, bool) { return r.chosen, r.
 // ContextMentionMenu groups results for the active mention query.
 // The caller filters results synchronously or asynchronously.
 func ContextMentionMenu(c *ui.Context, composer input.InputResult, value *string, items []ContextItem, opts ContextMentionOptions) ContextMentionResult {
-	if composer.Element == nil || composer.Input == nil || value == nil {
+	if !composer.Element.Valid() || !composer.Input.Valid() || value == nil {
 		panic("mujica: ContextMentionMenu needs composer and value")
 	}
 	data := ui.Local(composer.Element, "mention-data", func() mentionMenuData { return mentionMenuData{} })

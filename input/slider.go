@@ -78,7 +78,7 @@ type sliderKey struct {
 type sliderKeyID struct{}
 
 // SliderControl builds a SliderBase on a copy of v and returns where the pointer or a key moves v.
-func SliderControl(c *ui.Context, v float64, g SliderGeom, from, to float64) (s *ui.Element, next float64, dragged bool) {
+func SliderControl(c *ui.Context, v float64, g SliderGeom, from, to float64) (s ui.Element, next float64, dragged bool) {
 	raw := v
 	s = ui.SliderBase(c, &raw, g.lo, g.hi)
 	ks := *ui.Local(s, sliderKeyID{}, func() *sliderKey { return &sliderKey{} })
@@ -175,7 +175,7 @@ func Slider(c *ui.Context, value *float64, opts SliderOptions) core.ChoiceResult
 	k := core.Tokens(c)
 	old := g.snap(*value)
 	*value = old
-	var s *ui.Element
+	var s ui.Element
 	var next float64
 	var held bool
 	// Disabled on a wrapper blocks the base before it takes input.

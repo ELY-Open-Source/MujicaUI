@@ -20,7 +20,7 @@ view := func(c *ui.Context) {
 ui.Render(view, 400, 300, 1)
 ```
 
-签名：`func Drawer(c *ui.Context, open *bool, opts DrawerOptions, content func()) *ui.Element`。
+签名：`func Drawer(c *ui.Context, open *bool, opts DrawerOptions, content func()) ui.Element`。
 
 ## 参数
 

@@ -10,7 +10,7 @@
 chat.TypingIndicator(c, "Herald")
 ```
 
-签名：`func TypingIndicator(c *ui.Context, name string) *ui.Element`
+签名：`func TypingIndicator(c *ui.Context, name string) ui.Element`
 
 ## 参数
 

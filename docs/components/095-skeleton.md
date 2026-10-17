@@ -15,7 +15,7 @@ ui.Row(c).Padding(16).Gap(12).Children(func() {
 })
 ```
 
-签名：`func Skeleton(c *ui.Context, opts SkeletonOptions) *ui.Element`
+签名：`func Skeleton(c *ui.Context, opts SkeletonOptions) ui.Element`
 
 ## 参数
 

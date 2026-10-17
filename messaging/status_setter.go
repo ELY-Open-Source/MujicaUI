@@ -99,7 +99,7 @@ func StatusSetter(c *ui.Context, st *CustomStatus, opts StatusSetterOptions) cor
 			for i, o := range statusClear {
 				options[i] = input.SelectOption[int]{Value: i, Label: core.Msg(c, o.key)}
 			}
-			ui.Box(c).Key(live).Children(func() {
+			ui.Box(c.Key(live)).Children(func() {
 				if input.Select(c, &s.clear, options, input.SelectOptions{Label: core.Msg(c, "status_setter.clearAfter"), Placeholder: core.MessagingDate(c, st.Until.In(loc), "status_setter.until"), Disabled: !live}).Changed() {
 					st.Until = statusUntil(c.Now().In(loc), statusClear[s.clear].after)
 				}

@@ -20,7 +20,7 @@ type SpreadIndicatorOptions struct {
 }
 
 // SpreadIndicator shows ask minus bid and its percent.
-func SpreadIndicator(c *ui.Context, bid, ask float64, opts SpreadIndicatorOptions) *ui.Element {
+func SpreadIndicator(c *ui.Context, bid, ask float64, opts SpreadIndicatorOptions) ui.Element {
 	if opts.WarnPercent < 0 {
 		panic("mujica: SpreadIndicator with negative WarnPercent")
 	}

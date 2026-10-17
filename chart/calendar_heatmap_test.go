@@ -65,7 +65,7 @@ func TestCalendarHeatmapWeekStartHover(t *testing.T) {
 			return CalendarHeatmap(c, &year, calendarValues(), CalendarHeatmapOptions{Frame: ChartFrame{Label: "Prayers"}, WeekStart: tc.start})
 		}}
 		tt := ui.NewTester(h.view, 560, 420)
-		b := h.res.Element.Bounds()
+		b := h.box(tt)
 		plotY := b.Y + b.H - 20 - 8 - 240 // above the readout line and gap
 		step := min((b.W-36)/53, float32(240-48)/7)
 		tt.Move(b.X+32+step/2, plotY+18+float32(tc.row)*step+step/2)

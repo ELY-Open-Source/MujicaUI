@@ -50,7 +50,7 @@ func IndicatorSelector(c *ui.Context, overlays *[]IndicatorOverlay, panes *Indic
 					continue
 				}
 				found++
-				ui.Row(c).Key(name).AlignItems(ui.Center).Gap(u * 2).MinHeight(core.Density(c).ControlHeight()).Children(func() {
+				ui.Row(c.Key(name)).AlignItems(ui.Center).Gap(u * 2).MinHeight(core.Density(c).ControlHeight()).Children(func() {
 					ui.Text(c, name).FontWeight(600).Width(56)
 					where := "indicator_selector.pane"
 					if indicatorInfo[kind].overlay {
@@ -103,7 +103,7 @@ func IndicatorSelector(c *ui.Context, overlays *[]IndicatorOverlay, panes *Indic
 // indicatorSelectorActive edits parameters and reports removal of an indicator.
 func indicatorSelectorActive(c *ui.Context, u float32, key string, kind IndicatorKind, params *[]float64, changed *bool) bool {
 	removed := false
-	ui.Row(c).Key(key).AlignItems(ui.Center).Gap(u * 2).Wrap().Children(func() {
+	ui.Row(c.Key(key)).AlignItems(ui.Center).Gap(u * 2).Wrap().Children(func() {
 		ui.Text(c, kind.String()).FontWeight(600).Width(56)
 		if len(kind.DefaultParams()) > 0 && IndicatorParamsField(c, kind, params).Changed() {
 			*changed = true

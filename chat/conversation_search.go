@@ -34,7 +34,7 @@ type ConversationSearchOptions struct {
 
 // ConversationSearchView is a built ConversationSearch and this frame's events.
 type ConversationSearchView struct {
-	Element *ui.Element
+	Element ui.Element
 	// QueryChanged asks the caller to search for the new query.
 	QueryChanged bool
 	// Chosen is the hit opened this frame, or empty.

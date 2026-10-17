@@ -37,7 +37,7 @@ type priceTextState struct {
 }
 
 // PriceText shows a price; a change tints it once.
-func PriceText(c *ui.Context, value float64, opts PriceTextOptions) *ui.Element {
+func PriceText(c *ui.Context, value float64, opts PriceTextOptions) ui.Element {
 	dec := core.PriceDecimals("PriceText", opts.Decimals)
 	if opts.Size < 0 {
 		panic("mujica: PriceText with negative Size")

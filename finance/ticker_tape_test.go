@@ -32,8 +32,7 @@ func TestTickerTapeScrollsAndPausesOnHover(t *testing.T) {
 		ui.Box(c).Width(380).Children(func() { TickerTape(c, tickerTapeItems(6), TickerTapeOptions{Speed: 200}) })
 	})
 	x0 := tickerTapeX(t, tt)
-	time.Sleep(60 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(60 * time.Millisecond)
 	x1 := tickerTapeX(t, tt)
 	if x1 >= x0 {
 		t.Fatalf("did not scroll: %v -> %v", x0, x1)
@@ -41,8 +40,7 @@ func TestTickerTapeScrollsAndPausesOnHover(t *testing.T) {
 	tt.Move(100, 25)
 	tt.Frame()
 	x2 := tickerTapeX(t, tt)
-	time.Sleep(60 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(60 * time.Millisecond)
 	if x3 := tickerTapeX(t, tt); x3 != x2 {
 		t.Fatalf("moved under the pointer: %v -> %v", x2, x3)
 	}
@@ -57,8 +55,7 @@ func TestTickerTapePausesOnFocus(t *testing.T) {
 		t.Fatal("tape not focusable")
 	}
 	x0 := tickerTapeX(t, tt)
-	time.Sleep(60 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(60 * time.Millisecond)
 	if x1 := tickerTapeX(t, tt); x1 != x0 {
 		t.Fatalf("moved while focused: %v -> %v", x0, x1)
 	}

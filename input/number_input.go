@@ -156,7 +156,7 @@ func NumberInput(c *ui.Context, value *float64, opts NumberInputOptions) InputRe
 	}
 	stepBy := func(n int) { set(s.StepBy(*value, n)) }
 	look := &textInputLook{disabled: opts.Disabled, err: opts.Error}
-	r.Element, r.Input = textInputFrame(c, look, func(frame *ui.Element) *ui.Element {
+	r.Element, r.Input = textInputFrame(c, look, func(frame ui.Element) ui.Element {
 		text := ui.Local(frame, "text", func() string { return s.format(*value) })
 		invalid := ui.Local(frame, "invalid", func() string { return "" })
 		seen := ui.Local(frame, "seen", func() float64 { return *value })

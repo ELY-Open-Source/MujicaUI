@@ -33,7 +33,7 @@ type GreeksTableOptions struct {
 
 var greekNames = [5]string{"Delta", "Gamma", "Theta", "Vega", "Rho"}
 
-func GreeksTable(c *ui.Context, rows []GreeksRow, opts GreeksTableOptions) *ui.Element {
+func GreeksTable(c *ui.Context, rows []GreeksRow, opts GreeksTableOptions) ui.Element {
 	if opts.Decimals < 0 || opts.Decimals > 12 {
 		panic("mujica: GreeksTable Decimals is negative")
 	}
@@ -50,7 +50,7 @@ func GreeksTable(c *ui.Context, rows []GreeksRow, opts GreeksTableOptions) *ui.E
 			ui.Text(c, core.Msg(c, "greeks_table.contract")).TextColor(k.TextMuted).FontSize(core.FontSize(c, theme.CaptionSize)).
 				MinHeight(d.ControlHeight()).Role(ui.RoleColumnHeader)
 			for i, name := range greekNames {
-				h := ui.Row(c).Key(name).Gap(2).AlignItems(ui.Center).Justify(ui.End).MinHeight(d.ControlHeight()).
+				h := ui.Row(c.Key(name)).Gap(2).AlignItems(ui.Center).Justify(ui.End).MinHeight(d.ControlHeight()).
 					Role(ui.RoleColumnHeader).Label(name).Description(core.Msg(c, "greeks_table.note_"+greekKey(i)))
 				h.Tooltip(core.Msg(c, "greeks_table.note_"+greekKey(i)))
 				h.Children(func() {
@@ -65,13 +65,13 @@ func GreeksTable(c *ui.Context, rows []GreeksRow, opts GreeksTableOptions) *ui.E
 			ui.Grid(c).ColumnTracks(ui.Fr(2), ui.Fr(1), ui.Fr(1), ui.Fr(1), ui.Fr(1), ui.Fr(1)).GapX(u*2).Padding(0, u*3).MinHeight(d.ControlHeight()).Children(func() {
 				r := rows[ri]
 				vals := [5]float64{r.Greeks.Delta, r.Greeks.Gamma, r.Greeks.Theta, r.Greeks.Vega, r.Greeks.Rho}
-				ui.Text(c, r.Label).Key(ri).SingleLine().MinHeight(d.ControlHeight()).Role(ui.RoleCell)
+				ui.Text(c.Key(ri), r.Label).SingleLine().MinHeight(d.ControlHeight()).Role(ui.RoleCell)
 				for i, v := range vals {
 					s := "—"
 					if !math.IsNaN(v) {
 						s = data.StatisticSigned(v, dec)
 					}
-					ui.Text(c, s).Key([2]int{ri, i}).JustifySelf(ui.End).FontFeatures("tnum").TextColor(k.Text).
+					ui.Text(c.Key([2]int{ri, i}), s).JustifySelf(ui.End).FontFeatures("tnum").TextColor(k.Text).
 						Role(ui.RoleCell).Label(greekNames[i] + " " + s)
 				}
 			})

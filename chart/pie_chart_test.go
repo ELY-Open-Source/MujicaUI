@@ -34,7 +34,7 @@ func TestPieChartReadoutAndHover(t *testing.T) {
 	if got := chartReadout(tt); got != "Other · 8 · 8.0%" {
 		t.Fatalf("readout %q", got)
 	}
-	b := h.res.Element.Bounds()
+	b := h.box(tt)
 	plotTop := b.Y + 38 // below the one-line legend
 	cy := plotTop + 120
 	tt.Move(b.X+b.W/2+60, cy-40) // upper right: the first slice

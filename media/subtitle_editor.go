@@ -139,7 +139,7 @@ func subtitleRow(c *ui.Context, k theme.Tokens, cues *[]SubtitleCue, s *subtitle
 	u := core.Density(c).Unit()
 	q := &(*cues)[i]
 	changed, removed := false, false
-	row := ui.Column(c).Key(i).Absolute().Left(0).Right(0).Top(float32(i)*rowH).Height(rowH).Padding(u*1.5, u*2).Gap(2).
+	row := ui.Column(c.Key(i)).Absolute().Left(0).Right(0).Top(float32(i)*rowH).Height(rowH).Padding(u*1.5, u*2).Gap(2).
 		BorderWidth(0, 0, 1, 0).BorderColor(k.Border)
 	row.Children(func() {
 		ui.Row(c).Gap(u * 2).AlignItems(ui.Center).Children(func() {

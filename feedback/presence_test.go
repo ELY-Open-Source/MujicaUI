@@ -27,16 +27,14 @@ func TestPresenceEntersExitsAndRemoves(t *testing.T) {
 		if !tt.HasText("Notice") || *n-before < 3 {
 			t.Fatalf("kind %d: no entry motion (%d frames)", kind, *n-before)
 		}
-		time.Sleep(250 * time.Millisecond)
-		tt.Frame()
+		tt.Advance(250 * time.Millisecond)
 		show = false
 		before = *n
 		tt.Frame()
 		if *n-before < 3 {
 			t.Fatalf("kind %d: no exit motion", kind)
 		}
-		time.Sleep(250 * time.Millisecond)
-		tt.Frame()
+		tt.Advance(250 * time.Millisecond)
 		if tt.HasText("Notice") || motionBusy(tt, n) {
 			t.Fatalf("kind %d: not removed after exit", kind)
 		}

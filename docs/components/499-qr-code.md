@@ -13,7 +13,7 @@ view := func(c *ui.Context) {
 }
 ```
 
-签名：`func QRCode(c *ui.Context, text string, opts QRCodeOptions) *ui.Element`
+签名：`func QRCode(c *ui.Context, text string, opts QRCodeOptions) ui.Element`
 
 ## 参数
 

@@ -13,7 +13,7 @@ import (
 
 // MarkdownResult is a MarkdownView's element and the link the user opened this frame.
 type MarkdownResult struct {
-	Element *ui.Element
+	Element ui.Element
 	link    string
 }
 
@@ -32,7 +32,7 @@ func MarkdownView(c *ui.Context, src string) MarkdownResult {
 	r.Element.Children(func() {
 		for i := range (*doc).Blocks {
 			b := &(*doc).Blocks[i]
-			ui.Column(c).Key(i).MinWidth(0).Children(func() {
+			ui.Column(c.Key(i)).MinWidth(0).Children(func() {
 				if url := markdownBlock(c, b); url != "" {
 					r.link = url
 				}
@@ -96,7 +96,7 @@ func markdownBlock(c *ui.Context, b *internal.MdBlock) string {
 }
 
 // markdownSpans fills paragraph t with styled spans; links are focusable and return their URL when used.
-func markdownSpans(c *ui.Context, t *ui.Element, spans []internal.MdSpan) string {
+func markdownSpans(c *ui.Context, t ui.Element, spans []internal.MdSpan) string {
 	k := core.Tokens(c)
 	var link string
 	t.MinWidth(0).Children(func() {

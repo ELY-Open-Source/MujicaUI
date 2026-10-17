@@ -109,7 +109,7 @@ func Flamegraph(c *ui.Context, root *FlameNode, s *FlamegraphState, opts Flamegr
 }
 
 // flameInput zooms, moves focus and tracks hover.
-func flameInput(c *ui.Context, g *ui.Element, root *FlameNode, s *FlamegraphState, hover *[]int) bool {
+func flameInput(c *ui.Context, g ui.Element, root *FlameNode, s *FlamegraphState, hover *[]int) bool {
 	b := g.Bounds()
 	x, y, over := g.PointerPosition()
 	*hover = nil

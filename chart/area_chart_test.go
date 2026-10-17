@@ -35,7 +35,7 @@ func TestAreaChartStackedReadout(t *testing.T) {
 	if got := chartReadout(tt); got != "0 · Pews 3 · Candles 5" {
 		t.Fatalf("readout shows the series values, not the stack: %q", got)
 	}
-	b := h.res.Element.Bounds()
+	b := h.box(tt)
 	tt.Move(b.X+52+(b.W-64)*0.5, b.Y+b.H/2)
 	if got := chartReadout(tt); got != "2 · Pews no value · Candles 6" || h.res.Point != 2 {
 		t.Fatalf("hover %q", got)

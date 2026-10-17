@@ -18,7 +18,7 @@ type LinkPreview struct {
 }
 
 // LinkPreviewCard shows a link's site, title, description and thumbnail; Clicked opens it.
-func LinkPreviewCard(c *ui.Context, p LinkPreview) *ui.Element {
+func LinkPreviewCard(c *ui.Context, p LinkPreview) ui.Element {
 	if p.URL == "" || p.Title == "" {
 		panic("mujica: LinkPreviewCard needs URL and Title")
 	}

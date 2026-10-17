@@ -30,7 +30,7 @@ type ProjectKnowledgePanelOptions struct {
 
 // ProjectKnowledgePanelView is a built panel and its requests.
 type ProjectKnowledgePanelView struct {
-	Element *ui.Element
+	Element ui.Element
 	// Add asks the caller to pick files to add.
 	Add bool
 	// Removed is the ID of a file to remove.
@@ -73,7 +73,7 @@ func ProjectKnowledgePanel(c *ui.Context, files []KnowledgeFile, opts ProjectKno
 		}
 		ui.Column(c).Gap(2).FocusGroup(ui.Vertical).Children(func() {
 			for _, f := range files {
-				ui.Row(c).Key(f.ID).MinHeight(d.ControlHeight()).Gap(d.Unit()*2).AlignItems(ui.Center).Padding(0, d.Unit()).Children(func() {
+				ui.Row(c.Key(f.ID)).MinHeight(d.ControlHeight()).Gap(d.Unit()*2).AlignItems(ui.Center).Padding(0, d.Unit()).Children(func() {
 					ui.Icon(c, icons.Must("file-text")).Size(16, 16).TextColor(k.TextMuted)
 					ui.Text(c, f.Name).SingleLine().Grow(1).MinWidth(0)
 					ui.Text(c, fmt.Sprintf(core.Msg(c, "project_knowledge_panel.tokens"), f.Tokens)).

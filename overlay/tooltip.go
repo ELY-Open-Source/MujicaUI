@@ -25,8 +25,8 @@ type TooltipState struct {
 const tooltipMaxWidth = 240
 
 // Tooltip shows a non-interactive tip by anchor after hover or keyboard focus rests on it for Delay.
-func Tooltip(c *ui.Context, anchor *ui.Element, text string, opts TooltipOptions) *ui.Element {
-	if anchor == nil {
+func Tooltip(c *ui.Context, anchor ui.Element, text string, opts TooltipOptions) ui.Element {
+	if !anchor.Valid() {
 		panic("mujica: Tooltip needs an anchor")
 	}
 	if opts.Delay < 0 {

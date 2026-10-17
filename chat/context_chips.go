@@ -20,7 +20,7 @@ type ContextChipsOptions struct {
 
 // RemoveResult carries the element and removed item ID.
 type RemoveResult struct {
-	Element *ui.Element
+	Element ui.Element
 	removed string
 }
 
@@ -48,7 +48,7 @@ func ContextChips(c *ui.Context, items []ContextItem, opts ContextChipsOptions) 
 			shown = min(shown, limit)
 		}
 		for _, it := range items[:shown] {
-			ui.Row(c).Key(it.ID).Gap(u).AlignItems(ui.Center).Padding(0, 0, 0, u*2).MinHeight(core.Density(c).ControlHeight()).
+			ui.Row(c.Key(it.ID)).Gap(u).AlignItems(ui.Center).Padding(0, 0, 0, u*2).MinHeight(core.Density(c).ControlHeight()).
 				Radius(theme.ControlRadius).Background(k.Surface).Border(theme.BorderWidth, k.Border).Role(ui.RoleListItem).
 				Children(func() {
 					ui.Icon(c, icons.Must(it.Kind.icon())).Size(14, 14).Shrink(0).TextColor(k.AccentText)

@@ -22,8 +22,7 @@ func TestCountUpCountsAndSettles(t *testing.T) {
 	}
 	value = 200
 	tt.Frame()
-	time.Sleep(100 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(100 * time.Millisecond)
 	mid := ""
 	for _, s := range tt.Texts() {
 		if s != "200" {
@@ -33,8 +32,7 @@ func TestCountUpCountsAndSettles(t *testing.T) {
 	if mid == "" || mid == "100" {
 		t.Fatalf("no value between: %q", tt.Texts())
 	}
-	time.Sleep(300 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(300 * time.Millisecond)
 	if motionCount(tt, "200") != 2 || motionBusy(tt, n) {
 		t.Fatalf("did not settle: %q", tt.Texts())
 	}

@@ -175,7 +175,7 @@ func transferPanel(c *ui.Context, st *transferState, side int, title string, ite
 			}
 			for _, it := range shown {
 				on := st.checked[it.ID]
-				ui.Box(c).Key(it.ID).Children(func() {
+				ui.Box(c.Key(it.ID)).Children(func() {
 					cb := ui.CheckboxBase(c, &on).Gap(d.Unit()*2).MinHeight(max(d.ControlHeight()-d.Unit(), theme.MinHitSize)).Padding(0, d.Unit()*2).
 						Radius(theme.ControlRadius).FillWidth().Disabled(it.Disabled)
 					if cb.Changed() {
@@ -203,7 +203,7 @@ func transferPartial(c *ui.Context, checked, enabled int) string {
 }
 
 // transferMark draws a check box's square inside box, which takes the focus ring.
-func transferMark(c *ui.Context, box *ui.Element, on, mixed bool) {
+func transferMark(c *ui.Context, box ui.Element, on, mixed bool) {
 	k := core.Tokens(c)
 	internal.Ring(box, k.Focus, theme.ControlRadius)
 	box.Children(func() {

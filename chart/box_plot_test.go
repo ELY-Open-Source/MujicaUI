@@ -33,7 +33,7 @@ func TestBoxPlotReadout(t *testing.T) {
 	if got := chartReadout(tt); got != "Choir · median 5.5 · quartiles 3.25–7.75 · whiskers 1–9 · 1 outliers" {
 		t.Fatalf("readout %q", got)
 	}
-	b := h.res.Element.Bounds()
+	b := h.box(tt)
 	tt.Key(0, ui.KeyEscape)
 	tt.Move(b.X+52+(b.W-64)*0.75, b.Y+100)
 	if got := chartReadout(tt); got != "Nave · median 5 · quartiles 5–6 · whiskers 4–7 · 0 outliers" {

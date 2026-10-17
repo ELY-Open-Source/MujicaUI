@@ -72,7 +72,7 @@ func WorkspaceSwitcher(c *ui.Context, current *string, spaces []Workspace, opts 
 	overlay.Popover(c, b, &st.open, overlay.PopoverOptions{Width: 300, Label: core.Msg(c, "workspace_switcher.label")}, func() {
 		res := input.SearchInput(c, &st.query, input.SearchInputOptions{Placeholder: core.Msg(c, "workspace_switcher.search"), Label: core.Msg(c, "workspace_switcher.search")})
 		in := res.Input
-		in.AutoFocus()
+		core.AutoFocus(c, in)
 		q := strings.ToLower(strings.TrimSpace(st.query))
 		if !st.ready || st.filtered != q || !slices.Equal(st.source, spaces) {
 			st.source, st.filtered, st.ready = slices.Clone(spaces), q, true
@@ -115,10 +115,10 @@ func WorkspaceSwitcher(c *ui.Context, current *string, spaces []Workspace, opts 
 }
 
 // workspaceRow displays a clickable workspace with a selection mark.
-func workspaceRow(c *ui.Context, w Workspace, current, cursor bool) *ui.Element {
+func workspaceRow(c *ui.Context, w Workspace, current, cursor bool) ui.Element {
 	k := core.Tokens(c)
 	d := core.Density(c)
-	b := ui.ButtonBase(c).Key(w.ID).MinHeight(d.ControlHeight()).Padding(d.Unit(), d.Unit()*2).Gap(d.Unit() * 2).
+	b := ui.ButtonBase(c.Key(w.ID)).MinHeight(d.ControlHeight()).Padding(d.Unit(), d.Unit()*2).Gap(d.Unit() * 2).
 		Justify(ui.Start).Radius(theme.ControlRadius).Role(ui.RoleListItem).Label(w.Name).Selected(current)
 	internal.Ring(b, k.Focus, theme.ControlRadius)
 	switch {

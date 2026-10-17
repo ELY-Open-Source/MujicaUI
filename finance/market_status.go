@@ -36,7 +36,7 @@ type MarketStatusOptions struct {
 	Now time.Time
 }
 
-func MarketStatus(c *ui.Context, phase MarketPhase, opts MarketStatusOptions) *ui.Element {
+func MarketStatus(c *ui.Context, phase MarketPhase, opts MarketStatusOptions) ui.Element {
 	marketPhaseCheck(phase)
 	marketPhaseCheck(opts.NextPhase)
 	k := core.Tokens(c)

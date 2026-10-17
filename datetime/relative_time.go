@@ -19,7 +19,7 @@ type RelativeTimeOptions struct {
 }
 
 // RelativeTime shows t as "3 minutes ago", refreshing while shown.
-func RelativeTime(c *ui.Context, t time.Time, opts RelativeTimeOptions) *ui.Element {
+func RelativeTime(c *ui.Context, t time.Time, opts RelativeTimeOptions) ui.Element {
 	loc := eventLocation("RelativeTime", opts.Location)
 	now := opts.Now
 	if now.IsZero() {

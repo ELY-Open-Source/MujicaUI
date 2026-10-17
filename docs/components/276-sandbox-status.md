@@ -16,7 +16,7 @@ view := func(c *ui.Context) {
 ui.Render(view, 400, 300, 1)
 ```
 
-签名：`func SandboxStatus(c *ui.Context, info SandboxInfo, opts SandboxStatusOptions) *ui.Element`。状态未知、资源名为空、`Limit` 不大于 0 或 `Used` 不在 0 到 `Limit` 之间时 panic。
+签名：`func SandboxStatus(c *ui.Context, info SandboxInfo, opts SandboxStatusOptions) ui.Element`。状态未知、资源名为空、`Limit` 不大于 0 或 `Used` 不在 0 到 `Limit` 之间时 panic。
 
 ## 参数
 

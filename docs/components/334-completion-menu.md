@@ -23,7 +23,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func CompletionMenu(c *ui.Context, anchor *ui.Element, open *bool, items []Completion, s *CompletionMenuState, opts CompletionMenuOptions) CompletionMenuResult`。`anchor` 是编辑器元素（如 `InputResult.Input`）；打开期间组件替换它的 `HandleInput` 以先拿到菜单按键。候选为空、禁用或编辑器禁用时自动关闭。列表虚拟化，最多显示 8 行后滚动；窗口下方空间不足时在上方弹出。
+`func CompletionMenu(c *ui.Context, anchor ui.Element, open *bool, items []Completion, s *CompletionMenuState, opts CompletionMenuOptions) CompletionMenuResult`。`anchor` 是编辑器元素（如 `InputResult.Input`）；打开期间组件替换它的 `HandleInput` 以先拿到菜单按键。候选为空、禁用或编辑器禁用时自动关闭。列表虚拟化，最多显示 8 行后滚动；窗口下方空间不足时在上方弹出。
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |

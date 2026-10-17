@@ -23,7 +23,7 @@ func TestBulletChartReadout(t *testing.T) {
 		}
 	}
 	tt.Key(0, ui.KeyEscape)
-	b := h.res.Element.Bounds()
+	b := h.box(tt)
 	plotW := b.W - 24
 	tt.Move(b.X+8+plotW*0.1, b.Y+6+21) // band 1, inside the value bar
 	if got := chartReadout(tt); got != "Actual 270" {
@@ -40,7 +40,7 @@ func TestBulletChartVerticalAndBad(t *testing.T) {
 		return BulletChart(c, 40, BulletChartOptions{Frame: ChartFrame{Label: "Alms", Height: 200}, Vertical: true, Max: 100})
 	}}
 	tt := ui.NewTester(h.view, 520, 420)
-	b := h.res.Element.Bounds()
+	b := h.box(tt)
 	tt.Move(b.X+b.W/2, b.Y+8+184*0.8) // low on the scale: inside the bar
 	if got := chartReadout(tt); got != "Actual 40" {
 		t.Fatalf("vertical hover %q", got)

@@ -41,7 +41,7 @@ type tickerTapeState struct {
 }
 
 // TickerTape loops quotes, pausing on hover or focus.
-func TickerTape(c *ui.Context, items []TickerItem, opts TickerTapeOptions) *ui.Element {
+func TickerTape(c *ui.Context, items []TickerItem, opts TickerTapeOptions) ui.Element {
 	if opts.Speed < 0 || opts.PerPage < 0 {
 		panic("mujica: TickerTape Speed and PerPage cannot be negative")
 	}
@@ -91,7 +91,7 @@ func TickerTape(c *ui.Context, items []TickerItem, opts TickerTapeOptions) *ui.E
 		strip.Children(func() {
 			// The second copy fills in as the first scrolls out.
 			for n := range 2 {
-				r := ui.Row(c).Key(n).AlignItems(ui.Center).Shrink(0)
+				r := ui.Row(c.Key(n)).AlignItems(ui.Center).Shrink(0)
 				if n == 1 {
 					r.Role(ui.RoleNone)
 				}
@@ -107,7 +107,7 @@ func TickerTape(c *ui.Context, items []TickerItem, opts TickerTapeOptions) *ui.E
 }
 
 // tickerTapePages shows one page of items, for reduced motion.
-func tickerTapePages(c *ui.Context, e *ui.Element, st *tickerTapeState, items []TickerItem, per, dec int) {
+func tickerTapePages(c *ui.Context, e ui.Element, st *tickerTapeState, items []TickerItem, per, dec int) {
 	pages := max(1, (len(items)+per-1)/per)
 	st.page = min(st.page, pages-1)
 	turn := func(by int) {

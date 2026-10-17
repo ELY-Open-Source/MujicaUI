@@ -34,7 +34,7 @@ type ButtonOptions struct {
 const buttonSpinnerSize float32 = 16
 
 // Button is a push button. Loading keeps its size and blocks clicks.
-func Button(c *ui.Context, label string, opts ButtonOptions) *ui.Element {
+func Button(c *ui.Context, label string, opts ButtonOptions) ui.Element {
 	if label == "" && opts.Label == "" {
 		panic("mujica: Button without a label needs Label to name it")
 	}

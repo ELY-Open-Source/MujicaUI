@@ -114,7 +114,7 @@ func TimezoneSelect(c *ui.Context, zone *string, opts TimezoneSelectOptions) cor
 		core.DatetimePopup(c, field, open, false, func() {
 			list := timezoneFilter(zones, common, *query, now)
 			in := input.TextInput(c, query, input.TextInputOptions{Placeholder: core.Msg(c, "timezone_select.search"), Label: core.Msg(c, "timezone_select.search")})
-			in.Input.AutoFocus()
+			core.AutoFocus(c, in.Input)
 			if in.Changed() {
 				*hi = 0
 			}

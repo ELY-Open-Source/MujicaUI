@@ -94,7 +94,7 @@ func ChartBrush(c *ui.Context, value *[2]float64, opts ChartBrushOptions) core.C
 		track.Draw(func(p *ui.Painter, r ui.Rect) { brushPaint(p, r, *value, opts, k, preview) })
 		track.Children(func() {
 			x0, x1 := at(value[0]), at(value[1])
-			end := func(i int, x float32) *ui.Element {
+			end := func(i int, x float32) ui.Element {
 				e := ui.Box(c).Absolute().Left(x-theme.MinHitSize/2).Top(0).Size(theme.MinHitSize, h).Focusable().
 					Role(ui.RoleSlider).Label(fmt.Sprintf(core.Msg(c, []string{"chart_brush.start", "chart_brush.end"}[i]), val(value[i])))
 				internal.Ring(e, k.Focus, theme.ControlRadius)
@@ -104,7 +104,7 @@ func ChartBrush(c *ui.Context, value *[2]float64, opts ChartBrushOptions) core.C
 				})
 			}
 			// Tab order runs start, window, end.
-			ends := [2]*ui.Element{end(0, x0)}
+			ends := [2]ui.Element{end(0, x0)}
 			window := ui.Box(c).Absolute().Left(x0 + theme.MinHitSize/2).Top(0).Width(max(x1-x0-theme.MinHitSize, theme.MinHitSize)).Height(h).Focusable().
 				Role(ui.RoleGroup).Label(fmt.Sprintf(core.Msg(c, "chart_brush.window"), opts.Label, val(value[0]), val(value[1])))
 			internal.Ring(window, k.Focus, theme.ControlRadius)
@@ -149,7 +149,7 @@ func ChartBrush(c *ui.Context, value *[2]float64, opts ChartBrushOptions) core.C
 }
 
 // brushKey handles arrow, Page, Home and End keys.
-func brushKey(e *ui.Element, v float64, spec input.NumberInputSpec) (float64, bool) {
+func brushKey(e ui.Element, v float64, spec input.NumberInputSpec) (float64, bool) {
 	if e.IsDisabled() {
 		return v, false
 	}
@@ -171,10 +171,10 @@ func brushKey(e *ui.Element, v float64, spec input.NumberInputSpec) (float64, bo
 }
 
 // brushPointer drags handles, the window, or a new range.
-func brushPointer(track, window *ui.Element, ends [2]*ui.Element, drag *brushDrag, value *[2]float64, from func(float32) float64, set, move func(lo, hi float64)) {
+func brushPointer(track, window ui.Element, ends [2]ui.Element, drag *brushDrag, value *[2]float64, from func(float32) float64, set, move func(lo, hi float64)) {
 	px, _, _ := track.PointerPosition()
 	at := from(px)
-	parts := []*ui.Element{ends[0], ends[1], window, track}
+	parts := []ui.Element{ends[0], ends[1], window, track}
 	held := -1
 	for i, e := range parts {
 		if _, _, ok := e.Dragged(); ok && held < 0 {

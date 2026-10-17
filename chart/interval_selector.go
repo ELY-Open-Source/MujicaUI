@@ -87,7 +87,7 @@ func IntervalSelector(c *ui.Context, value *Interval, favorites *[]Interval, opt
 // intervalSelectorRow shows a selectable period and its favorite toggle.
 func intervalSelectorRow(c *ui.Context, k theme.Tokens, u float32, iv Interval, on, fav bool, favorites *[]Interval) bool {
 	chosen := false
-	ui.Row(c).Key(string(iv)).AlignItems(ui.Center).Gap(u).Children(func() {
+	ui.Row(c.Key(string(iv))).AlignItems(ui.Center).Gap(u).Children(func() {
 		b := ui.ButtonBase(c).Grow(1).MinHeight(core.Density(c).ControlHeight()).Padding(0, u*2).Justify(ui.Start).Radius(theme.ControlRadius).Gap(u * 2)
 		internal.Ring(b, k.Focus, theme.ControlRadius)
 		if on {

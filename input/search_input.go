@@ -72,7 +72,7 @@ func SearchInput(c *ui.Context, query *string, opts SearchInputOptions) SearchIn
 	if opts.Find {
 		*opts.Current = max(0, min(*opts.Current, opts.Matches-1))
 	}
-	r.Element, r.Input = textInputFrame(c, look, func(frame *ui.Element) *ui.Element {
+	r.Element, r.Input = textInputFrame(c, look, func(frame ui.Element) ui.Element {
 		if opts.Find {
 			// Built inside the frame, where step knows of disabled ancestors.
 			mac := runtime.GOOS == "darwin"

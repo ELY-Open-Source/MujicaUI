@@ -74,6 +74,7 @@ func VolumeChart(c *ui.Context, candles []Candle, view *MarketView, opts VolumeC
 		return strings.Join([]string{cd.Time.Format("2006-01-02 15:04"), core.Msg(c, "candlestick_chart.volume") + " " + data.StatisticFormat(cd.Volume, 0),
 			core.TrendWord(c, core.TrendSign(cd.Close-cd.Open))}, " · ")
 	}
+	st := m.st0() // painting runs after the build, when Local is gone
 	spec.Draw = func(p *ui.Painter, r ui.Rect, active int) {
 		plot, band, ys, ticks, step := geom(r)
 		internal.AxisY(p, plot, ys, ticks, func(v float64) string { return volumeShort(v, step) }, size, k)
@@ -99,14 +100,14 @@ func VolumeChart(c *ui.Context, candles []Candle, view *MarketView, opts VolumeC
 				p.Fill(bar, col, 0)
 			}
 		}
-		m.st0().drawn = m.to - m.from
+		st.drawn = m.to - m.from
 		if at >= m.from && at < m.to {
 			x := internal.Snap(p, band.Center(at-m.from))
 			p.Line(x, plot.Y, x, plot.Y+plot.H, 1, k.TextMuted)
 		}
 	}
 	res, plot := ch.Build(spec)
-	if plot != nil && !plot.IsDisabled() {
+	if plot.Valid() && !plot.IsDisabled() {
 		room := m.room()
 		switch {
 		case plot.Shortcut(ui.Shift, ui.KeyLeft):

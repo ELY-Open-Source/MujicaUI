@@ -44,7 +44,7 @@ func ModeSelector(c *ui.Context, mode *ChatMode, opts ModeSelectorOptions) core.
 	k, u := core.Tokens(c), core.Density(c).Unit()
 	old, pick := *mode, int(*mode)
 	wrapper := ui.Row(c).Shrink(0).Disabled(opts.Disabled)
-	var track *ui.Element
+	var track ui.Element
 	wrapper.Children(func() {
 		parts := ui.SegmentedBase(c, &pick, len(chatModes))
 		track = parts.Track.Padding(2).Gap(2).Radius(theme.ControlRadius+2).Background(k.Background).

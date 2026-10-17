@@ -42,7 +42,7 @@ type diffViewerRow struct {
 }
 
 // DiffViewer compares two texts by line; give it a height.
-func DiffViewer(c *ui.Context, s *DiffViewerState, from, to string, opts DiffViewerOptions) *ui.Element {
+func DiffViewer(c *ui.Context, s *DiffViewerState, from, to string, opts DiffViewerOptions) ui.Element {
 	ctx := opts.Context
 	if ctx == 0 {
 		ctx = 3

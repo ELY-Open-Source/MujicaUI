@@ -24,7 +24,7 @@ type DragDropOverlayOptions struct {
 
 // DropResult carries the overlay and dropped files.
 type DropResult struct {
-	Element  *ui.Element
+	Element  ui.Element
 	accepted []string
 	rejected []string
 }

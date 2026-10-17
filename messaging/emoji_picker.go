@@ -26,7 +26,7 @@ type EmojiPickerOptions struct {
 
 // EmojiResult exposes the element and this frame’s chosen emoji.
 type EmojiResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Picked contains the chosen emoji, or an empty string.
 	Picked string
 }
@@ -139,7 +139,7 @@ func emojiTabs(c *ui.Context, k theme.Tokens, tab *int, recent bool) {
 	*tab = min(*tab, len(tabs)-1)
 	ui.Row(c).FocusGroup(ui.Horizontal).Role(ui.RoleTabList).BorderWidth(0, 0, 1, 0).BorderColor(k.Border).Children(func() {
 		for i, t := range tabs {
-			b := ui.ButtonBase(c).Key(t.key).Size(32, 32).Radius(theme.ControlRadius).Role(ui.RoleTab).Label(core.Msg(c, t.key)).
+			b := ui.ButtonBase(c.Key(t.key)).Size(32, 32).Radius(theme.ControlRadius).Role(ui.RoleTab).Label(core.Msg(c, t.key)).
 				Selected(i == *tab).Background(ui.Transparent).Tooltip(core.Msg(c, t.key))
 			internal.Ring(b, k.Focus, theme.ControlRadius)
 			switch {
@@ -160,7 +160,7 @@ func emojiToneRow(c *ui.Context, k theme.Tokens, tone *int) {
 	ui.Row(c).Gap(2).AlignItems(ui.Center).FocusGroup(ui.Horizontal).Role(ui.RoleRadioGroup).Label(core.Msg(c, "emoji_picker.tone")).Children(func() {
 		ui.Text(c, core.Msg(c, "emoji_picker.tone")).FontSize(core.FontSize(c, theme.CaptionSize)).TextColor(k.TextMuted).Margin(0, 6, 0, 0)
 		for i := range emojiTones {
-			b := ui.ButtonBase(c).Key(i).Size(theme.MinHitSize, theme.MinHitSize).Radius(theme.ControlRadius).Role(ui.RoleRadio).
+			b := ui.ButtonBase(c.Key(i)).Size(theme.MinHitSize, theme.MinHitSize).Radius(theme.ControlRadius).Role(ui.RoleRadio).
 				Label(fmt.Sprintf(core.Msg(c, "emoji_picker.toneN"), i)).Selected(i == *tone).Background(ui.Transparent)
 			internal.Ring(b, k.Focus, theme.ControlRadius)
 			if i == *tone {
@@ -179,7 +179,7 @@ func emojiToneRow(c *ui.Context, k theme.Tokens, tone *int) {
 
 func emojiCell(c *ui.Context, k theme.Tokens, e emoji, tone int) string {
 	s := emojiToned(e, tone)
-	b := ui.ButtonBase(c).Key(e.char).Size(36, 36).Radius(theme.ControlRadius).Label(emojiLabel(c, e)).Tooltip(emojiLabel(c, e)).Transition(core.ColorFade)
+	b := ui.ButtonBase(c.Key(e.char)).Size(36, 36).Radius(theme.ControlRadius).Label(emojiLabel(c, e)).Tooltip(emojiLabel(c, e)).Transition(core.ColorFade)
 	internal.Ring(b, k.Focus, theme.ControlRadius)
 	if b.Hovered() || b.Focused() {
 		b.Background(k.SurfaceHover)

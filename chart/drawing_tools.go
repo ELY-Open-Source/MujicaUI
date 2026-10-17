@@ -126,7 +126,7 @@ func (d *DrawingTools) xy(m *mktCore, g mktGeom, pt DrawingPoint) (float32, floa
 }
 
 // input places, selects, moves, and deletes chart annotations.
-func (d *DrawingTools) input(m *mktCore, plot *ui.Element, g mktGeom, x, y float32, over, held bool, dx, dy float32) bool {
+func (d *DrawingTools) input(m *mktCore, plot ui.Element, g mktGeom, x, y float32, over, held bool, dx, dy float32) bool {
 	if d.Tool < ToolSelect || d.Tool > ToolText {
 		panic(fmt.Sprintf("mujica: unknown DrawingTool %d", d.Tool))
 	}

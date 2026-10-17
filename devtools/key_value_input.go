@@ -58,7 +58,7 @@ func KeyValueInput(c *ui.Context, rows *[]KeyValue, opts KeyValueInputOptions) c
 	r.Element.Children(func() {
 		agent.AgentRows(c, len(*rows), func(i int) {
 			kv := &(*rows)[i]
-			ui.Row(c).Key(i).Gap(u * 2).AlignItems(ui.Center).Children(func() {
+			ui.Row(c.Key(i)).Gap(u * 2).AlignItems(ui.Center).Children(func() {
 				name := fmt.Sprintf(core.Msg(c, "key_value_input.row"), i+1)
 				on := kv.Enabled
 				box := input.Checkbox(c, &on, "", input.CheckboxOptions{Disabled: locked}).Label(name)

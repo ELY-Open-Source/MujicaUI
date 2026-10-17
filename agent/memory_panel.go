@@ -30,7 +30,7 @@ type MemoryPanelOptions struct {
 
 // MemoryPanelResult reports this frame's in-place edits.
 type MemoryPanelResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Edited and Deleted are changed IDs, else "".
 	Edited  string
 	Deleted string
@@ -74,7 +74,7 @@ func MemoryPanel(c *ui.Context, entries *[]MemoryEntry, opts MemoryPanelOptions)
 		}
 		AgentRows(c, len(st.shown), func(i int) {
 			idx := st.shown[i]
-			ui.Column(c).Key((*entries)[idx].ID).Children(func() { memoryRow(c, entries, idx, st, locked, &r) })
+			ui.Column(c.Key((*entries)[idx].ID)).Children(func() { memoryRow(c, entries, idx, st, locked, &r) })
 		}).Shrink(1).MaxHeight(maxH).Dividers(theme.BorderWidth, core.Tokens(c).Border)
 	})
 	if r.Deleted != "" {
@@ -123,7 +123,7 @@ func memoryRow(c *ui.Context, entries *[]MemoryEntry, idx int, st *memoryPanelSt
 	u := core.Density(c).Unit()
 	ui.Column(c).Gap(u).Padding(u*2, 0).Children(func() {
 		if st.editing == e.ID && !locked {
-			input.TextArea(c, &st.draft, input.TextAreaOptions{Label: core.Msg(c, "memory_panel.edit"), MinHeight: 60}).Input.AutoFocus()
+			core.AutoFocus(c, input.TextArea(c, &st.draft, input.TextAreaOptions{Label: core.Msg(c, "memory_panel.edit"), MinHeight: 60}).Input)
 			ui.Row(c).Gap(u * 2).Justify(ui.End).Children(func() {
 				if input.Button(c, core.Msg(c, "memory_panel.cancel"), input.ButtonOptions{Variant: input.Secondary}).Clicked() {
 					st.editing = ""

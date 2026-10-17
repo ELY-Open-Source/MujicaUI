@@ -59,7 +59,7 @@ func SplitButton(c *ui.Context, label string, opts SplitButtonOptions, build fun
 			ui.Box(c).Width(theme.BorderWidth).Background(k.OnAccent.Alpha(0.45)).Role(ui.RoleNone)
 		}
 		more := ui.ButtonBase(c).Role(ui.RoleMenuButton).Label(menuName).MinHeight(d.ControlHeight()).Width(theme.MinHitSize+d.Unit()).
-			Radius(0, theme.ControlRadius, theme.ControlRadius, 0).Tooltip(menuName)
+			Radius(0, theme.ControlRadius, theme.ControlRadius, 0)
 		splitButtonLook(c, k, more, opts.Variant, *open)
 		if opts.Variant == input.Secondary {
 			more.BorderWidth(theme.BorderWidth, theme.BorderWidth, theme.BorderWidth, 0)
@@ -68,6 +68,10 @@ func SplitButton(c *ui.Context, label string, opts SplitButtonOptions, build fun
 		if !disabled && (more.Clicked() || more.Shortcut(0, ui.KeyDown)) {
 			*open = true
 			slog.Debug("mujica: split_button open")
+		}
+		// A tip coming and going ahead of the open menu would re-key its items.
+		if !*open {
+			more.Tooltip(menuName)
 		}
 		PopupMenuOpen(c, group, open, build)
 	})
@@ -78,7 +82,7 @@ func SplitButton(c *ui.Context, label string, opts SplitButtonOptions, build fun
 }
 
 // splitButtonLook colors one half as a Button of variant v would be.
-func splitButtonLook(c *ui.Context, k theme.Tokens, b *ui.Element, v input.ButtonVariant, open bool) {
+func splitButtonLook(c *ui.Context, k theme.Tokens, b ui.Element, v input.ButtonVariant, open bool) {
 	internal.Ring(b, k.Focus, theme.ControlRadius)
 	bg, fg, border := input.ButtonColors(k, v, b.Hovered() && !b.IsDisabled(), b.Pressed() || open)
 	b.Background(bg).TextColor(fg).Transition(core.ColorFade)

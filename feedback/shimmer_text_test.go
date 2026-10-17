@@ -19,8 +19,7 @@ func TestShimmerTextSweepsAndStops(t *testing.T) {
 		t.Fatal("text not named")
 	}
 	a := encode(t, tt.Image())
-	time.Sleep(200 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(200 * time.Millisecond)
 	if bytes.Equal(a, encode(t, tt.Image())) || !motionBusy(tt, n) {
 		t.Fatal("no sweep")
 	}

@@ -22,7 +22,7 @@ type DividerOptions struct {
 }
 
 // Divider is a thin separating line. It never takes focus and its ornament is not read out.
-func Divider(c *ui.Context, opts DividerOptions) *ui.Element {
+func Divider(c *ui.Context, opts DividerOptions) ui.Element {
 	if opts.Vertical && opts.Label != "" {
 		panic("mujica: a vertical Divider cannot have a Label")
 	}

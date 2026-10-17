@@ -22,7 +22,7 @@ type ToolApprovalOptions struct {
 
 // ToolApprovalResult reports the choice made in this frame.
 type ToolApprovalResult struct {
-	Element *ui.Element
+	Element ui.Element
 	Allowed bool
 	Denied  bool
 }
@@ -39,7 +39,7 @@ func ToolApprovalDialog(c *ui.Context, open *bool, opts ToolApprovalOptions) Too
 		Title: core.Msg(c, "tool_approval_dialog.title"), Description: opts.Reason, KeepOnBackdrop: true, HideClose: true,
 		Actions: func() {
 			// Deny first: a reflexive Enter never runs the tool.
-			if input.Button(c, core.Msg(c, "tool_approval_dialog.deny"), input.ButtonOptions{Variant: input.Secondary}).AutoFocus().Clicked() {
+			if core.AutoFocus(c, input.Button(c, core.Msg(c, "tool_approval_dialog.deny"), input.ButtonOptions{Variant: input.Secondary})).Clicked() {
 				r.Denied = true
 			}
 			if input.Button(c, core.Msg(c, "tool_approval_dialog.allow"), input.ButtonOptions{}).Clicked() {

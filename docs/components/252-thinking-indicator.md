@@ -16,7 +16,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func ThinkingIndicator(c *ui.Context, opts ThinkingIndicatorOptions) *ui.Element`。
+`func ThinkingIndicator(c *ui.Context, opts ThinkingIndicatorOptions) ui.Element`。
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |

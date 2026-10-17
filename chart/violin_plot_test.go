@@ -20,7 +20,7 @@ func TestViolinPlotReadout(t *testing.T) {
 		t.Fatalf("readout %q", got)
 	}
 	tt.Key(0, ui.KeyEscape)
-	b := h.res.Element.Bounds()
+	b := h.box(tt)
 	tt.Move(b.X+52+(b.W-64)/6, b.Y+120)
 	if h.res.Point != 0 {
 		t.Fatalf("hover %d", h.res.Point)
@@ -62,13 +62,14 @@ func TestViolinPlotLargeDataAndDisabled(t *testing.T) {
 	h := &chartHarness{build: func(c *ui.Context) ChartResult {
 		return ViolinPlot(c, groups, ViolinPlotOptions{Frame: ChartFrame{Label: "Large violin"}})
 	}}
+	var shown *[]int
+	h.built = func(r ChartResult) { shown = ui.Local(r.Element, "mujica.violin.visible", func() []int { return nil }) }
 	tt := ui.NewTester(h.view, 520, 420)
 	tabTo(t, tt, "Large violin")
 	tt.Key(0, ui.KeyRight)
 	if chartReadout(tt) != "Sample · median 49.5 · quartiles 24.75–74.25 · 100000 values" {
 		t.Fatalf("large readout %q", chartReadout(tt))
 	}
-	shown := ui.Local(h.res.Element, "mujica.violin.visible", func() []int { return nil })
 	if len(*shown) != 1 {
 		t.Fatalf("built %d violins", len(*shown))
 	}

@@ -38,7 +38,7 @@ func ArtifactCard(c *ui.Context, opts ArtifactCardOptions) core.ChoiceResult {
 	k := core.Tokens(c)
 	d := core.Density(c)
 	kind := artifactKinds[opts.Kind]
-	var b *ui.Element
+	var b ui.Element
 	ui.Row(c).Shrink(0).Disabled(opts.Disabled).Children(func() {
 		b = ui.ButtonBase(c).MinWidth(260).MaxWidth(420).MinHeight(56).Padding(d.Unit()*2, d.Unit()*3).Gap(d.Unit()*3).
 			Justify(ui.Start).Radius(theme.CardRadius).Background(k.Surface).Border(theme.BorderWidth, k.ControlBorder).

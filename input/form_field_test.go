@@ -13,7 +13,7 @@ func TestFormFieldLabelFocusesControl(t *testing.T) {
 	name := ""
 	tt := ui.NewTester(func(c *ui.Context) {
 		core.Use(c, core.Settings{})
-		FormField(c, "Name", FormFieldOptions{Required: true, Description: "As on your seal."}, func() *ui.Element {
+		FormField(c, "Name", FormFieldOptions{Required: true, Description: "As on your seal."}, func() ui.Element {
 			return InputGroup(c, &name, InputGroupOptions{}).Input
 		})
 	}, 400, 200)
@@ -35,10 +35,10 @@ func TestFormFieldTargetsReturnedControl(t *testing.T) {
 	tt := ui.NewTester(func(c *ui.Context) {
 		core.Use(c, core.Settings{})
 		ui.Column(c).Gap(12).Children(func() {
-			FormField(c, "Flowers", FormFieldOptions{Error: "Too few."}, func() *ui.Element {
+			FormField(c, "Flowers", FormFieldOptions{Error: "Too few."}, func() ui.Element {
 				return TagsInput(c, &tags, TagsInputOptions{}).Input
 			})
-			FormField(c, "Site", FormFieldOptions{}, func() *ui.Element {
+			FormField(c, "Site", FormFieldOptions{}, func() ui.Element {
 				return InputGroup(c, &site, InputGroupOptions{Buttons: []InputGroupButton{{Label: "Back", Leading: true}}}).Input
 			})
 		})
@@ -64,7 +64,7 @@ func TestFormFieldErrorAndLayout(t *testing.T) {
 	horizontal := false
 	tt := ui.NewTester(func(c *ui.Context) {
 		core.Use(c, core.Settings{})
-		FormField(c, "Email", FormFieldOptions{Error: "Enter an email address.", Horizontal: horizontal}, func() *ui.Element {
+		FormField(c, "Email", FormFieldOptions{Error: "Enter an email address.", Horizontal: horizontal}, func() ui.Element {
 			return InputGroup(c, &v, InputGroupOptions{Prefix: "mailto:"}).Input
 		})
 	}, 500, 200)
@@ -93,7 +93,7 @@ func TestFormFieldNeedsLabel(t *testing.T) {
 	}()
 	ui.Render(func(c *ui.Context) {
 		core.Use(c, core.Settings{})
-		FormField(c, "", FormFieldOptions{}, func() *ui.Element { return ui.Box(c) })
+		FormField(c, "", FormFieldOptions{}, func() ui.Element { return ui.Box(c) })
 	}, 100, 100, 1)
 }
 
@@ -101,10 +101,10 @@ func TestFormFieldSnapshot(t *testing.T) {
 	a, b := "Sakiko Togawa", "uika@"
 	snapshot(t, "form_field", 520, 260, func(c *ui.Context) {
 		ui.Column(c).Padding(20).Gap(16).Children(func() {
-			FormField(c, "Name", FormFieldOptions{Required: true, Description: "As written on the invitation."}, func() *ui.Element {
+			FormField(c, "Name", FormFieldOptions{Required: true, Description: "As written on the invitation."}, func() ui.Element {
 				return InputGroup(c, &a, InputGroupOptions{}).Input
 			})
-			FormField(c, "Email", FormFieldOptions{Horizontal: true, Error: "Enter a full email address."}, func() *ui.Element {
+			FormField(c, "Email", FormFieldOptions{Horizontal: true, Error: "Enter a full email address."}, func() ui.Element {
 				return InputGroup(c, &b, InputGroupOptions{Invalid: true}).Input
 			})
 		})

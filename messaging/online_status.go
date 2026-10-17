@@ -43,7 +43,7 @@ type OnlineStatusOptions struct {
 }
 
 // OnlineStatus shows presence as a distinct shape plus its name.
-func OnlineStatus(c *ui.Context, p PresenceStatus, opts OnlineStatusOptions) *ui.Element {
+func OnlineStatus(c *ui.Context, p PresenceStatus, opts OnlineStatusOptions) ui.Element {
 	name := core.Msg(c, p.key())
 	if opts.Size < 0 {
 		panic("mujica: OnlineStatus Size must not be negative")

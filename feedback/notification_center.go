@@ -35,7 +35,7 @@ type NotificationCenterOptions struct {
 
 // NotificationCenterResult reports the frame's events by notification ID.
 type NotificationCenterResult struct {
-	Element *ui.Element
+	Element ui.Element
 	Action  string
 	// Toggled changed its Read state; Opened was clicked and is now read.
 	Toggled string
@@ -127,7 +127,7 @@ func notificationRow(c *ui.Context, k theme.Tokens, u float32, n *Notification, 
 	if !n.Read {
 		name = core.Msg(c, "notification_center.unread_mark") + ": " + n.Title
 	}
-	row := ui.Row(c).Key(n.ID).FillWidth().AlignItems(ui.Start).Gap(u*2).Padding(u*3, u*3, u*3, u*2).
+	row := ui.Row(c.Key(n.ID)).FillWidth().AlignItems(ui.Start).Gap(u*2).Padding(u*3, u*3, u*3, u*2).
 		Role(ui.RoleListItem)
 	if row.Hovered() {
 		row.Background(k.SurfaceHover)
@@ -186,7 +186,7 @@ func notificationRow(c *ui.Context, k theme.Tokens, u float32, n *Notification, 
 	}
 }
 
-func notificationIconButton(c *ui.Context, k theme.Tokens, u float32, icon *ui.SVG, label string) *ui.Element {
+func notificationIconButton(c *ui.Context, k theme.Tokens, u float32, icon *ui.SVG, label string) ui.Element {
 	b := input.Button(c, "", input.ButtonOptions{Variant: input.Ghost, Icon: icon, Label: label})
 	b.TextColor(k.TextMuted).Padding(0, u).Tooltip(label)
 	return b

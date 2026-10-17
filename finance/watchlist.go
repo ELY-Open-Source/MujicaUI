@@ -58,7 +58,7 @@ type WatchlistOptions struct {
 
 // WatchlistView is a built Watchlist and this frame's events.
 type WatchlistView struct {
-	Element            *ui.Element
+	Element            ui.Element
 	Changed, Submitted bool
 	Moved              bool
 	Rows               []int

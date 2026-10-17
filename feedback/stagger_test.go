@@ -19,15 +19,12 @@ func TestStaggerRevealsInTurnOnce(t *testing.T) {
 	if !tt.HasText("Row 0") || tt.HasText("Row 4") {
 		t.Fatalf("first frame: %q", tt.Texts())
 	}
-	time.Sleep(120 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(120 * time.Millisecond)
 	if !tt.HasText("Row 2") || tt.HasText("Row 4") {
 		t.Fatalf("after 120 ms: %q", tt.Texts())
 	}
-	time.Sleep(300 * time.Millisecond)
-	tt.Frame()
-	time.Sleep(250 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(300 * time.Millisecond)
+	tt.Advance(250 * time.Millisecond)
 	if !tt.HasText("Row 4") || motionBusy(tt, n) {
 		t.Fatalf("did not finish and settle: %q", tt.Texts())
 	}

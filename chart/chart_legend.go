@@ -29,7 +29,7 @@ type ChartLegendOptions struct {
 
 // ChartLegendResult exposes the element and legend events.
 type ChartLegendResult struct {
-	Element          *ui.Element
+	Element          ui.Element
 	toggled          string
 	expanded, folded bool
 }
@@ -68,7 +68,7 @@ func ChartLegend(c *ui.Context, hidden *map[string]bool, items []ChartLegendItem
 			shown = items[:opts.MaxItems]
 		}
 		for _, it := range shown {
-			ui.Row(c).Key(it.Name).Children(func() {
+			ui.Row(c.Key(it.Name)).Children(func() {
 				if name, ok := chartLegendEntry(c, hidden, it, res.Element.IsDisabled()); ok {
 					res.toggled = name
 				}
@@ -100,7 +100,7 @@ func chartLegendEntry(c *ui.Context, hidden *map[string]bool, it ChartLegendItem
 	k := core.Tokens(c)
 	u := core.Density(c).Unit()
 	on := hidden == nil || !(*hidden)[it.Name]
-	var e *ui.Element
+	var e ui.Element
 	switched := false
 	if hidden != nil {
 		e = ui.CheckboxBase(c, &on).Disabled(disabled).Label(it.Name)

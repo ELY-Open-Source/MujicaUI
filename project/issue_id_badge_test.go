@@ -54,8 +54,7 @@ func TestIssueIdBadgeCopiedFades(t *testing.T) {
 	if !tt.HasText("Copied") {
 		t.Fatal("no Copied note")
 	}
-	time.Sleep(issueCopiedFor + 50*time.Millisecond)
-	tt.Frame()
+	tt.Advance(issueCopiedFor + 50*time.Millisecond)
 	if tt.HasText("Copied") {
 		t.Fatal("Copied should go away")
 	}

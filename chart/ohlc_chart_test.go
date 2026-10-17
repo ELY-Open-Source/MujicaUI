@@ -14,6 +14,7 @@ func TestOHLCChartSharesDataAndDiffersInLook(t *testing.T) {
 	view := MarketView{Count: 40}
 	ohlc := true
 	var res ChartResult
+	var st *mktState
 	tt := ui.NewTester(func(c *ui.Context) {
 		core.Use(c, core.Settings{})
 		if ohlc {
@@ -21,11 +22,12 @@ func TestOHLCChartSharesDataAndDiffersInLook(t *testing.T) {
 		} else {
 			res = CandlestickChart(c, candles, &view, CandlestickOptions{Frame: ChartFrame{Label: "Bars"}})
 		}
+		st = mktState0(res)
 	}, 600, 320)
 	tt.Key(0, ui.KeyTab)
 	tt.Key(0, ui.KeyEnd)
-	if res.Point != 59 || mktState0(res).drawn != 40 {
-		t.Fatalf("point %d drawn %d", res.Point, mktState0(res).drawn)
+	if res.Point != 59 || st.drawn != 40 {
+		t.Fatalf("point %d drawn %d", res.Point, st.drawn)
 	}
 	a := encode(t, tt.Image())
 	ohlc = false

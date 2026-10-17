@@ -21,7 +21,7 @@ type inlineDiffCache struct {
 }
 
 // InlineDiff shows old and new lines with changed words marked.
-func InlineDiff(c *ui.Context, from, to string, opts InlineDiffOptions) *ui.Element {
+func InlineDiff(c *ui.Context, from, to string, opts InlineDiffOptions) ui.Element {
 	k := core.Tokens(c)
 	col := ui.Column(c).AlignItems(ui.Stretch).Shrink(0).Radius(theme.ControlRadius).Clip()
 	cache := ui.Local(col, "words", func() *inlineDiffCache { return &inlineDiffCache{} })

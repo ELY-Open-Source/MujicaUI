@@ -29,7 +29,7 @@ func TestParallelCoordinatesReadoutAndBrush(t *testing.T) {
 	if got := chartReadout(tt); got != "Bede · Age 65 · Hymns 1 · Vigils no value" {
 		t.Fatalf("readout %q", got)
 	}
-	b := h.res.Element.Bounds()
+	b := h.box(tt)
 	plot := ui.Rect{X: b.X + 36, Y: b.Y + 24, W: b.W - 72, H: 240 - 32}
 	// Age runs 20..80 on the first axis: brush 30..55.
 	y := func(v float32) float32 { return plot.Y + plot.H*(1-(v-20)/60) }
@@ -58,7 +58,7 @@ func TestParallelCoordinatesHoverAndBad(t *testing.T) {
 		return ParallelCoordinates(c, &filters, pcAxes, pcRows, ParallelCoordinatesOptions{Frame: ChartFrame{Label: "Monks"}})
 	}}
 	tt := ui.NewTester(h.view, 520, 420)
-	b := h.res.Element.Bounds()
+	b := h.box(tt)
 	plot := ui.Rect{X: b.X + 36, Y: b.Y + 24, W: b.W - 72, H: 240 - 32}
 	// Row 2 crosses this point between the first axes.
 	tt.Move(plot.X+plot.W/8, plot.Y+plot.H*(1-0.53125))
@@ -121,8 +121,9 @@ func TestParallelCoordinatesLargeDataBounded(t *testing.T) {
 	h := &chartHarness{build: func(c *ui.Context) ChartResult {
 		return ParallelCoordinates(c, &filters, pcAxes, rows, ParallelCoordinatesOptions{Frame: ChartFrame{Label: "Large parallel"}})
 	}}
+	var shown *[]int
+	h.built = func(r ChartResult) { shown = ui.Local(r.Element, "mujica.pc.visible", func() []int { return nil }) }
 	tt := ui.NewTester(h.view, 520, 420)
-	shown := ui.Local(h.res.Element, "mujica.pc.visible", func() []int { return nil })
 	if len(*shown) == 0 || len(*shown) > 480 {
 		t.Fatalf("built %d rows", len(*shown))
 	}

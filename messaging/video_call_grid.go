@@ -31,7 +31,7 @@ type VideoCallGridOptions struct {
 }
 
 // VideoCallGrid displays participant frames and speaker marks.
-func VideoCallGrid(c *ui.Context, people []CallParticipant, opts VideoCallGridOptions) *ui.Element {
+func VideoCallGrid(c *ui.Context, people []CallParticipant, opts VideoCallGridOptions) ui.Element {
 	if opts.Columns < 0 {
 		panic("mujica: VideoCallGrid Columns must not be negative")
 	}
@@ -78,7 +78,7 @@ func callTile(c *ui.Context, k theme.Tokens, p CallParticipant) {
 	if len(notes) > 0 {
 		label += ", " + strings.Join(notes, ", ")
 	}
-	tile := ui.Box(c).Key(p.ID).AspectRatio(16.0 / 9).Radius(theme.CardRadius).Clip().Background(media.VideoBlack).Center().
+	tile := ui.Box(c.Key(p.ID)).AspectRatio(16.0 / 9).Radius(theme.CardRadius).Clip().Background(media.VideoBlack).Center().
 		Focusable().Role(ui.RoleImage).Label(label)
 	internal.Ring(tile, k.Focus, theme.CardRadius)
 	light := ui.Hex("#F2EBDD")

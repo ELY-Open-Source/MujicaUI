@@ -31,7 +31,7 @@ type CountdownOptions struct {
 
 // CountdownResult is the countdown and its finish.
 type CountdownResult struct {
-	Element  *ui.Element
+	Element  ui.Element
 	finished bool
 }
 

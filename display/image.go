@@ -26,7 +26,7 @@ type ImageOptions struct {
 
 // ImageView is a shown Image and this frame's events.
 type ImageView struct {
-	Element *ui.Element
+	Element ui.Element
 	// Retry reports the error state's retry button was pressed.
 	Retry bool
 }
@@ -46,7 +46,7 @@ func Image(c *ui.Context, src ui.ImageSource, opts ImageOptions) ImageView {
 	}
 	loaded := opts.Err == nil && !opts.Loading && src != nil
 	var v ImageView
-	v.Element = imageSized(c, src, opts, func(box, pic *ui.Element) {
+	v.Element = imageSized(c, src, opts, func(box, pic ui.Element) {
 		if loaded {
 			if opts.Alt != "" {
 				pic.Label(opts.Alt)
@@ -60,7 +60,7 @@ func Image(c *ui.Context, src ui.ImageSource, opts ImageOptions) ImageView {
 }
 
 // imageLayers builds the state layers over the hidden picture.
-func imageLayers(c *ui.Context, box *ui.Element, opts ImageOptions) (retry bool) {
+func imageLayers(c *ui.Context, box ui.Element, opts ImageOptions) (retry bool) {
 	k := core.Tokens(c)
 	u := core.Density(c).Unit()
 	room := box.Bounds()
@@ -99,7 +99,7 @@ func imageLayers(c *ui.Context, box *ui.Element, opts ImageOptions) (retry bool)
 }
 
 // imageSized builds the outer box and its picture, sized alike in every state.
-func imageSized(c *ui.Context, src ui.ImageSource, opts ImageOptions, layers func(box, pic *ui.Element)) *ui.Element {
+func imageSized(c *ui.Context, src ui.ImageSource, opts ImageOptions, layers func(box, pic ui.Element)) ui.Element {
 	if src == nil {
 		src = imageBlank
 	}
@@ -123,7 +123,7 @@ func imageSized(c *ui.Context, src ui.ImageSource, opts ImageOptions, layers fun
 }
 
 // imageRetry is the 28 DIP icon-only retry button.
-func imageRetry(c *ui.Context, k theme.Tokens, problem string) *ui.Element {
+func imageRetry(c *ui.Context, k theme.Tokens, problem string) ui.Element {
 	b := ui.ButtonBase(c).Size(theme.MinHitSize, theme.MinHitSize).Shrink(0).Radius(theme.ControlRadius).
 		Label(core.Msg(c, "image.retry")).Description(problem).Tooltip(problem)
 	bg := k.Surface

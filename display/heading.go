@@ -19,7 +19,7 @@ type HeadingOptions struct {
 }
 
 // Heading shows a serif title scaled with desktop text.
-func Heading(c *ui.Context, title string, opts HeadingOptions) *ui.Element {
+func Heading(c *ui.Context, title string, opts HeadingOptions) ui.Element {
 	k := core.Tokens(c)
 	size := headingSize(opts.Level)
 	u := core.Density(c).Unit()

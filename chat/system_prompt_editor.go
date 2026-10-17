@@ -30,7 +30,7 @@ type SystemPromptEditorOptions struct {
 
 // SystemPromptEditorView is a built editor and its requests.
 type SystemPromptEditorView struct {
-	Element *ui.Element
+	Element ui.Element
 	// Save asks to save *value; Restored reports the default returned.
 	Save, Restored bool
 }

@@ -223,7 +223,7 @@ func calendarDay(c *ui.Context, day, cur core.Date, cfg calendarConfig, size flo
 		if focus {
 			cell.Focus()
 		} else if cfg.autoFocus {
-			cell.AutoFocus()
+			core.AutoFocus(c, cell)
 		}
 	}
 	band := cfg.inRange != nil && cfg.inRange(day)

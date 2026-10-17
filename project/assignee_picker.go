@@ -74,7 +74,7 @@ func AssigneePicker(c *ui.Context, ids *[]string, members []ProjectMember, opts 
 		st.shown = nil
 	}
 	before := *ids
-	var trigger *ui.Element
+	var trigger ui.Element
 	row.Children(func() {
 		if len(*ids) > 0 {
 			items := make([]display.AvatarItem, min(3, len(*ids)))
@@ -100,7 +100,7 @@ func AssigneePicker(c *ui.Context, ids *[]string, members []ProjectMember, opts 
 			}
 			input.MultiSelectTags(c, ids, options, input.MultiSelectOptions{MaxTags: 2, Disabled: trigger.IsDisabled(), Placeholder: core.Msg(c, "assignee_picker.placeholder")})
 		})
-		ui.PopoverBase(c, trigger, &st.open, func(panel *ui.Element) {
+		ui.PopoverBase(c, trigger, &st.open, func(panel ui.Element) {
 			input.SelectPanel(c, panel)
 			ww, wh := c.Size()
 			panel.MinWidth(min(ww-8, trigger.Bounds().W)).MaxWidth(max(1, ww-8)).MaxHeight(max(1, wh-8))
@@ -147,7 +147,7 @@ func AssigneePicker(c *ui.Context, ids *[]string, members []ProjectMember, opts 
 				} else if st.count > 0 {
 					mark = internal.Mixed
 				}
-				var all *ui.Element
+				var all ui.Element
 				ui.Row(c).MinHeight(d.ControlHeight()).Children(func() {
 					all = input.MultiSelectCheck(c, k, &on, mark, core.Msg(c, "multi_select.all"), full && st.count == 0)
 				})
@@ -176,7 +176,7 @@ func AssigneePicker(c *ui.Context, ids *[]string, members []ProjectMember, opts 
 					if selected {
 						state = internal.Checked
 					}
-					var cb *ui.Element
+					var cb ui.Element
 					ui.Row(c).MinHeight(d.ControlHeight()).Children(func() { cb = input.MultiSelectCheck(c, k, &selected, state, o.Label, full && !selected) })
 					if st.focus == o.Value && !cb.IsDisabled() {
 						cb.Focus()

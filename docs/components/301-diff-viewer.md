@@ -17,7 +17,7 @@ view := func(c *ui.Context) {
 ui.Render(view, 400, 300, 1)
 ```
 
-签名：`func DiffViewer(c *ui.Context, s *DiffViewerState, from, to string, opts DiffViewerOptions) *ui.Element`
+签名：`func DiffViewer(c *ui.Context, s *DiffViewerState, from, to string, opts DiffViewerOptions) ui.Element`
 
 ## 参数
 

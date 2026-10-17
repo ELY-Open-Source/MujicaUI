@@ -32,7 +32,7 @@ type ResizablePanelGroupOptions struct {
 
 // ResizablePanelGroupResult reports a group's changes: Resized while moving, Committed when a change is done, to save.
 type ResizablePanelGroupResult struct {
-	Element   *ui.Element
+	Element   ui.Element
 	Resized   bool
 	Committed bool
 }
@@ -88,7 +88,7 @@ func ResizablePanelGroup(c *ui.Context, sizes *[]float32, panels []ResizablePane
 	for i, p := range panels {
 		mins[i] = cmp.Or(p.Min, 10*u)
 	}
-	along := func(e *ui.Element, v float32) *ui.Element {
+	along := func(e ui.Element, v float32) ui.Element {
 		if opts.Vertical {
 			return e.Height(v).FillWidth()
 		}
@@ -109,7 +109,7 @@ func ResizablePanelGroup(c *ui.Context, sizes *[]float32, panels []ResizablePane
 			if (*sizes)[i] == 0 {
 				continue
 			}
-			pane := ui.Box(c).Key(i).Shrink(0).Clip().Role(ui.RoleGroup).Label(p.Label)
+			pane := ui.Box(c.Key(i)).Shrink(0).Clip().Role(ui.RoleGroup).Label(p.Label)
 			if avail > 0 {
 				along(pane, (*sizes)[i]*avail)
 			} else {
@@ -128,7 +128,7 @@ func ResizablePanelGroup(c *ui.Context, sizes *[]float32, panels []ResizablePane
 // resizablePanelDivider builds the divider after panel i, stepped with arrows, Enter collapsing; it returns the grip's builder.
 func resizablePanelDivider(c *ui.Context, k theme.Tokens, u float32, st *resizablePanelState, sizes *[]float32, panels []ResizablePanel, mins []float32, avail float32, i int, vertical, disabled bool, res *ResizablePanelGroupResult) func() {
 	s := *sizes
-	div := ui.Box(c).Key(fmt.Sprint("div", i)).Shrink(0).Focusable().FocusRing(false).Role(ui.RoleSplitter).
+	div := ui.Box(c.Key(fmt.Sprint("div", i))).Shrink(0).Focusable().FocusRing(false).Role(ui.RoleSplitter).
 		Label(fmt.Sprintf(core.Msg(c, "resizable_panel_group.divider"), panels[i].Label, panels[i+1].Label))
 	if vertical {
 		div.Height(theme.BorderWidth).FillWidth()
@@ -202,7 +202,7 @@ func resizablePanelDivider(c *ui.Context, k theme.Tokens, u float32, st *resizab
 		div.Description(core.Msg(c, "split_pane.collapsed"))
 	}
 	return func() {
-		grip := ui.Box(c).Key(fmt.Sprint("grip", i)).Absolute().Cursor(ui.CursorResizeEW)
+		grip := ui.Box(c.Key(fmt.Sprint("grip", i))).Absolute().Cursor(ui.CursorResizeEW)
 		if vertical {
 			grip.Cursor(ui.CursorResizeNS)
 		}
@@ -231,7 +231,7 @@ func resizablePanelDivider(c *ui.Context, k theme.Tokens, u float32, st *resizab
 }
 
 // resizablePanelGrip places the grip over divider i and draws the divider.
-func resizablePanelGrip(c *ui.Context, k theme.Tokens, u float32, s []float32, avail float32, i int, vertical bool, grip, div *ui.Element, held bool) {
+func resizablePanelGrip(c *ui.Context, k theme.Tokens, u float32, s []float32, avail float32, i int, vertical bool, grip, div ui.Element, held bool) {
 	// The grip is wider than the 1 DIP line, centered on the boundary.
 	var at float32
 	for _, f := range s[:i+1] {

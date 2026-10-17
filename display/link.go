@@ -21,7 +21,7 @@ type LinkOptions struct {
 }
 
 // Link is underlined text; malformed URLs show an error instead.
-func Link(c *ui.Context, label string, opts LinkOptions) *ui.Element {
+func Link(c *ui.Context, label string, opts LinkOptions) ui.Element {
 	if label == "" {
 		panic("mujica: Link needs a label")
 	}
@@ -40,7 +40,7 @@ func Link(c *ui.Context, label string, opts LinkOptions) *ui.Element {
 			}
 		}
 	}
-	var l *ui.Element
+	var l ui.Element
 	ui.Column(c).Gap(u).AlignItems(ui.Start).Children(func() {
 		ui.Row(c).Gap(u).AlignItems(ui.Center).Children(func() {
 			l = ui.Link(c, label, target).Underline().DecorationThickness(1)

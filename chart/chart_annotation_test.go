@@ -19,7 +19,7 @@ func TestChartAnnotationDrag(t *testing.T) {
 	}
 	h := &chartHarness{build: func(c *ui.Context) ChartResult { return partsChart(c, notes, false) }}
 	tt := ui.NewTester(h.view, 520, 420)
-	b := h.res.Element.Bounds()
+	b := h.box(tt)
 	plot := ChartInset(ui.Rect{X: b.X, Y: b.Y, W: b.W, H: 240}, 52, 26)
 	yAt := func(v float32) float32 { return plot.Y + plot.H*(1-v/100) }
 	xAt := func(v float32) float32 { return plot.X + plot.W*v/10 }
@@ -51,7 +51,7 @@ func TestChartAnnotationDisabledAndBad(t *testing.T) {
 	notes := []ChartNote{{Kind: NoteHLine, Value: 50, Draggable: true}}
 	h := &chartHarness{disabled: true, build: func(c *ui.Context) ChartResult { return partsChart(c, notes, false) }}
 	tt := ui.NewTester(h.view, 520, 420)
-	b := h.res.Element.Bounds()
+	b := h.box(tt)
 	plot := ChartInset(ui.Rect{X: b.X, Y: b.Y, W: b.W, H: 240}, 52, 26)
 	tt.Press(plot.X+100, plot.Y+plot.H/2)
 	tt.Move(plot.X+100, plot.Y+20)

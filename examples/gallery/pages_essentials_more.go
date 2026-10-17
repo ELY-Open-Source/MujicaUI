@@ -44,7 +44,7 @@ func mentionInputDemo(c *ui.Context, log func(string)) {
 				log("mention: submitted")
 			}
 			for _, m := range s.mentions {
-				ui.Text(c, fmt.Sprintf("@%s → %s", m.Name, m.ID)).Key(m.ID)
+				ui.Text(c.Key(m.ID), fmt.Sprintf("@%s → %s", m.Name, m.ID))
 			}
 		})
 	})
@@ -139,7 +139,7 @@ func undoToastDemo(c *ui.Context, log func(string)) {
 			ui.Slider(c, &s.seconds, 2, 10).Width(200)
 		})
 		for i, n := range s.notes {
-			ui.Row(c).Key(n).Gap(12).AlignItems(ui.Center).Children(func() {
+			ui.Row(c.Key(n)).Gap(12).AlignItems(ui.Center).Children(func() {
 				ui.Text(c, n).Grow(1)
 				if input.Button(c, "Delete", input.ButtonOptions{Variant: input.Ghost}).Clicked() {
 					s.removed, s.open = n, true

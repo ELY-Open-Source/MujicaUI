@@ -27,8 +27,7 @@ func TestThinkingIndicatorReducedMotionIsStill(t *testing.T) {
 		tt.SetPreferences(ui.Preferences{ReduceMotion: reduce, TextScale: 1})
 		tt.Frame()
 		if at > 0 {
-			time.Sleep(at)
-			tt.Frame()
+			tt.Advance(at)
 		}
 		return encode(t, tt.Image())
 	}

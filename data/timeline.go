@@ -29,7 +29,7 @@ type TimelineItem struct {
 }
 
 // Timeline lists events top to bottom with markers joined by a line; long text wraps.
-func Timeline(c *ui.Context, items []TimelineItem) *ui.Element {
+func Timeline(c *ui.Context, items []TimelineItem) ui.Element {
 	k := core.Tokens(c)
 	u := core.Density(c).Unit()
 	return ui.Column(c).Role(ui.RoleList).Children(func() {

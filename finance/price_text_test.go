@@ -79,8 +79,7 @@ func TestPriceTextFlashesOnceAndNotUnderReducedMotion(t *testing.T) {
 		if same == !still {
 			t.Fatalf("reduced motion %v: flashed %v", still, !same)
 		}
-		time.Sleep(priceTextFlash + 20*time.Millisecond)
-		tt.Frame()
+		tt.Advance(priceTextFlash + 20*time.Millisecond)
 		if !bytes.Equal(tt.Image().Pix, fresh.Image().Pix) {
 			t.Fatalf("reduced motion %v: flash did not end", still)
 		}

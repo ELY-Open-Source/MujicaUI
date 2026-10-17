@@ -97,7 +97,7 @@ func Carousel(c *ui.Context, index *int, n int, opts CarouselOptions, slide func
 			ui.Column(c).Grow(1).MinWidth(0).FillHeight().Clip().Background(k.Surface).Border(theme.BorderWidth, k.Border).Radius(theme.CardRadius).
 				Role(ui.RoleGroup).Label(fmt.Sprintf(core.Msg(c, "carousel.position"), *index+1, n)).Children(func() {
 				if n > 0 {
-					ui.Column(c).Key(*index).Grow(1).Children(func() { slide(*index) })
+					ui.Column(c.Key(*index)).Grow(1).Children(func() { slide(*index) })
 				}
 			})
 			next := input.Button(c, "", input.ButtonOptions{Variant: input.Ghost, Icon: icons.Must("chevron-right"), Label: core.Msg(c, "carousel.next"), Disabled: n < 2 || !wrap && *index == n-1})
@@ -133,7 +133,7 @@ func Carousel(c *ui.Context, index *int, n int, opts CarouselOptions, slide func
 }
 
 // carouselDot is a position button: a filled diamond for the current slide.
-func carouselDot(c *ui.Context, i, n int, on bool) *ui.Element {
+func carouselDot(c *ui.Context, i, n int, on bool) ui.Element {
 	k := core.Tokens(c)
 	b := ui.ButtonBase(c).Size(theme.MinHitSize, theme.MinHitSize).Radius(theme.ControlRadius).
 		Label(fmt.Sprintf(core.Msg(c, "carousel.position"), i+1, n)).Role(ui.RoleTab).Selected(on)
@@ -154,7 +154,7 @@ func carouselDot(c *ui.Context, i, n int, on bool) *ui.Element {
 }
 
 // carouselPause is the pause button: two bars, or a play triangle while paused.
-func carouselPause(c *ui.Context, paused bool) *ui.Element {
+func carouselPause(c *ui.Context, paused bool) ui.Element {
 	k := core.Tokens(c)
 	label := core.Msg(c, "carousel.pause")
 	if paused {

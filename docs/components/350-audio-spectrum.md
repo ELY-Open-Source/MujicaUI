@@ -17,7 +17,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func AudioSpectrum(c *ui.Context, bands []float32, opts AudioSpectrumOptions) *ui.Element`
+`func AudioSpectrum(c *ui.Context, bands []float32, opts AudioSpectrumOptions) ui.Element`
 
 每个频带取 0 到 1，超出范围 panic。
 

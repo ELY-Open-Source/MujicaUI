@@ -185,7 +185,7 @@ func annotatorPreview(s *annotatorState) []Annotation {
 }
 
 // annotatorPointer draws shapes, selects by click, drags the selection.
-func annotatorPointer(stage *ui.Element, s *annotatorState, notes *[]Annotation, r ui.Rect, size image.Point, scale, ox, oy float32) {
+func annotatorPointer(stage ui.Element, s *annotatorState, notes *[]Annotation, r ui.Rect, size image.Point, scale, ox, oy float32) {
 	_, _, _ = stage.Dragged()
 	px, py, _ := stage.PointerPosition()
 	pt := image.Pt(int(math.Round(float64((px+r.X-ox)/scale))), int(math.Round(float64((py+r.Y-oy)/scale))))
@@ -218,7 +218,7 @@ func annotatorPointer(stage *ui.Element, s *annotatorState, notes *[]Annotation,
 }
 
 // annotatorKeys: [ ] select, arrows move, Delete removes, Escape clears.
-func annotatorKeys(stage *ui.Element, s *annotatorState, notes *[]Annotation, size image.Point) {
+func annotatorKeys(stage ui.Element, s *annotatorState, notes *[]Annotation, size image.Point) {
 	n := len(*notes)
 	step := max(1, size.X/100)
 	move := func(dx, dy int) {

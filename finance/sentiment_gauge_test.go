@@ -40,15 +40,16 @@ func TestSentimentGaugeStatesKeepSize(t *testing.T) {
 	status := data.DataReady
 	empty := false
 	retried := 0
-	var element *ui.Element
+	var bounds ui.Rect
 	tt := chatTester(400, 300, func(c *ui.Context) {
-		element = SentimentGauge(c, 72, SentimentGaugeOptions{Label: "Sentiment", Status: status, Empty: empty, Error: "Caller failed", Retry: func() { retried++ }})
+		bounds = SentimentGauge(c, 72, SentimentGaugeOptions{Label: "Sentiment", Status: status, Empty: empty, Error: "Caller failed", Retry: func() { retried++ }}).Bounds()
 	})
-	height := element.Bounds().H
+	settled := func() float32 { tt.Frame(); return bounds.H } // Bounds reads the previous frame
+	height := settled()
 	status = data.DataLoading
 	tt.Frame()
-	if element.Bounds().H != height {
-		t.Fatalf("loading height %v, ready %v", element.Bounds().H, height)
+	if h := settled(); h != height {
+		t.Fatalf("loading height %v, ready %v", h, height)
 	}
 	status = data.DataFailed
 	tt.Frame()
@@ -59,7 +60,7 @@ func TestSentimentGaugeStatesKeepSize(t *testing.T) {
 	status = data.DataReady
 	empty = true
 	tt.Frame()
-	if !tt.HasText("No data") || element.Bounds().H != height {
-		t.Fatalf("empty height %v, ready %v", element.Bounds().H, height)
+	if h := settled(); !tt.HasText("No data") || h != height {
+		t.Fatalf("empty height %v, ready %v", h, height)
 	}
 }

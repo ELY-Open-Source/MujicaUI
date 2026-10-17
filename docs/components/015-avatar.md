@@ -18,7 +18,7 @@ view := func(c *ui.Context) {
 
 ## 参数
 
-`func Avatar(c *ui.Context, name string, opts AvatarOptions) *ui.Element`
+`func Avatar(c *ui.Context, name string, opts AvatarOptions) ui.Element`
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |

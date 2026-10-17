@@ -25,7 +25,7 @@ ui.Render(view, 400, 200, 1)
 
 ## 事件
 
-返回浮层 `*ui.Element`；读数事件由所属 Chart 提供。
+返回浮层 `ui.Element`；读数事件由所属 Chart 提供。
 
 ## 键盘操作
 

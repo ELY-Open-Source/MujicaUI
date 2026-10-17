@@ -22,7 +22,7 @@ type EventChipOptions struct {
 }
 
 // EventChip is a clickable, truncating event block.
-func EventChip(c *ui.Context, ev CalendarEvent, opts EventChipOptions) *ui.Element {
+func EventChip(c *ui.Context, ev CalendarEvent, opts EventChipOptions) ui.Element {
 	loc := eventLocation("EventChip", opts.Location)
 	k := core.Tokens(c)
 	d := core.Density(c)

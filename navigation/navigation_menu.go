@@ -31,7 +31,7 @@ type NavigationMenuOptions struct {
 }
 
 // NavigationMenu shows links pushing pages on router; the router's path marks the current one.
-func NavigationMenu(c *ui.Context, router *ui.Router, links []NavigationLink, opts NavigationMenuOptions) *ui.Element {
+func NavigationMenu(c *ui.Context, router *ui.Router, links []NavigationLink, opts NavigationMenuOptions) ui.Element {
 	if router == nil {
 		panic("mujica: NavigationMenu needs a router")
 	}
@@ -69,7 +69,7 @@ func NavigationMenu(c *ui.Context, router *ui.Router, links []NavigationLink, op
 	return row
 }
 
-func navigationMenuHistory(c *ui.Context, b *ui.Element, name string) {
+func navigationMenuHistory(c *ui.Context, b ui.Element, name string) {
 	k := core.Tokens(c)
 	d := core.Density(c)
 	b.Label(name).MinHeight(d.ControlHeight()).MinWidth(d.ControlHeight()).Radius(theme.ControlRadius).Background(k.Surface)
@@ -147,7 +147,7 @@ func navigationMenuTop(c *ui.Context, l NavigationLink, path string, push func(s
 	} else if b.Shortcut(0, ui.KeyDown) {
 		*open = true
 	}
-	ui.PopoverBase(c, b, open, func(panel *ui.Element) {
+	ui.PopoverBase(c, b, open, func(panel ui.Element) {
 		core.OverlayStyle(c, panel, core.OverlayEnter(c, panel))
 		// Capped to the room beside the anchor; the links scroll inside.
 		_, wh := c.Size()
@@ -189,13 +189,13 @@ func navigationMenuPanel(c *ui.Context, items []NavigationLink, path string, ope
 	list(items)
 }
 
-func navigationMenuItem(c *ui.Context, l NavigationLink, on, first bool) *ui.Element {
+func navigationMenuItem(c *ui.Context, l NavigationLink, on, first bool) ui.Element {
 	k := core.Tokens(c)
 	u := core.Density(c).Unit()
 	e := ui.ButtonBase(c).Role(ui.RoleLink).Justify(ui.Start).AlignItems(ui.Start).Gap(u*3).
 		Padding(u*2, u*3).Radius(theme.ControlRadius).Label(l.Label).TextColor(k.Text).Cursor(ui.CursorPointer)
 	if first {
-		e.AutoFocus()
+		core.AutoFocus(c, e)
 	}
 	internal.Ring(e, k.Focus, theme.ControlRadius)
 	switch {

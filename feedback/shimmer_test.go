@@ -19,8 +19,7 @@ func TestShimmerOnlyWhileLoading(t *testing.T) {
 		t.Fatalf("loading: %q", tt.Texts())
 	}
 	a := encode(t, tt.Image())
-	time.Sleep(150 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(150 * time.Millisecond)
 	if bytes.Equal(a, encode(t, tt.Image())) || !motionBusy(tt, n) {
 		t.Fatal("shimmer does not sweep")
 	}

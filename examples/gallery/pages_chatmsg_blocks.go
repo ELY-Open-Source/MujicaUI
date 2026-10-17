@@ -82,7 +82,7 @@ var chatmsgBlockPages = []page{
 				inputFlags(c, log, map[string]*bool{"LineNumbers": &s.numbers, "Wrap at first": &s.wrap}, "LineNumbers", "Wrap at first")
 			})
 			inputSection(c, "Live", func() {
-				ui.Column(c).Key(s.lang + fmt.Sprint(s.wrap)).Children(func() {
+				ui.Column(c.Key(s.lang + fmt.Sprint(s.wrap))).Children(func() {
 					if chat.CodeBlock(c, samples[s.lang], chat.CodeBlockOptions{Language: s.lang, LineNumbers: s.numbers, Wrap: s.wrap}).Copied() {
 						log("code copied")
 					}

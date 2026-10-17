@@ -30,7 +30,7 @@ type qrCodeCache struct {
 }
 
 // QRCode draws text as a QR code, encoded offline; too long a text shows an error.
-func QRCode(c *ui.Context, text string, opts QRCodeOptions) *ui.Element {
+func QRCode(c *ui.Context, text string, opts QRCodeOptions) ui.Element {
 	_ = opts.Level.String()
 	if !(opts.Size >= 0) || math.IsInf(float64(opts.Size), 1) {
 		panic("mujica: QRCode Size must be finite and >= 0")

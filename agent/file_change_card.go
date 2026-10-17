@@ -20,7 +20,7 @@ type FileChangeCardOptions struct {
 
 // FileChangeResult reports this frame's events.
 type FileChangeResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Decided reports that *decision changed.
 	Decided bool
 	// OpenDiff asks the caller to show the full diff.

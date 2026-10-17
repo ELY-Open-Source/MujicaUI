@@ -29,7 +29,7 @@ func TestSunburstReadoutAndDrill(t *testing.T) {
 	if err := tt.Click("Abbey"); err != nil || len(path) != 0 {
 		t.Fatalf("breadcrumb back: %v %v", err, path)
 	}
-	b := h.res.Element.Bounds()
+	b := h.box(tt)
 	plotTop := b.Y + b.H - 20 - 8 - 240
 	cx, cy := b.X+b.W/2, plotTop+120
 	tt.Key(0, ui.KeyEscape)

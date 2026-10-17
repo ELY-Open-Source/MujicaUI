@@ -13,9 +13,9 @@ import (
 
 // InputResult is a value input's outer element and its events.
 type InputResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Input is the text field inside, for focus and keys.
-	Input     *ui.Element
+	Input     ui.Element
 	changed   bool
 	submitted bool
 }
@@ -27,7 +27,7 @@ func (r InputResult) Changed() bool { return r.changed }
 func (r InputResult) Submitted() bool { return r.submitted }
 
 // NewInputResult reports a text control built from parts in another component.
-func NewInputResult(e, input *ui.Element, changed, submitted bool) InputResult {
+func NewInputResult(e, input ui.Element, changed, submitted bool) InputResult {
 	return InputResult{e, input, changed, submitted}
 }
 
@@ -55,7 +55,7 @@ func TextInput(c *ui.Context, value *string, opts TextInputOptions) InputResult 
 	}
 	var r InputResult
 	look := &textInputLook{disabled: opts.Disabled, readOnly: opts.ReadOnly, err: opts.Error}
-	r.Element, r.Input = textInputFrame(c, look, func(frame *ui.Element) *ui.Element {
+	r.Element, r.Input = textInputFrame(c, look, func(frame ui.Element) ui.Element {
 		if opts.Leading != nil {
 			opts.Leading()
 		}
@@ -85,7 +85,7 @@ type textInputLook struct {
 }
 
 // textInputFrame builds the bordered field around what build returns as the input.
-func textInputFrame(c *ui.Context, look *textInputLook, build func(frame *ui.Element) *ui.Element, footer func()) (outer, in *ui.Element) {
+func textInputFrame(c *ui.Context, look *textInputLook, build func(frame ui.Element) ui.Element, footer func()) (outer, in ui.Element) {
 	k := core.Tokens(c)
 	d := core.Density(c)
 	outer = ui.Column(c).Gap(d.Unit()).Shrink(0).Disabled(look.disabled)
@@ -147,7 +147,7 @@ func textInputFrame(c *ui.Context, look *textInputLook, build func(frame *ui.Ele
 }
 
 // TextInputEditor builds the MyGo editor; a locked one edits a copy, undone at once.
-func TextInputEditor(c *ui.Context, frame *ui.Element, value *string, locked bool, base func(*ui.Context, *string) *ui.Element) *ui.Element {
+func TextInputEditor(c *ui.Context, frame ui.Element, value *string, locked bool, base func(*ui.Context, *string) ui.Element) ui.Element {
 	if !locked {
 		return base(c, value)
 	}
@@ -159,7 +159,7 @@ func TextInputEditor(c *ui.Context, frame *ui.Element, value *string, locked boo
 }
 
 // textInputClear builds the clear button and reports a clear by click or Escape.
-func textInputClear(c *ui.Context, in *ui.Element) bool {
+func textInputClear(c *ui.Context, in ui.Element) bool {
 	k := core.Tokens(c)
 	b := ui.Box(c).Size(theme.MinHitSize, theme.MinHitSize).Shrink(0).Center().Radius(theme.ControlRadius).
 		Role(ui.RoleButton).Label(core.Msg(c, "text_input.clear")).Cursor(ui.CursorPointer)

@@ -16,7 +16,7 @@ view := func(c *ui.Context) {
 
 ## 参数
 
-`func Heading(c *ui.Context, title string, opts HeadingOptions) *ui.Element`
+`func Heading(c *ui.Context, title string, opts HeadingOptions) ui.Element`
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |

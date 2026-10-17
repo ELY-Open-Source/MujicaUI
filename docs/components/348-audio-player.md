@@ -21,7 +21,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func AudioPlayer(c *ui.Context, st AudioState, opts AudioPlayerOptions) *ui.Element`
+`func AudioPlayer(c *ui.Context, st AudioState, opts AudioPlayerOptions) ui.Element`
 
 `AudioState`：`Title`、`Position`、`Duration`、`Playing`。
 

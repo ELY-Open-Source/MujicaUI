@@ -33,7 +33,7 @@ type SymbolSearchOptions struct {
 
 // SymbolSearchView is a built SymbolSearch and this frame's events.
 type SymbolSearchView struct {
-	Element *ui.Element
+	Element ui.Element
 	Changed bool
 	// Chosen is the symbol picked when Picked is set.
 	Chosen MarketSymbol
@@ -131,7 +131,7 @@ func SymbolSearch(c *ui.Context, s *SymbolSearchState, results []MarketSymbol, o
 func symbolSearchRow(c *ui.Context, sym MarketSymbol, selected bool) bool {
 	k := core.Tokens(c)
 	d := core.Density(c)
-	b := ui.ButtonBase(c).Key(sym.Market+":"+sym.Code).MinHeight(d.ControlHeight()).Padding(0, d.Unit()*2).Gap(d.Unit() * 3).
+	b := ui.ButtonBase(c.Key(sym.Market+":"+sym.Code)).MinHeight(d.ControlHeight()).Padding(0, d.Unit()*2).Gap(d.Unit() * 3).
 		Justify(ui.Start).Radius(theme.ControlRadius).Label(symbolBadgeName(sym)).Role(ui.RoleListItem)
 	internal.Ring(b, k.Focus, theme.ControlRadius)
 

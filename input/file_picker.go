@@ -32,7 +32,7 @@ type FilePickerOptions struct {
 
 // FilePickerParts are the parts of a FilePicker.
 type FilePickerParts struct {
-	Element  *ui.Element
+	Element  ui.Element
 	changed  bool
 	canceled bool
 }
@@ -124,7 +124,7 @@ func FilePicker(c *ui.Context, paths *[]string, opts FilePickerOptions) FilePick
 		default:
 			ui.Column(c).Gap(d.Unit()).Children(func() {
 				for _, p := range *paths {
-					ui.Row(c).Key(p).Gap(d.Unit() * 2).AlignItems(ui.Center).Children(func() {
+					ui.Row(c.Key(p)).Gap(d.Unit() * 2).AlignItems(ui.Center).Children(func() {
 						ui.Icon(c, icon).Size(14, 14).TextColor(k.TextMuted)
 						ui.Text(c, filepath.Base(p)).SingleLine()
 						ui.Text(c, filepath.Dir(p)).TextColor(k.TextMuted).FontSize(core.FontSize(c, theme.CaptionSize)).SingleLine().Ellipsis("…").MinWidth(0).Shrink(1)

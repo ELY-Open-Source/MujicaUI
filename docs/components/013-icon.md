@@ -18,7 +18,7 @@ view := func(c *ui.Context) {
 
 ## 参数
 
-`func Icon(c *ui.Context, name string, opts IconOptions) *ui.Element`
+`func Icon(c *ui.Context, name string, opts IconOptions) ui.Element`
 
 `name` 必填，空字符串 panic。可用名称见 `icons.Names()`。
 

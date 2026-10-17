@@ -39,7 +39,7 @@ type storageUsageState struct {
 }
 
 // StorageUsage displays segmented capacity with keyboard readouts and details.
-func StorageUsage(c *ui.Context, segments []StorageSegment, opts StorageUsageOptions) *ui.Element {
+func StorageUsage(c *ui.Context, segments []StorageSegment, opts StorageUsageOptions) ui.Element {
 	if opts.Capacity <= 0 {
 		panic("mujica: StorageUsage needs a positive Capacity")
 	}

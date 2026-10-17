@@ -28,8 +28,8 @@ type hoverCardState struct {
 }
 
 // HoverCard previews content by a hovered or focused anchor; nil while hidden.
-func HoverCard(c *ui.Context, anchor *ui.Element, opts HoverCardOptions, content func()) *ui.Element {
-	if anchor == nil {
+func HoverCard(c *ui.Context, anchor ui.Element, opts HoverCardOptions, content func()) ui.Element {
+	if !anchor.Valid() {
 		panic("mujica: HoverCard needs an anchor")
 	}
 	if opts.OpenDelay < 0 || opts.CloseDelay < 0 {
@@ -56,7 +56,7 @@ func HoverCard(c *ui.Context, anchor *ui.Element, opts HoverCardOptions, content
 		st.dismissed = false
 	}
 	if st.dismissed {
-		return nil
+		return ui.Element{}
 	}
 	now := c.Now()
 	if hot {
@@ -67,7 +67,7 @@ func HoverCard(c *ui.Context, anchor *ui.Element, opts HoverCardOptions, content
 			}
 			if wait := openDelay - now.Sub(st.enterAt); wait > 0 {
 				c.After(wait)
-				return nil
+				return ui.Element{}
 			}
 			slog.Debug("mujica: hover_card open", "keyboard", keyboard)
 			st.open = true
@@ -75,7 +75,7 @@ func HoverCard(c *ui.Context, anchor *ui.Element, opts HoverCardOptions, content
 	} else {
 		st.enterAt = time.Time{}
 		if !st.open {
-			return nil
+			return ui.Element{}
 		}
 		if st.leaveAt.IsZero() {
 			st.leaveAt = now
@@ -85,7 +85,7 @@ func HoverCard(c *ui.Context, anchor *ui.Element, opts HoverCardOptions, content
 		} else {
 			slog.Debug("mujica: hover_card close")
 			st.open, st.focusIn, st.leaveAt = false, false, time.Time{}
-			return nil
+			return ui.Element{}
 		}
 	}
 	width := opts.Width
@@ -95,7 +95,7 @@ func HoverCard(c *ui.Context, anchor *ui.Element, opts HoverCardOptions, content
 	core.OverlayLayer(c, st)
 	// A popover keeps the card in the anchor's focus order and modal scope, even inside a Dialog.
 	shown := true
-	panel := ui.PopoverBase(c, anchor, &shown, func(panel *ui.Element) {
+	panel := ui.PopoverBase(c, anchor, &shown, func(panel ui.Element) {
 		core.OverlayStyle(c, panel, OverlayAnchored(c, panel, b))
 		panel.Margin(6, 0, 0, 0).Width(PopoverWide(c, width)).Padding(core.Density(c).Unit() * 4).Gap(core.Density(c).Unit() * 2).
 			Label(opts.Label).MaxHeight(PopoverRoom(c, b))

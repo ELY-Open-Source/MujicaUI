@@ -46,7 +46,7 @@ func TestUserMenuSnapshot(t *testing.T) {
 		ui.Row(c).Padding(20).Gap(16).Children(func() {
 			for s := UserStatusOnline; s <= UserStatusInvisible; s++ {
 				st := s
-				ui.Box(c).Key(int(s)).Children(func() { UserMenu(c, &st, UserMenuOptions{Name: "Sakiko Togawa"}) })
+				ui.Box(c.Key(int(s))).Children(func() { UserMenu(c, &st, UserMenuOptions{Name: "Sakiko Togawa"}) })
 			}
 		})
 	})

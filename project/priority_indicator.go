@@ -23,7 +23,7 @@ func PriorityName(c *ui.Context, p Priority) string {
 }
 
 // PriorityIndicator displays urgency with shapes and localized text.
-func PriorityIndicator(c *ui.Context, p Priority, opts PriorityIndicatorOptions) *ui.Element {
+func PriorityIndicator(c *ui.Context, p Priority, opts PriorityIndicatorOptions) ui.Element {
 	name := PriorityName(c, p)
 	k := core.Tokens(c)
 	d := core.Density(c)

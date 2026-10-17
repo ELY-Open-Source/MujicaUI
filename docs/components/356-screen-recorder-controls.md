@@ -22,7 +22,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func ScreenRecorderControls(c *ui.Context, st RecorderState, opts ScreenRecorderControlsOptions) *ui.Element`
+`func ScreenRecorderControls(c *ui.Context, st RecorderState, opts ScreenRecorderControlsOptions) ui.Element`
 
 `RecorderState`：`Status`（`RecorderIdle`、`RecorderRecording`、`RecorderPaused`）、`Elapsed`。
 

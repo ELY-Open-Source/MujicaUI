@@ -21,7 +21,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func MediaControls(c *ui.Context, st MediaControlsState, opts MediaControlsOptions) *ui.Element`
+`func MediaControls(c *ui.Context, st MediaControlsState, opts MediaControlsOptions) ui.Element`
 
 `MediaControlsState`：`Playing`、`Loop`（`LoopOff`、`LoopAll`、`LoopOne`）、`Shuffle`、`NoPrevious`、`NoNext`。
 

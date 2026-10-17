@@ -81,7 +81,7 @@ func LabelManager(c *ui.Context, labels *[]TaskLabel, selected *[]string, opts L
 		removed := -1
 		ui.List(c, state, len(*labels), func(i int) {
 			l := &(*labels)[i]
-			ui.Row(c).Key(l.ID).MinHeight(d.ControlHeight()).Gap(d.Unit() * 2).AlignItems(ui.Center).Children(func() {
+			ui.Row(c.Key(l.ID)).MinHeight(d.ControlHeight()).Gap(d.Unit() * 2).AlignItems(ui.Center).Children(func() {
 				on := cache.selected[l.ID]
 				box := ui.CheckboxBase(c, &on).Size(theme.MinHitSize, theme.MinHitSize).Center().Label(l.Name)
 				internal.Ring(box, k.Focus, theme.ControlRadius)
@@ -146,7 +146,7 @@ func labelEditRow(c *ui.Context, s *labelManagerState, l *TaskLabel, taken func(
 	d := core.Density(c)
 	ui.Column(c).Grow(1).Gap(d.Unit()).Children(func() {
 		in := input.TextInput(c, &s.name, input.TextInputOptions{Label: core.Msg(c, "label_manager.name"), Error: s.problem})
-		in.Input.AutoFocus()
+		core.AutoFocus(c, in.Input)
 		ui.Row(c).Gap(d.Unit()).Role(ui.RoleRadioGroup).Label(core.Msg(c, "label_manager.color")).Children(func() {
 			for i := range 6 {
 				col := datetime.EventColor(i)

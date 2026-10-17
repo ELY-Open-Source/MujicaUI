@@ -13,7 +13,7 @@ import (
 
 // ScrollToBottomButton shows while away is true, with the unread count; click it to return to the end.
 // While hidden it returns an empty element whose Clicked is false.
-func ScrollToBottomButton(c *ui.Context, away bool, unread int) *ui.Element {
+func ScrollToBottomButton(c *ui.Context, away bool, unread int) ui.Element {
 	if unread < 0 {
 		panic("mujica: ScrollToBottomButton unread must not be negative")
 	}
@@ -27,7 +27,7 @@ func ScrollToBottomButton(c *ui.Context, away bool, unread int) *ui.Element {
 		label = fmt.Sprintf(core.Msg(c, "scroll_to_bottom_button.unread"), unread)
 	}
 	wrap := ui.Row(c).Absolute().Left(0).Right(0).Bottom(u * 3).Justify(ui.Center).PassThrough()
-	var b *ui.Element
+	var b ui.Element
 	wrap.Children(func() {
 		b = ui.ButtonBase(c).MinHeight(theme.MinHitSize).MinWidth(theme.MinHitSize).Padding(0, u*3).Gap(u*2).
 			Radius(theme.MinHitSize/2).Label(label).Background(k.Surface).Border(theme.BorderWidth, k.ControlBorder).

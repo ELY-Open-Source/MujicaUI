@@ -19,7 +19,7 @@ type CandleCountdownOptions struct {
 }
 
 // CandleCountdown displays closing time and schedules visible updates.
-func CandleCountdown(c *ui.Context, interval Interval, opts CandleCountdownOptions) *ui.Element {
+func CandleCountdown(c *ui.Context, interval Interval, opts CandleCountdownOptions) ui.Element {
 	loc := opts.Location
 	if loc == nil {
 		loc = time.UTC

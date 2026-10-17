@@ -29,7 +29,7 @@ type AudioSpectrumOptions struct {
 type spectrumKey struct{}
 
 // AudioSpectrum draws caller bands as bars; it never animates itself.
-func AudioSpectrum(c *ui.Context, bands []float32, opts AudioSpectrumOptions) *ui.Element {
+func AudioSpectrum(c *ui.Context, bands []float32, opts AudioSpectrumOptions) ui.Element {
 	for _, b := range bands {
 		if b < 0 || b > 1 || math.IsNaN(float64(b)) {
 			panic("mujica: AudioSpectrum band outside 0..1")
@@ -99,7 +99,7 @@ func spectrumReadout(name string, v float32) string {
 }
 
 // chartCursor moves *cur by arrows, Home and End.
-func chartCursor(e *ui.Element, cur *int, n int) (moved, ok bool) {
+func chartCursor(e ui.Element, cur *int, n int) (moved, ok bool) {
 	if e.IsDisabled() || n == 0 {
 		return false, false
 	}
@@ -120,7 +120,7 @@ func chartCursor(e *ui.Element, cur *int, n int) (moved, ok bool) {
 }
 
 // mediaChartState fills e with a loading, error or empty state.
-func mediaChartState(c *ui.Context, e *ui.Element, status data.DataStatus, errText string, empty bool, emptyKey string) bool {
+func mediaChartState(c *ui.Context, e ui.Element, status data.DataStatus, errText string, empty bool, emptyKey string) bool {
 	k := core.Tokens(c)
 	switch {
 	case status == data.DataLoading:

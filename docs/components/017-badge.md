@@ -19,7 +19,7 @@ view := func(c *ui.Context) {
 
 ## 参数
 
-`func Badge(c *ui.Context, opts BadgeOptions, content func()) *ui.Element`
+`func Badge(c *ui.Context, opts BadgeOptions, content func()) ui.Element`
 
 `Position` 为 `BadgeInline` 时 `content` 必须为 `nil`；为角落位置时 `content` 必须不为 `nil`。否则 panic。
 

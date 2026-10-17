@@ -47,7 +47,7 @@ func TestSankeyChartReadout(t *testing.T) {
 		t.Fatalf("link %q", got)
 	}
 	tt.Key(0, ui.KeyEscape)
-	b := h.res.Element.Bounds()
+	b := h.box(tt)
 	tt.Move(b.X+8+4, b.Y+10) // the first node, at the top left
 	if got := chartReadout(tt); got != "Tithes · in 0 · out 60" {
 		t.Fatalf("hover %q", got)

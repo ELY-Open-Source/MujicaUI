@@ -33,7 +33,7 @@ func (a *popoverApp) view(c *ui.Context) {
 				a.applied++
 				a.open = false
 			}
-		}); p != nil {
+		}); p.Valid() {
 			a.panel = p.Bounds()
 		}
 	})
@@ -90,7 +90,7 @@ func TestPopoverFitsWindow(t *testing.T) {
 			if p := Popover(c, b, &open, PopoverOptions{Width: 1000}, func() {
 				ui.Text(c, strings.Repeat("Long row of guests. ", 200))
 				input.Button(c, "Bottom", input.ButtonOptions{})
-			}); p != nil {
+			}); p.Valid() {
 				panel = p.Bounds()
 			}
 		})
@@ -110,7 +110,7 @@ func TestPopoverNeedsAnchor(t *testing.T) {
 	open := true
 	ui.NewTester(func(c *ui.Context) {
 		core.Use(c, core.Settings{})
-		Popover(c, nil, &open, PopoverOptions{}, nil)
+		Popover(c, ui.Element{}, &open, PopoverOptions{}, nil)
 	}, 200, 200)
 }
 

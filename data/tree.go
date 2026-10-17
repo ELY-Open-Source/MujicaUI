@@ -162,7 +162,7 @@ func (t *treeCore[K]) itemStatus(c *ui.Context, item K, status func(K) DataStatu
 
 // TreeView is a built Tree and what happened to it in this frame.
 type TreeView struct {
-	Element                   *ui.Element
+	Element                   ui.Element
 	changed, submitted, retry bool
 }
 

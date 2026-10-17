@@ -34,7 +34,7 @@ type PresenceAvatarsOptions struct {
 
 // PresenceAvatarsResult is the avatars and the follow request this frame.
 type PresenceAvatarsResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Follow identifies a collaborator; Unfollow requests stopping.
 	Follow   string
 	Unfollow bool
@@ -94,7 +94,7 @@ func PresenceAvatars(c *ui.Context, people []Collaborator, opts PresenceAvatarsO
 				rows.Key = func(i int) any { return people[limit+i].ID }
 				ui.List(c, rows, extra, func(i int) {
 					p := people[limit+i]
-					ui.Row(c).Key(p.ID).Gap(u * 2).AlignItems(ui.Center).Children(func() {
+					ui.Row(c.Key(p.ID)).Gap(u * 2).AlignItems(ui.Center).Children(func() {
 						if presenceAvatar(c, p, 24, p.ID == opts.Following).Clicked() {
 							pick(p)
 						}
@@ -108,7 +108,7 @@ func PresenceAvatars(c *ui.Context, people []Collaborator, opts PresenceAvatarsO
 }
 
 // presenceAvatar builds a collaborator button with presence status.
-func presenceAvatar(c *ui.Context, p Collaborator, size float32, following bool) *ui.Element {
+func presenceAvatar(c *ui.Context, p Collaborator, size float32, following bool) ui.Element {
 	if p.ID == "" {
 		panic("mujica: Collaborator needs an ID")
 	}
@@ -117,7 +117,7 @@ func presenceAvatar(c *ui.Context, p Collaborator, size float32, following bool)
 	if following {
 		key = "presence_avatars.unfollow"
 	}
-	b := ui.ButtonBase(c).Key(p.ID).Size(max(size+4, theme.MinHitSize), max(size+4, theme.MinHitSize)).Radius((size + 4) / 2).Label(fmt.Sprintf(core.Msg(c, key), p.Name)).Tooltip(p.Name)
+	b := ui.ButtonBase(c.Key(p.ID)).Size(max(size+4, theme.MinHitSize), max(size+4, theme.MinHitSize)).Radius((size + 4) / 2).Label(fmt.Sprintf(core.Msg(c, key), p.Name)).Tooltip(p.Name)
 	if p.Away {
 		b.Description(core.Msg(c, "presence_avatars.away"))
 	}
@@ -134,7 +134,7 @@ func presenceAvatar(c *ui.Context, p Collaborator, size float32, following bool)
 }
 
 // presenceStyle styles hover, focus and following rings.
-func presenceStyle(c *ui.Context, b *ui.Element, size float32, following bool) {
+func presenceStyle(c *ui.Context, b ui.Element, size float32, following bool) {
 	k := core.Tokens(c)
 	b.Shrink(0).Background(k.Surface).FocusRing(false)
 	if b.Hovered() {

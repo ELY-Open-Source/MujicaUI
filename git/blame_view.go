@@ -40,7 +40,7 @@ type BlameViewOptions struct {
 }
 
 // BlameView shows code with its commits; give it a height.
-func BlameView(c *ui.Context, s *BlameViewState, lines []BlameLine, opts BlameViewOptions) *ui.Element {
+func BlameView(c *ui.Context, s *BlameViewState, lines []BlameLine, opts BlameViewOptions) ui.Element {
 	var first *BlameLine
 	if len(lines) > 0 {
 		first = &lines[0]

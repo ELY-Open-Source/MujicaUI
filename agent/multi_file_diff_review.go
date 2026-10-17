@@ -79,7 +79,7 @@ func MultiFileDiffReview(c *ui.Context, decisions *[]FileDecision, files []FileC
 					slog.Debug("mujica: multi_file_diff_review select", "path", files[i].Path)
 				}
 			}
-			var list *ui.Element
+			var list ui.Element
 			if len(files) > agentVirtualRows {
 				list = ui.List(c, nil, len(files), row)
 			} else {
@@ -109,7 +109,7 @@ func MultiFileDiffReview(c *ui.Context, decisions *[]FileDecision, files []FileC
 func multiFileRow(c *ui.Context, f FileChange, d FileDecision, selected bool) bool {
 	k := core.Tokens(c)
 	u := core.Density(c).Unit()
-	row := ui.ButtonBase(c).Key(f.Path).Justify(ui.Start).Gap(u*2).MinHeight(core.Density(c).ControlHeight()).
+	row := ui.ButtonBase(c.Key(f.Path)).Justify(ui.Start).Gap(u*2).MinHeight(core.Density(c).ControlHeight()).
 		Padding(0, u*2).Radius(theme.ControlRadius).Label(f.Path)
 	internal.Ring(row, k.Focus, theme.ControlRadius)
 	dc := agentDiffOf(row, f)
@@ -133,7 +133,7 @@ func multiFileRow(c *ui.Context, f FileChange, d FileDecision, selected bool) bo
 func fileChangeDecide(c *ui.Context, d *FileDecision, f FileChange, locked bool) bool {
 	u := core.Density(c).Unit()
 	changed := false
-	holder := ui.Column(c).Key(f.Path).Grow(1).Shrink(1).Gap(u * 2)
+	holder := ui.Column(c.Key(f.Path)).Grow(1).Shrink(1).Gap(u * 2)
 	dc := agentDiffOf(holder, f)
 	holder.Children(func() {
 		ui.Row(c).Gap(u * 2).AlignItems(ui.Center).Children(func() {

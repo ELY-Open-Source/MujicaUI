@@ -37,7 +37,7 @@ func ImageCompare(c *ui.Context, before, after ui.ImageSource, split *float64, o
 	}
 	g, _ := input.SliderSetup(0, 1, 0.01, nil, false, c)
 	old := *split
-	var s *ui.Element
+	var s ui.Element
 	var next float64
 	ui.Box(c).Disabled(opts.Disabled).Children(func() {
 		s, next, _ = input.SliderControl(c, old, g, 0, 1)

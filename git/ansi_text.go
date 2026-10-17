@@ -17,7 +17,7 @@ type AnsiTextOptions struct {
 }
 
 // AnsiText renders terminal output with its SGR styles.
-func AnsiText(c *ui.Context, text string, opts AnsiTextOptions) *ui.Element {
+func AnsiText(c *ui.Context, text string, opts AnsiTextOptions) ui.Element {
 	k := core.Tokens(c)
 	col := ui.Column(c).Font(theme.MonoFont).TextColor(k.Text).Shrink(0)
 	col.Children(func() {

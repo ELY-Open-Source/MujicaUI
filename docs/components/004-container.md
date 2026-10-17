@@ -12,7 +12,7 @@ layout.Container(c, layout.ContainerOptions{MaxWidth: 320, Center: true}, func()
 })
 ```
 
-签名：`func Container(c *ui.Context, opts ContainerOptions, children func()) *ui.Element`
+签名：`func Container(c *ui.Context, opts ContainerOptions, children func()) ui.Element`
 
 ## 参数
 

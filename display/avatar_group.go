@@ -29,7 +29,7 @@ type avatarGroupKey struct{}
 
 // AvatarGroupView is a shown AvatarGroup and its full list's state.
 type AvatarGroupView struct {
-	Element *ui.Element
+	Element ui.Element
 	// Open reports whether the full list shows.
 	Open bool
 	// Toggled reports the full list opened or closed this frame.
@@ -60,7 +60,7 @@ func AvatarGroup(c *ui.Context, items []AvatarItem, opts AvatarGroupOptions) Ava
 	was := *open
 	row.Children(func() {
 		for i, it := range items[:shown] {
-			cell := ui.Box(c).Key(i).Padding(ring).Radius(size/2 + ring).Background(k.Background).Shrink(0)
+			cell := ui.Box(c.Key(i)).Padding(ring).Radius(size/2 + ring).Background(k.Background).Shrink(0)
 			if i > 0 {
 				cell.Margin(0, 0, 0, -size/4)
 			}
@@ -72,7 +72,7 @@ func AvatarGroup(c *ui.Context, items []AvatarItem, opts AvatarGroupOptions) Ava
 			return
 		}
 		more := avatarGroupMore(c, k, open, size, ring, rest, len(items))
-		ui.PopoverBase(c, more, open, func(panel *ui.Element) {
+		ui.PopoverBase(c, more, open, func(panel ui.Element) {
 			avatarGroupList(c, k, panel, items)
 		})
 	})
@@ -84,10 +84,10 @@ func AvatarGroup(c *ui.Context, items []AvatarItem, opts AvatarGroupOptions) Ava
 }
 
 // avatarGroupMore is the "+N" disclosure toggling *open.
-func avatarGroupMore(c *ui.Context, k theme.Tokens, open *bool, size, ring float32, rest, total int) *ui.Element {
+func avatarGroupMore(c *ui.Context, k theme.Tokens, open *bool, size, ring float32, rest, total int) ui.Element {
 	hit := max(size+2*ring, theme.MinHitSize)
-	var b *ui.Element
-	ui.Box(c).Key("more").Margin(0, 0, 0, -size/4).Shrink(0).Children(func() {
+	var b ui.Element
+	ui.Box(c.Key("more")).Margin(0, 0, 0, -size/4).Shrink(0).Children(func() {
 		b = ui.CollapsibleBase(c, open).Trigger.Size(hit, hit).Center().Radius(hit / 2).
 			Label(fmt.Sprintf(core.Msg(c, "avatar_group.more"), total))
 		internal.Ring(b, k.Focus, hit/2)
@@ -111,7 +111,7 @@ func avatarGroupMore(c *ui.Context, k theme.Tokens, open *bool, size, ring float
 	return b
 }
 
-func avatarGroupList(c *ui.Context, k theme.Tokens, panel *ui.Element, items []AvatarItem) {
+func avatarGroupList(c *ui.Context, k theme.Tokens, panel ui.Element, items []AvatarItem) {
 	u := core.Density(c).Unit()
 	panel.Margin(u, 0, 0, 0).Padding(u*2).Radius(theme.PopupRadius).Background(k.Surface).
 		Border(theme.BorderWidth, k.Border).MinWidth(200)
@@ -121,7 +121,7 @@ func avatarGroupList(c *ui.Context, k theme.Tokens, panel *ui.Element, items []A
 	ui.Scroll(c).MaxHeight(240).Children(func() {
 		ui.Column(c).Gap(u * 2).Role(ui.RoleList).Children(func() {
 			for i, it := range items {
-				ui.Row(c).Key(i).Gap(u * 2).AlignItems(ui.Center).Role(ui.RoleListItem).Children(func() {
+				ui.Row(c.Key(i)).Gap(u * 2).AlignItems(ui.Center).Role(ui.RoleListItem).Children(func() {
 					Avatar(c, it.Name, AvatarOptions{Image: it.Image, Size: 24})
 					ui.Text(c, it.Name).SingleLine()
 				})

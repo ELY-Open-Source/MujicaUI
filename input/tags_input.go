@@ -34,9 +34,9 @@ type TagsInputOptions struct {
 
 // TagsInputParts are the parts of a TagsInput.
 type TagsInputParts struct {
-	Element *ui.Element
+	Element ui.Element
 	// Input takes the focus.
-	Input   *ui.Element
+	Input   ui.Element
 	changed bool
 }
 
@@ -44,7 +44,7 @@ type TagsInputParts struct {
 func (p TagsInputParts) Changed() bool { return p.changed }
 
 // NewTagsInputParts reports a tag field built from parts in another component.
-func NewTagsInputParts(e, input *ui.Element, changed bool) TagsInputParts {
+func NewTagsInputParts(e, input ui.Element, changed bool) TagsInputParts {
 	return TagsInputParts{e, input, changed}
 }
 
@@ -109,13 +109,13 @@ func TagsInput(c *ui.Context, tags *[]string, opts TagsInputOptions) TagsInputPa
 			remove(len(*tags) - 1)
 		}
 	}
-	var box *ui.Element
+	var box ui.Element
 	outer.Children(func() {
 		box = ui.Row(c).Wrap().AlignItems(ui.Center).Gap(d.Unit()*1.5).MinHeight(d.ControlHeight()).
 			Padding(d.Unit(), d.Unit()*2).Radius(theme.ControlRadius).Background(k.Surface).Disabled(opts.Disabled)
 		box.Children(func() {
 			for i, tag := range *tags {
-				chip := ui.Row(c).Key(tag).AlignItems(ui.Center).Padding(0, 0, 0, d.Unit()*2).Radius(theme.ControlRadius).Background(k.Selection).Shrink(0)
+				chip := ui.Row(c.Key(tag)).AlignItems(ui.Center).Padding(0, 0, 0, d.Unit()*2).Radius(theme.ControlRadius).Background(k.Selection).Shrink(0)
 				chip.Children(func() {
 					ui.Text(c, tag).SingleLine()
 					x := ui.ButtonBase(c).Size(theme.MinHitSize, theme.MinHitSize).Radius(theme.ControlRadius).TextColor(k.TextMuted).
@@ -131,7 +131,7 @@ func TagsInput(c *ui.Context, tags *[]string, opts TagsInputOptions) TagsInputPa
 				})
 			}
 			// The input keeps its identity whatever chips come before it.
-			holder := ui.Box(c).Key("input").Grow(1).MinWidth(d.Unit() * 24)
+			holder := ui.Box(c.Key("input")).Grow(1).MinWidth(d.Unit() * 24)
 			holder.Children(func() {
 				in := inputGroupEditor(c, holder, st.q, disabled).FocusRing(false).FillWidth().Placeholder(opts.Placeholder)
 				parts.Input = in
@@ -177,7 +177,7 @@ func TagsInput(c *ui.Context, tags *[]string, opts TagsInputOptions) TagsInputPa
 }
 
 // tagsInputCommit adds the text before each separator, and all of it on Enter.
-func tagsInputCommit(st *tagsInputState, in *ui.Element, seps string, add func(string) bool) {
+func tagsInputCommit(st *tagsInputState, in ui.Element, seps string, add func(string) bool) {
 	if in.Changed() {
 		st.err = ""
 	}

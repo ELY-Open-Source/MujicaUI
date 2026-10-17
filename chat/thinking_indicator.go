@@ -17,7 +17,7 @@ type ThinkingIndicatorOptions struct {
 }
 
 // ThinkingIndicator shows rising diamonds and a phase, still when reduced.
-func ThinkingIndicator(c *ui.Context, opts ThinkingIndicatorOptions) *ui.Element {
+func ThinkingIndicator(c *ui.Context, opts ThinkingIndicatorOptions) ui.Element {
 	k := core.Tokens(c)
 	d := core.Density(c)
 	phase := opts.Phase

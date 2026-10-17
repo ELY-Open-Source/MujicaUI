@@ -35,7 +35,7 @@ type MailComposerOptions struct {
 
 // MailComposerResult is the composer's element and this frame's events.
 type MailComposerResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Sent requests sending; Discarded requests discarding the draft.
 	Sent, Discarded bool
 }
@@ -178,7 +178,7 @@ func composerAttachments(c *ui.Context, k theme.Tokens, d *MailDraft, disabled b
 	ui.Row(c).Gap(core.Density(c).Unit() * 2).Wrap().Children(func() {
 		for i, a := range d.Attachments {
 			var v display.TagView
-			ui.Box(c).Key(fmt.Sprint(i, a.Name)).Children(func() {
+			ui.Box(c.Key(fmt.Sprint(i, a.Name))).Children(func() {
 				v = display.Tag(c, a.Name, display.TagOptions{Icon: "file", Closable: true, Disabled: disabled})
 			})
 			if v.Closed {

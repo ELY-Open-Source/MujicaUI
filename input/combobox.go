@@ -54,16 +54,10 @@ func Combobox(c *ui.Context, value *string, options []string, opts ComboboxOptio
 	// MyGo keeps the caret on replaced text (ui/editor.go:117): a choice builds a fresh input.
 	gen := ui.Local(f, comboboxKey{"input"}, func() int { return 0 })
 	refocus := ui.Local(f, comboboxKey{"refocus"}, func() bool { return false })
-	var p *ui.ComboboxParts
+	var p ui.ComboboxParts
 	f.Children(func() {
-		// A focused ComboboxBase takes typing under a disabled wrapper, so it edits a copy.
-		target := query
-		if opts.Disabled {
-			cp := *query
-			target = &cp
-		}
-		ui.Row(c).Key(*gen).Grow(1).Children(func() {
-			p = ui.ComboboxBase(c, target)
+		ui.Row(c.Key(*gen)).Grow(1).Children(func() {
+			p = ui.ComboboxBase(c, query)
 		})
 		if *refocus {
 			p.Input.Focus()
@@ -113,7 +107,7 @@ func Combobox(c *ui.Context, value *string, options []string, opts ComboboxOptio
 	if !p.Open() {
 		*lastHi = -1
 	}
-	p.Popup(func(panel *ui.Element) {
+	p.Popup(func(panel ui.Element) {
 		SelectPanel(c, panel)
 		ui.Scroll(c).MaxHeight(240).Children(func() {
 			if custom != "" {

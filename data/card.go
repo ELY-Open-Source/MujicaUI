@@ -22,7 +22,7 @@ type CardOptions struct {
 const cardInset float32 = 4
 
 // Card groups content on a surface with an outline. It adds no click behavior.
-func Card(c *ui.Context, opts CardOptions, body func()) *ui.Element {
+func Card(c *ui.Context, opts CardOptions, body func()) ui.Element {
 	k := core.Tokens(c)
 	u := core.Density(c).Unit()
 	pad := u * 4

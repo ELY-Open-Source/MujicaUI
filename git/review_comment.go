@@ -39,7 +39,7 @@ type ReviewCommentOptions struct {
 
 // ReviewCommentResult is a built ReviewComment and its events.
 type ReviewCommentResult struct {
-	Element            *ui.Element
+	Element            ui.Element
 	reply              string
 	resolved, reopened bool
 }

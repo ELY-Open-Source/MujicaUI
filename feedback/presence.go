@@ -45,7 +45,7 @@ func presenceMotion(kind PresenceKind) *ui.Motion {
 type presenceState struct{ shown bool }
 
 // Presence builds content while show, entering and exiting with motion.
-func Presence(c *ui.Context, show bool, opts PresenceOptions, content func()) *ui.Element {
+func Presence(c *ui.Context, show bool, opts PresenceOptions, content func()) ui.Element {
 	m := presenceMotion(opts.Kind)
 	if opts.Duration < 0 {
 		panic("mujica: Presence Duration is negative")
@@ -64,11 +64,11 @@ func Presence(c *ui.Context, show bool, opts PresenceOptions, content func()) *u
 		if !show {
 			if c.Preferences().ReduceMotion {
 				// Rebuilding the empty slot cancels MyGo's active exit.
-				ui.Column(c).Key("presence").Invisible().Transition(ui.ElementTransition{Duration: d, Position: true})
+				ui.Column(c.Key("presence")).Invisible().Transition(ui.ElementTransition{Duration: d, Position: true})
 			}
 			return
 		}
-		box := ui.Column(c).AlignItems(ui.Stretch).Key("presence")
+		box := ui.Column(c.Key("presence")).AlignItems(ui.Stretch)
 		box.Transition(ui.ElementTransition{Duration: core.Motion(c, d), Enter: m, Exit: m})
 		box.Children(content)
 	})

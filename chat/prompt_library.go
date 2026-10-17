@@ -47,7 +47,7 @@ type promptLibraryShown struct {
 
 // PromptLibraryView is a built PromptLibrary and inserted text.
 type PromptLibraryView struct {
-	Element *ui.Element
+	Element ui.Element
 	// Inserted is the filled template, or empty.
 	Inserted string
 }
@@ -157,7 +157,7 @@ func promptLibraryCategory(c *ui.Context, k theme.Tokens, s *PromptLibraryState,
 // selectableRow is a focusable row marked chosen with a diamond.
 func selectableRow(c *ui.Context, k theme.Tokens, key, label string, chosen bool) bool {
 	d := core.Density(c)
-	b := ui.ButtonBase(c).Key(key).MinHeight(d.ControlHeight()).Padding(0, d.Unit()*2).Gap(d.Unit() * 2).Justify(ui.Start).
+	b := ui.ButtonBase(c.Key(key)).MinHeight(d.ControlHeight()).Padding(0, d.Unit()*2).Gap(d.Unit() * 2).Justify(ui.Start).
 		Radius(theme.ControlRadius).Label(label).Selected(chosen)
 	b.Background(ui.Transparent).TextColor(k.Text)
 	internal.Ring(b, k.Focus, theme.ControlRadius)
@@ -202,8 +202,8 @@ func promptLibraryPreview(c *ui.Context, k theme.Tokens, s *PromptLibraryState, 
 		Children(func() { ui.RichText(c, spans...).Selectable() })
 	for _, name := range vars {
 		val := s.Values[name]
-		ui.Column(c).Key("var:" + name).Children(func() {
-			input.FormField(c, name, input.FormFieldOptions{Required: true}, func() *ui.Element {
+		ui.Column(c.Key("var:" + name)).Children(func() {
+			input.FormField(c, name, input.FormFieldOptions{Required: true}, func() ui.Element {
 				r := input.TextInput(c, &val, input.TextInputOptions{Label: name, Disabled: disabled})
 				if r.Changed() {
 					s.Values[name] = val

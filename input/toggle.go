@@ -20,11 +20,11 @@ type ToggleOptions struct {
 }
 
 // Toggle is a button that stays pressed while *on. Click or Space flips it; Changed reports it.
-func Toggle(c *ui.Context, on *bool, label string, opts ToggleOptions) *ui.Element {
+func Toggle(c *ui.Context, on *bool, label string, opts ToggleOptions) ui.Element {
 	if label == "" && opts.Label == "" {
 		panic("mujica: Toggle needs a label or Label")
 	}
-	var b *ui.Element
+	var b ui.Element
 	ui.Row(c).Shrink(0).Disabled(opts.Disabled).Children(func() {
 		b = ui.ToggleBase(c, on)
 	})
@@ -39,7 +39,7 @@ func Toggle(c *ui.Context, on *bool, label string, opts ToggleOptions) *ui.Eleme
 }
 
 // toggleLook styles a pressed-or-not button and builds its content.
-func toggleLook(c *ui.Context, b *ui.Element, on bool, label string, icon *ui.SVG) {
+func toggleLook(c *ui.Context, b ui.Element, on bool, label string, icon *ui.SVG) {
 	k := core.Tokens(c)
 	d := core.Density(c)
 	b.MinHeight(d.ControlHeight()).MinWidth(d.ControlHeight()).Padding(0, d.Unit()*3).Gap(d.Unit() * 2).
@@ -69,7 +69,7 @@ func toggleLook(c *ui.Context, b *ui.Element, on bool, label string, icon *ui.SV
 }
 
 // toggleMark draws a bar under the content: the pressed state beside the color.
-func toggleMark(b *ui.Element, k theme.Tokens) {
+func toggleMark(b ui.Element, k theme.Tokens) {
 	b.Draw(func(p *ui.Painter, r ui.Rect) {
 		p.Fill(ui.Rect{X: r.X + r.W*0.25, Y: r.Y + r.H - 4, W: r.W * 0.5, H: 2}, k.AccentText, 1)
 	})

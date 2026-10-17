@@ -16,7 +16,7 @@ import (
 
 // CopyResult is a block's element and whether its copy action ran this frame.
 type CopyResult struct {
-	Element *ui.Element
+	Element ui.Element
 	copied  bool
 }
 
@@ -83,7 +83,7 @@ func CodeBlock(c *ui.Context, code string, opts CodeBlockOptions) CopyResult {
 		if st.collapsed {
 			return
 		}
-		var body *ui.Element
+		var body ui.Element
 		if st.wrap {
 			body = ui.Column(c).Padding(u*2, u*3).MinWidth(0)
 		} else {

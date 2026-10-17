@@ -23,7 +23,7 @@ type ArtifactVersionSwitcherOptions struct {
 
 // ArtifactVersionResult reports this frame's events.
 type ArtifactVersionResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Changed reports *current moved.
 	Changed bool
 	// Compare asks to diff current against the previous version.

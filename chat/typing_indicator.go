@@ -15,7 +15,7 @@ import (
 const typingPeriod = 1200
 
 // TypingIndicator shows that name is typing: three fading dots, or static text under reduced motion.
-func TypingIndicator(c *ui.Context, name string) *ui.Element {
+func TypingIndicator(c *ui.Context, name string) ui.Element {
 	if name == "" {
 		panic("mujica: TypingIndicator needs a name")
 	}

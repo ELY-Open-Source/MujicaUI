@@ -13,7 +13,7 @@ ui.Column(c).Padding(16).Gap(12).Children(func() {
 })
 ```
 
-签名：`func Divider(c *ui.Context, opts DividerOptions) *ui.Element`
+签名：`func Divider(c *ui.Context, opts DividerOptions) ui.Element`
 
 ## 参数
 

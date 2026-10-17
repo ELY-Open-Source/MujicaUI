@@ -11,7 +11,7 @@ feedback.StatusIndicator(c, feedback.StatusSuccess, feedback.StatusIndicatorOpti
 feedback.StatusIndicator(c, feedback.StatusOffline, feedback.StatusIndicatorOptions{})
 ```
 
-签名：`func StatusIndicator(c *ui.Context, status Status, opts StatusIndicatorOptions) *ui.Element`
+签名：`func StatusIndicator(c *ui.Context, status Status, opts StatusIndicatorOptions) ui.Element`
 
 ## 参数
 

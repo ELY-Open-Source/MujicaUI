@@ -23,7 +23,7 @@ type SlashCommand struct {
 
 // SlashCommandResult carries the popup and chosen command.
 type SlashCommandResult struct {
-	Element *ui.Element
+	Element ui.Element
 	chosen  SlashCommand
 	ok      bool
 }
@@ -34,7 +34,7 @@ func (r SlashCommandResult) Chosen() (SlashCommand, bool) { return r.chosen, r.o
 // SlashCommandMenu filters commands after a slash trigger.
 // Arrows navigate; Enter chooses; Tab completes; Escape dismisses.
 func SlashCommandMenu(c *ui.Context, composer input.InputResult, value *string, commands []SlashCommand) SlashCommandResult {
-	if composer.Element == nil || composer.Input == nil || value == nil {
+	if !composer.Element.Valid() || !composer.Input.Valid() || value == nil {
 		panic("mujica: SlashCommandMenu needs composer and value")
 	}
 	data := ui.Local(composer.Element, "slash-data", func() slashMenuData { return slashMenuData{} })
@@ -116,7 +116,7 @@ const (
 )
 
 // slashMenuShow returns the selected row and activation method.
-func slashMenuShow(c *ui.Context, composer input.InputResult, st *slashMenuState, query string, open bool, rows []slashMenuRow, o slashMenuOptions) (int, slashMenuHow, *ui.Element) {
+func slashMenuShow(c *ui.Context, composer input.InputResult, st *slashMenuState, query string, open bool, rows []slashMenuRow, o slashMenuOptions) (int, slashMenuHow, ui.Element) {
 	if !open {
 		st.dismissed = nil
 	}
@@ -133,7 +133,7 @@ func slashMenuShow(c *ui.Context, composer input.InputResult, st *slashMenuState
 	st.open = open
 	if !open {
 		st.pick = slashMenuNone
-		return pick, how, nil
+		return pick, how, ui.Element{}
 	}
 	st.hi = min(max(st.hi, 0), len(rows)-1)
 	if st.pick != slashMenuNone && st.hi >= 0 {
@@ -142,9 +142,6 @@ func slashMenuShow(c *ui.Context, composer input.InputResult, st *slashMenuState
 	st.pick = slashMenuNone
 	n := len(rows)
 	promptComposerHook(composer, func(ev ui.InputEvent) bool {
-		if composer.Element.IsDisabled() {
-			return true
-		}
 		if ev.Kind != ui.InputKeyDown || ev.Mods != 0 {
 			return false
 		}
@@ -178,7 +175,7 @@ func slashMenuShow(c *ui.Context, composer input.InputResult, st *slashMenuState
 }
 
 // slashMenuPanel builds visible rows and returns clicked choices.
-func slashMenuPanel(c *ui.Context, a ui.Rect, st *slashMenuState, rows []slashMenuRow, o slashMenuOptions) (int, *ui.Element) {
+func slashMenuPanel(c *ui.Context, a ui.Rect, st *slashMenuState, rows []slashMenuRow, o slashMenuOptions) (int, ui.Element) {
 	k := core.Tokens(c)
 	u := core.Density(c).Unit()
 	rowH := core.Density(c).ControlHeight()
@@ -199,7 +196,7 @@ func slashMenuPanel(c *ui.Context, a ui.Rect, st *slashMenuState, rows []slashMe
 	w := min(max(a.W*0.6, 320), max(a.W, 200), max(0, ww-8))
 	x, y := core.PlaceOverlay(c, a, w, h, u)
 	clicked, pressed := -1, false
-	var result *ui.Element
+	var result ui.Element
 	ui.Overlay(c, func() {
 		panel := ui.Column(c).Absolute().Left(x).Top(y).Width(w).Height(h).Role(ui.RoleList).Label(o.label)
 		core.OverlayStyle(c, panel, overlay.OverlayAnchored(c, panel, a))
@@ -231,7 +228,7 @@ func slashMenuPanel(c *ui.Context, a ui.Rect, st *slashMenuState, rows []slashMe
 						ui.Text(c, r.group).Height(headH).Padding(u*2, u*3, 0, u*3).FontSize(core.FontSize(c, theme.CaptionSize)).
 							FontWeight(600).TextColor(k.TextMuted).Role(ui.RoleText)
 					}
-					row := ui.Row(c).Key(i).MinHeight(rowH).Padding(0, u*3, 0, u*2).Gap(u * 2).AlignItems(ui.Center).
+					row := ui.Row(c.Key(i)).MinHeight(rowH).Padding(0, u*3, 0, u*2).Gap(u * 2).AlignItems(ui.Center).
 						Radius(theme.ControlRadius).Role(ui.RoleListItem).Label(r.label).Cursor(ui.CursorPointer).Selected(i == st.hi).TextColor(k.Text)
 					if row.Clicked() {
 						clicked = i

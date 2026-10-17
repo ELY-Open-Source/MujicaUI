@@ -167,21 +167,23 @@ func TestTimePickerPopupPickClearsSegmentError(t *testing.T) {
 func TestFormFocusesDatePickerInput(t *testing.T) {
 	var st input.FormState
 	day := core.Date{}
-	var field *ui.Element
+	focused := false
 	tt := ui.NewTester(func(c *ui.Context) {
 		core.Use(c, core.Settings{})
+		var field ui.Element
 		input.Form(c, &st, input.FormOptions{}, func(f *input.FormScope) {
-			input.FormItem(c, f, "debut", &day, input.FormItemOptions[core.Date]{Label: "Debut date", Required: true}, func() *ui.Element {
+			input.FormItem(c, f, "debut", &day, input.FormItemOptions[core.Date]{Label: "Debut date", Required: true}, func() ui.Element {
 				r := DatePicker(c, &day, DatePickerOptions{Today: calendarToday})
 				field = r.Input
 				return r.Input
 			})
 		})
+		focused = field.Valid() && field.Focused()
 	}, 600, 500)
 	if err := tt.Click("Submit"); err != nil {
 		t.Fatal(err)
 	}
-	if field == nil || !field.Focused() || !tt.Focused("Debut date") {
+	if !focused || !tt.Focused("Debut date") {
 		t.Fatal("a failed submit should focus the DatePicker's text box")
 	}
 	tt.Type("2026-10-12")

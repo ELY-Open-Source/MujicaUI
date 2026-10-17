@@ -12,7 +12,7 @@ if chat.QuoteReply(c, "Marie", "Let them eat cake.").Clicked() {
 }
 ```
 
-签名：`func QuoteReply(c *ui.Context, author, excerpt string) *ui.Element`
+签名：`func QuoteReply(c *ui.Context, author, excerpt string) ui.Element`
 
 ## 参数
 

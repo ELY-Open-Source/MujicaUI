@@ -29,7 +29,7 @@ type BreadcrumbOptions struct {
 
 // BreadcrumbResult is the built Breadcrumb.
 type BreadcrumbResult struct {
-	Element *ui.Element
+	Element ui.Element
 	chosen  int
 }
 
@@ -135,14 +135,14 @@ func breadcrumbMore(c *ui.Context, hidden []BreadcrumbItem, choose func(int)) {
 		*open = !*open
 	}
 	b.Children(func() { ui.Icon(c, icons.Must("ellipsis")).Size(16, 16) })
-	ui.PopoverBase(c, b, open, func(panel *ui.Element) {
+	ui.PopoverBase(c, b, open, func(panel ui.Element) {
 		core.OverlayStyle(c, panel, core.OverlayEnter(c, panel))
 		panel.Margin(u, 0, 0, 0).Padding(u).Gap(u * 0.5).MinWidth(160).MaxWidth(320)
 		for j, it := range hidden {
 			item := ui.ButtonBase(c).Role(ui.RoleLink).Justify(ui.Start).Gap(u*2).Padding(u*1.5, u*2).
 				Radius(theme.ControlRadius).MinHeight(core.Density(c).ControlHeight() - u*2).Label(it.Label).TextColor(k.Text)
 			if j == 0 {
-				item.AutoFocus()
+				core.AutoFocus(c, item)
 			}
 			internal.Ring(item, k.Focus, theme.ControlRadius)
 			if item.Hovered() {

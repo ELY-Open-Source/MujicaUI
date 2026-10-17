@@ -27,7 +27,7 @@ type AudioPlayerOptions struct {
 }
 
 // AudioPlayer is a play, pause and seek shell.
-func AudioPlayer(c *ui.Context, st AudioState, opts AudioPlayerOptions) *ui.Element {
+func AudioPlayer(c *ui.Context, st AudioState, opts AudioPlayerOptions) ui.Element {
 	if opts.OnPlay == nil || opts.OnPause == nil || opts.OnSeek == nil {
 		panic("mujica: AudioPlayer needs OnPlay, OnPause and OnSeek")
 	}
@@ -63,7 +63,7 @@ func AudioPlayer(c *ui.Context, st AudioState, opts AudioPlayerOptions) *ui.Elem
 }
 
 // mediaPlayToggle is the play/pause button; it calls the matching callback.
-func mediaPlayToggle(c *ui.Context, playing bool, onPlay, onPause func()) *ui.Element {
+func mediaPlayToggle(c *ui.Context, playing bool, onPlay, onPause func()) ui.Element {
 	icon, label := core.MediaPlay, core.Msg(c, "media_controls.play")
 	if playing {
 		icon, label = core.MediaPause, core.Msg(c, "media_controls.pause")

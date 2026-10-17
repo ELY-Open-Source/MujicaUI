@@ -71,8 +71,8 @@ func RadioGroup[T comparable](c *ui.Context, value *T, items []RadioItem[T], opt
 // radioGroupItem builds one radio and reports whether it was chosen.
 func radioGroupItem[T comparable](c *ui.Context, k theme.Tokens, d theme.Density, value *T, it RadioItem[T], key int) bool {
 	// Keyed by value so focus follows the item, not its position.
-	var row *ui.Element
-	item := ui.Box(c).Key(key).Disabled(it.Disabled)
+	var row ui.Element
+	item := ui.Box(c.Key(key)).Disabled(it.Disabled)
 	item.Children(func() {
 		row = ui.RadioBase(c, value, it.Value).Gap(d.Unit() * 2).MinHeight(d.ControlHeight()).FocusRing(false)
 	})

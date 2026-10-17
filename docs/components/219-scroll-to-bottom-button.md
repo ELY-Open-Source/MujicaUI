@@ -14,7 +14,7 @@ ui.Box(c).Fill().Children(func() {
 })
 ```
 
-签名：`func ScrollToBottomButton(c *ui.Context, away bool, unread int) *ui.Element`
+签名：`func ScrollToBottomButton(c *ui.Context, away bool, unread int) ui.Element`
 
 ## 参数
 

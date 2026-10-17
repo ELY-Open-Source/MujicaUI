@@ -27,6 +27,6 @@ func devtoolsSeverity(c *ui.Context, s core.Severity, word string) {
 }
 
 // devtoolsTitle is a serif panel title.
-func devtoolsTitle(c *ui.Context, s string) *ui.Element {
+func devtoolsTitle(c *ui.Context, s string) ui.Element {
 	return ui.Text(c, s).Font(theme.SerifFont).FontSize(core.FontSize(c, theme.H3Size)).FontWeight(600)
 }

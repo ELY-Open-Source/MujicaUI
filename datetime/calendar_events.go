@@ -57,7 +57,7 @@ type CalendarChange struct {
 
 // CalendarViewResult is a view and what the user asked.
 type CalendarViewResult struct {
-	Element *ui.Element
+	Element ui.Element
 	opened  string
 	change  *CalendarChange
 	day     core.Date
@@ -112,7 +112,7 @@ type eventsCache[T any] struct {
 }
 
 // eventsDerived rebuilds build(hits) only when events or span change.
-func eventsDerived[T any](e *ui.Element, key string, events []CalendarEvent, version int, from, to time.Time, build func(hits []int) T) T {
+func eventsDerived[T any](e ui.Element, key string, events []CalendarEvent, version int, from, to time.Time, build func(hits []int) T) T {
 	cache := ui.Local(e, key, func() *eventsCache[T] { return &eventsCache[T]{} })
 	var first *CalendarEvent
 	if len(events) > 0 {

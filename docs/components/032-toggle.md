@@ -17,7 +17,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func Toggle(c *ui.Context, on *bool, label string, opts ToggleOptions) *ui.Element`。`label` 与 `opts.Label` 至少提供一个，否则 panic。
+`func Toggle(c *ui.Context, on *bool, label string, opts ToggleOptions) ui.Element`。`label` 与 `opts.Label` 至少提供一个，否则 panic。
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |

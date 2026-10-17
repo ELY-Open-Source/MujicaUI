@@ -17,7 +17,7 @@ view := func(c *ui.Context) {
 ui.Render(view, 400, 300, 1)
 ```
 
-签名：`func ReorderTransition[K comparable](c *ui.Context, keys []K, opts ReorderTransitionOptions, item func(key K)) *ui.Element`
+签名：`func ReorderTransition[K comparable](c *ui.Context, keys []K, opts ReorderTransitionOptions, item func(key K)) ui.Element`
 
 ## 参数
 

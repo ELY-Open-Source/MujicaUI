@@ -36,7 +36,7 @@ func IndexCard(c *ui.Context, q IndexQuote, opts IndexCardOptions) core.ChoiceRe
 	dec := core.PriceDecimals("IndexCard", opts.Decimals)
 	k := core.Tokens(c)
 	u := core.Density(c).Unit()
-	var e *ui.Element
+	var e ui.Element
 	ui.Row(c).Shrink(0).Disabled(opts.Disabled).Children(func() {
 		if opts.Clickable {
 			e = ui.ButtonBase(c).Justify(ui.Start)

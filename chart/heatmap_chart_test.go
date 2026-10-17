@@ -41,7 +41,7 @@ func TestHeatmapChartHover(t *testing.T) {
 		return HeatmapChart(c, heatRows, heatCols, heatValues(), HeatmapChartOptions{Frame: ChartFrame{Label: "Hours"}})
 	}}
 	tt := ui.NewTester(h.view, 520, 420)
-	b := h.res.Element.Bounds()
+	b := h.box(tt)
 	plotW := b.W - 72 - 64
 	tt.Move(b.X+72+plotW*0.6, b.Y+4+212*0.2) // third column, first row
 	if got := chartReadout(tt); got != "Mon · Vespers · 9" {

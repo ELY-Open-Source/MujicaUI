@@ -62,7 +62,7 @@ type ContainerOptions struct {
 }
 
 // Container pads its children, caps their width and can center, fill and clip.
-func Container(c *ui.Context, opts ContainerOptions, children func()) *ui.Element {
+func Container(c *ui.Context, opts ContainerOptions, children func()) ui.Element {
 	if opts.MaxWidth < 0 {
 		panic("mujica: Container MaxWidth must not be negative")
 	}

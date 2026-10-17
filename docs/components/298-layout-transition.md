@@ -20,7 +20,7 @@ view := func(c *ui.Context) {
 ui.Render(view, 400, 300, 1)
 ```
 
-签名：`func LayoutTransition(c *ui.Context, opts LayoutTransitionOptions, content func()) *ui.Element`
+签名：`func LayoutTransition(c *ui.Context, opts LayoutTransitionOptions, content func()) ui.Element`
 
 ## 参数
 

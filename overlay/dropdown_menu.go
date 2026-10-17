@@ -16,7 +16,7 @@ type DropdownMenuOptions struct {
 }
 
 // DropdownMenu is a button opening an in-window menu that build fills; it returns the button.
-func DropdownMenu(c *ui.Context, label string, opts DropdownMenuOptions, build func(m *PopupMenu)) *ui.Element {
+func DropdownMenu(c *ui.Context, label string, opts DropdownMenuOptions, build func(m *PopupMenu)) ui.Element {
 	if build == nil {
 		panic("mujica: DropdownMenu needs a build function")
 	}

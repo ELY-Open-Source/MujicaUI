@@ -32,7 +32,7 @@ type UserMenuOptions struct {
 
 // UserMenuResult reports presence, settings and sign-out events.
 type UserMenuResult struct {
-	Element                  *ui.Element
+	Element                  ui.Element
 	changed, settings, leave bool
 }
 

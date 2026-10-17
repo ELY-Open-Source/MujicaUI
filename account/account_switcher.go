@@ -29,7 +29,7 @@ type AccountSwitcherOptions struct {
 
 // AccountSwitcherResult reports account changes and addition requests.
 type AccountSwitcherResult struct {
-	Element *ui.Element
+	Element ui.Element
 	changed bool
 	add     bool
 }
@@ -75,7 +75,7 @@ func AccountSwitcher(c *ui.Context, current *string, accounts []Account, opts Ac
 				if a.Email != "" {
 					label += " · " + a.Email
 				}
-				ui.Column(c).Key(a.ID).Shrink(0).Children(func() {
+				ui.Column(c.Key(a.ID)).Shrink(0).Children(func() {
 					if m.Check(label, &on, overlay.PopupMenuItemOptions{}) && a.ID != *current && !b.IsDisabled() {
 						*current, r.changed = a.ID, true
 						slog.Debug("mujica: account_switcher switched")
@@ -92,7 +92,7 @@ func AccountSwitcher(c *ui.Context, current *string, accounts []Account, opts Ac
 	return r
 }
 
-func accountSwitcherLarge(c *ui.Context, b *ui.Element, open *bool, current *string, accounts []Account, r *AccountSwitcherResult) {
+func accountSwitcherLarge(c *ui.Context, b ui.Element, open *bool, current *string, accounts []Account, r *AccountSwitcherResult) {
 	overlay.Popover(c, b, open, overlay.PopoverOptions{Label: core.Msg(c, "account_switcher.accounts"), Width: 320}, func() {
 		cursor := ui.Local(b, "cursor", func() int { return -1 })
 		rows := ui.Local(b, "list", func() ui.ListState { return ui.ListState{} })
@@ -100,7 +100,7 @@ func accountSwitcherLarge(c *ui.Context, b *ui.Element, open *bool, current *str
 		rows.Label = func(i int) string { return accounts[i].Name }
 		rows.Selected = cursor
 		restore := data.DataSelectTheme(c, 0)
-		list := ui.List(c, rows, len(accounts), func(i int) {
+		list := core.AutoFocus(c, ui.List(c, rows, len(accounts), func(i int) {
 			a := accounts[i]
 			row := workspaceRow(c, Workspace{ID: a.ID, Name: a.Name, Detail: a.Email}, a.ID == *current, i == *cursor)
 			if row.Focused() && !b.IsDisabled() {
@@ -109,7 +109,8 @@ func accountSwitcherLarge(c *ui.Context, b *ui.Element, open *bool, current *str
 			if row.Clicked() && !row.IsDisabled() && !b.IsDisabled() {
 				r.changed, *current, *open = a.ID != *current, a.ID, false
 			}
-		}).Height(280).MinHeight(0).AutoFocus()
+		}).Height(280).MinHeight(0))
+
 		restore()
 		internal.Ring(list, core.Tokens(c).Focus, theme.ControlRadius)
 		if list.Changed() && !b.IsDisabled() {
@@ -129,7 +130,7 @@ func accountSwitcherLarge(c *ui.Context, b *ui.Element, open *bool, current *str
 }
 
 // accountTrigger displays an avatar, name and detail.
-func accountTrigger(c *ui.Context, name, detail string, avatar *ui.Bitmap, disabled bool) *ui.Element {
+func accountTrigger(c *ui.Context, name, detail string, avatar *ui.Bitmap, disabled bool) ui.Element {
 	k := core.Tokens(c)
 	d := core.Density(c)
 	b := ui.ButtonBase(c).Role(ui.RoleMenuButton).MinHeight(d.ControlHeight()+d.Unit()*2).Padding(d.Unit(), d.Unit()*3, d.Unit(), d.Unit()*2).

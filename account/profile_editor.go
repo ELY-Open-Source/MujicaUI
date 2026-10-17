@@ -34,7 +34,7 @@ type ProfileEditorOptions struct {
 
 // ProfileEditorResult reports save, avatar and discard requests.
 type ProfileEditorResult struct {
-	Element             *ui.Element
+	Element             ui.Element
 	save, avatar, reset bool
 }
 
@@ -73,10 +73,10 @@ func ProfileEditor(c *ui.Context, p *Profile, opts ProfileEditorOptions) Profile
 				r.avatar = true
 			}
 		})
-		input.FormField(c, core.Msg(c, "profile_editor.name"), input.FormFieldOptions{Required: true}, func() *ui.Element {
+		input.FormField(c, core.Msg(c, "profile_editor.name"), input.FormFieldOptions{Required: true}, func() ui.Element {
 			return input.TextInput(c, &p.Name, input.TextInputOptions{Disabled: locked, Error: nameErr}).Input
 		})
-		input.FormField(c, core.Msg(c, "profile_editor.bio"), input.FormFieldOptions{}, func() *ui.Element {
+		input.FormField(c, core.Msg(c, "profile_editor.bio"), input.FormFieldOptions{}, func() ui.Element {
 			return input.TextArea(c, &p.Bio, input.TextAreaOptions{MaxLength: limit, Disabled: locked}).Input
 		})
 		ui.Row(c).Gap(d.Unit() * 3).AlignItems(ui.Center).Children(func() {

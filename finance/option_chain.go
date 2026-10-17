@@ -54,7 +54,7 @@ type OptionChainOptions struct {
 
 // OptionChainView is a built OptionChain and this frame's events.
 type OptionChainView struct {
-	Element *ui.Element
+	Element ui.Element
 	// ExpiryChanged asks the caller for the strikes of State.Expiry.
 	ExpiryChanged      bool
 	Changed, Submitted bool

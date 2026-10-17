@@ -12,10 +12,10 @@ import (
 
 func TestMicLevelMeterPeakHold(t *testing.T) {
 	level := float32(1)
-	var e *ui.Element
+	var desc string
 	tt := ui.NewTester(func(c *ui.Context) {
 		core.Use(c, core.Settings{})
-		e = MicLevelMeter(c, level, MicLevelMeterOptions{Hold: 40 * time.Millisecond})
+		desc = micTestDescription(MicLevelMeter(c, level, MicLevelMeterOptions{Hold: 40 * time.Millisecond}))
 	}, 400, 100)
 	if !tt.HasText("0 dB") {
 		t.Fatalf("texts %v", tt.Texts())
@@ -28,18 +28,17 @@ func TestMicLevelMeterPeakHold(t *testing.T) {
 	if r, ok := tt.Find("Microphone level"); !ok || r.W == 0 {
 		t.Fatal("meter not named")
 	}
-	if !strings.Contains(micTestDescription(e), "peak 0 dB") {
+	if !strings.Contains(desc, "peak 0 dB") {
 		t.Fatal("peak not held")
 	}
-	time.Sleep(60 * time.Millisecond)
-	tt.Frame()
-	if !strings.Contains(micTestDescription(e), "peak -20 dB") {
+	tt.Advance(60 * time.Millisecond)
+	if !strings.Contains(desc, "peak -20 dB") {
 		t.Fatal("peak did not fall after the hold")
 	}
 }
 
 // micTestDescription rebuilds the meter's spoken value from its state.
-func micTestDescription(e *ui.Element) string {
+func micTestDescription(e ui.Element) string {
 	pk := *ui.Local(e, micPeak{}, func() micPeak { return micPeak{} })
 	return "peak " + micDB(pk.level)
 }

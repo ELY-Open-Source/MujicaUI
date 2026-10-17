@@ -28,7 +28,7 @@ type countUpState struct {
 }
 
 // CountUp counts from the last value to the new one.
-func CountUp(c *ui.Context, value float64, opts CountUpOptions) *ui.Element {
+func CountUp(c *ui.Context, value float64, opts CountUpOptions) ui.Element {
 	if math.IsNaN(value) || math.IsInf(value, 0) {
 		panic("mujica: CountUp value must be finite")
 	}

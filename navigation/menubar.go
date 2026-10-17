@@ -57,7 +57,7 @@ type MenubarOptions struct {
 
 // MenubarResult is the built Menubar.
 type MenubarResult struct {
-	Element *ui.Element
+	Element ui.Element
 	chosen  string
 }
 
@@ -167,7 +167,7 @@ func (m *menubarRun) current() string {
 	return ""
 }
 
-func (m *menubarRun) title(i int, label string) *ui.Element {
+func (m *menubarRun) title(i int, label string) ui.Element {
 	c, st := m.c, m.st
 	k := core.Tokens(c)
 	d := core.Density(c)
@@ -211,7 +211,7 @@ func (m *menubarRun) title(i int, label string) *ui.Element {
 }
 
 // keys drives an open menu from the focused title.
-func (m *menubarRun) keys(t *ui.Element) {
+func (m *menubarRun) keys(t ui.Element) {
 	st := m.st
 	l := len(st.hl) - 1
 	items := m.items(l)

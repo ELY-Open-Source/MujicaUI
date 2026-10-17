@@ -21,7 +21,7 @@ type ShimmerOptions struct {
 }
 
 // Shimmer sweeps a placeholder while loading, then builds content.
-func Shimmer(c *ui.Context, loading bool, opts ShimmerOptions, content func()) *ui.Element {
+func Shimmer(c *ui.Context, loading bool, opts ShimmerOptions, content func()) ui.Element {
 	if !(opts.Width >= 0) || !(opts.Height >= 0) || math.IsInf(float64(opts.Width+opts.Height), 1) {
 		panic("mujica: Shimmer size must be finite and not negative")
 	}
@@ -54,7 +54,7 @@ func Shimmer(c *ui.Context, loading bool, opts ShimmerOptions, content func()) *
 	}
 	// Keyed by motion so a flip repaints.
 	e.Children(func() {
-		ui.Box(c).Key(still).Grow(1).Role(ui.RoleNone).Draw(func(p *ui.Painter, r ui.Rect) {
+		ui.Box(c.Key(still)).Grow(1).Role(ui.RoleNone).Draw(func(p *ui.Painter, r ui.Rect) {
 			p.Fill(r, fill, theme.CardRadius)
 			if still {
 				return

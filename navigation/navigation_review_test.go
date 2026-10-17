@@ -36,7 +36,6 @@ func TestNavigationPopupsFadeIn(t *testing.T) {
 			CommandPalette(c, &open, commandPaletteSample(), CommandPaletteOptions{})
 		}},
 	} {
-		opened := time.Now()
 		tt := ui.NewTester(func(c *ui.Context) {
 			core.Use(c, core.Settings{Mode: core.Light})
 			ui.Column(c).Fill().Padding(16).AlignItems(ui.Start).Children(func() { tc.view(c) })
@@ -51,12 +50,11 @@ func TestNavigationPopupsFadeIn(t *testing.T) {
 			t.Fatalf("%s: no %q", tc.name, tc.sample)
 		}
 		x, y := int(r.X-3), int(r.Y+r.H/2)
+		// The Tester clock stands still, so a quarter of the way in is exact.
+		tt.Advance(theme.PopupDuration / 4)
 		early := tt.Image().RGBAAt(x, y)
-		mid := time.Since(opened) < theme.PopupDuration/2
-		time.Sleep(200 * time.Millisecond)
-		tt.Frame()
-		// A slow run may finish the fade before the first sample.
-		if late := tt.Image().RGBAAt(x, y); mid && early == late {
+		tt.Advance(200 * time.Millisecond)
+		if late := tt.Image().RGBAAt(x, y); early == late {
 			t.Errorf("%s: popup appeared at once (%v)", tc.name, late)
 		}
 	}

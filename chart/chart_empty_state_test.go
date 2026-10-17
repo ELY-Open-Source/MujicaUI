@@ -13,30 +13,33 @@ func TestChartEmptyStateKeepsSizeAndRetries(t *testing.T) {
 	status := data.DataReady
 	retries, disabled := 0, false
 	var heights []float32
-	var el *ui.Element
+	var box ui.Rect
 	tt := ui.NewTester(func(c *ui.Context) {
 		core.Use(c, core.Settings{})
 		ui.Column(c).Width(400).Disabled(disabled).Children(func() {
 			r := ChartEmptyState(c, status, ChartEmptyStateOptions{Height: 180, Empty: "No hymns this week", Error: "The choir did not answer"})
-			el = r.Element
+			box = r.Element.Bounds()
 			if r.Changed() {
 				retries++
 			}
 		})
 	}, 440, 300)
-	heights = append(heights, el.Bounds().H)
+	tt.Frame() // Bounds reads the previous frame
+	heights = append(heights, box.H)
 	if !tt.HasText("No hymns this week") {
 		t.Fatalf("empty: %q", tt.Texts())
 	}
 	status = data.DataLoading
 	tt.Frame()
-	heights = append(heights, el.Bounds().H)
+	tt.Frame() // Bounds reads the previous frame
+	heights = append(heights, box.H)
 	if !tt.HasText("Loading") {
 		t.Fatalf("loading: %q", tt.Texts())
 	}
 	status = data.DataFailed
 	tt.Frame()
-	heights = append(heights, el.Bounds().H)
+	tt.Frame() // Bounds reads the previous frame
+	heights = append(heights, box.H)
 	if err := tt.Click("Retry"); err != nil || retries != 1 || !tt.HasText("The choir did not answer") {
 		t.Fatalf("retry: %v %d", err, retries)
 	}

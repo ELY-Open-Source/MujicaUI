@@ -57,14 +57,12 @@ func TestHoldToConfirmPointerHold(t *testing.T) {
 	tt.Press(cx, cy)
 	time.Sleep(20 * time.Millisecond)
 	tt.Release(cx, cy)
-	time.Sleep(60 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(60 * time.Millisecond)
 	if n != 0 {
 		t.Fatal("an early release confirmed")
 	}
 	tt.Press(cx, cy)
-	time.Sleep(80 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(80 * time.Millisecond)
 	tt.Frame()
 	tt.Release(cx, cy)
 	if n != 1 {
@@ -73,8 +71,7 @@ func TestHoldToConfirmPointerHold(t *testing.T) {
 	dis = true
 	tt.Frame()
 	tt.Press(cx, cy)
-	time.Sleep(80 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(80 * time.Millisecond)
 	tt.Release(cx, cy)
 	if n != 1 {
 		t.Fatal("disabled hold confirmed")

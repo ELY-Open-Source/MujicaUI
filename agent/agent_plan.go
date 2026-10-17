@@ -72,7 +72,7 @@ func AgentPlan(c *ui.Context, items *[]PlanItem, opts AgentPlanOptions) core.Cho
 		agentBar(c, frac, fmt.Sprintf(core.Msg(c, "agent_plan.progress"), done, counted))
 		list := *items
 		for i := range list {
-			ui.Row(c).Key(list[i].ID).Gap(u * 2).AlignItems(ui.Center).MinHeight(core.Density(c).ControlHeight()).Children(func() {
+			ui.Row(c.Key(list[i].ID)).Gap(u * 2).AlignItems(ui.Center).MinHeight(core.Density(c).ControlHeight()).Children(func() {
 				if agentPlanRow(c, &list[i], locked, opts.Still) {
 					r = core.NewChoiceResult(r.Element, true)
 				}

@@ -34,7 +34,7 @@ type ScreenRecorderControlsOptions struct {
 }
 
 // ScreenRecorderControls start, pause, resume and stop a recording.
-func ScreenRecorderControls(c *ui.Context, st RecorderState, opts ScreenRecorderControlsOptions) *ui.Element {
+func ScreenRecorderControls(c *ui.Context, st RecorderState, opts ScreenRecorderControlsOptions) ui.Element {
 	if opts.OnStart == nil || opts.OnPause == nil || opts.OnResume == nil || opts.OnStop == nil {
 		panic("mujica: ScreenRecorderControls needs every callback")
 	}

@@ -7,7 +7,7 @@ import (
 )
 
 // BarsLoader shows four bars rising and falling in turn.
-func BarsLoader(c *ui.Context, opts LoaderOptions) *ui.Element {
+func BarsLoader(c *ui.Context, opts LoaderOptions) ui.Element {
 	return loaderMark(c, opts, "bars_loader", 1.25, 1000, func(p *ui.Painter, r ui.Rect, t float64, col ui.Color, still bool) {
 		w := r.W / 7
 		for i := range 4 {

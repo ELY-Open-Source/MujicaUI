@@ -9,9 +9,9 @@ import (
 func TestMarketHeatmapAreaDrillAndKeys(t *testing.T) {
 	root := mktHeat()
 	var path []string
-	var got ChartResult
+	built := false
 	tt := chatTester(640, 400, func(c *ui.Context) {
-		got = MarketHeatmap(c, &path, root, MarketHeatmapOptions{Frame: ChartFrame{Label: "Market"}})
+		built = MarketHeatmap(c, &path, root, MarketHeatmapOptions{Frame: ChartFrame{Label: "Market"}}).Element.Valid()
 	})
 	tt.Key(0, ui.KeyTab)
 	tt.Key(0, ui.KeyHome)
@@ -26,7 +26,7 @@ func TestMarketHeatmapAreaDrillAndKeys(t *testing.T) {
 	if len(path) != 0 {
 		t.Fatalf("back %v", path)
 	}
-	if got.Element == nil {
+	if !built {
 		t.Fatal("element missing")
 	}
 	if root.total() != 9830 {

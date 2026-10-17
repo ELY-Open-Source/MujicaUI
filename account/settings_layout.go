@@ -58,14 +58,14 @@ func SettingsLayout(c *ui.Context, page *string, pages []SettingsPage, opts Sett
 			slog.Debug("mujica: settings_layout page", "page", *page)
 		}
 		ui.Scroll(c).Grow(1).MinWidth(0).Padding(d.Unit()*6, d.Unit()*8).Children(func() {
-			ui.Column(c).Key(*page).MaxWidth(720).Gap(d.Unit() * 8).Children(func() { content(*page) })
+			ui.Column(c.Key(*page)).MaxWidth(720).Gap(d.Unit() * 8).Children(func() { content(*page) })
 		})
 	})
 	return r
 }
 
 // SettingsSection groups rows under a serif heading.
-func SettingsSection(c *ui.Context, title string, rows func()) *ui.Element {
+func SettingsSection(c *ui.Context, title string, rows func()) ui.Element {
 	k := core.Tokens(c)
 	d := core.Density(c)
 	e := ui.Column(c).Gap(d.Unit() * 2).Role(ui.RoleGroup).Label(title)
@@ -94,7 +94,7 @@ func settingsReveal(c *ui.Context, id string) {
 type settingsRowState struct{ at time.Time }
 
 // SettingsRow associates a label and description with its control.
-func SettingsRow(c *ui.Context, label string, opts SettingsRowOptions, control func() *ui.Element) *ui.Element {
+func SettingsRow(c *ui.Context, label string, opts SettingsRowOptions, control func() ui.Element) ui.Element {
 	if label == "" || control == nil {
 		panic("mujica: SettingsRow needs a label and a control")
 	}
@@ -106,7 +106,7 @@ func SettingsRow(c *ui.Context, label string, opts SettingsRowOptions, control f
 	}
 	st := ui.Local(row, "reveal", func() settingsRowState { return settingsRowState{} })
 	reveal := ui.Local(c.Root(), settingsRevealKey{}, func() string { return "" })
-	var ctrl, text *ui.Element
+	var ctrl, text ui.Element
 	row.Children(func() {
 		text = ui.Column(c).Grow(1).MinWidth(0).Gap(d.Unit())
 		text.Children(func() {
@@ -117,7 +117,7 @@ func SettingsRow(c *ui.Context, label string, opts SettingsRowOptions, control f
 		})
 		ui.Row(c).Shrink(0).Children(func() { ctrl = control() })
 	})
-	if ctrl == nil {
+	if !ctrl.Valid() {
 		panic("mujica: SettingsRow " + label + ": control returned nil")
 	}
 	ctrl.Label(label).Description(opts.Description)

@@ -43,7 +43,7 @@ type VariableEdit struct{ Path, Value string }
 
 // VariablesPanelResult carries a committed edit.
 type VariablesPanelResult struct {
-	Element *ui.Element
+	Element ui.Element
 	Edited  *VariableEdit
 }
 
@@ -80,7 +80,7 @@ func VariablesPanel(c *ui.Context, vars []Variable, s *VariablesPanelState, opts
 				if s.editing == p {
 					in := input.TextInput(c, &s.draft, input.TextInputOptions{Label: core.Msg(c, "variables_panel.value")})
 					in.Element.Grow(1).MinWidth(0)
-					in.Input.AutoFocus()
+					core.AutoFocus(c, in.Input)
 					switch {
 					case in.Input.Shortcut(0, ui.KeyEscape):
 						s.editing = ""

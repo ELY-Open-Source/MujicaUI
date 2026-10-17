@@ -14,7 +14,7 @@ view := func(c *ui.Context) {
 ui.Render(view, 400, 300, 1)
 ```
 
-签名：`func AgentProgress(c *ui.Context, value float64, opts AgentProgressOptions) *ui.Element`。确定模式下 `value` 不在 0 到 1 时 panic。
+签名：`func AgentProgress(c *ui.Context, value float64, opts AgentProgressOptions) ui.Element`。确定模式下 `value` 不在 0 到 1 时 panic。
 
 ## 参数
 

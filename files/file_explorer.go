@@ -83,7 +83,7 @@ func (s *FileExplorerState) step(from, to *[]string) {
 
 // FileExplorerResult is a FileExplorer and what happened in this frame.
 type FileExplorerResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Navigated reports a new current folder; Changed a new selection.
 	Navigated, Changed bool
 	// Opened is a file the user opened.

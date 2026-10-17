@@ -104,7 +104,7 @@ func (g *gallery) categoryGrid(c *ui.Context, width float32) {
 	}
 	layout.Grid(c, layout.GridOptions{Columns: tracks}, func() {
 		for _, cat := range cats {
-			ui.Box(c).Key(cat).Children(func() {
+			ui.Box(c.Key(cat)).Children(func() {
 				data.Card(c, data.CardOptions{Title: g.categoryName(cat), Footer: func() {
 					if input.Button(c, g.t("Enter", "进入"), input.ButtonOptions{Variant: input.Outline}).Clicked() {
 						g.selected = first[cat].ID

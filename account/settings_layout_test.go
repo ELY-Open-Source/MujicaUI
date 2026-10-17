@@ -24,13 +24,13 @@ func settingsView(c *ui.Context, page *string, sound, track *bool, changes *int)
 		switch id {
 		case "general":
 			SettingsSection(c, "Notifications", func() {
-				SettingsRow(c, "Sound", SettingsRowOptions{ID: "sound", Description: "Chime on new messages."}, func() *ui.Element {
+				SettingsRow(c, "Sound", SettingsRowOptions{ID: "sound", Description: "Chime on new messages."}, func() ui.Element {
 					return input.Switch(c, sound, "", input.SwitchOptions{})
 				})
 			})
 		case "privacy":
 			SettingsSection(c, "Data", func() {
-				SettingsRow(c, "Usage reports", SettingsRowOptions{ID: "track"}, func() *ui.Element {
+				SettingsRow(c, "Usage reports", SettingsRowOptions{ID: "track"}, func() ui.Element {
 					return input.Switch(c, track, "", input.SwitchOptions{})
 				})
 			})

@@ -11,7 +11,7 @@ import (
 )
 
 // Kbd shows keys as caps; "Mod" is Command or Ctrl.
-func Kbd(c *ui.Context, keys ...string) *ui.Element {
+func Kbd(c *ui.Context, keys ...string) ui.Element {
 	if len(keys) == 0 {
 		panic("mujica: Kbd needs at least one key")
 	}
@@ -31,7 +31,7 @@ func Kbd(c *ui.Context, keys ...string) *ui.Element {
 				ui.Text(c, "+").FontSize(core.FontSize(c, theme.CaptionSize)).TextColor(k.TextMuted)
 			}
 			face, _ := KbdKey(key, mac)
-			ui.Box(c).Key(i).Row().Center().MinWidth(core.FontSize(c, 20)).MinHeight(core.FontSize(c, 20)).Padding(0, 5).
+			ui.Box(c.Key(i)).Row().Center().MinWidth(core.FontSize(c, 20)).MinHeight(core.FontSize(c, 20)).Padding(0, 5).
 				Radius(theme.ControlRadius).Background(k.Surface).BorderColor(k.ControlBorder).
 				BorderWidth(1, 1, 2, 1).Children(func() {
 				ui.Text(c, face).Font(theme.MonoFont).FontSize(core.FontSize(c, theme.CaptionSize)).TextColor(k.Text).SingleLine()

@@ -15,7 +15,7 @@ import (
 const tokenWarnShare = 0.9
 
 // TokenCounter displays estimates, limits and threshold warnings.
-func TokenCounter(c *ui.Context, used, limit int) *ui.Element {
+func TokenCounter(c *ui.Context, used, limit int) ui.Element {
 	if used < 0 || limit <= 0 {
 		panic("mujica: TokenCounter needs used >= 0 and limit > 0")
 	}

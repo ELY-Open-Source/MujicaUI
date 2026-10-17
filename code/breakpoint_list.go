@@ -31,7 +31,7 @@ type BreakpointListOptions struct {
 
 // BreakpointListResult fields hold breakpoint IDs.
 type BreakpointListResult struct {
-	Element                 *ui.Element
+	Element                 ui.Element
 	Toggled, Edited, Opened string
 }
 
@@ -67,7 +67,7 @@ func BreakpointList(c *ui.Context, bps *[]Breakpoint, opts BreakpointListOptions
 		layout.ScrollArea(c, nil, layout.ScrollAreaOptions{}, func() {
 			for i := range *bps {
 				b := &(*bps)[i]
-				ui.Column(c).Key(b.ID).Padding(u, u*2).Gap(u).BorderWidth(0, 0, theme.BorderWidth, 0).BorderColor(k.Border).Children(func() {
+				ui.Column(c.Key(b.ID)).Padding(u, u*2).Gap(u).BorderWidth(0, 0, theme.BorderWidth, 0).BorderColor(k.Border).Children(func() {
 					ui.Row(c).MinHeight(d.ControlHeight()).Gap(u * 2).AlignItems(ui.Center).Children(func() {
 						on := b.Enabled
 						input.Checkbox(c, &on, "", input.CheckboxOptions{Disabled: opts.Disabled}).Label(fmt.Sprintf(core.Msg(c, "breakpoint_list.enable"), path.Base(b.File), b.Line))
@@ -86,7 +86,7 @@ func BreakpointList(c *ui.Context, bps *[]Breakpoint, opts BreakpointListOptions
 					switch {
 					case edit.id == b.ID:
 						in := input.TextInput(c, &edit.draft, input.TextInputOptions{Placeholder: core.Msg(c, "breakpoint_list.placeholder"), Label: core.Msg(c, "breakpoint_list.condition")})
-						in.Input.AutoFocus()
+						core.AutoFocus(c, in.Input)
 						if in.Input.Shortcut(0, ui.KeyEscape) {
 							edit.id = ""
 						} else if in.Submitted() && !disabled {
@@ -104,7 +104,7 @@ func BreakpointList(c *ui.Context, bps *[]Breakpoint, opts BreakpointListOptions
 }
 
 // breakpointLocation is a button opening the location.
-func breakpointLocation(c *ui.Context, b Breakpoint) *ui.Element {
+func breakpointLocation(c *ui.Context, b Breakpoint) ui.Element {
 	k := core.Tokens(c)
 	d := core.Density(c)
 	e := ui.ButtonBase(c).Grow(1).MinWidth(0).MinHeight(theme.MinHitSize).Justify(ui.Start).Gap(d.Unit()*2).Padding(0, d.Unit()).

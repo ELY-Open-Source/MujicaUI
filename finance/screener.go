@@ -87,7 +87,7 @@ type ScreenerOptions struct {
 
 // ScreenerView is a built Screener and this frame's events.
 type ScreenerView struct {
-	Element       *ui.Element
+	Element       ui.Element
 	Changed, Save bool
 	Table         data.DataTableView
 }
@@ -137,7 +137,7 @@ func Screener(c *ui.Context, s *ScreenerState, fields []ScreenerField, rows []Sc
 				cd := &s.Conditions[i]
 				f := screenerField(fields, cd.Field)
 				removed := false
-				ui.Row(c).Key(i).Gap(u * 2).AlignItems(ui.Center).Children(func() {
+				ui.Row(c.Key(i)).Gap(u * 2).AlignItems(ui.Center).Children(func() {
 					input.Select(c, &cd.Field, fieldItems, input.SelectOptions{Label: core.Msg(c, "screener.field"), Disabled: opts.Disabled})
 					input.Select(c, &cd.Op, opItems, input.SelectOptions{Label: core.Msg(c, "screener.compare"), Disabled: opts.Disabled}).Element.MinWidth(120)
 					input.NumberInput(c, &cd.Value, input.NumberInputOptions{Step: math.Pow(10, -float64(f.Decimals)), Precision: f.Decimals,

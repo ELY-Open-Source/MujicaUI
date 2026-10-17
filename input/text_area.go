@@ -57,7 +57,7 @@ func TextArea(c *ui.Context, value *string, opts TextAreaOptions) InputResult {
 	count := textAreaCount(c, n, opts.MaxLength)
 	var r InputResult
 	look := &textInputLook{disabled: opts.Disabled, readOnly: opts.ReadOnly, err: errMsg, area: true}
-	r.Element, r.Input = textInputFrame(c, look, func(frame *ui.Element) *ui.Element {
+	r.Element, r.Input = textInputFrame(c, look, func(frame ui.Element) ui.Element {
 		in := TextInputEditor(c, frame, value, opts.ReadOnly || look.disabled, ui.TextAreaBase).Grow(1).Padding(d.Unit()*2, d.Unit()*3).
 			Placeholder(opts.Placeholder).Label(opts.Label)
 		if opts.MinHeight > 0 {

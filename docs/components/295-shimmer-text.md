@@ -15,7 +15,7 @@ view := func(c *ui.Context) {
 ui.Render(view, 400, 300, 1)
 ```
 
-签名：`func ShimmerText(c *ui.Context, text string, opts ShimmerTextOptions) *ui.Element`
+签名：`func ShimmerText(c *ui.Context, text string, opts ShimmerTextOptions) ui.Element`
 
 ## 参数
 

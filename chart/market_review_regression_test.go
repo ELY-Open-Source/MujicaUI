@@ -133,15 +133,14 @@ func TestMarketMissingComparisonCache(t *testing.T) {
 	for i := range s[0].Closes {
 		s[0].Closes[i] = math.NaN()
 	}
-	var r ChartResult
+	var memo *ChartMemoEntry
 	tt := ui.NewTester(func(c *ui.Context) {
 		core.Use(c, core.Settings{})
-		r = CandlestickChart(c, cs, &v, CandlestickOptions{Frame: ChartFrame{Label: "A"}, Compare: &s})
+		r := CandlestickChart(c, cs, &v, CandlestickOptions{Frame: ChartFrame{Label: "A"}, Compare: &s})
+		memo = ui.Local(r.Element, "mujica.memo.compare.missing", func() ChartMemoEntry { return ChartMemoEntry{} })
 	}, 640, 320)
-	memo := ui.Local(r.Element, "mujica.memo.compare.missing", func() ChartMemoEntry { return ChartMemoEntry{} })
 	before := ChartID(memo.Val.([]float64))
 	tt.Frame()
-	memo = ui.Local(r.Element, "mujica.memo.compare.missing", func() ChartMemoEntry { return ChartMemoEntry{} })
 	after := ChartID(memo.Val.([]float64))
 	t.Logf("before=%s after=%s", before, after)
 	if before != after {

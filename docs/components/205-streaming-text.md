@@ -10,7 +10,7 @@
 chat.StreamingText(c, reply, chat.StreamingTextOptions{Streaming: true, Smooth: true})
 ```
 
-签名：`func StreamingText(c *ui.Context, text string, opts StreamingTextOptions) *ui.Element`
+签名：`func StreamingText(c *ui.Context, text string, opts StreamingTextOptions) ui.Element`
 
 ## 参数
 

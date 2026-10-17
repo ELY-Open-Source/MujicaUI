@@ -58,7 +58,7 @@ func TestBlameViewHoverDetails(t *testing.T) {
 	}, 700, 340)
 	r, _ := tt.Find("Uika")
 	tt.Move(r.X+2, r.Y+2)
-	time.Sleep(650 * time.Millisecond)
+	tt.Advance(650 * time.Millisecond)
 	tt.Move(r.X+3, r.Y+2)
 	tt.Frame()
 	if tt.HasText(gitTestHash(2) + "\nUika · 2026-10-05\nComment the lanes") {

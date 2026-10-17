@@ -115,7 +115,7 @@ func c2PartsChart(c *ui.Context, frame chart.ChartFrame, show bool, s *c2PartsSt
 		Tooltip: func(i int) []chart.ChartTooltipLine {
 			return []chart.ChartTooltipLine{{Text: x.Label(pts[i][0])}, {Text: "Pews " + y.Label(pts[i][1]), Color: colors[0]}, {Text: "Candles " + y.Label(pts[i][1]/2), Color: colors[1], Shape: 1}}
 		},
-		Input: func(el *ui.Element, r ui.Rect) {
+		Input: func(el ui.Element, r ui.Rect) {
 			if annotation.Drag(el, plotOf(r)) {
 				log("ChartAnnotation: moved")
 			}

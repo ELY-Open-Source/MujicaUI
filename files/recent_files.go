@@ -49,7 +49,7 @@ type recentRow struct{ group, file int }
 
 // RecentFilesResult is the list and what happened this frame.
 type RecentFilesResult struct {
-	Element *ui.Element
+	Element ui.Element
 	Opened  *RecentFile
 	// Removed identifies one file; Cleared requests clearing all files.
 	Removed string

@@ -24,7 +24,7 @@ type ErrorMessageOptions struct {
 
 // ErrorMessageResult is the error's element and a retry the user asked for.
 type ErrorMessageResult struct {
-	Element *ui.Element
+	Element ui.Element
 	retried bool
 }
 

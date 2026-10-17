@@ -14,7 +14,7 @@ import (
 func TestChartCrosshairSnapsAndFollowsKeys(t *testing.T) {
 	h := &chartHarness{build: func(c *ui.Context) ChartResult { return partsChart(c, nil, true) }}
 	tt := ui.NewTester(h.view, 520, 420)
-	b := h.res.Element.Bounds()
+	b := h.box(tt)
 	plot := ChartInset(ui.Rect{X: b.X, Y: b.Y, W: b.W, H: 240}, 52, 26)
 	// Point 1 is ten DIPs from the pointer.
 	px, py := plot.X+plot.W/2, plot.Y+plot.H*0.2

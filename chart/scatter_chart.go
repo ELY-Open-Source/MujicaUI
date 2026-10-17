@@ -130,7 +130,7 @@ func ScatterChart(c *ui.Context, selected *[]ScatterKey, groups []ScatterGroup, 
 		}
 	}
 	res, plot := ch.Build(spec)
-	if plot != nil && !plot.IsDisabled() {
+	if plot.Valid() && !plot.IsDisabled() {
 		x, y, _ := plot.PointerPosition()
 		if _, _, held := plot.Dragged(); held {
 			if !drag.on {

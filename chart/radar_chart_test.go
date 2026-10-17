@@ -28,7 +28,7 @@ func TestRadarChartReadout(t *testing.T) {
 	if got := chartReadout(tt); got != "Latin · Agnès 6 · Clare 9" {
 		t.Fatalf("readout %q", got)
 	}
-	b := h.res.Element.Bounds()
+	b := h.box(tt)
 	cx, cy := b.X+b.W/2, b.Y+38+120+4
 	tt.Key(0, ui.KeyEscape)
 	tt.Move(cx, cy-60) // straight up: the first axis

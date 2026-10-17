@@ -53,7 +53,7 @@ type MCPServerListOptions struct {
 
 // MCPServerListResult reports this frame's request.
 type MCPServerListResult struct {
-	Element *ui.Element
+	Element ui.Element
 	Action  MCPAction
 	// Server is the ID the action is for.
 	Server string
@@ -105,7 +105,7 @@ func mcpServerRow(c *ui.Context, s MCPServer, locked, still bool) MCPAction {
 	words := [...]string{"stopped", "connecting", "connected", "error"}
 	word := core.Msg(c, "mcp_server_list."+words[s.State])
 	act := MCPNone
-	ui.Row(c).Key(s.ID).Gap(u*3).AlignItems(ui.Center).MinHeight(d.ControlHeight()+u*2).Padding(u*2, u*3).
+	ui.Row(c.Key(s.ID)).Gap(u*3).AlignItems(ui.Center).MinHeight(d.ControlHeight()+u*2).Padding(u*2, u*3).
 		Label(s.Name + ", " + word).Children(func() {
 		switch s.State {
 		case MCPConnecting:

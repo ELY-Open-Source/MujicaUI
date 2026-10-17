@@ -28,15 +28,19 @@ type CitationState struct {
 	Active int
 	hover  int
 	owner  uint64
-	seen   time.Time
-	locate uint64
+	// owned marks the hover owner built in this pass; painted, a paint since the last build.
+	owned, painted bool
+	locate         uint64
 }
 
 // lit reports whether source n is chosen or hovered anywhere.
 func (s *CitationState) lit(n int) bool { return n > 0 && (s.Active == n || s.hover == n) }
 
 // track refreshes pointer ownership for the current frame.
-func (s *CitationState) track(c *ui.Context, e *ui.Element, n int) {
+func (s *CitationState) track(c *ui.Context, e ui.Element, n int) {
+	if s.painted { // the first build after a paint starts a pass
+		s.painted, s.owned = false, false
+	}
 	switch over := e.Hovered() && !e.IsDisabled(); {
 	case over && s.hover != n:
 		s.hover, s.owner = n, e.ID()
@@ -46,12 +50,14 @@ func (s *CitationState) track(c *ui.Context, e *ui.Element, n int) {
 		c.Invalidate()
 	}
 	if s.owner == e.ID() {
-		s.seen = c.Now()
+		s.owned = true
 	}
 }
 
-func (s *CitationState) expire(c *ui.Context, frame time.Time) {
-	if s.hover != 0 && s.seen != frame {
+// expire drops a hover whose owner this pass did not build; it runs while painting.
+func (s *CitationState) expire(c *ui.Context) {
+	s.painted = true
+	if s.hover != 0 && !s.owned {
 		s.hover, s.owner = 0, 0
 		c.Invalidate()
 	}
@@ -73,9 +79,8 @@ func CitationBadge(c *ui.Context, n int, src Source, st *CitationState) core.Cho
 	} else {
 		b.Background(k.SurfaceHover).Border(theme.BorderWidth, k.Border).TextColor(k.TextMuted)
 	}
-	frame := c.Now()
 	b.Draw(func(p *ui.Painter, r ui.Rect) {
-		st.expire(c, frame)
+		st.expire(c)
 		if st.lit(n) {
 			p.Fill(ui.Rect{X: r.X + 4, Y: r.Y + r.H - 4, W: r.W - 8, H: 2}, k.AccentText, 0)
 		}
@@ -96,7 +101,7 @@ const citationPreviewDelay = 500 * time.Millisecond
 
 // citationPreview displays a source after resting hover or focus.
 // Pass-through preserves badge clicks; Escape dismisses the preview.
-func citationPreview(c *ui.Context, b *ui.Element, n int, src Source) {
+func citationPreview(c *ui.Context, b ui.Element, n int, src Source) {
 	st := ui.Local(b, "mujica.citation", func() overlay.TooltipState { return overlay.TooltipState{} })
 	size := ui.Local(b, "mujica.citation.size", func() ui.Rect { return ui.Rect{} })
 	if b.IsDisabled() || !b.Hovered() && !b.FocusVisible() {

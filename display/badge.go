@@ -48,7 +48,7 @@ type BadgeOptions struct {
 }
 
 // Badge shows text or a count, inline or cornered.
-func Badge(c *ui.Context, opts BadgeOptions, content func()) *ui.Element {
+func Badge(c *ui.Context, opts BadgeOptions, content func()) ui.Element {
 	if opts.Count < 0 || opts.Max < 0 {
 		panic("mujica: Badge Count and Max must not be negative")
 	}
@@ -92,7 +92,7 @@ func badgeText(opts BadgeOptions) (shown, full string) {
 	return full, full
 }
 
-func badgePill(c *ui.Context, opts BadgeOptions, shown, full string) *ui.Element {
+func badgePill(c *ui.Context, opts BadgeOptions, shown, full string) ui.Element {
 	k := core.Tokens(c)
 	bg, fg, border := badgeColors(k, opts.Tone)
 	label := full

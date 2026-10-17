@@ -81,6 +81,7 @@ func (m *mirror) loop() {
 		case <-time.After(wait):
 		}
 		m.mu.Lock()
+		m.sync()
 		m.tt.Frame()
 		changed := m.capture()
 		m.mu.Unlock()
@@ -89,6 +90,13 @@ func (m *mirror) loop() {
 		} else {
 			still++
 		}
+	}
+}
+
+// sync moves the Tester's virtual clock up to the wall clock; the caller holds mu.
+func (m *mirror) sync() {
+	if d := time.Since(m.tt.Now()); d > 0 {
+		m.tt.Advance(d)
 	}
 }
 

@@ -42,7 +42,7 @@ type ArtifactPanelOptions struct {
 
 // ArtifactPanelResult reports this frame's events.
 type ArtifactPanelResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Copied reports the content went to the clipboard.
 	Copied bool
 	// Exported asks the caller to export the artifact.

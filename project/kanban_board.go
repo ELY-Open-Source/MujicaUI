@@ -39,7 +39,7 @@ type KanbanMove struct {
 
 // KanbanResult is the board and what the user did.
 type KanbanResult struct {
-	Element *ui.Element
+	Element ui.Element
 	move    *KanbanMove
 	opened  string
 }
@@ -183,7 +183,7 @@ func kanbanColumn(c *ui.Context, st *kanbanState, ci int, col KanbanColumn, cols
 	status := projectStatus(opts.Statuses, col.Status)
 	over := col.WIP > 0 && len(idx) > col.WIP
 	full := col.WIP > 0 && len(idx) >= col.WIP
-	box := ui.Column(c).Key(col.Status).Width(d.ControlHeight()*7.5).Shrink(0).Gap(d.Unit()*2).Padding(d.Unit()*2).
+	box := ui.Column(c.Key(col.Status)).Width(d.ControlHeight()*7.5).Shrink(0).Gap(d.Unit()*2).Padding(d.Unit()*2).
 		Radius(theme.CardRadius).Background(k.Background).Border(theme.BorderWidth, k.Border).Role(ui.RoleGroup).Label(status.Name)
 	if id, ok := ui.Drop[kanbanDrag](box); ok && !box.IsDisabled() {
 		move(string(id), col.Status, "", "drag")

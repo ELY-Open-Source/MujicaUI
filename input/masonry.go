@@ -46,7 +46,7 @@ type masonryLayout struct {
 }
 
 // Masonry lays n items in as many columns as fit, each into the shortest column, building only those in view.
-func Masonry(c *ui.Context, n int, opts MasonryOptions, item func(i int)) *ui.Element {
+func Masonry(c *ui.Context, n int, opts MasonryOptions, item func(i int)) ui.Element {
 	if opts.Key == nil || item == nil {
 		panic("mujica: Masonry needs Key and item")
 	}
@@ -98,7 +98,7 @@ func masonryBuild(c *ui.Context, s *masonryState, l *masonryLayout, colW, top, b
 			}
 			*seen = append(*seen, i)
 			key := l.keys[i]
-			box := ui.Column(c).Key(key).Absolute().Left(l.x[i]).Top(l.y[i]).Width(colW)
+			box := ui.Column(c.Key(key)).Absolute().Left(l.x[i]).Top(l.y[i]).Width(colW)
 			box.Children(func() { item(i) })
 			if h := box.Bounds().H; h > 0 && math.Abs(float64(h-l.h[i])) > 0.5 {
 				s.heights[key] = h

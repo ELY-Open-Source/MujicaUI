@@ -20,12 +20,12 @@ func codeFont(c *ui.Context) ui.Font {
 }
 
 // CodeMono is a single-line monospace text.
-func CodeMono(c *ui.Context, s string) *ui.Element {
+func CodeMono(c *ui.Context, s string) ui.Element {
 	return ui.Text(c, s).Font(theme.MonoFont).FontSize(core.FontSize(c, CodeSize)).SingleLine()
 }
 
 // CodeCaption is muted caption text.
-func CodeCaption(c *ui.Context, s string) *ui.Element {
+func CodeCaption(c *ui.Context, s string) ui.Element {
 	return ui.Text(c, s).FontSize(core.FontSize(c, theme.CaptionSize)).TextColor(core.Tokens(c).TextMuted).SingleLine()
 }
 
@@ -116,13 +116,13 @@ func CodeMatchSpans(c *ui.Context, text, query string) []ui.Span {
 }
 
 // CodePanel is a framed surface holding a code tool.
-func CodePanel(c *ui.Context) *ui.Element {
+func CodePanel(c *ui.Context) ui.Element {
 	k := core.Tokens(c)
 	return ui.Column(c).MinHeight(0).Background(k.Surface).Border(theme.BorderWidth, k.Border).Radius(theme.ControlRadius).Clip()
 }
 
 // CodeHeader is a panel's top strip of tools.
-func CodeHeader(c *ui.Context, fn func()) *ui.Element {
+func CodeHeader(c *ui.Context, fn func()) ui.Element {
 	k := core.Tokens(c)
 	u := core.Density(c).Unit()
 	return ui.Row(c).Shrink(0).MinHeight(theme.MinHitSize+2*u).Padding(u, u*2).Gap(u*2).AlignItems(ui.Center).
@@ -140,7 +140,7 @@ func CodeSelectMark(c *ui.Context, on bool) {
 }
 
 // CodeRows builds a growing virtual list with marks.
-func CodeRows(c *ui.Context, s *ui.ListState, n int, row func(i int)) *ui.Element {
+func CodeRows(c *ui.Context, s *ui.ListState, n int, row func(i int)) ui.Element {
 	d := core.Density(c)
 	restore := data.DataSelectTheme(c, 0)
 	defer restore()

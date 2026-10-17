@@ -209,7 +209,7 @@ func fileDropZoneList(c *ui.Context, st *fileDropZoneState, files *[]DroppedFile
 	k := core.Tokens(c)
 	d := core.Density(c)
 	row := func(key string, icon string, color ui.Color, name, detail string, remove func()) {
-		ui.Row(c).Key(key).Gap(d.Unit()*2).AlignItems(ui.Center).MinHeight(d.ControlHeight()).Padding(0, d.Unit()*2).
+		ui.Row(c.Key(key)).Gap(d.Unit()*2).AlignItems(ui.Center).MinHeight(d.ControlHeight()).Padding(0, d.Unit()*2).
 			BorderWidth(0, 0, theme.BorderWidth, 0).BorderColor(k.Border).Children(func() {
 			ui.Icon(c, icons.Must(icon)).Size(16, 16).TextColor(color)
 			ui.Text(c, name).SingleLine().Ellipsis("…").MinWidth(0).Shrink(1)

@@ -33,13 +33,12 @@ func mktState0(r ChartResult) *mktState {
 func TestCandlestickChartDrawsOnlyVisible(t *testing.T) {
 	candles := sampleCandles(100000)
 	var view MarketView
-	var res ChartResult
+	var st *mktState
 	tt := ui.NewTester(func(c *ui.Context) {
 		core.Use(c, core.Settings{})
-		res = CandlestickChart(c, candles, &view, CandlestickOptions{Frame: ChartFrame{Label: "BTC"}})
+		st = mktState0(CandlestickChart(c, candles, &view, CandlestickOptions{Frame: ChartFrame{Label: "BTC"}}))
 	}, 900, 400)
 	tt.Frame()
-	st := mktState0(res)
 	if st.drawn != 120 {
 		t.Fatalf("drew %d candles of 100000", st.drawn)
 	}

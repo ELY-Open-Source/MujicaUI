@@ -12,7 +12,7 @@ if input.Button(c, "Save", input.ButtonOptions{Icon: icons.Must("check")}).Click
 }
 ```
 
-签名：`func Button(c *ui.Context, label string, opts ButtonOptions) *ui.Element`
+签名：`func Button(c *ui.Context, label string, opts ButtonOptions) ui.Element`
 
 ## 参数
 

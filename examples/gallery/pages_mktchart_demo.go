@@ -87,7 +87,7 @@ func mktDemo(c *ui.Context, log func(string), id string) {
 				}
 			case "149":
 				for _, chartID := range []string{"price", "other"} {
-					ui.Column(c).Key(chartID).Children(func() {
+					ui.Column(c.Key(chartID)).Children(func() {
 						if s.sync.Link(c, chartID).Changed() {
 							log("Sync: " + chartID)
 						}

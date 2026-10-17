@@ -56,7 +56,7 @@ func SystemMonitor(c *ui.Context, times []time.Time, metrics []MonitorMetric, op
 			return
 		}
 		for _, m := range metrics {
-			panel := ui.Column(c).Key(m.Name).Gap(u)
+			panel := ui.Column(c.Key(m.Name)).Gap(u)
 			series := ui.Local(panel, "mujica.monitor.series", func() []chart.ChartSeries { return []chart.ChartSeries{{Name: m.Name, Values: m.Samples}} })
 			(*series)[0].Name, (*series)[0].Values = m.Name, m.Samples
 			panel.Children(func() {

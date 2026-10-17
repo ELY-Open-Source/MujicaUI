@@ -37,7 +37,7 @@ type ToolRegistryPanelOptions struct {
 
 // ToolRegistryResult is a built ToolRegistryPanel and its events.
 type ToolRegistryResult struct {
-	Element *ui.Element
+	Element ui.Element
 	List    data.ListView
 	toggled string
 	on      bool
@@ -123,7 +123,7 @@ func toolSchema(c *ui.Context, t AgentTool) {
 		ui.Text(c, core.Msg(c, "tool_registry_panel.no_params")).TextColor(k.TextMuted)
 		return
 	}
-	ui.Column(c).Key(t.Name).Grow(1).MinHeight(0).Children(func() {
+	ui.Column(c.Key(t.Name)).Grow(1).MinHeight(0).Children(func() {
 		ui.List(c, nil, len(t.Params), func(i int) {
 			p := t.Params[i]
 			ui.Column(c).Gap(2).MinHeight(core.Density(c).ControlHeight()).Children(func() {

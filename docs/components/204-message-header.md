@@ -10,7 +10,7 @@
 chat.MessageHeader(c, chat.MessageHeaderOptions{Model: "herald-2", Time: time.Now(), Status: chat.MessageSent})
 ```
 
-签名：`func MessageHeader(c *ui.Context, opts MessageHeaderOptions) *ui.Element`
+签名：`func MessageHeader(c *ui.Context, opts MessageHeaderOptions) ui.Element`
 
 ## 参数
 

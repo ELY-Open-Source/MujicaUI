@@ -17,7 +17,7 @@ view := func(c *ui.Context) {
 ui.Render(view, 400, 300, 1)
 ```
 
-签名：`func Presence(c *ui.Context, show bool, opts PresenceOptions, content func()) *ui.Element`
+签名：`func Presence(c *ui.Context, show bool, opts PresenceOptions, content func()) ui.Element`
 
 ## 参数
 

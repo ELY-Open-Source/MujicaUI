@@ -53,7 +53,7 @@ func TestChartTooltipFollowsFocusAndPointer(t *testing.T) {
 	if tooltipShown(tt) {
 		t.Fatal("tooltip stayed after Escape")
 	}
-	b := h.res.Element.Bounds()
+	b := h.box(tt)
 	tt.Move(b.X+b.W/2, b.Y+b.H/2)
 	if !tooltipShown(tt) {
 		t.Fatal("no tooltip under the pointer")

@@ -28,7 +28,7 @@ func (a *drawerApp) view(c *ui.Context) {
 	})
 	if p := Drawer(c, &a.open, a.opts, func() {
 		input.Button(c, "Apply", input.ButtonOptions{})
-	}); p != nil {
+	}); p.Valid() {
 		a.panel = p.Bounds()
 	}
 }

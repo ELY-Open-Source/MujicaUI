@@ -23,7 +23,7 @@ type IssueCardOptions struct {
 }
 
 // IssueCard displays task fields in a selectable card.
-func IssueCard(c *ui.Context, task Task, opts IssueCardOptions) *ui.Element {
+func IssueCard(c *ui.Context, task Task, opts IssueCardOptions) ui.Element {
 	projectCheckPriority(task.Priority)
 	st := projectStatus(opts.Statuses, task.Status)
 	k := core.Tokens(c)

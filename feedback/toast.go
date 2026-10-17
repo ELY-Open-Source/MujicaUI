@@ -243,7 +243,7 @@ func Toaster(c *ui.Context) ToasterResult {
 // toastCard builds one toast and reports its events and whether hover or focus holds it.
 func toastCard(c *ui.Context, k theme.Tokens, u, width float32, m ToastMessage) (action, closed, held bool) {
 	tone, icon := core.SeverityLook(k, m.Severity)
-	card := ui.Row(c).Key(m.ID).Width(width).AlignItems(ui.Center).Gap(u*3).Padding(u*2, u*2, u*2, u*4).
+	card := ui.Row(c.Key(m.ID)).Width(width).AlignItems(ui.Center).Gap(u*3).Padding(u*2, u*2, u*2, u*4).
 		Radius(theme.PopupRadius).Background(k.Surface).Border(theme.BorderWidth, k.ControlBorder).
 		Role(ui.RoleStatus).Label(m.Message)
 	card.Shadow(0, 4, 12, 0, ui.RGBA(0, 0, 0, 0.14))

@@ -56,7 +56,7 @@ type ArchiveViewerOptions struct {
 
 // ArchiveViewerResult is the viewer and the entry opened this frame.
 type ArchiveViewerResult struct {
-	Element *ui.Element
+	Element ui.Element
 	Opened  *ArchiveEntry
 	Retried bool
 }

@@ -15,7 +15,7 @@ type ToolbarOptions struct {
 }
 
 // Toolbar is one Tab stop of actions; those that do not fit go to an overflow menu.
-func Toolbar(c *ui.Context, opts ToolbarOptions, fn func()) *ui.Element {
+func Toolbar(c *ui.Context, opts ToolbarOptions, fn func()) ui.Element {
 	k := core.Tokens(c)
 	tb := ui.Toolbar(c, fn).Background(k.Surface).Border(theme.BorderWidth, k.Border).Radius(theme.CardRadius).
 		MinHeight(core.Density(c).ControlHeight() + 8)
@@ -34,7 +34,7 @@ type ToolbarButtonOptions struct {
 }
 
 // ToolbarButton is an action of a Toolbar; label names it and its overflow menu item.
-func ToolbarButton(c *ui.Context, label string, opts ToolbarButtonOptions) *ui.Element {
+func ToolbarButton(c *ui.Context, label string, opts ToolbarButtonOptions) ui.Element {
 	if label == "" {
 		panic("mujica: ToolbarButton needs a label")
 	}
@@ -70,7 +70,7 @@ func ToolbarButton(c *ui.Context, label string, opts ToolbarButtonOptions) *ui.E
 }
 
 // ToolbarGroup keeps related actions together; the overflow menu sets groups apart.
-func ToolbarGroup(c *ui.Context, fn func()) *ui.Element {
+func ToolbarGroup(c *ui.Context, fn func()) ui.Element {
 	return ui.Row(c).AlignItems(ui.Center).Gap(core.Density(c).Unit() * 0.5).Shrink(0).Role(ui.RoleGroup).Children(fn)
 }
 

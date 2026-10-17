@@ -2,16 +2,16 @@ package core
 
 import (
 	"log/slog"
-	"time"
 
 	"github.com/egoist/mygo/ui"
 )
 
 // overlayLayers is the window's open MujicaUI layers, oldest first.
 type overlayLayers struct {
-	frame, prev time.Time
-	keys        []any
-	seen        []time.Time
+	root ui.Element // compared only: a new root means a new build pass
+	pass int
+	keys []any
+	seen []int
 }
 
 type overlayLayersKey struct{}
@@ -19,11 +19,12 @@ type overlayLayersKey struct{}
 // OverlayLayer marks the layer key open in this frame and reports whether it is on top.
 func OverlayLayer(c *ui.Context, key any) bool {
 	s := ui.Local(c.Root(), overlayLayersKey{}, func() overlayLayers { return overlayLayers{} })
-	if now := c.Now(); now != s.frame {
-		s.prev, s.frame = s.frame, now
+	if root := c.Root(); root != s.root {
+		s.root = root
+		s.pass++
 		n := 0
 		for i, k := range s.keys {
-			if !s.seen[i].Before(s.prev) { // drop layers the last frame did not build
+			if s.seen[i] >= s.pass-1 { // drop layers the last pass did not build
 				s.keys[n], s.seen[n] = k, s.seen[i]
 				n++
 			}
@@ -38,10 +39,10 @@ func OverlayLayer(c *ui.Context, key any) bool {
 		}
 	}
 	if at < 0 {
-		s.keys, s.seen = append(s.keys, key), append(s.seen, s.frame)
+		s.keys, s.seen = append(s.keys, key), append(s.seen, s.pass)
 		at = len(s.keys) - 1
 	}
-	s.seen[at] = s.frame
+	s.seen[at] = s.pass
 	return at == len(s.keys)-1
 }
 
@@ -76,7 +77,7 @@ type overlaySiteState struct {
 }
 
 // OverlaySite builds the invisible focus fallback at a layer's call site.
-func OverlaySite(c *ui.Context) (*ui.Element, *overlaySiteState) {
+func OverlaySite(c *ui.Context) (ui.Element, *overlaySiteState) {
 	site := ui.Box(c).Size(0, 0).FocusRing(false)
 	st := ui.Local(site, "mujica.overlay.site", func() overlaySiteState { return overlaySiteState{} })
 	st.holding = st.holding && site.FocusWithin()
@@ -89,12 +90,12 @@ func OverlaySite(c *ui.Context) (*ui.Element, *overlaySiteState) {
 }
 
 // Shown records whether the focus is in the open layer's panel.
-func (st *overlaySiteState) Shown(panel *ui.Element) {
-	st.focusIn, st.wait = panel != nil && panel.FocusWithin(), 0
+func (st *overlaySiteState) Shown(panel ui.Element) {
+	st.focusIn, st.wait = panel.Valid() && panel.FocusWithin(), 0
 }
 
 // Closed moves a lost focus to the site once MyGo has had its chance to restore it.
-func (st *overlaySiteState) Closed(c *ui.Context, site *ui.Element) {
+func (st *overlaySiteState) Closed(c *ui.Context, site ui.Element) {
 	if st.focusIn {
 		st.focusIn, st.wait = false, 2 // MyGo prunes the panel at the end of the next frame
 	}

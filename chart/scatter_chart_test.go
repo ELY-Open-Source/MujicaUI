@@ -47,7 +47,7 @@ func TestScatterChartBoxSelect(t *testing.T) {
 		return ScatterChart(c, &sel, scatterGroups, ScatterChartOptions{Frame: ChartFrame{Label: "Choir"}})
 	}}
 	tt := ui.NewTester(h.view, 520, 420)
-	b := h.res.Element.Bounds()
+	b := h.box(tt)
 	top := b.Y + 38
 	// Nice domains: x 0..10 over 52..W-12; y 0..10 over top+8..top+214.
 	x := func(v float32) float32 { return b.X + 52 + (b.W-64)*v/10 }

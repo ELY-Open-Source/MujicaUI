@@ -14,13 +14,13 @@ import (
 
 // CoachmarkStep uses an anchor built in the current frame.
 type CoachmarkStep struct {
-	Anchor      *ui.Element
+	Anchor      ui.Element
 	Title, Body string
 }
 
 // CoachmarkResult reports tour completion or dismissal.
 type CoachmarkResult struct {
-	Element             *ui.Element
+	Element             ui.Element
 	finished, dismissed bool
 }
 
@@ -40,7 +40,7 @@ func Coachmark(c *ui.Context, open *bool, step *int, steps []CoachmarkStep) Coac
 		return r
 	}
 	cur := steps[*step]
-	if cur.Anchor == nil || cur.Title == "" {
+	if !cur.Anchor.Valid() || cur.Title == "" {
 		panic("mujica: CoachmarkStep needs an Anchor and a Title")
 	}
 	if cur.Anchor.IsDisabled() {
@@ -76,7 +76,7 @@ func Coachmark(c *ui.Context, open *bool, step *int, steps []CoachmarkStep) Coac
 				if last {
 					next = core.Msg(c, "coachmark.done")
 				}
-				if input.Button(c, next, input.ButtonOptions{}).AutoFocus().Clicked() {
+				if core.AutoFocus(c, input.Button(c, next, input.ButtonOptions{})).Clicked() {
 					if last {
 						*open, r.finished = false, true
 					} else {

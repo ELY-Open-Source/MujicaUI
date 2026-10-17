@@ -39,7 +39,7 @@ type CurrencyConverterOptions struct {
 }
 
 type CurrencyConverterView struct {
-	Element *ui.Element
+	Element ui.Element
 	Result  float64
 	// PairChanged asks the caller for the new pair's rate.
 	PairChanged bool
@@ -92,12 +92,12 @@ func CurrencyConverter(c *ui.Context, s *CurrencyConverterState, currencies []Cu
 	}
 	v.Element.Children(func() {
 		ui.Row(c).Gap(u * 2).AlignItems(ui.End).Wrap().Children(func() {
-			input.FormField(c, core.Msg(c, "currency_converter.amount"), input.FormFieldOptions{}, func() *ui.Element {
+			input.FormField(c, core.Msg(c, "currency_converter.amount"), input.FormFieldOptions{}, func() ui.Element {
 				r := input.NumberInput(c, &s.Amount, input.NumberInputOptions{Min: 0, Max: 1e15, Step: math.Pow(10, -float64(from.Decimals)),
 					Precision: from.Decimals, Label: core.Msg(c, "currency_converter.amount"), Disabled: opts.Disabled})
 				return r.Element.Width(170)
 			})
-			input.FormField(c, core.Msg(c, "currency_converter.from"), input.FormFieldOptions{}, func() *ui.Element {
+			input.FormField(c, core.Msg(c, "currency_converter.from"), input.FormFieldOptions{}, func() ui.Element {
 				r := input.Select(c, &s.From, options, input.SelectOptions{Label: core.Msg(c, "currency_converter.from"), Disabled: opts.Disabled})
 				v.PairChanged = v.PairChanged || r.Changed()
 				return r.Element
@@ -106,7 +106,7 @@ func CurrencyConverter(c *ui.Context, s *CurrencyConverterState, currencies []Cu
 			if swap.Clicked() && !swap.IsDisabled() {
 				s.From, s.To, v.PairChanged = s.To, s.From, true
 			}
-			input.FormField(c, core.Msg(c, "currency_converter.to"), input.FormFieldOptions{}, func() *ui.Element {
+			input.FormField(c, core.Msg(c, "currency_converter.to"), input.FormFieldOptions{}, func() ui.Element {
 				r := input.Select(c, &s.To, options, input.SelectOptions{Label: core.Msg(c, "currency_converter.to"), Disabled: opts.Disabled})
 				v.PairChanged = v.PairChanged || r.Changed()
 				return r.Element

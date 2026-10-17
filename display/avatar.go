@@ -18,7 +18,7 @@ type AvatarOptions struct {
 }
 
 // Avatar shows a person as picture, initials or icon.
-func Avatar(c *ui.Context, name string, opts AvatarOptions) *ui.Element {
+func Avatar(c *ui.Context, name string, opts AvatarOptions) ui.Element {
 	size := opts.Size
 	if size < 0 {
 		panic("mujica: Avatar Size must not be negative")

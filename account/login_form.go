@@ -40,7 +40,7 @@ type LoginFormOptions struct {
 }
 
 // LoginForm collects credentials; it never checks or stores them.
-func LoginForm(c *ui.Context, s *LoginFormState, opts LoginFormOptions) *ui.Element {
+func LoginForm(c *ui.Context, s *LoginFormState, opts LoginFormOptions) ui.Element {
 	if opts.OnSubmit == nil {
 		panic("mujica: LoginForm needs OnSubmit")
 	}
@@ -61,11 +61,11 @@ func LoginForm(c *ui.Context, s *LoginFormState, opts LoginFormOptions) *ui.Elem
 	submit := false
 	var acc, pw input.InputResult
 	e.Children(func() {
-		input.FormField(c, accountLabel, input.FormFieldOptions{Required: true}, func() *ui.Element {
+		input.FormField(c, accountLabel, input.FormFieldOptions{Required: true}, func() ui.Element {
 			acc = input.TextInput(c, &s.Account, input.TextInputOptions{Disabled: disabled || s.submitting, Error: missing(s.Account)})
 			return acc.Input
 		})
-		input.FormField(c, core.Msg(c, "login_form.password"), input.FormFieldOptions{Required: true}, func() *ui.Element {
+		input.FormField(c, core.Msg(c, "login_form.password"), input.FormFieldOptions{Required: true}, func() ui.Element {
 			pw = input.PasswordInput(c, &s.password, input.PasswordInputOptions{Disabled: disabled || s.submitting, Error: missing(s.password)})
 			return pw.Input
 		})

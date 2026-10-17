@@ -26,7 +26,7 @@ type CapabilityCardsOptions struct {
 
 // CapabilityCardsView is built CapabilityCards and the example clicked this frame.
 type CapabilityCardsView struct {
-	Element *ui.Element
+	Element ui.Element
 	// Example is the example prompt chosen, empty for none.
 	Example string
 }
@@ -49,7 +49,7 @@ func CapabilityCards(c *ui.Context, cards []CapabilityCard, opts CapabilityCards
 			if card.Title == "" {
 				panic("mujica: CapabilityCard needs a Title")
 			}
-			box := ui.Column(c).Key(i).Gap(d.Unit()*2).Padding(d.Unit()*4).Background(k.Surface).
+			box := ui.Column(c.Key(i)).Gap(d.Unit()*2).Padding(d.Unit()*4).Background(k.Surface).
 				Border(theme.BorderWidth, k.Border).Radius(theme.CardRadius).Role(ui.RoleGroup).Label(card.Title)
 			box.Children(func() {
 				ui.Row(c).Gap(d.Unit() * 2).AlignItems(ui.Center).Children(func() {

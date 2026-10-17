@@ -38,7 +38,7 @@ type GitStatusBadgeOptions struct {
 }
 
 // GitStatusBadge marks a status by letter, outline and color.
-func GitStatusBadge(c *ui.Context, status GitStatus, opts GitStatusBadgeOptions) *ui.Element {
+func GitStatusBadge(c *ui.Context, status GitStatus, opts GitStatusBadgeOptions) ui.Element {
 	k := core.Tokens(c)
 	name := core.Msg(c, "git_status_badge."+gitStatusKeys[gitStatusIndex(status)])
 	col := gitStatusColor(k, status)

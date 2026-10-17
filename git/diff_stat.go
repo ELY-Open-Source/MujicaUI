@@ -17,7 +17,7 @@ type DiffStatOptions struct {
 }
 
 // DiffStat shows added and deleted counts with a ratio bar.
-func DiffStat(c *ui.Context, added, deleted int, opts DiffStatOptions) *ui.Element {
+func DiffStat(c *ui.Context, added, deleted int, opts DiffStatOptions) ui.Element {
 	if added < 0 || deleted < 0 {
 		panic("mujica: DiffStat counts must not be negative")
 	}

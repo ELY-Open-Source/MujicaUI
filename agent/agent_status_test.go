@@ -33,16 +33,14 @@ func TestAgentStatusAnimationStopsWhenStill(t *testing.T) {
 	}, 300, 100)
 	tt.Frame()
 	moving := string(tt.Image().Pix)
-	time.Sleep(80 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(80 * time.Millisecond)
 	if moving == string(tt.Image().Pix) {
 		t.Fatal("running status did not animate")
 	}
 	still = true
 	tt.Frame()
 	a := string(tt.Image().Pix)
-	time.Sleep(80 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(80 * time.Millisecond)
 	if a != string(tt.Image().Pix) {
 		t.Fatal("still status kept moving")
 	}

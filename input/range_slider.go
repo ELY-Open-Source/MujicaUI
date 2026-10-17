@@ -39,7 +39,7 @@ func RangeSlider(c *ui.Context, low, high *float64, opts RangeSliderOptions) cor
 	px, _, _ := e.PointerPosition()
 	r := e.Bounds()
 	at := g.snap(g.lo + float64((px-SliderThumb/2)/max(r.W-SliderThumb, 1))*(g.hi-g.lo))
-	var knobs [2]*ui.Element
+	var knobs [2]ui.Element
 	pressed := false
 	e.Children(func() {
 		for i, v := range []*float64{low, high} {
@@ -48,11 +48,11 @@ func RangeSlider(c *ui.Context, low, high *float64, opts RangeSliderOptions) cor
 				from, to = *low, g.hi
 			}
 			x := g.X(ui.Rect{W: r.W}, *v) - SliderThumb/2
-			var kb *ui.Element
+			var kb ui.Element
 			var next float64
 			var held bool
 			// Each thumb is a SliderBase, which reports the range and value to assistive technology.
-			ui.Box(c).Key(i).Absolute().Left(x).Top(g.TrackY-SliderThumb/2).Size(SliderThumb, SliderThumb).Children(func() {
+			ui.Box(c.Key(i)).Absolute().Left(x).Top(g.TrackY-SliderThumb/2).Size(SliderThumb, SliderThumb).Children(func() {
 				kb, next, held = SliderControl(c, *v, g, from, to)
 			})
 			kb.Size(SliderThumb, SliderThumb).FocusRing(false)

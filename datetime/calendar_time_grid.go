@@ -60,7 +60,7 @@ func timeGridSlot(name string, slot int) int {
 }
 
 // timeGrid draws day columns and turns gestures into changes.
-func timeGrid(c *ui.Context, root *ui.Element, days []core.Date, events []CalendarEvent, cfg timeGridConfig, r *CalendarViewResult) {
+func timeGrid(c *ui.Context, root ui.Element, days []core.Date, events []CalendarEvent, cfg timeGridConfig, r *CalendarViewResult) {
 	k := core.Tokens(c)
 	d := core.Density(c)
 	hourH := d.ControlHeight() * 2
@@ -266,7 +266,7 @@ func timeChip(c *ui.Context, i int, pl timePlaced, ev CalendarEvent, cfg timeGri
 	if mine && g.kind == CalendarResize {
 		growY = float32(snap(g.dy)) * hourH / 60
 	}
-	box := ui.Box(c).Key(ev.ID).Absolute().Top(from + shiftY).Height(max(to-from+growY, theme.MinHitSize)).
+	box := ui.Box(c.Key(ev.ID)).Absolute().Top(from + shiftY).Height(max(to-from+growY, theme.MinHitSize)).
 		LeftPercent(100 * float32(pl.col) / float32(pl.cols)).WidthPercent(100 / float32(pl.cols)).Padding(1)
 	box.Children(func() {
 		chip := EventChip(c, ev, EventChipOptions{Location: cfg.loc, Hour12: cfg.hour12, Selected: mine, Inline: to-from < hourH*0.75}).Fill()
@@ -291,7 +291,7 @@ func timeChip(c *ui.Context, i int, pl timePlaced, ev CalendarEvent, cfg timeGri
 			}
 		}
 		for _, part := range []struct {
-			e    *ui.Element
+			e    ui.Element
 			kind CalendarChangeKind
 		}{{chip, CalendarMove}, {handle, CalendarResize}} {
 			dx, dy, ok := part.e.Dragged()

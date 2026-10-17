@@ -192,7 +192,7 @@ func timeParts(cfg timeConfig) []timePart {
 }
 
 // timeEditor draws segments and popup; reports edits and invalid entry.
-func timeEditor(c *ui.Context, draft *TimeOfDay, cfg timeConfig) (field *ui.Element, edited bool, bad string) {
+func timeEditor(c *ui.Context, draft *TimeOfDay, cfg timeConfig) (field ui.Element, edited bool, bad string) {
 	k := core.Tokens(c)
 	d := core.Density(c)
 	field = core.DatetimeField(c, ui.Row(c), cfg.problem != "", cfg.readOnly).Gap(d.Unit() * 2)
@@ -268,7 +268,7 @@ func timeLimits(part timePart, cfg timeConfig) (lo, hi int) {
 }
 
 // timeSegment draws one segment; done reports a complete valid entry, bad an invalid one.
-func timeSegment(c *ui.Context, draft *TimeOfDay, part timePart, cfg timeConfig, bad *timeBad, edited *bool) (seg *ui.Element, done bool) {
+func timeSegment(c *ui.Context, draft *TimeOfDay, part timePart, cfg timeConfig, bad *timeBad, edited *bool) (seg ui.Element, done bool) {
 	k := core.Tokens(c)
 	d := core.Density(c)
 	name := core.Msg(c, timePartNames[part])

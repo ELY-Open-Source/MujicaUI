@@ -16,7 +16,7 @@ view := func(c *ui.Context) {
 	core.Use(c, core.Settings{})
 	account.SettingsLayout(c, &page, pages, account.SettingsLayoutOptions{}, func(id string) {
 		account.SettingsSection(c, "Notifications", func() {
-			account.SettingsRow(c, "Sound", account.SettingsRowOptions{ID: "sound"}, func() *ui.Element {
+			account.SettingsRow(c, "Sound", account.SettingsRowOptions{ID: "sound"}, func() ui.Element {
 				return input.Switch(c, &sound, "", input.SwitchOptions{})
 			})
 		})
@@ -33,7 +33,7 @@ ui.Render(view, 400, 300, 1)
 | `pages` | `[]SettingsPage` | 必填 | ID、Label、Icon。 |
 | `Title` | `string` | 内置“Settings” | 导航标题。 |
 | `content` | `func(id string)` | 必填 | 构建分区内容。 |
-| `SettingsRow control` | `func() *ui.Element` | 必填 | 返回控件；行标签与说明关联到它。 |
+| `SettingsRow control` | `func() ui.Element` | 必填 | 返回控件；行标签与说明关联到它。 |
 | `SettingsRowOptions.ID` | `string` | "" | 供 SettingsSearch 跳转定位。 |
 
 ## 状态

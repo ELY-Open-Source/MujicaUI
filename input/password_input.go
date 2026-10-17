@@ -26,15 +26,15 @@ func PasswordInput(c *ui.Context, value *string, opts PasswordInputOptions) Inpu
 	}
 	var r InputResult
 	look := &textInputLook{disabled: opts.Disabled, err: opts.Error}
-	r.Element, r.Input = textInputFrame(c, look, func(frame *ui.Element) *ui.Element {
+	r.Element, r.Input = textInputFrame(c, look, func(frame ui.Element) ui.Element {
 		shown := ui.Local(frame, "shown", func() bool { return false })
-		var in *ui.Element
+		var in ui.Element
 		// MyGo's mask cannot be lifted, so each mode keeps its own editor.
 		mode := "masked"
 		if *shown {
 			mode = "shown"
 		}
-		ui.Row(c).Key(mode).Grow(1).Children(func() {
+		ui.Row(c.Key(mode)).Grow(1).Children(func() {
 			in = TextInputEditor(c, frame, value, look.disabled, ui.TextInputBase).Grow(1).MinWidth(core.Density(c).Unit() * 10).
 				Placeholder(opts.Placeholder).Label(opts.Label)
 			if !*shown {

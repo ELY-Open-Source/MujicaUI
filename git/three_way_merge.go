@@ -187,7 +187,7 @@ func threeWayMergeChunk(c *ui.Context, s *ThreeWayMergeState, i int) bool {
 }
 
 // mergeChoiceButton is a toggle marking the chosen side.
-func mergeChoiceButton(c *ui.Context, label string, on bool) *ui.Element {
+func mergeChoiceButton(c *ui.Context, label string, on bool) ui.Element {
 	k := core.Tokens(c)
 	u := core.Density(c).Unit()
 	b := ui.ButtonBase(c).MinHeight(theme.MinHitSize).Padding(0, u*3).Gap(u*1.5).Radius(theme.ControlRadius).

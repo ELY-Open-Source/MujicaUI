@@ -48,7 +48,7 @@ type ProcessListOptions struct {
 
 // ProcessListResult carries a confirmed end request.
 type ProcessListResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// End is the confirmed process to end, or nil.
 	End *Process
 }

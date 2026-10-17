@@ -19,7 +19,7 @@ type VoiceWaveformOptions struct {
 }
 
 // VoiceWaveform draws recent input levels and a silence hint.
-func VoiceWaveform(c *ui.Context, levels []float32, opts VoiceWaveformOptions) *ui.Element {
+func VoiceWaveform(c *ui.Context, levels []float32, opts VoiceWaveformOptions) ui.Element {
 	if opts.Silence < 0 || opts.Silence >= 1 || opts.SilentFor < 0 || opts.Width < 0 {
 		panic("mujica: VoiceWaveform needs 0 <= Silence < 1 and non-negative SilentFor and Width")
 	}

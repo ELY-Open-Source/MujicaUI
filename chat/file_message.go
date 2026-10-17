@@ -26,7 +26,7 @@ type FileMessageOptions struct {
 
 // FileMessageResult is a FileMessage's element and this frame's actions.
 type FileMessageResult struct {
-	Element            *ui.Element
+	Element            ui.Element
 	opened, downloaded bool
 }
 

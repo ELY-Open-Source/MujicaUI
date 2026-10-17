@@ -53,7 +53,7 @@ func TaskItem(c *ui.Context, task *Task, opts TaskItemOptions) ProjectResult {
 		if edit.on && !row.IsDisabled() {
 			in := input.TextInput(c, &edit.draft, input.TextInputOptions{Label: core.Msg(c, "task_item.rename")})
 			in.Element.Grow(1)
-			in.Input.AutoFocus()
+			core.AutoFocus(c, in.Input)
 			switch {
 			case in.Submitted() && strings.TrimSpace(edit.draft) != "":
 				if t := strings.TrimSpace(edit.draft); t != task.Title {

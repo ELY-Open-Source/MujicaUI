@@ -47,7 +47,7 @@ type StatusBarOptions struct {
 
 // StatusBarResult is a StatusBar and its event in this frame.
 type StatusBarResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Clicked is the ID of the action item clicked, or empty.
 	Clicked string
 }
@@ -86,7 +86,7 @@ func StatusBar(c *ui.Context, opts StatusBarOptions) StatusBarResult {
 		return hasFocus
 	}
 	group := func(key string, items []StatusItem) {
-		ui.Row(c).Key(key).Gap(gap).Shrink(0).Dividers(theme.BorderWidth, k.Border).Children(func() {
+		ui.Row(c.Key(key)).Gap(gap).Shrink(0).Dividers(theme.BorderWidth, k.Border).Children(func() {
 			for _, it := range items {
 				if !hidden[it.ID] && item(it) {
 					*focused = it.ID
@@ -96,7 +96,7 @@ func StatusBar(c *ui.Context, opts StatusBarOptions) StatusBarResult {
 	}
 	e.Children(func() {
 		group("status_bar.left", opts.Left)
-		ui.Spacer(c).Key("status_bar.spacer")
+		ui.Spacer(c.Key("status_bar.spacer"))
 		if len(hidden) > 0 {
 			more := statusBarMore(c, len(hidden))
 			if wasFocused != "" && hidden[wasFocused] {
@@ -108,7 +108,7 @@ func StatusBar(c *ui.Context, opts StatusBarOptions) StatusBarResult {
 				slog.Debug("mujica: status_bar hidden items", "open", *open)
 			}
 			if *open {
-				ui.PopoverBase(c, more, open, func(panel *ui.Element) {
+				ui.PopoverBase(c, more, open, func(panel ui.Element) {
 					core.OverlayStyle(c, panel, core.OverlayEnter(c, panel))
 					panel.Margin(d.Unit(), 0, 0, 0).Padding(d.Unit()).Gap(d.Unit()).AlignItems(ui.Stretch)
 					for _, it := range statusBarAll(opts) {
@@ -126,9 +126,9 @@ func StatusBar(c *ui.Context, opts StatusBarOptions) StatusBarResult {
 }
 
 // statusBarMore is the "+N" button that opens the hidden items.
-func statusBarMore(c *ui.Context, n int) *ui.Element {
+func statusBarMore(c *ui.Context, n int) ui.Element {
 	k := core.Tokens(c)
-	b := ui.ButtonBase(c).Key("status_bar.more").MinHeight(theme.MinHitSize).MinWidth(theme.MinHitSize).
+	b := ui.ButtonBase(c.Key("status_bar.more")).MinHeight(theme.MinHitSize).MinWidth(theme.MinHitSize).
 		PaddingX(core.Density(c).Unit()).Radius(theme.ControlRadius).TextColor(k.Text).
 		Label(fmt.Sprintf(core.Msg(c, "status_bar.hidden"), n))
 	internal.Ring(b, k.Focus, theme.ControlRadius)
@@ -248,9 +248,9 @@ func statusBarItem(c *ui.Context, it StatusItem) (clicked, focused bool) {
 	default:
 		panic("mujica: invalid StatusItemTone")
 	}
-	var e *ui.Element
+	var e ui.Element
 	if it.Action {
-		e = ui.ButtonBase(c).Key(it.ID).MinHeight(theme.MinHitSize).MinWidth(theme.MinHitSize).Radius(theme.ControlRadius)
+		e = ui.ButtonBase(c.Key(it.ID)).MinHeight(theme.MinHitSize).MinWidth(theme.MinHitSize).Radius(theme.ControlRadius)
 		internal.Ring(e, k.Focus, theme.ControlRadius)
 		if e.Pressed() {
 			e.Background(k.Selection)
@@ -258,7 +258,7 @@ func statusBarItem(c *ui.Context, it StatusItem) (clicked, focused bool) {
 			e.Background(k.SurfaceHover)
 		}
 	} else {
-		e = ui.Row(c).Key(it.ID).MinHeight(theme.MinHitSize)
+		e = ui.Row(c.Key(it.ID)).MinHeight(theme.MinHitSize)
 	}
 	e.PaddingX(d.Unit()).Gap(d.Unit()).TextColor(fg).Shrink(0)
 	if it.Label != "" {

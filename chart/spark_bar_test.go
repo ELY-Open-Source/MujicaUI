@@ -150,14 +150,14 @@ func TestSparkBarFiniteWidthAndStates(t *testing.T) {
 
 func TestSparkBarMinimumHitWidth(t *testing.T) {
 	for _, values := range [][]float64{nil, {1}} {
-		var result ChartResult
+		var box ui.Rect
 		tt := ui.NewTester(func(c *ui.Context) {
 			core.Use(c, core.Settings{})
-			result = SparkBar(c, values, SparkBarOptions{Frame: ChartFrame{Label: "Bars"}})
+			box = SparkBar(c, values, SparkBarOptions{Frame: ChartFrame{Label: "Bars"}}).Element.Bounds()
 		}, 200, 100)
 		tt.Frame()
-		if result.Element.Bounds().W < 28 {
-			t.Fatalf("hit width %v", result.Element.Bounds().W)
+		if box.W < 28 {
+			t.Fatalf("hit width %v", box.W)
 		}
 	}
 }

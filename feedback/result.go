@@ -35,7 +35,7 @@ type ResultOptions struct {
 
 // ResultResult is what a Result built and reported this frame.
 type ResultResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Action is the index of the clicked action, -1 for none.
 	Action int
 }

@@ -175,7 +175,7 @@ func channelRow(c *ui.Context, k theme.Tokens, ch Channel, on bool) bool {
 	if ch.Unread > 0 {
 		label = fmt.Sprintf(core.Msg(c, "channel_list.unread"), ch.Name, ch.Unread)
 	}
-	b := ui.ButtonBase(c).Key(ch.ID).MinHeight(d.ControlHeight()).Justify(ui.Start).Gap(u*2).Padding(0, u*2, 0, u*5).
+	b := ui.ButtonBase(c.Key(ch.ID)).MinHeight(d.ControlHeight()).Justify(ui.Start).Gap(u*2).Padding(0, u*2, 0, u*5).
 		Radius(theme.ControlRadius).Label(label).Role(ui.RoleTreeItem).Selected(on).Background(ui.Transparent).
 		TextColor(k.Text).Transition(core.ColorFade)
 	internal.Ring(b, k.Focus, theme.ControlRadius)

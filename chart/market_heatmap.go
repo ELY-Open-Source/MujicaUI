@@ -127,7 +127,7 @@ func MarketHeatmap(c *ui.Context, path *[]string, root HeatNode, opts MarketHeat
 			}
 		}
 		r, plot := ch.Build(spec)
-		if plot != nil && !plot.IsDisabled() && plot.Shortcut(0, ui.KeyBackspace) && len(*path) > 0 {
+		if plot.Valid() && !plot.IsDisabled() && plot.Shortcut(0, ui.KeyBackspace) && len(*path) > 0 {
 			*path, res.value = (*path)[:len(*path)-1], true
 		}
 		res.Element, res.Point, res.changed, res.retry = r.Element, r.Point, r.changed, r.retry

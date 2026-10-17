@@ -13,7 +13,7 @@ type ShimmerTextOptions struct {
 }
 
 // ShimmerText sweeps light across a status such as "Thinking".
-func ShimmerText(c *ui.Context, text string, opts ShimmerTextOptions) *ui.Element {
+func ShimmerText(c *ui.Context, text string, opts ShimmerTextOptions) ui.Element {
 	if text == "" {
 		panic("mujica: ShimmerText needs text")
 	}

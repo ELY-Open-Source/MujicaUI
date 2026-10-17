@@ -19,7 +19,7 @@ func ExampleSettingsLayout() {
 		core.Use(c, core.Settings{})
 		account.SettingsLayout(c, &page, pages, account.SettingsLayoutOptions{}, func(id string) {
 			account.SettingsSection(c, "Notifications", func() {
-				account.SettingsRow(c, "Sound", account.SettingsRowOptions{ID: "sound"}, func() *ui.Element {
+				account.SettingsRow(c, "Sound", account.SettingsRowOptions{ID: "sound"}, func() ui.Element {
 					return input.Switch(c, &sound, "", input.SwitchOptions{})
 				})
 			})

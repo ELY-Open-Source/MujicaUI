@@ -18,7 +18,7 @@ type ChartTooltipLine struct {
 }
 
 // ChartTooltip shows readouts beside a window point, avoiding edges.
-func ChartTooltip(c *ui.Context, x, y float32, lines []ChartTooltipLine) *ui.Element {
+func ChartTooltip(c *ui.Context, x, y float32, lines []ChartTooltipLine) ui.Element {
 	if len(lines) == 0 {
 		panic("mujica: ChartTooltip needs a line")
 	}
@@ -45,7 +45,7 @@ func ChartTooltip(c *ui.Context, x, y float32, lines []ChartTooltipLine) *ui.Ele
 	} else {
 		left = max(4, min(x-gap-w, ww-4-w))
 	}
-	var tip *ui.Element
+	var tip ui.Element
 	ui.Overlay(c, func() {
 		tip = ui.Column(c).Absolute().Left(left).Top(top).Size(w, h).Role(ui.RoleNone).PassThrough()
 		core.OverlayStyle(c, tip, core.OverlayEnter(c, tip))

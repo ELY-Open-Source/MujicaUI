@@ -146,7 +146,7 @@ type ConversationExportOptions struct {
 
 // ConversationExportView is a built ConversationExport and the export asked for.
 type ConversationExportView struct {
-	Element *ui.Element
+	Element ui.Element
 	// Exported reports Content is ready for the caller to write.
 	Exported bool
 	Content  string
@@ -172,13 +172,13 @@ func ConversationExport(c *ui.Context, s *ConversationExportState, messages []Se
 	v := ConversationExportView{Element: col, Format: s.Format}
 	content := conversationExportContent(s, messages, opts)
 	col.Children(func() {
-		input.FormField(c, core.Msg(c, "conversation_export.format"), input.FormFieldOptions{}, func() *ui.Element {
+		input.FormField(c, core.Msg(c, "conversation_export.format"), input.FormFieldOptions{}, func() ui.Element {
 			return input.RadioGroup(c, &s.Format, []input.RadioItem[ExportFormat]{
 				{Value: ExportMarkdown, Label: "Markdown"}, {Value: ExportJSON, Label: "JSON"},
 				{Value: ExportText, Label: core.Msg(c, "conversation_export.text")},
 			}, input.RadioGroupOptions{Horizontal: true, Label: core.Msg(c, "conversation_export.format"), Disabled: opts.Disabled}).Element
 		})
-		input.FormField(c, core.Msg(c, "conversation_export.range"), input.FormFieldOptions{}, func() *ui.Element {
+		input.FormField(c, core.Msg(c, "conversation_export.range"), input.FormFieldOptions{}, func() ui.Element {
 			return ui.Row(c).Gap(d.Unit() * 3).AlignItems(ui.Center).Children(func() {
 				input.RadioGroup(c, &s.Range, []input.RadioItem[ExportRange]{
 					{Value: ExportAll, Label: fmt.Sprintf(core.Msg(c, "conversation_export.all"), len(messages))},

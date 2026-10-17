@@ -58,7 +58,7 @@ type ProblemsPanelOptions struct {
 
 // ProblemsPanelResult carries the problem opened.
 type ProblemsPanelResult struct {
-	Element *ui.Element
+	Element ui.Element
 	Opened  *Problem
 }
 

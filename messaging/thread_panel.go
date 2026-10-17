@@ -22,7 +22,7 @@ type ThreadPanelOptions struct {
 
 // ThreadPanelResult is the panel's element and this frame's events.
 type ThreadPanelResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Sent is a reply the user sent; empty is none.
 	Sent string
 }

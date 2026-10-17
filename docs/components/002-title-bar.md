@@ -12,7 +12,7 @@ layout.TitleBar(c, "Court Records", layout.TitleBarOptions{
 })
 ```
 
-签名：`func TitleBar(c *ui.Context, title string, opts TitleBarOptions) *ui.Element`
+签名：`func TitleBar(c *ui.Context, title string, opts TitleBarOptions) ui.Element`
 
 ## 参数
 

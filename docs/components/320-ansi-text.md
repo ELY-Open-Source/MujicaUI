@@ -14,7 +14,7 @@ view := func(c *ui.Context) {
 ui.Render(view, 400, 300, 1)
 ```
 
-签名：`func AnsiText(c *ui.Context, text string, opts AnsiTextOptions) *ui.Element`
+签名：`func AnsiText(c *ui.Context, text string, opts AnsiTextOptions) ui.Element`
 
 ## 参数
 

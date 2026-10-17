@@ -24,7 +24,7 @@ type QuoteCardOptions struct {
 }
 
 // QuoteCard shows a symbol, name, price, change and mini chart.
-func QuoteCard(c *ui.Context, q Quote, opts QuoteCardOptions) *ui.Element {
+func QuoteCard(c *ui.Context, q Quote, opts QuoteCardOptions) ui.Element {
 	if q.Symbol == "" {
 		panic("mujica: QuoteCard needs a Symbol")
 	}

@@ -19,17 +19,17 @@ type FormFieldOptions struct {
 }
 
 // FormField labels the element control returns and shows help and error text for it.
-func FormField(c *ui.Context, label string, opts FormFieldOptions, control func() *ui.Element) *ui.Element {
+func FormField(c *ui.Context, label string, opts FormFieldOptions, control func() ui.Element) ui.Element {
 	if !opts.Horizontal {
 		return formFieldBuild(c, "", label, opts, false, control)
 	}
-	var f *ui.Element
+	var f ui.Element
 	formFieldGrid(c, func() { f = formFieldBuild(c, "", label, opts, true, control) })
 	return f
 }
 
 // formFieldGrid holds fields whose labels sit in a column beside their controls.
-func formFieldGrid(c *ui.Context, fields func()) *ui.Element {
+func formFieldGrid(c *ui.Context, fields func()) ui.Element {
 	d := core.Density(c)
 	return ui.Grid(c).ColumnTracks(ui.FitContent(), ui.Fr(1)).GapX(d.Unit() * 3).GapY(d.Unit() * 4).
 		AlignItems(ui.Start).Children(fields)
@@ -37,13 +37,13 @@ func formFieldGrid(c *ui.Context, fields func()) *ui.Element {
 
 // formFieldBuild builds the label and the control column; beside makes them two grid cells.
 // formFieldBuild keys its cells by key when set, so focus follows a reordered field.
-func formFieldBuild(c *ui.Context, key, label string, opts FormFieldOptions, beside bool, control func() *ui.Element) *ui.Element {
+func formFieldBuild(c *ui.Context, key, label string, opts FormFieldOptions, beside bool, control func() ui.Element) ui.Element {
 	if label == "" {
 		panic("mujica: FormField needs a label")
 	}
 	k := core.Tokens(c)
 	d := core.Density(c)
-	var head, content, ctrl *ui.Element
+	var head, content, ctrl ui.Element
 	body := func() {
 		head = ui.Row(c)
 		if key != "" && beside {
@@ -53,7 +53,7 @@ func formFieldBuild(c *ui.Context, key, label string, opts FormFieldOptions, bes
 		if beside {
 			head.MinHeight(d.ControlHeight()).Justify(ui.End)
 		}
-		var text *ui.Element
+		var text ui.Element
 		head.Children(func() {
 			text = ui.Text(c, label).FontWeight(500).SingleLine()
 			if opts.Required {
@@ -68,7 +68,7 @@ func formFieldBuild(c *ui.Context, key, label string, opts FormFieldOptions, bes
 		content.Gap(d.Unit() * 1.5).MinWidth(0)
 		content.Children(func() {
 			ctrl = control()
-			if ctrl == nil {
+			if !ctrl.Valid() {
 				panic("mujica: FormField " + label + ": control returned nil")
 			}
 			if opts.Description != "" {

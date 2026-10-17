@@ -39,7 +39,7 @@ type MessageActionsOptions struct {
 
 // MessageActionsResult is the toolbar's element and the action chosen this frame.
 type MessageActionsResult struct {
-	Element *ui.Element
+	Element ui.Element
 	action  MessageAction
 }
 

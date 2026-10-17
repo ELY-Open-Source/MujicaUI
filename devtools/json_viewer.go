@@ -43,7 +43,7 @@ type JsonViewerOptions struct {
 
 // JsonViewerResult reports this frame's events.
 type JsonViewerResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Copied is the path written to the clipboard, else "".
 	Copied string
 }

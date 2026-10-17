@@ -34,7 +34,7 @@ type OutputPanelOptions struct {
 
 // OutputPanelResult is an OutputPanel and what happened in this frame.
 type OutputPanelResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Cleared names a channel to clear.
 	Changed bool
 	Cleared string

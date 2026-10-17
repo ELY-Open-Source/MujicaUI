@@ -70,7 +70,7 @@ func WhatsNewDialog(c *ui.Context, open *bool, hide *bool, releases []Release, o
 	r.Element = overlay.Dialog(c, open, overlay.DialogOptions{Title: title, Width: 480, Decorated: true, Actions: func() {
 		input.Checkbox(c, hide, core.Msg(c, "whats_new_dialog.hide"), input.CheckboxOptions{})
 		ui.Box(c).Grow(1)
-		if input.Button(c, core.Msg(c, "whats_new_dialog.close"), input.ButtonOptions{}).AutoFocus().Clicked() {
+		if core.AutoFocus(c, input.Button(c, core.Msg(c, "whats_new_dialog.close"), input.ButtonOptions{})).Clicked() {
 			*open = false
 		}
 	}}, func() {
@@ -78,7 +78,7 @@ func WhatsNewDialog(c *ui.Context, open *bool, hide *bool, releases []Release, o
 			if rel.Version == "" {
 				panic("mujica: Release needs a Version")
 			}
-			ui.Column(c).Key(i).Gap(d.Unit() * 2).Role(ui.RoleGroup).Label(rel.Version).Children(func() {
+			ui.Column(c.Key(i)).Gap(d.Unit() * 2).Role(ui.RoleGroup).Label(rel.Version).Children(func() {
 				ui.Row(c).Gap(d.Unit() * 2).AlignItems(ui.End).Children(func() {
 					ui.Text(c, rel.Version).Font(theme.SerifFont).FontSize(core.FontSize(c, theme.H3Size)).FontWeight(600)
 					if rel.Date != "" {

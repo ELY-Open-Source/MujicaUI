@@ -20,7 +20,7 @@ type SpinnerOptions struct {
 }
 
 // Spinner turns four diamonds only while painted; hidden or under reduced motion it stops.
-func Spinner(c *ui.Context, opts SpinnerOptions) *ui.Element {
+func Spinner(c *ui.Context, opts SpinnerOptions) ui.Element {
 	if !(opts.Size >= 0) || math.IsInf(float64(opts.Size), 1) {
 		panic(fmt.Sprintf("mujica: Spinner Size %v invalid", opts.Size))
 	}
@@ -41,7 +41,7 @@ func Spinner(c *ui.Context, opts SpinnerOptions) *ui.Element {
 	row := ui.Row(c).Gap(Density(c).Unit() * 2).AlignItems(ui.Center)
 	row.Children(func() {
 		// Keyed by motion so a flip repaints; MyGo's spinner carries the progress role.
-		ui.Box(c).Key(still).Shrink(0).Children(func() { spinnerMark(c, label, size, color, still) })
+		ui.Box(c.Key(still)).Shrink(0).Children(func() { spinnerMark(c, label, size, color, still) })
 		if opts.ShowLabel {
 			ui.Text(c, label).TextColor(k.TextMuted).SingleLine()
 		}

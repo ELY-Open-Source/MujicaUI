@@ -150,7 +150,7 @@ func NetworkGraph(c *ui.Context, s *NetworkGraphState, nodes []GraphNode, edges 
 		})
 	}
 	res, plot := ch.Build(spec)
-	if plot == nil || plot.IsDisabled() {
+	if !plot.Valid() || plot.IsDisabled() {
 		return res
 	}
 	hit := func(x, y float32) string {
@@ -165,7 +165,7 @@ func NetworkGraph(c *ui.Context, s *NetworkGraphState, nodes []GraphNode, edges 
 }
 
 // networkInput drags, pans, zooms and moves the focused node.
-func networkInput(plot *ui.Element, s *NetworkGraphState, focus int, nodes []GraphNode, unit func(ui.Rect) float64, hit func(x, y float32) string) {
+func networkInput(plot ui.Element, s *NetworkGraphState, focus int, nodes []GraphNode, unit func(ui.Rect) float64, hit func(x, y float32) string) {
 	b := plot.Bounds()
 	r := ui.Rect{W: b.W, H: b.H}
 	move := func(id string, dx, dy float32) {
@@ -187,8 +187,9 @@ func networkInput(plot *ui.Element, s *NetworkGraphState, focus int, nodes []Gra
 		s.dragging = false
 		slog.Debug("mujica: network_graph drag", "node", s.drag)
 	}
+	disabled := plot.IsDisabled()
 	plot.HandleInput(func(ev ui.InputEvent) bool {
-		if ev.Kind != ui.InputScroll || ev.DY == 0 || plot.IsDisabled() {
+		if ev.Kind != ui.InputScroll || ev.DY == 0 || disabled {
 			return false
 		}
 		if ev.DY < 0 {

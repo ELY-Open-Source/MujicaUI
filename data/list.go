@@ -67,7 +67,7 @@ func (s *ListState[K]) ScrollTo(i int) {
 
 // ListView is a built List and what happened to it in this frame.
 type ListView struct {
-	Element                   *ui.Element
+	Element                   ui.Element
 	changed, submitted, retry bool
 }
 
@@ -100,7 +100,7 @@ func List[K comparable](c *ui.Context, s *ListState[K], n int, opts ListOptions[
 			v.retry = DataPlaceholder(c, opts.Status, opts.Error, opts.Empty, core.Msg(c, "list.empty"))
 			return
 		}
-		var e *ui.Element
+		var e ui.Element
 		if opts.Grid {
 			e = listGrid(c, s, n, opts, item)
 		} else {
@@ -136,7 +136,7 @@ func listLocate[K comparable](s *ListState[K], n int, key func(int) K) {
 	slog.Debug("mujica: list selection moved", "row", s.cursor)
 }
 
-func listRows[K comparable](c *ui.Context, s *ListState[K], n int, opts ListOptions[K], item func(i int)) *ui.Element {
+func listRows[K comparable](c *ui.Context, s *ListState[K], n int, opts ListOptions[K], item func(i int)) ui.Element {
 	d := core.Density(c)
 	s.Rows.Key = func(i int) any { return opts.Key(i) }
 	s.Rows.Label = opts.Label
@@ -159,7 +159,7 @@ func listRows[K comparable](c *ui.Context, s *ListState[K], n int, opts ListOpti
 	}).Padding(d.Unit())
 }
 
-func listGrid[K comparable](c *ui.Context, s *ListState[K], n int, opts ListOptions[K], item func(i int)) *ui.Element {
+func listGrid[K comparable](c *ui.Context, s *ListState[K], n int, opts ListOptions[K], item func(i int)) ui.Element {
 	d := core.Density(c)
 	w, h := opts.ItemWidth, opts.ItemHeight
 	if w <= 0 {

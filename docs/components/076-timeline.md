@@ -20,7 +20,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func Timeline(c *ui.Context, items []TimelineItem) *ui.Element`。`TimelineItem` 字段：`Time`、`Title`、`Content`、`Status`。
+`func Timeline(c *ui.Context, items []TimelineItem) ui.Element`。`TimelineItem` 字段：`Time`、`Title`、`Content`、`Status`。
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |

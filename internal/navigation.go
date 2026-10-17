@@ -8,7 +8,7 @@ import (
 )
 
 // Ease moves e's background, border and text color fg to their targets over d.
-func Ease(e *ui.Element, d time.Duration, fg ui.Color) *ui.Element {
+func Ease(e ui.Element, d time.Duration, fg ui.Color) ui.Element {
 	if d > 0 {
 		e.Transition(ui.ElementTransition{Colors: true, Duration: d})
 	}

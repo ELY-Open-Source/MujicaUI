@@ -31,7 +31,7 @@ type CommitInputOptions struct {
 
 // CommitInputResult is a built CommitInput and its events.
 type CommitInputResult struct {
-	Element          *ui.Element
+	Element          ui.Element
 	committed, amend bool
 }
 

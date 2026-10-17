@@ -24,11 +24,11 @@ type ScrollAreaOptions struct {
 }
 
 // ScrollArea scrolls children; state keeps and sets the offset, nil keeps it by place.
-func ScrollArea(c *ui.Context, state *ui.ScrollState, opts ScrollAreaOptions, children func()) *ui.Element {
+func ScrollArea(c *ui.Context, state *ui.ScrollState, opts ScrollAreaOptions, children func()) ui.Element {
 	if children == nil {
 		panic("mujica: ScrollArea needs children")
 	}
-	var e *ui.Element
+	var e ui.Element
 	switch opts.Direction {
 	case ScrollVertical:
 		e = ui.Scroll(c)

@@ -106,7 +106,7 @@ func DatePicker(c *ui.Context, value *core.Date, opts DatePickerOptions) DateTim
 	if placeholder == "" {
 		placeholder = core.Msg(c, "date_picker.placeholder")
 	}
-	var field, inputEl *ui.Element
+	var field, inputEl ui.Element
 	col.Children(func() {
 		field = core.DatetimeField(c, ui.Row(c), *problem != "", opts.ReadOnly)
 		field.Children(func() {

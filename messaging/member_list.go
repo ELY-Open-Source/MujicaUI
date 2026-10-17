@@ -51,7 +51,7 @@ type memberRows struct {
 
 // MemberListResult is a MemberList's element and this frame's events.
 type MemberListResult struct {
-	Element *ui.Element
+	Element ui.Element
 	changed bool
 	// Opened contains the ID activated by Enter or double-click.
 	Opened string

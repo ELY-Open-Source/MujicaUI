@@ -89,7 +89,7 @@ func CompareLegend(c *ui.Context, symbols *[]CompareSymbol) core.ChoiceResult {
 	row := ui.Row(c).Wrap().Gap(u * 2).Role(ui.RoleList).Label(core.Msg(c, "compare_symbol.label"))
 	row.Children(func() {
 		for i, s := range *symbols {
-			ui.Row(c).Key(s.Name).AlignItems(ui.Center).Gap(u).Padding(0, 0, 0, u*2).Radius(6).Border(1, k.Border).Role(ui.RoleListItem).Label(s.Name).Children(func() {
+			ui.Row(c.Key(s.Name)).AlignItems(ui.Center).Gap(u).Padding(0, 0, 0, u*2).Radius(6).Border(1, k.Border).Role(ui.RoleListItem).Label(s.Name).Children(func() {
 				col := pal[(i+1)%len(pal)]
 				ui.Box(c).Size(10, 10).Draw(func(p *ui.Painter, r ui.Rect) { internal.Marker(p, i+1, r.X+5, r.Y+5, 9, col) })
 				ui.Text(c, s.Name).SingleLine()

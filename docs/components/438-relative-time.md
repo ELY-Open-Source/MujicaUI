@@ -17,7 +17,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func RelativeTime(c *ui.Context, t time.Time, opts RelativeTimeOptions) *ui.Element`
+`func RelativeTime(c *ui.Context, t time.Time, opts RelativeTimeOptions) ui.Element`
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |

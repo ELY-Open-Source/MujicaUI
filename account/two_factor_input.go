@@ -25,7 +25,7 @@ type TwoFactorInputOptions struct {
 
 // TwoFactorResult reports completion and resend events.
 type TwoFactorResult struct {
-	Element           *ui.Element
+	Element           ui.Element
 	completed, resend bool
 }
 

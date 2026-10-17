@@ -30,7 +30,7 @@ type TerminalTabsOptions struct {
 
 // TerminalTabsResult is TerminalTabs and what happened in this frame.
 type TerminalTabsResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Renamed and Closed hold a tab ID.
 	Changed bool
 	Renamed string
@@ -126,7 +126,7 @@ func TerminalTabs(c *ui.Context, tabs *[]TerminalTab, active *string, opts Termi
 }
 
 // terminalTabsTab builds one tab with title and close.
-func terminalTabsTab(c *ui.Context, tab *ui.Element, t TerminalTab, on bool, st *terminalTabsState, rename func(string), askClose func(TerminalTab), disabled bool) {
+func terminalTabsTab(c *ui.Context, tab ui.Element, t TerminalTab, on bool, st *terminalTabsState, rename func(string), askClose func(TerminalTab), disabled bool) {
 	k := core.Tokens(c)
 	d := core.Density(c)
 	u := d.Unit()
@@ -162,7 +162,7 @@ func terminalTabsTab(c *ui.Context, tab *ui.Element, t TerminalTab, on bool, st 
 		if st.editing == t.ID {
 			in := input.TextInput(c, &st.draft, input.TextInputOptions{Label: core.Msg(c, "terminal_tabs.rename")})
 			in.Element.Width(u * 36)
-			in.Input.AutoFocus()
+			core.AutoFocus(c, in.Input)
 			switch {
 			case in.Input.Shortcut(0, ui.KeyEscape):
 				st.editing = ""

@@ -36,6 +36,7 @@ func (m *mirror) serveInput(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	m.mu.Lock()
+	m.sync()
 	err := m.applyWatchingClipboard(in)
 	if err == nil {
 		m.capture()

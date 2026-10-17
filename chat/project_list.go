@@ -35,7 +35,7 @@ type ProjectListState struct {
 
 // ProjectListView is a built ProjectList and this frame's events.
 type ProjectListView struct {
-	Element *ui.Element
+	Element ui.Element
 	// Changed reports a newly chosen project, in State.Selected.
 	Changed bool
 	// Opened is a conversation the user opened, empty for none.
@@ -64,7 +64,7 @@ func ProjectList(c *ui.Context, s *ProjectListState, projects []ChatProject, con
 			}
 			seen[p.Folder] = true
 			open := !s.closed[p.Folder]
-			ui.Column(c).Key("folder:" + p.Folder).Children(func() { projectListFolder(c, p.Folder, &open) })
+			ui.Column(c.Key("folder:" + p.Folder)).Children(func() { projectListFolder(c, p.Folder, &open) })
 			s.closed[p.Folder] = !open
 			if !open {
 				continue
@@ -94,7 +94,7 @@ func ProjectList(c *ui.Context, s *ProjectListState, projects []ChatProject, con
 }
 
 // projectListFolder is a folder heading on a CollapsibleBase trigger.
-func projectListFolder(c *ui.Context, title string, open *bool) *ui.Element {
+func projectListFolder(c *ui.Context, title string, open *bool) ui.Element {
 	k := core.Tokens(c)
 	d := core.Density(c)
 	parts := ui.CollapsibleBase(c, open)
@@ -121,8 +121,8 @@ func projectListProject(c *ui.Context, s *ProjectListState, p ChatProject, all [
 	d := core.Density(c)
 	convs := conversations(p.ID)
 	chosen := s.Selected == p.ID
-	var b *ui.Element
-	line := ui.Row(c).Key("project:" + p.ID).AlignItems(ui.Center)
+	var b ui.Element
+	line := ui.Row(c.Key("project:" + p.ID)).AlignItems(ui.Center)
 	line.Children(func() { b = ui.ButtonBase(c).Grow(1).MinWidth(0).MinHeight(d.ControlHeight()) })
 	b.Padding(0, d.Unit()*2, 0, d.Unit()*2+indent).Padding(0, d.Unit()*2, 0, d.Unit()*2+indent).
 		Gap(d.Unit() * 2).Justify(ui.Start).Radius(theme.ControlRadius).Role(ui.RoleTreeItem).Label(p.Name).Selected(chosen)
@@ -185,7 +185,7 @@ func projectListProject(c *ui.Context, s *ProjectListState, p ChatProject, all [
 func projectListConversation(c *ui.Context, conv ChatConversation, home ChatProject, all []ChatProject, indent float32, v *ProjectListView) {
 	k := core.Tokens(c)
 	d := core.Density(c)
-	ui.Row(c).Key("conv:" + conv.ID).AlignItems(ui.Center).Children(func() {
+	ui.Row(c.Key("conv:" + conv.ID)).AlignItems(ui.Center).Children(func() {
 		b := ui.ButtonBase(c).Grow(1).MinWidth(0).MinHeight(d.ControlHeight()).Padding(0, d.Unit()*2, 0, d.Unit()*2+indent).
 			Justify(ui.Start).Radius(theme.ControlRadius).Label(conv.Title).Drag(ConversationDrag{ID: conv.ID})
 		internal.Ring(b, k.Focus, theme.ControlRadius)

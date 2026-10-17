@@ -57,7 +57,7 @@ type ApiKeyManagerOptions struct {
 
 // ApiKeyManagerResult reports creation and revocation requests.
 type ApiKeyManagerResult struct {
-	Element        *ui.Element
+	Element        ui.Element
 	create, revoke string
 }
 
@@ -102,7 +102,7 @@ func ApiKeyManager(c *ui.Context, s *ApiKeyManagerState, keys []APIKey, opts Api
 		}
 		accountRows(c, len(keys), func(i int) any { return keys[i].ID }, func(i int) {
 			key := keys[i]
-			ui.Row(c).Key(key.ID).MinHeight(d.ControlHeight()+d.Unit()*4).Gap(d.Unit()*3).AlignItems(ui.Center).
+			ui.Row(c.Key(key.ID)).MinHeight(d.ControlHeight()+d.Unit()*4).Gap(d.Unit()*3).AlignItems(ui.Center).
 				BorderWidth(0, 0, theme.BorderWidth, 0).BorderColor(k.Border).Children(func() {
 				ui.Column(c).Grow(1).MinWidth(0).Gap(2).Children(func() {
 					ui.Text(c, key.Name).FontWeight(600).SingleLine()
@@ -191,7 +191,7 @@ func apiKeyCreateDialog(c *ui.Context, s *ApiKeyManagerState, disabled bool) (st
 		}
 		res := input.TextInput(c, &s.name, input.TextInputOptions{Label: core.Msg(c, "api_key_manager.name"), Placeholder: core.Msg(c, "api_key_manager.name"),
 			Disabled: s.pending, Error: s.err})
-		res.Input.AutoFocus()
+		core.AutoFocus(c, res.Input)
 		if res.Submitted() && strings.TrimSpace(s.name) != "" && !s.pending {
 			asked = true
 		}

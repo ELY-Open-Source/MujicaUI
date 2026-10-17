@@ -33,7 +33,7 @@ view := func(c *ui.Context) {
 ui.Render(view, 400, 300, 1)
 ```
 
-签名：`func Dialog(c *ui.Context, open *bool, opts DialogOptions, content func()) *ui.Element`，关闭时返回 nil。
+签名：`func Dialog(c *ui.Context, open *bool, opts DialogOptions, content func()) ui.Element`，关闭时返回 nil。
 
 ## 参数
 

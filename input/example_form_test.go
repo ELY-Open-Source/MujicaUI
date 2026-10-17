@@ -16,7 +16,7 @@ func ExampleForm() {
 	view := func(c *ui.Context) {
 		core.Use(c, core.Settings{})
 		res := input.Form(c, &state, input.FormOptions{}, func(f *input.FormScope) {
-			input.FormItem(c, f, "name", &name, input.FormItemOptions[string]{Label: "Name", Required: true}, func() *ui.Element {
+			input.FormItem(c, f, "name", &name, input.FormItemOptions[string]{Label: "Name", Required: true}, func() ui.Element {
 				return input.InputGroup(c, &name, input.InputGroupOptions{Invalid: state.Error("name") != ""}).Input
 			})
 		})
@@ -31,7 +31,7 @@ func ExampleFormField() {
 	email := ""
 	view := func(c *ui.Context) {
 		core.Use(c, core.Settings{})
-		input.FormField(c, "Email", input.FormFieldOptions{Required: true, Description: "For receipts."}, func() *ui.Element {
+		input.FormField(c, "Email", input.FormFieldOptions{Required: true, Description: "For receipts."}, func() ui.Element {
 			return input.InputGroup(c, &email, input.InputGroupOptions{}).Input
 		})
 	}

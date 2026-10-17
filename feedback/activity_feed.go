@@ -47,7 +47,7 @@ type activityFeedCache struct {
 }
 
 // ActivityFeed lists events grouped by day, newest first as given, building only the rows in view.
-func ActivityFeed(c *ui.Context, items []Activity, opts ActivityFeedOptions) *ui.Element {
+func ActivityFeed(c *ui.Context, items []Activity, opts ActivityFeedOptions) ui.Element {
 	loc := cmp.Or(opts.Location, time.Local)
 	for _, a := range items {
 		if a.ID == "" || a.Actor == "" || a.Action == "" || a.Time.IsZero() {
@@ -92,7 +92,7 @@ func ActivityFeed(c *ui.Context, items []Activity, opts ActivityFeedOptions) *ui
 		ui.Box(c).FillWidth().Height(rowH * float32(len(cache.rows))).Children(func() {
 			for r := first; r < last; r++ {
 				row := cache.rows[r]
-				box := ui.Row(c).Key(r).Absolute().Left(0).Right(0).Top(rowH*float32(r)).Height(rowH).
+				box := ui.Row(c.Key(r)).Absolute().Left(0).Right(0).Top(rowH*float32(r)).Height(rowH).
 					AlignItems(ui.Center).Gap(d.Unit()*3).Padding(0, d.Unit()*3)
 				if row.item < 0 {
 					activityFeedHeader(c, k, box, row.day, today)
@@ -106,7 +106,7 @@ func ActivityFeed(c *ui.Context, items []Activity, opts ActivityFeedOptions) *ui
 }
 
 // activityFeedHeader is a day's title: Today, Yesterday or the date, over an ornament rule.
-func activityFeedHeader(c *ui.Context, k theme.Tokens, box *ui.Element, day, today core.Date) {
+func activityFeedHeader(c *ui.Context, k theme.Tokens, box ui.Element, day, today core.Date) {
 	label := core.DatetimeDayLabel(c, day)
 	switch day {
 	case today:
@@ -122,7 +122,7 @@ func activityFeedHeader(c *ui.Context, k theme.Tokens, box *ui.Element, day, tod
 }
 
 // activityFeedEvent is one event: avatar, "Actor action Object", and the time.
-func activityFeedEvent(c *ui.Context, k theme.Tokens, box *ui.Element, a Activity, loc *time.Location) {
+func activityFeedEvent(c *ui.Context, k theme.Tokens, box ui.Element, a Activity, loc *time.Location) {
 	when := a.Time.In(loc).Format("15:04")
 	box.Role(ui.RoleListItem).Label(a.Actor + " " + a.Action + " " + a.Object + ", " + when)
 	box.Children(func() {

@@ -8,6 +8,7 @@ import (
 
 	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
 	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/icons"
+	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/theme"
 )
 
 func TestButtonLoadingKeepsWidth(t *testing.T) {
@@ -165,9 +166,12 @@ func inputReviewStates(t *testing.T, name string, view func(c *ui.Context)) (pla
 		t.Fatalf("no %q", name)
 	}
 	plain = encode(t, tt.Image())
+	// Colors still fade under reduced motion; let each fade finish on the Tester clock.
 	tt.Move(r.X+r.W/2, r.Y+r.H/2)
+	tt.Advance(theme.StateDuration)
 	hover = encode(t, tt.Image())
 	tt.Press(r.X+r.W/2, r.Y+r.H/2)
+	tt.Advance(theme.StateDuration)
 	pressed = encode(t, tt.Image())
 	return
 }

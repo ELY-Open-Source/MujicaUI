@@ -35,7 +35,7 @@ type MessageListOptions struct {
 
 // MessageListResult is a MessageList's element and its unread count.
 type MessageListResult struct {
-	Element *ui.Element
+	Element ui.Element
 	unread  int
 }
 

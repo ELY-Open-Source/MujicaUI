@@ -22,7 +22,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func VideoPlayer(c *ui.Context, st VideoState, opts VideoPlayerOptions) *ui.Element`
+`func VideoPlayer(c *ui.Context, st VideoState, opts VideoPlayerOptions) ui.Element`
 
 `VideoState`：`Frame`（当前画面，nil 显示“暂无视频”）、`Position`、`Duration`、`Buffered`、`Playing`、`Rate`、`Subtitle`、`SubtitlesOn`、`Fullscreen`、`PiP`。
 

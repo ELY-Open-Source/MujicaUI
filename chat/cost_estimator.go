@@ -32,7 +32,7 @@ func EstimateCost(inputTokens, outputTokens int, inputPrice, outputPrice float64
 }
 
 // CostEstimator shows token counts and cost at caller prices.
-func CostEstimator(c *ui.Context, opts CostEstimatorOptions) *ui.Element {
+func CostEstimator(c *ui.Context, opts CostEstimatorOptions) ui.Element {
 	if opts.InputTokens < 0 || opts.OutputTokens < 0 {
 		panic("mujica: CostEstimator token counts must not be negative")
 	}

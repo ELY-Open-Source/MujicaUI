@@ -78,7 +78,7 @@ func ChangesList(c *ui.Context, s *ChangesListState, files []ChangedFile, opts C
 	}
 	prev := s.cursor
 	outer := ui.Column(c).AlignItems(ui.Stretch).Disabled(opts.Disabled)
-	var e *ui.Element
+	var e ui.Element
 	outer.Children(func() {
 		restore := data.DataSelectTheme(c, 0)
 		defer restore()

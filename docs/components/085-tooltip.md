@@ -15,7 +15,7 @@ view := func(c *ui.Context) {
 ui.Render(view, 400, 300, 1)
 ```
 
-签名：`func Tooltip(c *ui.Context, anchor *ui.Element, text string, opts TooltipOptions) *ui.Element`，返回 `anchor`。`anchor` 为 nil 时 panic；`text` 为空时什么也不做。
+签名：`func Tooltip(c *ui.Context, anchor ui.Element, text string, opts TooltipOptions) ui.Element`，返回 `anchor`。`anchor` 为 nil 时 panic；`text` 为空时什么也不做。
 
 ## 参数
 

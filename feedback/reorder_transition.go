@@ -20,7 +20,7 @@ type ReorderTransitionOptions struct {
 }
 
 // ReorderTransition slides keyed items to their new places.
-func ReorderTransition[K comparable](c *ui.Context, keys []K, opts ReorderTransitionOptions, item func(key K)) *ui.Element {
+func ReorderTransition[K comparable](c *ui.Context, keys []K, opts ReorderTransitionOptions, item func(key K)) ui.Element {
 	if opts.Duration < 0 || !(opts.Gap >= 0) || math.IsInf(float64(opts.Gap), 0) {
 		panic("mujica: ReorderTransition Duration and Gap must not be negative")
 	}
@@ -50,7 +50,7 @@ func ReorderTransition[K comparable](c *ui.Context, keys []K, opts ReorderTransi
 	st.keys = append(st.keys[:0], keys...)
 	col.Children(func() {
 		for _, k := range keys {
-			ui.Column(c).Key(k).AlignItems(ui.Stretch).Transition(move).Children(func() { item(k) })
+			ui.Column(c.Key(k)).AlignItems(ui.Stretch).Transition(move).Children(func() { item(k) })
 		}
 		for k, until := range st.leaving {
 			if seen[k] || !c.Now().Before(until) {
@@ -58,7 +58,7 @@ func ReorderTransition[K comparable](c *ui.Context, keys []K, opts ReorderTransi
 				continue
 			}
 			if c.Preferences().ReduceMotion {
-				ui.Column(c).Key(k).Absolute().Invisible().Transition(ui.ElementTransition{Duration: d, Position: true})
+				ui.Column(c.Key(k)).Absolute().Invisible().Transition(ui.ElementTransition{Duration: d, Position: true})
 				delete(st.leaving, k)
 			}
 		}

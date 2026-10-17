@@ -17,7 +17,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func MicLevelMeter(c *ui.Context, level float32, opts MicLevelMeterOptions) *ui.Element`
+`func MicLevelMeter(c *ui.Context, level float32, opts MicLevelMeterOptions) ui.Element`
 
 `level` 为满刻度的 0 到 1，超出 panic。
 

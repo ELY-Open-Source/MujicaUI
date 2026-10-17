@@ -105,7 +105,7 @@ func SnoozePicker(c *ui.Context, until *time.Time, opts SnoozePickerOptions) cor
 			return b.Clicked() && !b.IsDisabled()
 		}
 		for _, ch := range SnoozeChoices(now, morning) {
-			ui.Box(c).Key(ch.Key).Children(func() {
+			ui.Box(c.Key(ch.Key)).Children(func() {
 				if row(core.Msg(c, ch.Key), snoozeWhen(c, now, ch.At), until.Equal(ch.At)) {
 					*until, s.custom = ch.At, false
 				}

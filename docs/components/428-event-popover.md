@@ -26,7 +26,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func EventPopover(c *ui.Context, anchor *ui.Element, open *bool, ev CalendarEvent, opts EventPopoverOptions) EventPopoverResult`
+`func EventPopover(c *ui.Context, anchor ui.Element, open *bool, ev CalendarEvent, opts EventPopoverOptions) EventPopoverResult`
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |

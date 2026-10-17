@@ -49,7 +49,7 @@ type Incident struct {
 }
 
 // IncidentCard shows an incident's title, status, impact and update timeline.
-func IncidentCard(c *ui.Context, inc Incident) *ui.Element {
+func IncidentCard(c *ui.Context, inc Incident) ui.Element {
 	if inc.Title == "" {
 		panic("mujica: IncidentCard needs a Title")
 	}

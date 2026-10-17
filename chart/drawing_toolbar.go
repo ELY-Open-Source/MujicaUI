@@ -53,7 +53,7 @@ func DrawingToolbar(c *ui.Context, d *DrawingTools, opts DrawingToolbarOptions) 
 		for t := ToolSelect; t <= ToolText; t++ {
 			name := fmt.Sprintf("%s (Alt+%d)", core.Msg(c, fmt.Sprintf("drawing_toolbar.tool%d", t)), t+1)
 			on := d.Tool == t
-			b := ui.ButtonBase(c).Key(t).Size(theme.MinHitSize+4, theme.MinHitSize+4).Radius(theme.ControlRadius).Label(name).Tooltip(name).Disabled(d.Locked)
+			b := ui.ButtonBase(c.Key(t)).Size(theme.MinHitSize+4, theme.MinHitSize+4).Radius(theme.ControlRadius).Label(name).Tooltip(name).Disabled(d.Locked)
 			internal.Ring(b, k.Focus, theme.ControlRadius)
 			fg := k.Text
 			switch {

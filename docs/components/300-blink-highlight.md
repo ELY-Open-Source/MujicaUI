@@ -15,7 +15,7 @@ view := func(c *ui.Context) {
 ui.Render(view, 400, 300, 1)
 ```
 
-签名：`func BlinkHighlight(c *ui.Context, value float64, opts BlinkHighlightOptions) *ui.Element`
+签名：`func BlinkHighlight(c *ui.Context, value float64, opts BlinkHighlightOptions) ui.Element`
 
 ## 参数
 

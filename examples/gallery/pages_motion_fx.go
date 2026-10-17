@@ -14,7 +14,7 @@ import (
 )
 
 // motionLoaderDemo shows a loader while loading.
-func motionLoaderDemo(id string, loader func(c *ui.Context, o feedback.LoaderOptions) *ui.Element) func(c *ui.Context, log func(string)) {
+func motionLoaderDemo(id string, loader func(c *ui.Context, o feedback.LoaderOptions) ui.Element) func(c *ui.Context, log func(string)) {
 	return func(c *ui.Context, log func(string)) {
 		type state struct {
 			loading, label bool
@@ -92,7 +92,7 @@ func motionTypewriterDemo(c *ui.Context, log func(string)) {
 			log("Restarted")
 		}
 	}, func() {
-		ui.Column(c).Key(s.round).Children(func() {
+		ui.Column(c.Key(s.round)).Children(func() {
 			if feedback.Typewriter(c, s.text, feedback.TypewriterOptions{Speed: s.speed, Skippable: true}).Changed() {
 				log("Finished")
 			}
@@ -127,7 +127,7 @@ func motionStaggerDemo(c *ui.Context, log func(string)) {
 			log(fmt.Sprintf("Replay %d", s.round))
 		}
 	}, func() {
-		ui.Column(c).Key(s.round).Children(func() {
+		ui.Column(c.Key(s.round)).Children(func() {
 			feedback.Stagger(c, len(guests), feedback.StaggerOptions{Interval: time.Duration(s.interval) * time.Millisecond, Horizontal: s.horizontal}, func(i int) {
 				ui.Text(c, guests[i]+" arrives").Padding(6, 10).Background(core.Tokens(c).Surface).Radius(4).Margin(0, 0, 4, 0)
 			})

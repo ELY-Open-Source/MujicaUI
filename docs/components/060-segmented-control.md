@@ -15,7 +15,7 @@ if navigation.SegmentedControl(c, &view, []navigation.Segment{
 }
 ```
 
-签名：`func SegmentedControl(c *ui.Context, selected *int, segments []Segment, opts SegmentedControlOptions) *ui.Element`
+签名：`func SegmentedControl(c *ui.Context, selected *int, segments []Segment, opts SegmentedControlOptions) ui.Element`
 
 ## 参数
 

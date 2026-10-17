@@ -38,7 +38,7 @@ type depthLadderCache struct {
 
 // DepthLadderResult is a built DepthLadder and its clicked cell.
 type DepthLadderResult struct {
-	Element *ui.Element
+	Element ui.Element
 	price   float64
 	side    OrderSide
 }
@@ -118,7 +118,7 @@ func depthLadderRow(c *ui.Context, r *DepthLadderResult, s *DepthLadderState, t 
 	d := core.Density(c)
 	price := float64(t) / scale
 	text := data.StatisticFormat(price, dec)
-	ui.Row(c).Key(t).MinHeight(d.ControlHeight()).AlignItems(ui.Stretch).BorderWidth(0, 0, theme.BorderWidth, 0).BorderColor(k.Border).Children(func() {
+	ui.Row(c.Key(t)).MinHeight(d.ControlHeight()).AlignItems(ui.Stretch).BorderWidth(0, 0, theme.BorderWidth, 0).BorderColor(k.Border).Children(func() {
 		cell := func(side OrderSide, size float64) {
 			label := fmt.Sprintf(core.Msg(c, fmt.Sprintf("depth_ladder.order%d", side)), text)
 			b := ui.ButtonBase(c).Grow(1).Basis(0).Padding(0, d.Unit()*2).Label(label)

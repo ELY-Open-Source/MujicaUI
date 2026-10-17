@@ -43,15 +43,13 @@ func TestSkeletonStaticUnderReducedMotion(t *testing.T) {
 		Skeleton(c, SkeletonOptions{Shape: SkeletonRect})
 	}, 200, 100)
 	a := encode(t, tt.Image())
-	time.Sleep(300 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(300 * time.Millisecond)
 	if bytes.Equal(a, encode(t, tt.Image())) {
 		t.Fatal("skeleton did not pulse")
 	}
 	tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})
 	a = encode(t, tt.Image())
-	time.Sleep(300 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(300 * time.Millisecond)
 	if !bytes.Equal(a, encode(t, tt.Image())) {
 		t.Fatal("skeleton moved under reduced motion")
 	}

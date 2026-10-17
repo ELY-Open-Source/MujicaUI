@@ -36,7 +36,7 @@ type ApiRequestBuilderOptions struct {
 
 // ApiRequestResult reports this frame's events.
 type ApiRequestResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Send asks the caller to send the request.
 	Send    bool
 	Changed bool

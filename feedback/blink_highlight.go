@@ -29,7 +29,7 @@ type blinkState struct {
 }
 
 // BlinkHighlight tints value once on change and marks its direction.
-func BlinkHighlight(c *ui.Context, value float64, opts BlinkHighlightOptions) *ui.Element {
+func BlinkHighlight(c *ui.Context, value float64, opts BlinkHighlightOptions) ui.Element {
 	if math.IsNaN(value) || math.IsInf(value, 0) || opts.Duration < 0 {
 		panic("mujica: BlinkHighlight needs a finite value and a non-negative Duration")
 	}

@@ -124,7 +124,7 @@ func dockPanelZone(c *ui.Context, k theme.Tokens, u float32, layout *DockLayout,
 	if len(ids) == 0 {
 		return false
 	}
-	box := ui.Column(c).Key(z).MinWidth(0).MinHeight(0).Background(k.Surface).Clip().Role(ui.RoleGroup).
+	box := ui.Column(c.Key(z)).MinWidth(0).MinHeight(0).Background(k.Surface).Clip().Role(ui.RoleGroup).
 		Label(core.Msg(c, fmt.Sprintf("dock_panel.zone%d", z)))
 	switch z {
 	case DockLeft, DockRight:
@@ -173,7 +173,7 @@ func dockPanelZone(c *ui.Context, k theme.Tokens, u float32, layout *DockLayout,
 // dockPanelEdges shows drop strips on the four edges while a tab is dragged.
 func dockPanelEdges(c *ui.Context, k theme.Tokens, u float32, move func(string, DockZone)) {
 	for _, z := range []DockZone{DockLeft, DockRight, DockBottom, DockCenter} {
-		e := ui.Box(c).Key(fmt.Sprint("edge", z)).Absolute().Role(ui.RoleNone)
+		e := ui.Box(c.Key(fmt.Sprint("edge", z))).Absolute().Role(ui.RoleNone)
 		switch z {
 		case DockLeft:
 			e.Left(0).Top(0).Bottom(0).Width(12 * u)

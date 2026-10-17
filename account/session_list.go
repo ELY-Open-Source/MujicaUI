@@ -30,7 +30,7 @@ type SessionListOptions struct {
 
 // SessionListResult reports individual and bulk sign-out requests.
 type SessionListResult struct {
-	Element *ui.Element
+	Element ui.Element
 	revoke  string
 	others  bool
 }
@@ -74,7 +74,7 @@ func SessionList(c *ui.Context, sessions []Session, opts SessionListOptions) Ses
 		ui.Column(c).Role(ui.RoleList).Label(core.Msg(c, "session_list.label")).Children(func() {
 			accountRows(c, len(sessions), func(i int) any { return sessions[i].ID }, func(i int) {
 				s := sessions[i]
-				ui.Row(c).Key(s.ID).MinHeight(d.ControlHeight()+d.Unit()*4).Gap(d.Unit()*3).AlignItems(ui.Center).
+				ui.Row(c.Key(s.ID)).MinHeight(d.ControlHeight()+d.Unit()*4).Gap(d.Unit()*3).AlignItems(ui.Center).
 					BorderWidth(0, 0, theme.BorderWidth, 0).BorderColor(k.Border).Role(ui.RoleListItem).Children(func() {
 					ui.Column(c).Grow(1).MinWidth(0).Gap(2).Children(func() {
 						ui.Row(c).Gap(d.Unit() * 2).AlignItems(ui.Center).Children(func() {

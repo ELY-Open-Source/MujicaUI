@@ -13,7 +13,7 @@ if chat.LinkPreviewCard(c, p).Clicked() {
 }
 ```
 
-签名：`func LinkPreviewCard(c *ui.Context, p LinkPreview) *ui.Element`
+签名：`func LinkPreviewCard(c *ui.Context, p LinkPreview) ui.Element`
 
 ## 参数
 

@@ -22,7 +22,7 @@ func displayControls(c *ui.Context, fn func()) {
 }
 
 // displayLog logs a control's new value when it changed.
-func displayLog[T any](log func(string), e *ui.Element, name string, v *T) {
+func displayLog[T any](log func(string), e ui.Element, name string, v *T) {
 	if e.Changed() {
 		log(fmt.Sprintf("%s = %v", name, *v))
 	}

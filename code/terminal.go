@@ -49,8 +49,14 @@ func terminalMetrics(f ui.Font) (cw, ch, base float32) {
 	return cw, ch, (ch-m.Ascent-m.Descent)/2 + m.Ascent
 }
 
+// terminalPointer is the selection drag and focus target kept across frames.
+type terminalPointer struct {
+	handle ui.Handle
+	down   bool
+}
+
 // Terminal draws a TerminalState and sends input to the PTY.
-func Terminal(c *ui.Context, s *TerminalState, opts TerminalOptions) *ui.Element {
+func Terminal(c *ui.Context, s *TerminalState, opts TerminalOptions) ui.Element {
 	if s == nil {
 		panic("mujica: Terminal needs a TerminalState")
 	}
@@ -94,13 +100,17 @@ func Terminal(c *ui.Context, s *TerminalState, opts TerminalOptions) *ui.Element
 		return TerminalPos{Line: len(s.back) - s.offset + row, Col: col}
 	}
 	anchor := ui.Local(e, "terminal.anchor", func() TerminalPos { return TerminalPos{} })
+	ptr := ui.Local(e, "terminal.pointer", func() terminalPointer { return terminalPointer{} })
+	e.Bind(&ptr.handle)
+	disabled := e.IsDisabled()
+	svc := c.Services()
 	e.HandleInput(func(ev ui.InputEvent) bool {
-		if e.IsDisabled() {
+		if disabled {
 			return false
 		}
 		switch ev.Kind {
 		case ui.InputKeyDown:
-			return terminalKey(c, s, ev, send)
+			return terminalKey(svc, s, ev, send)
 		case ui.InputText:
 			send(ev.Text)
 			return true
@@ -117,15 +127,18 @@ func Terminal(c *ui.Context, s *TerminalState, opts TerminalOptions) *ui.Element
 			if ev.Button != 0 {
 				return false
 			}
-			e.Focus()
+			ptr.down = true
+			ptr.handle.Focus()
 			*anchor = cell(ev.X, ev.Y)
 			s.selOn = false
 			return true
 		case ui.InputPointerMove:
-			if e.Pressed() {
+			if ptr.down {
 				s.Select(*anchor, cell(ev.X, ev.Y))
 			}
 			return true
+		case ui.InputPointerUp:
+			ptr.down = false
 		}
 		return false
 	})
@@ -144,7 +157,7 @@ func Terminal(c *ui.Context, s *TerminalState, opts TerminalOptions) *ui.Element
 }
 
 // terminalKey encodes a key, handling copy, paste and scrollback.
-func terminalKey(c *ui.Context, s *TerminalState, ev ui.InputEvent, send func(string)) bool {
+func terminalKey(svc ui.Services, s *TerminalState, ev ui.InputEvent, send func(string)) bool {
 	clip := ui.Super
 	if runtime.GOOS != "darwin" {
 		clip = ui.Ctrl | ui.Shift
@@ -152,12 +165,12 @@ func terminalKey(c *ui.Context, s *TerminalState, ev ui.InputEvent, send func(st
 	switch {
 	case ev.Mods == clip && ev.Key == ui.KeyC:
 		if t := s.Selection(); t != "" {
-			c.WriteClipboard(t)
+			svc.WriteClipboard(t)
 			slog.Debug("mujica: terminal copy", "runes", len([]rune(t)))
 		}
 		return true
 	case ev.Mods == clip && ev.Key == ui.KeyV:
-		if t := c.ReadClipboard(); t != "" {
+		if t := svc.ReadClipboard(); t != "" {
 			send(t)
 		}
 		return true

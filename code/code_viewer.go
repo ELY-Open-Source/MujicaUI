@@ -140,7 +140,7 @@ func CodeViewer(c *ui.Context, lines []string, s *CodeViewerState, opts CodeView
 }
 
 // codeViewerKeys copies the selection and folds with Left and Right.
-func codeViewerKeys(c *ui.Context, list *ui.Element, lines []string, s *CodeViewerState) {
+func codeViewerKeys(c *ui.Context, list ui.Element, lines []string, s *CodeViewerState) {
 	if list.IsDisabled() {
 		return
 	}

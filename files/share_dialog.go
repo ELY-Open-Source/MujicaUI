@@ -43,7 +43,7 @@ type ShareDialogOptions struct {
 
 // ShareDialogResult is what happened in the dialog this frame.
 type ShareDialogResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Invited requests membership; Changed and Removed identify applied changes.
 	Invited          *ShareInvite
 	Changed, Removed string
@@ -119,7 +119,7 @@ func shareMembers(c *ui.Context, members *[]ShareMember, res *ShareDialogResult,
 		if m.ID == "" {
 			panic("mujica: ShareMember needs an ID")
 		}
-		ui.Row(c).Key(m.ID).Gap(u * 2).AlignItems(ui.Center).MinHeight(core.Density(c).ControlHeight()).Children(func() {
+		ui.Row(c.Key(m.ID)).Gap(u * 2).AlignItems(ui.Center).MinHeight(core.Density(c).ControlHeight()).Children(func() {
 			display.Avatar(c, m.Name, display.AvatarOptions{Size: 28})
 			ui.Column(c).Grow(1).MinWidth(0).Children(func() {
 				ui.Text(c, m.Name).SingleLine()

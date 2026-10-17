@@ -21,8 +21,7 @@ func TestTypewriterRevealsFinishesAndSkips(t *testing.T) {
 	if tt.HasText(text) && motionCount(tt, text) == 2 {
 		t.Fatal("whole text shown at once")
 	}
-	time.Sleep(120 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(120 * time.Millisecond)
 	shown := 0
 	for _, s := range tt.Texts() {
 		if s != text && s != "Skip" && len(s) > shown {
@@ -43,8 +42,7 @@ func TestTypewriterRevealsFinishesAndSkips(t *testing.T) {
 	if motionCount(tt, "The court assembles at dusk.") != 1 {
 		t.Fatalf("appended text restarted: %q", tt.Texts())
 	}
-	time.Sleep(300 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(300 * time.Millisecond)
 	if motionCount(tt, text) != 2 || finished != 2 {
 		t.Fatalf("append: finished %d %q", finished, tt.Texts())
 	}

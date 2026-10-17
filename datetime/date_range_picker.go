@@ -85,7 +85,7 @@ func DateRangePicker(c *ui.Context, value *DateRange, opts DateRangePickerOption
 	if !value.IsZero() {
 		text = value.Start.Format(layout) + " – " + value.End.Format(layout)
 	}
-	var field *ui.Element
+	var field ui.Element
 	col.Children(func() {
 		field = core.DatetimeField(c, ui.Row(c), *problem != "", opts.ReadOnly)
 		field.Children(func() {

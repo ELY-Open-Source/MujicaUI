@@ -16,7 +16,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func DateSeparator(c *ui.Context, day Date, opts DateSeparatorOptions) *ui.Element`。`day` 必须是有效日期。
+`func DateSeparator(c *ui.Context, day Date, opts DateSeparatorOptions) ui.Element`。`day` 必须是有效日期。
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |

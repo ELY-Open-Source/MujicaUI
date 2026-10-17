@@ -21,7 +21,7 @@ view := func(c *ui.Context) {
 ui.Render(view, 400, 300, 1)
 ```
 
-签名：`func Popover(c *ui.Context, anchor *ui.Element, open *bool, opts PopoverOptions, content func()) *ui.Element`。`anchor` 必须是本帧已构建的元素，nil 时 panic。
+签名：`func Popover(c *ui.Context, anchor ui.Element, open *bool, opts PopoverOptions, content func()) ui.Element`。`anchor` 必须是本帧已构建的元素，nil 时 panic。
 
 ## 参数
 

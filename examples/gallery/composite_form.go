@@ -135,7 +135,7 @@ func (g *gallery) formFields(c *ui.Context, f *input.FormScope, log func(string)
 				s.checks <- formAsync{version, msg}
 				c.Invalidate()
 			}()
-		}}, func() *ui.Element {
+		}}, func() ui.Element {
 		return input.TextInput(c, &s.name, input.TextInputOptions{}).Input
 	})
 	input.FormItem(c, f, "password", &s.password, input.FormItemOptions[string]{Label: g.t("Password", "密码"), Required: true,
@@ -144,14 +144,14 @@ func (g *gallery) formFields(c *ui.Context, f *input.FormScope, log func(string)
 				return g.t("Use at least 8 characters.", "至少 8 个字符。")
 			}
 			return ""
-		}}, func() *ui.Element {
+		}}, func() ui.Element {
 		r := input.PasswordInput(c, &s.password, input.PasswordInputOptions{})
 		if r.Submitted() {
 			s.st.Submit()
 		}
 		return r.Input
 	})
-	input.FormItem(c, f, "debut", &s.debut, input.FormItemOptions[core.Date]{Label: g.t("Debut date", "首演日期"), Required: true}, func() *ui.Element {
+	input.FormItem(c, f, "debut", &s.debut, input.FormItemOptions[core.Date]{Label: g.t("Debut date", "首演日期"), Required: true}, func() ui.Element {
 		r := datetime.DatePicker(c, &s.debut, datetime.DatePickerOptions{Clearable: true})
 		if r.Changed() {
 			log("debut " + s.debut.Format("2006-01-02"))
@@ -159,7 +159,7 @@ func (g *gallery) formFields(c *ui.Context, f *input.FormScope, log func(string)
 		return r.Input
 	})
 	input.FormItem(c, f, "roles", &s.tags, input.FormItemOptions[[]string]{Label: g.t("Roles", "担当"), Required: true,
-		Description: g.t("Up to 4; press Enter after each.", "最多 4 个；每个后按 Enter。")}, func() *ui.Element {
+		Description: g.t("Up to 4; press Enter after each.", "最多 4 个；每个后按 Enter。")}, func() ui.Element {
 		r := input.TagsInput(c, &s.tags, input.TagsInputOptions{Max: 4, Invalid: s.st.Error("roles") != "", Placeholder: g.t("keyboard, bass…", "键盘、贝斯…")})
 		if r.Changed() {
 			log(fmt.Sprintf("roles %q", s.tags))
@@ -172,7 +172,7 @@ func (g *gallery) formFields(c *ui.Context, f *input.FormScope, log func(string)
 				return g.t("Accept the terms to continue.", "请先同意条款。")
 			}
 			return ""
-		}}, func() *ui.Element {
+		}}, func() ui.Element {
 		e := input.Checkbox(c, &s.terms, g.t("I accept the covenant of the masquerade", "我接受假面舞会的盟约"), input.CheckboxOptions{})
 		if e.Changed() {
 			log(fmt.Sprintf("terms %v", s.terms))

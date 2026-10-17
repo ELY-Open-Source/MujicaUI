@@ -9,7 +9,7 @@ import (
 )
 
 func coachmarkView(c *ui.Context, open *bool, step *int, r *CoachmarkResult) {
-	var a, b *ui.Element
+	var a, b ui.Element
 	ui.Row(c).Gap(40).Padding(20).Children(func() {
 		a = input.Button(c, "Compose", input.ButtonOptions{})
 		b = input.Button(c, "Archive", input.ButtonOptions{Variant: input.Secondary})

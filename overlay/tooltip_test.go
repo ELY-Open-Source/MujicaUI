@@ -66,8 +66,7 @@ func TestTooltipFocusAndEscape(t *testing.T) {
 	if tt.HasText("Share with the court") {
 		t.Fatal("Escape did not hide the tip")
 	}
-	time.Sleep(tooltipTestDelay + 30*time.Millisecond)
-	tt.Frame()
+	tt.Advance(tooltipTestDelay + 30*time.Millisecond)
 	if tt.HasText("Share with the court") {
 		t.Fatal("tip came back while still focused")
 	}

@@ -26,7 +26,7 @@ type ColorPickerOptions struct {
 
 // ColorPickerParts are the parts of a ColorPicker.
 type ColorPickerParts struct {
-	Trigger *ui.Element
+	Trigger ui.Element
 	changed bool
 }
 
@@ -114,7 +114,7 @@ func ColorPicker(c *ui.Context, color *ui.Color, opts ColorPickerOptions) ColorP
 		ui.Icon(c, icons.Must("chevron-down")).Size(16, 16).TextColor(k.TextMuted)
 	})
 	opened := st.open && !st.wasOpen
-	ui.PopoverBase(c, trigger, &st.open, func(panel *ui.Element) {
+	ui.PopoverBase(c, trigger, &st.open, func(panel ui.Element) {
 		core.OverlayStyle(c, panel, core.OverlayEnter(c, panel))
 		panel.Margin(d.Unit(), 0, 0, 0).Padding(d.Unit() * 3).Gap(d.Unit() * 3).Width(260)
 		colorPickerSquare(c, st, set, opened)
@@ -211,7 +211,7 @@ func colorPickerSquare(c *ui.Context, st *colorPickerState, set func(colorPicker
 }
 
 // colorPickerSlider is a channel slider from 0 to hi over the track track paints.
-func colorPickerSlider(c *ui.Context, v *float64, hi float64, name string, track func(p *ui.Painter, r ui.Rect)) *ui.Element {
+func colorPickerSlider(c *ui.Context, v *float64, hi float64, name string, track func(p *ui.Painter, r ui.Rect)) ui.Element {
 	k := core.Tokens(c)
 	const knob, look = 10, 18
 	s := ui.SliderBase(c, v, 0, hi).Height(theme.MinHitSize).PaddingX(knob / 2).FocusRing(false).Label(name)

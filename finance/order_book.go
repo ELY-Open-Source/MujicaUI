@@ -90,7 +90,7 @@ func bookKeyOf(book OrderBookData, group float64) bookKey {
 
 // OrderBookResult is a built OrderBook and its clicked level.
 type OrderBookResult struct {
-	Element *ui.Element
+	Element ui.Element
 	price   float64
 	side    OrderSide
 }
@@ -191,7 +191,7 @@ func orderBookRow(c *ui.Context, r *OrderBookResult, l BookLevel, cum, total flo
 	d := core.Density(c)
 	col := core.TrendColor(c, side.sign())
 	price := data.StatisticFormat(l.Price, dec)
-	b := ui.ButtonBase(c).Key(fmt.Sprint(side, price)).MinHeight(d.ControlHeight()).
+	b := ui.ButtonBase(c.Key(fmt.Sprint(side, price))).MinHeight(d.ControlHeight()).
 		Padding(0, d.Unit()*2).Radius(theme.ControlRadius).
 		Label(fmt.Sprintf(core.Msg(c, "order_book.level"), core.Msg(c, fmt.Sprintf("order_book.side%d", side)), price, data.StatisticFormat(l.Size, sizeDec)))
 	internal.Ring(b, k.Focus, theme.ControlRadius)

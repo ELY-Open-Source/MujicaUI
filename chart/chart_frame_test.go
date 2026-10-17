@@ -83,7 +83,7 @@ func TestChartsIgnoreInputWhenDisabled(t *testing.T) {
 			tt.Key(0, ui.KeyEnter)
 			tt.Key(0, ui.KeySpace)
 		}
-		b := h.res.Element.Bounds()
+		b := h.box(tt)
 		tt.Click("Under test")
 		tt.ClickAt(b.X+b.W/2, b.Y+b.H/2)
 		if h.res.Point != -1 || values != 0 {

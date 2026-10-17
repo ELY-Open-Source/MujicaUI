@@ -16,8 +16,8 @@ layout.Grid(c, layout.GridOptions{Columns: []ui.Track{ui.Fixed(96), ui.Fr(1)}}, 
 
 签名：
 
-- `func Grid(c *ui.Context, opts GridOptions, children func()) *ui.Element`
-- `func GridCell(c *ui.Context, opts GridCellOptions, build func()) *ui.Element`
+- `func Grid(c *ui.Context, opts GridOptions, children func()) ui.Element`
+- `func GridCell(c *ui.Context, opts GridCellOptions, build func()) ui.Element`
 
 ## 参数
 

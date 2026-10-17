@@ -39,11 +39,11 @@ func motionCount(tt *ui.Tester, s string) int {
 	return n
 }
 
-var loaderCases = map[string]func(c *ui.Context, o LoaderOptions) *ui.Element{
+var loaderCases = map[string]func(c *ui.Context, o LoaderOptions) ui.Element{
 	"dots": DotsLoader, "bars": BarsLoader, "pulse": PulseLoader, "orbit": OrbitLoader, "wave": WaveLoader,
 }
 
-func testLoaderBehavior(t *testing.T, loader func(*ui.Context, LoaderOptions) *ui.Element) {
+func testLoaderBehavior(t *testing.T, loader func(*ui.Context, LoaderOptions) ui.Element) {
 	show := true
 	tt, n := motionFrames(func(c *ui.Context) {
 		if show {
@@ -57,8 +57,7 @@ func testLoaderBehavior(t *testing.T, loader func(*ui.Context, LoaderOptions) *u
 		t.Fatal("label shown without ShowLabel")
 	}
 	a := encode(t, tt.Image())
-	time.Sleep(120 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(120 * time.Millisecond)
 	if bytes.Equal(a, encode(t, tt.Image())) || !motionBusy(tt, n) {
 		t.Fatal("loader does not move")
 	}
@@ -67,8 +66,7 @@ func testLoaderBehavior(t *testing.T, loader func(*ui.Context, LoaderOptions) *u
 		t.Fatalf("reduced motion: still repainting or no static label: %q", tt.Texts())
 	}
 	a = encode(t, tt.Image())
-	time.Sleep(120 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(120 * time.Millisecond)
 	if !bytes.Equal(a, encode(t, tt.Image())) {
 		t.Fatal("loader moved under reduced motion")
 	}
@@ -96,7 +94,7 @@ func TestLoadersInvalidSize(t *testing.T) {
 	}
 }
 
-func loaderSnapshot(t *testing.T, name string, loader func(c *ui.Context, o LoaderOptions) *ui.Element) {
+func loaderSnapshot(t *testing.T, name string, loader func(c *ui.Context, o LoaderOptions) ui.Element) {
 	snapshot(t, name, 480, 90, func(c *ui.Context) {
 		ui.Row(c).Padding(20).Gap(24).AlignItems(ui.Center).Children(func() {
 			loader(c, LoaderOptions{})

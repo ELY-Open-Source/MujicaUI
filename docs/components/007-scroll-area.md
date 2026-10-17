@@ -15,7 +15,7 @@ layout.ScrollArea(c, &offset, layout.ScrollAreaOptions{Label: "Log"}, func() {
 }).Height(200)
 ```
 
-签名：`func ScrollArea(c *ui.Context, state *ui.ScrollState, opts ScrollAreaOptions, children func()) *ui.Element`
+签名：`func ScrollArea(c *ui.Context, state *ui.ScrollState, opts ScrollAreaOptions, children func()) ui.Element`
 
 ## 参数
 

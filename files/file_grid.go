@@ -23,7 +23,7 @@ type FileGridOptions struct {
 
 // FileGridResult is a FileGrid and what happened in this frame.
 type FileGridResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Changed reports a new selection; Opened is the entry opened.
 	Changed bool
 	Opened  *FileEntry

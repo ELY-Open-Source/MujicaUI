@@ -35,7 +35,7 @@ func PasteImagePreview(c *ui.Context, images []PastedImage) RemoveResult {
 			if im.ID == "" || im.Source == nil {
 				panic("mujica: PastedImage needs ID and Source")
 			}
-			ui.Box(c).Key(im.ID).Size(pasteImageSize, pasteImageSize).Role(ui.RoleListItem).Children(func() {
+			ui.Box(c.Key(im.ID)).Size(pasteImageSize, pasteImageSize).Role(ui.RoleListItem).Children(func() {
 				ui.Image(c, im.Source).Fit(ui.Cover).Size(pasteImageSize, pasteImageSize).Radius(theme.ControlRadius).
 					Border(theme.BorderWidth, k.Border).Label(im.Name)
 				x := core.IconAction(c, icons.Must("x"), fmt.Sprintf(core.Msg(c, "paste_image_preview.remove"), im.Name)).

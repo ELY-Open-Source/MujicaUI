@@ -25,7 +25,7 @@ type OAuthButtonsOptions struct {
 
 // OAuthButtonsResult carries the selected provider.
 type OAuthButtonsResult struct {
-	Element *ui.Element
+	Element ui.Element
 	chosen  string
 }
 
@@ -47,7 +47,7 @@ func OAuthButtons(c *ui.Context, providers []OAuthProvider, opts OAuthButtonsOpt
 				panic("mujica: OAuthProvider needs an ID and a Name")
 			}
 			label := fmt.Sprintf(core.Msg(c, "oauth_buttons.continue"), p.Name)
-			ui.Column(c).Key(p.ID).AlignItems(ui.Stretch).Children(func() {
+			ui.Column(c.Key(p.ID)).AlignItems(ui.Stretch).Children(func() {
 				b := input.Button(c, label, input.ButtonOptions{Variant: input.Secondary, Icon: p.Icon, Loading: opts.Pending == p.ID,
 					Disabled: opts.Pending != "" && opts.Pending != p.ID})
 				if b.Clicked() && !disabled && opts.Pending == "" {

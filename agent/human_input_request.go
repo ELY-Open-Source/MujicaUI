@@ -28,7 +28,7 @@ type HumanInputRequestOptions struct {
 
 // HumanInputResult reports this frame's events.
 type HumanInputResult struct {
-	Element   *ui.Element
+	Element   ui.Element
 	Submitted bool
 	// TimedOut reports the frame the deadline passed.
 	TimedOut bool

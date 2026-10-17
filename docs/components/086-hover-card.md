@@ -17,7 +17,7 @@ view := func(c *ui.Context) {
 ui.Render(view, 400, 300, 1)
 ```
 
-签名：`func HoverCard(c *ui.Context, anchor *ui.Element, opts HoverCardOptions, content func()) *ui.Element`，返回卡片，未显示时为 nil。
+签名：`func HoverCard(c *ui.Context, anchor ui.Element, opts HoverCardOptions, content func()) ui.Element`，返回卡片，未显示时为 nil。
 
 ## 参数
 

@@ -126,7 +126,7 @@ func paginationItems(cur, pages, sib int) []int {
 	return append(out, pages)
 }
 
-func paginationButton(c *ui.Context, text string, icon *ui.SVG, name string, on, disabled bool) *ui.Element {
+func paginationButton(c *ui.Context, text string, icon *ui.SVG, name string, on, disabled bool) ui.Element {
 	k := core.Tokens(c)
 	h := core.Density(c).ControlHeight()
 	b := ui.ButtonBase(c).MinHeight(h).MinWidth(h).Padding(0, core.Density(c).Unit()*2).Radius(theme.ControlRadius).
@@ -175,7 +175,7 @@ func paginationSizes(c *ui.Context, page, pageSize *int, sizes []int, res *core.
 		ui.Text(c, fmt.Sprintf(core.Msg(c, "pagination.per_page"), *pageSize)).SingleLine()
 		ui.Icon(c, icons.Must("chevron-down")).Size(14, 14).TextColor(k.TextMuted)
 	})
-	sel.Popup(func(panel *ui.Element) {
+	sel.Popup(func(panel ui.Element) {
 		core.OverlayStyle(c, panel, core.OverlayEnter(c, panel))
 		panel.Margin(u, 0, 0, 0).Padding(u)
 		for _, s := range sizes {
@@ -211,7 +211,7 @@ func paginationJump(c *ui.Context, pages int, set func(int)) {
 			Radius(theme.ControlRadius).Background(k.Surface)
 		text := ui.Local(box, "text", func() string { return "" })
 		bad := ui.Local(box, "bad", func() bool { return false })
-		var in *ui.Element
+		var in ui.Element
 		box.Children(func() {
 			in = ui.TextInputBase(c, text).FillWidth().Label(core.Msg(c, "pagination.field"))
 		})

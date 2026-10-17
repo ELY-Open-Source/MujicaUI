@@ -143,7 +143,7 @@ func (g *gallery) statusBar(c *ui.Context) {
 }
 
 func (g *gallery) content(c *ui.Context) {
-	ui.Box(c).Key(g.selected).FillWidth().Children(func() {
+	ui.Box(c.Key(g.selected)).FillWidth().Children(func() {
 		switch g.selected {
 		case overtureID:
 			g.overturePage(c)

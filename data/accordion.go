@@ -46,7 +46,7 @@ func Accordion(c *ui.Context, open *[]string, items []AccordionItem, opts Accord
 	focusTo := ui.Local(v.Element, "focus", func() int { return -1 })
 	v.Element.Children(func() {
 		for i, it := range items {
-			ui.Column(c).Key(it.ID).Children(func() {
+			ui.Column(c.Key(it.ID)).Children(func() {
 				if i > 0 {
 					ui.Box(c).Height(1).FillWidth().Background(k.Border)
 				}
@@ -75,7 +75,7 @@ func Accordion(c *ui.Context, open *[]string, items []AccordionItem, opts Accord
 					ui.Text(c, it.Title).FontWeight(600).Grow(1).MinWidth(0)
 					ui.Icon(c, icons.Must("chevron-down")).Size(16, 16).Rotate(180 * prog).TextColor(k.TextMuted).Shrink(0)
 				})
-				if panel := collapsiblePanel(c, isOpen, prog, it.Content); panel != nil {
+				if panel := collapsiblePanel(c, isOpen, prog, it.Content); panel.Valid() {
 					panel.Padding(0, u*4, u*4).Gap(u * 2)
 				}
 			})
@@ -85,7 +85,7 @@ func Accordion(c *ui.Context, open *[]string, items []AccordionItem, opts Accord
 }
 
 // accordionKey returns the header the arrows, Home or End move to from header i, or -1.
-func accordionKey(tr *ui.Element, items []AccordionItem, i int) int {
+func accordionKey(tr ui.Element, items []AccordionItem, i int) int {
 	step, from := 0, i
 	switch {
 	case tr.Shortcut(0, ui.KeyDown):

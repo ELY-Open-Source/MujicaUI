@@ -101,7 +101,7 @@ func ExampleTag() {
 		ui.Row(c).Gap(8).Children(func() {
 			for i, t := range tags {
 				var v display.TagView
-				ui.Box(c).Key(t).Children(func() {
+				ui.Box(c.Key(t)).Children(func() {
 					v = display.Tag(c, t, display.TagOptions{Icon: "star", Clickable: true, Closable: true})
 				})
 				if v.Closed {

@@ -55,7 +55,7 @@ type RecurrenceEditorOptions struct {
 
 // RecurrenceResult is the editor, its change and its problem.
 type RecurrenceResult struct {
-	Element *ui.Element
+	Element ui.Element
 	changed bool
 	problem string
 }

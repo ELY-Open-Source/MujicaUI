@@ -54,8 +54,7 @@ func TestCopyButtonKeyboardRevertAndDisabled(t *testing.T) {
 	if _, ok := tt.Find("已复制"); !ok {
 		t.Fatal("icon button lacks the copied name")
 	}
-	time.Sleep(copyButtonShown + 50*time.Millisecond)
-	tt.Frame()
+	tt.Advance(copyButtonShown + 50*time.Millisecond)
 	if _, ok := tt.Find("复制"); !ok {
 		t.Fatal("did not revert to Copy")
 	}

@@ -13,13 +13,13 @@ type ContextMenuOptions struct {
 
 // contextMenuState is where the menu opened, relative to the target.
 type contextMenuState struct {
-	open bool
-	x, y float32
+	open, fresh bool // fresh: opened by a press the menu has not yet seen
+	x, y        float32
 }
 
 // ContextMenu gives the container target an in-window menu at the pointer or below the focus.
-func ContextMenu(c *ui.Context, target *ui.Element, opts ContextMenuOptions, build func(m *PopupMenu)) *ui.Element {
-	if target == nil {
+func ContextMenu(c *ui.Context, target ui.Element, opts ContextMenuOptions, build func(m *PopupMenu)) ui.Element {
+	if !target.Valid() {
 		panic("mujica: ContextMenu needs a target")
 	}
 	if build == nil {
@@ -34,7 +34,7 @@ func ContextMenu(c *ui.Context, target *ui.Element, opts ContextMenuOptions, bui
 		if ev.Kind != ui.InputPointerDown || ev.Button != 1 {
 			return false
 		}
-		st.open, st.x, st.y = true, ev.X, ev.Y
+		st.open, st.fresh, st.x, st.y = true, true, ev.X, ev.Y
 		slog.Debug("mujica: context_menu open", "by", "pointer")
 		return true
 	})
@@ -45,10 +45,15 @@ func ContextMenu(c *ui.Context, target *ui.Element, opts ContextMenuOptions, bui
 	if !st.open {
 		return target
 	}
-	var anchor *ui.Element
+	var anchor ui.Element
 	target.Children(func() {
-		anchor = ui.Box(c).Key("mujica.contextmenu.anchor").Absolute().Left(st.x).Top(st.y).Size(1, 1).PassThrough()
+		anchor = ui.Box(c.Key("mujica.contextmenu.anchor")).Absolute().Left(st.x).Top(st.y).Size(1, 1).PassThrough()
 	})
-	PopupMenuOpen(c, anchor, &st.open, build)
+	panel := PopupMenuOpen(c, anchor, &st.open, build)
+	// The opening press fell outside the new panel; it must not dismiss it.
+	if st.fresh && panel.Valid() && panel.Dismissed() {
+		st.open = true
+	}
+	st.fresh = false
 	return target
 }

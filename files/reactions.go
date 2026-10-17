@@ -33,7 +33,7 @@ type ReactionsOptions struct {
 
 // ReactionsResult exposes reactions and requested changes.
 type ReactionsResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Toggled identifies a reaction; Added identifies a picker choice.
 	Toggled, Added string
 }
@@ -65,7 +65,7 @@ func Reactions(c *ui.Context, reactions []Reaction, opts ReactionsOptions) React
 		overlay.Popover(c, add, open, overlay.PopoverOptions{Label: core.Msg(c, "reactions.pick")}, func() {
 			ui.Grid(c).Columns(min(len(opts.Choices), 6)).Gap(u).FocusGroup(ui.Horizontal).Children(func() {
 				for _, e := range opts.Choices {
-					b := ui.ButtonBase(c).Key(e).Size(36, 36).Radius(theme.ControlRadius).Label(e)
+					b := ui.ButtonBase(c.Key(e)).Size(36, 36).Radius(theme.ControlRadius).Label(e)
 					internal.Ring(b, core.Tokens(c).Focus, theme.ControlRadius)
 					if b.Hovered() {
 						b.Background(core.Tokens(c).SurfaceHover)
@@ -85,14 +85,14 @@ func Reactions(c *ui.Context, reactions []Reaction, opts ReactionsOptions) React
 }
 
 // reactionChip frames and marks the current user's reaction.
-func reactionChip(c *ui.Context, r Reaction) *ui.Element {
+func reactionChip(c *ui.Context, r Reaction) ui.Element {
 	k := core.Tokens(c)
 	u := core.Density(c).Unit()
 	label := fmt.Sprintf(core.Msg(c, "reactions.count"), r.Emoji, r.Count)
 	if r.Mine {
 		label += ", " + core.Msg(c, "reactions.mine")
 	}
-	b := ui.ButtonBase(c).Key(r.Emoji).MinHeight(theme.MinHitSize).MinWidth(theme.MinHitSize).Padding(0, u*2).Gap(u).
+	b := ui.ButtonBase(c.Key(r.Emoji)).MinHeight(theme.MinHitSize).MinWidth(theme.MinHitSize).Padding(0, u*2).Gap(u).
 		Radius(theme.MinHitSize / 2).Role(ui.RoleToggleButton).Selected(r.Mine).Label(label).Transition(core.ColorFade)
 	if len(r.People) > 0 {
 		b.Tooltip(strings.Join(r.People, ", "))

@@ -29,7 +29,7 @@ type StatisticOptions struct {
 }
 
 // Statistic shows a headline number with its title, unit and change.
-func Statistic(c *ui.Context, value float64, opts StatisticOptions) *ui.Element {
+func Statistic(c *ui.Context, value float64, opts StatisticOptions) ui.Element {
 	if opts.Precision < 0 {
 		panic("mujica: Statistic with negative Precision")
 	}

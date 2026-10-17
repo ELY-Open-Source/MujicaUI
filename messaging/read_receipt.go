@@ -30,7 +30,7 @@ type ReadReceiptOptions struct {
 }
 
 // ReadReceipt displays delivery marks, text and reader avatars.
-func ReadReceipt(c *ui.Context, state ReceiptState, opts ReadReceiptOptions) *ui.Element {
+func ReadReceipt(c *ui.Context, state ReceiptState, opts ReadReceiptOptions) ui.Element {
 	if state < ReceiptSent || state > ReceiptRead || opts.Max < 0 {
 		panic(fmt.Sprintf("mujica: bad ReadReceipt state %d or Max %d", state, opts.Max))
 	}
@@ -62,7 +62,7 @@ func ReadReceipt(c *ui.Context, state ReceiptState, opts ReadReceiptOptions) *ui
 		}
 		ui.Row(c).Children(func() {
 			for i, r := range opts.Readers[:min(limit, len(opts.Readers))] {
-				cell := ui.Box(c).Key(i).Padding(1).Radius(9).Background(k.Background)
+				cell := ui.Box(c.Key(i)).Padding(1).Radius(9).Background(k.Background)
 				if i > 0 {
 					cell.Margin(0, 0, 0, -5)
 				}

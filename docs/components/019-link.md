@@ -19,7 +19,7 @@ view := func(c *ui.Context) {
 
 ## 参数
 
-`func Link(c *ui.Context, label string, opts LinkOptions) *ui.Element`
+`func Link(c *ui.Context, label string, opts LinkOptions) ui.Element`
 
 `label` 必填，空字符串 panic。
 

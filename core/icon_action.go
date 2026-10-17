@@ -8,7 +8,7 @@ import (
 )
 
 // IconAction is a square, borderless button showing icon, named label.
-func IconAction(c *ui.Context, icon *ui.SVG, label string) *ui.Element {
+func IconAction(c *ui.Context, icon *ui.SVG, label string) ui.Element {
 	k := Tokens(c)
 	b := ui.ButtonBase(c).Size(theme.MinHitSize, theme.MinHitSize).Radius(theme.ControlRadius).Label(label).TextColor(k.TextMuted)
 	internal.Ring(b, k.Focus, theme.ControlRadius)

@@ -31,7 +31,7 @@ type SkeletonOptions struct {
 }
 
 // Skeleton stands in for loading content; it pulses while painted, static under reduced motion.
-func Skeleton(c *ui.Context, opts SkeletonOptions) *ui.Element {
+func Skeleton(c *ui.Context, opts SkeletonOptions) ui.Element {
 	if opts.Shape != SkeletonText && opts.Shape != SkeletonCircle && opts.Shape != SkeletonRect {
 		panic(fmt.Sprintf("mujica: unknown SkeletonShape %d", int(opts.Shape)))
 	}

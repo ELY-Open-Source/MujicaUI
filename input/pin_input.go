@@ -24,7 +24,7 @@ type PinInputOptions struct {
 
 // PinInputParts are the parts of a PinInput.
 type PinInputParts struct {
-	Element            *ui.Element
+	Element            ui.Element
 	changed, completed bool
 }
 

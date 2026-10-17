@@ -99,7 +99,7 @@ func AssetAllocationChart(c *ui.Context, items []AllocationItem, opts AssetAlloc
 				ui.Grid(c).ColumnTracks(ui.Fr(2), ui.Fr(1), ui.Fr(1), ui.Fr(2)).GapX(u * 2).MinHeight(core.Density(c).ControlHeight()).Children(func() {
 					w := it.Value / total * 100
 					drift := w - it.Target
-					ui.Row(c).Key(it.Name).Gap(u * 2).AlignItems(ui.Center).Children(func() {
+					ui.Row(c.Key(it.Name)).Gap(u * 2).AlignItems(ui.Center).Children(func() {
 						ui.Box(c).Size(12, 12).Draw(func(p *ui.Painter, r ui.Rect) {
 							internal.Marker(p, memo.markers[i], r.X+6, r.Y+6, 10, pal[memo.markers[i]%len(pal)])
 						})

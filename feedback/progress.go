@@ -33,7 +33,7 @@ type ProgressOptions struct {
 }
 
 // Progress shows work done, value 0 to 1; indeterminate ones hold still under reduced motion.
-func Progress(c *ui.Context, value float64, opts ProgressOptions) *ui.Element {
+func Progress(c *ui.Context, value float64, opts ProgressOptions) ui.Element {
 	if opts.Shape != ProgressLinear && opts.Shape != ProgressRing {
 		panic(fmt.Sprintf("mujica: unknown ProgressShape %d", int(opts.Shape)))
 	}
@@ -102,7 +102,7 @@ func Progress(c *ui.Context, value float64, opts ProgressOptions) *ui.Element {
 	return col
 }
 
-func progressRing(c *ui.Context, k theme.Tokens, u float32, acc float64, name, caption string, opts ProgressOptions, still bool) *ui.Element {
+func progressRing(c *ui.Context, k theme.Tokens, u float32, acc float64, name, caption string, opts ProgressOptions, still bool) ui.Element {
 	d := opts.Size
 	if d == 0 {
 		d = 48
@@ -157,7 +157,7 @@ func progressRing(c *ui.Context, k theme.Tokens, u float32, acc float64, name, c
 }
 
 // progressAnimate eases toward target; under reduced motion it lands there and keeps the state in step.
-func progressAnimate(e *ui.Element, target float32, still bool) float32 {
+func progressAnimate(e ui.Element, target float32, still bool) float32 {
 	if still {
 		// A changed target lands at once under reduced motion; the detour stops a running transition.
 		e.Animate("progress.value", target+1, theme.StateDuration)
@@ -193,7 +193,7 @@ func meterLevel(v float64, l *ui.MeterLevels) int {
 }
 
 // Meter shows a level within a range with threshold ticks and a level word, not color alone.
-func Meter(c *ui.Context, value float64, opts MeterOptions) *ui.Element {
+func Meter(c *ui.Context, value float64, opts MeterOptions) ui.Element {
 	lo, hi := opts.Min, opts.Max
 	if lo == 0 && hi == 0 {
 		hi = 1

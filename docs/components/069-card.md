@@ -20,7 +20,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func Card(c *ui.Context, opts CardOptions, body func()) *ui.Element`，`body` 构建内容插槽。
+`func Card(c *ui.Context, opts CardOptions, body func()) ui.Element`，`body` 构建内容插槽。
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |

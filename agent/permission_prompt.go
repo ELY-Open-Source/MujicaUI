@@ -32,7 +32,7 @@ type PermissionPromptOptions struct {
 
 // PermissionResult reports the choice made in this frame.
 type PermissionResult struct {
-	Element *ui.Element
+	Element ui.Element
 	Choice  PermissionChoice
 }
 
@@ -48,7 +48,7 @@ func PermissionPrompt(c *ui.Context, open *bool, opts PermissionPromptOptions) P
 	r.Element = overlay.Dialog(c, open, overlay.DialogOptions{
 		Title: opts.Title, Description: opts.Description, KeepOnBackdrop: true, HideClose: true,
 		Actions: func() {
-			if input.Button(c, core.Msg(c, "permission_prompt.deny"), input.ButtonOptions{Variant: input.Secondary}).AutoFocus().Clicked() {
+			if core.AutoFocus(c, input.Button(c, core.Msg(c, "permission_prompt.deny"), input.ButtonOptions{Variant: input.Secondary})).Clicked() {
 				r.Choice = PermissionDeny
 			}
 			if input.Button(c, core.Msg(c, "permission_prompt.always"), input.ButtonOptions{Variant: input.Outline}).Clicked() {

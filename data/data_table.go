@@ -89,7 +89,7 @@ func (s *DataTableState[K]) VisibleRows() (first, last int) { return s.rows.Visi
 
 // DataTableView is a built DataTable and what happened to it in this frame.
 type DataTableView struct {
-	Element                           *ui.Element
+	Element                           ui.Element
 	changed, submitted, sorted, retry bool
 }
 

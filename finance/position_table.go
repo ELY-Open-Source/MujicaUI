@@ -46,7 +46,7 @@ type PositionTableOptions struct {
 
 // TableActionResult is a trading table and its acted row.
 type TableActionResult struct {
-	Element *ui.Element
+	Element ui.Element
 	Table   data.DataTableView
 	id      string
 }

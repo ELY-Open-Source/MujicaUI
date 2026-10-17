@@ -16,7 +16,7 @@ func FocusRing(p *ui.Painter, r ui.Rect, radius float32, c ui.Color) {
 }
 
 // Ring replaces MyGo's ring on e with the MujicaUI ring.
-func Ring(e *ui.Element, c ui.Color, radius float32) *ui.Element {
+func Ring(e ui.Element, c ui.Color, radius float32) ui.Element {
 	return e.FocusRing(false).DrawOver(func(p *ui.Painter, r ui.Rect) {
 		if e.FocusVisible() {
 			FocusRing(p, r, radius, c)

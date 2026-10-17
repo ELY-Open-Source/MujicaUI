@@ -66,7 +66,7 @@ func (k callKey) String() string {
 }
 
 // CallControls provides call actions and window shortcuts.
-func CallControls(c *ui.Context, st CallState, opts CallControlsOptions) *ui.Element {
+func CallControls(c *ui.Context, st CallState, opts CallControlsOptions) ui.Element {
 	if opts.OnMute == nil || opts.OnCamera == nil || opts.OnShare == nil || opts.OnHangUp == nil {
 		panic("mujica: CallControls needs every callback")
 	}

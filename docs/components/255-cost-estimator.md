@@ -16,7 +16,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func CostEstimator(c *ui.Context, opts CostEstimatorOptions) *ui.Element`。另有 `EstimateCost(inputTokens, outputTokens, inputPrice, outputPrice) CostEstimate`。
+`func CostEstimator(c *ui.Context, opts CostEstimatorOptions) ui.Element`。另有 `EstimateCost(inputTokens, outputTokens, inputPrice, outputPrice) CostEstimate`。
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |

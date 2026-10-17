@@ -67,7 +67,7 @@ func agentTone(k theme.Tokens, s AgentState) (ui.Color, *ui.SVG) {
 }
 
 // agentMark draws s; running spins unless still.
-func agentMark(c *ui.Context, s AgentState, size float32, still bool) *ui.Element {
+func agentMark(c *ui.Context, s AgentState, size float32, still bool) ui.Element {
 	tone, icon := agentTone(core.Tokens(c), s)
 	if s == AgentRunning && !still {
 		return core.Spinner(c, core.SpinnerOptions{Size: size, Color: tone, Label: core.Msg(c, "agent_status.running")})
@@ -95,7 +95,7 @@ func AgentDuration(d time.Duration) string {
 }
 
 // AgentCard is the bordered surface every agent card sits on.
-func AgentCard(c *ui.Context) *ui.Element {
+func AgentCard(c *ui.Context) ui.Element {
 	k := core.Tokens(c)
 	u := core.Density(c).Unit()
 	return ui.Column(c).Shrink(0).Padding(u*3).Gap(u*2).Radius(theme.CardRadius).
@@ -103,12 +103,12 @@ func AgentCard(c *ui.Context) *ui.Element {
 }
 
 // AgentCaption is small muted text.
-func AgentCaption(c *ui.Context, s string) *ui.Element {
+func AgentCaption(c *ui.Context, s string) ui.Element {
 	return ui.Text(c, s).FontSize(core.FontSize(c, theme.CaptionSize)).TextColor(core.Tokens(c).TextMuted)
 }
 
 // agentWell styles a sunken monospace well.
-func agentWell(c *ui.Context, l *ui.Element, maxHeight float32) *ui.Element {
+func agentWell(c *ui.Context, l ui.Element, maxHeight float32) ui.Element {
 	k := core.Tokens(c)
 	u := core.Density(c).Unit()
 	return l.Shrink(1).MaxHeight(maxHeight).Padding(u*2, u*3).Radius(theme.ControlRadius).
@@ -117,12 +117,12 @@ func agentWell(c *ui.Context, l *ui.Element, maxHeight float32) *ui.Element {
 }
 
 // AgentWellRows builds n rows in a well.
-func AgentWellRows(c *ui.Context, n int, row func(i int), maxHeight float32) *ui.Element {
+func AgentWellRows(c *ui.Context, n int, row func(i int), maxHeight float32) ui.Element {
 	return agentWell(c, AgentRows(c, n, row), maxHeight)
 }
 
 // AgentRows builds n scrolling rows, virtualized when many.
-func AgentRows(c *ui.Context, n int, row func(i int)) *ui.Element {
+func AgentRows(c *ui.Context, n int, row func(i int)) ui.Element {
 	if n > agentVirtualRows {
 		return ui.List(c, nil, n, row)
 	}
@@ -196,7 +196,7 @@ func agentCodeLine(c *ui.Context, language, line string, inBlock bool) {
 }
 
 // AgentCode shows highlighted text in a capped well.
-func AgentCode(c *ui.Context, language, text string, maxHeight float32) *ui.Element {
+func AgentCode(c *ui.Context, language, text string, maxHeight float32) ui.Element {
 	holder := ui.Column(c).Shrink(1)
 	cc := ui.Local(holder, "mujica.agent.code", func() *agentCodeCache { return &agentCodeCache{} })
 	(*cc).update(language, text)
@@ -260,7 +260,7 @@ func agentAnsiSpans(k theme.Tokens, in []internal.AnsiSpan) []ui.Span {
 }
 
 // agentBar is a thin progress bar named label.
-func agentBar(c *ui.Context, frac float64, label string) *ui.Element {
+func agentBar(c *ui.Context, frac float64, label string) ui.Element {
 	if frac < 0 || frac > 1 || frac != frac {
 		panic(fmt.Sprintf("mujica: progress %v outside 0..1", frac))
 	}

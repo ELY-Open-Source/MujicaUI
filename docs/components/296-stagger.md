@@ -17,7 +17,7 @@ view := func(c *ui.Context) {
 ui.Render(view, 400, 300, 1)
 ```
 
-签名：`func Stagger(c *ui.Context, n int, opts StaggerOptions, item func(i int)) *ui.Element`
+签名：`func Stagger(c *ui.Context, n int, opts StaggerOptions, item func(i int)) ui.Element`
 
 ## 参数
 

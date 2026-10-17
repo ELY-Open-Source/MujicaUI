@@ -26,7 +26,7 @@ type ContextWindowMeterOptions struct {
 
 // ContextWindowMeter displays segmented usage and threshold warnings.
 // Palette colors and shaped legend markers identify segments.
-func ContextWindowMeter(c *ui.Context, segments []ContextSegment, limit int, opts ContextWindowMeterOptions) *ui.Element {
+func ContextWindowMeter(c *ui.Context, segments []ContextSegment, limit int, opts ContextWindowMeterOptions) ui.Element {
 	if limit <= 0 || opts.Warn < 0 || opts.Warn > 1 {
 		panic("mujica: ContextWindowMeter needs limit > 0 and 0 <= Warn <= 1")
 	}

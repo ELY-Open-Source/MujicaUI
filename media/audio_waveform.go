@@ -127,7 +127,7 @@ func waveformBucket(samples []float32, cols int) []float32 {
 }
 
 // waveformInput seeks and selects; true means the selection changed.
-func waveformInput(c *ui.Context, e *ui.Element, r ui.Rect, opts AudioWaveformOptions) bool {
+func waveformInput(c *ui.Context, e ui.Element, r ui.Rect, opts AudioWaveformOptions) bool {
 	at := func(x float32) time.Duration {
 		f := max(0, min(1, (x-r.X)/max(1, r.W)))
 		return time.Duration(float64(f) * float64(opts.Duration)).Round(time.Millisecond)

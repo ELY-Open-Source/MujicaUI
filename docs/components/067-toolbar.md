@@ -21,9 +21,9 @@ navigation.Toolbar(c, navigation.ToolbarOptions{Label: "Format"}, func() {
 
 签名：
 
-- `func Toolbar(c *ui.Context, opts ToolbarOptions, fn func()) *ui.Element`
-- `func ToolbarButton(c *ui.Context, label string, opts ToolbarButtonOptions) *ui.Element`
-- `func ToolbarGroup(c *ui.Context, fn func()) *ui.Element`
+- `func Toolbar(c *ui.Context, opts ToolbarOptions, fn func()) ui.Element`
+- `func ToolbarButton(c *ui.Context, label string, opts ToolbarButtonOptions) ui.Element`
+- `func ToolbarGroup(c *ui.Context, fn func()) ui.Element`
 - `func ToolbarSeparator(c *ui.Context)`
 
 ## 参数

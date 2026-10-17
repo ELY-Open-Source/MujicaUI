@@ -145,7 +145,7 @@ func ShortcutRecorder(c *ui.Context, value *Shortcut, opts ShortcutRecorderOptio
 		}
 		if st.recording {
 			b.HandleInput(func(ev ui.InputEvent) bool {
-				if b.IsDisabled() {
+				if disabled {
 					return false
 				}
 				return shortcutRecorderKey(st, ev)
@@ -178,7 +178,7 @@ func shortcutRecorderKey(st *shortcutRecorderState, ev ui.InputEvent) bool {
 }
 
 // shortcutRecorderLook displays the shortcut or recording prompt.
-func shortcutRecorderLook(c *ui.Context, b *ui.Element, st *shortcutRecorderState, value Shortcut, name string) {
+func shortcutRecorderLook(c *ui.Context, b ui.Element, st *shortcutRecorderState, value Shortcut, name string) {
 	k := core.Tokens(c)
 	internal.Ring(b, k.Focus, theme.ControlRadius)
 	label := name + ": " + value.String()

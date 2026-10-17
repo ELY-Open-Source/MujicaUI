@@ -30,19 +30,19 @@ type DialogOptions struct {
 }
 
 // Dialog shows a modal dialog while *open is true, trapping and then restoring the focus.
-func Dialog(c *ui.Context, open *bool, opts DialogOptions, content func()) *ui.Element {
+func Dialog(c *ui.Context, open *bool, opts DialogOptions, content func()) ui.Element {
 	if opts.Title == "" {
 		panic("mujica: Dialog needs a Title")
 	}
 	site, focus := core.OverlaySite(c)
 	if !*open {
 		focus.Closed(c, site)
-		return nil
+		return ui.Element{}
 	}
 	core.OverlayLayer(c, open)
 	k := core.Tokens(c)
 	shown, backClicked, closed := true, false, false
-	panel := ui.DialogBase(c, &shown, func(back, panel *ui.Element) {
+	panel := ui.DialogBase(c, &shown, func(back, panel ui.Element) {
 		backClicked = back.Clicked()
 		p := core.OverlayEnter(c, panel)
 		back.Background(OverlayScrim(k).Alpha(p)).Padding(16)
@@ -81,7 +81,7 @@ func Dialog(c *ui.Context, open *bool, opts DialogOptions, content func()) *ui.E
 }
 
 // DialogPanel styles a centered dialog panel at entrance progress p.
-func DialogPanel(c *ui.Context, panel *ui.Element, width float32, decorated bool, p float32) {
+func DialogPanel(c *ui.Context, panel ui.Element, width float32, decorated bool, p float32) {
 	k := core.Tokens(c)
 	u := core.Density(c).Unit()
 	if width == 0 {

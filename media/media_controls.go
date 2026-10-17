@@ -39,7 +39,7 @@ type MediaControlsOptions struct {
 }
 
 // MediaControls are previous, play, next, loop and shuffle buttons.
-func MediaControls(c *ui.Context, st MediaControlsState, opts MediaControlsOptions) *ui.Element {
+func MediaControls(c *ui.Context, st MediaControlsState, opts MediaControlsOptions) ui.Element {
 	if opts.OnPrevious == nil || opts.OnPlay == nil || opts.OnPause == nil || opts.OnNext == nil || opts.OnLoop == nil || opts.OnShuffle == nil {
 		panic("mujica: MediaControls needs every callback")
 	}

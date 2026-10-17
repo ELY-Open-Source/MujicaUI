@@ -24,7 +24,7 @@ type TagOptions struct {
 
 // TagView is a shown Tag and this frame's events.
 type TagView struct {
-	Element *ui.Element
+	Element ui.Element
 	// Clicked reports the label was activated, not the remove button.
 	Clicked bool
 	// Closed reports the remove button, Delete or Backspace.
@@ -43,7 +43,7 @@ func Tag(c *ui.Context, label string, opts TagOptions) TagView {
 		Background(k.Surface).Border(theme.BorderWidth, k.Border).Shrink(0).Disabled(opts.Disabled)
 	v.Element = box
 	box.Children(func() {
-		var main *ui.Element
+		var main ui.Element
 		if opts.Clickable {
 			main = ui.ButtonBase(c).Label(label)
 			internal.Ring(main, k.Focus, theme.ControlRadius)
@@ -89,7 +89,7 @@ func Tag(c *ui.Context, label string, opts TagOptions) TagView {
 	return v
 }
 
-func tagClose(c *ui.Context, k theme.Tokens, label string) *ui.Element {
+func tagClose(c *ui.Context, k theme.Tokens, label string) ui.Element {
 	b := ui.ButtonBase(c).Size(theme.MinHitSize, theme.MinHitSize).
 		Radius(theme.ControlRadius).Label(fmt.Sprintf(core.Msg(c, "tag.remove"), label))
 	fg := k.TextMuted

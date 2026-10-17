@@ -13,15 +13,17 @@ func TestVolumeChartSharesViewAndReads(t *testing.T) {
 	candles := sampleCandles(100000)
 	view := MarketView{Count: 60}
 	var price, vol ChartResult
+	var volSt *mktState
 	tt := ui.NewTester(func(c *ui.Context) {
 		core.Use(c, core.Settings{})
 		ui.Column(c).Width(800).Children(func() {
 			price = CandlestickChart(c, candles, &view, CandlestickOptions{Frame: ChartFrame{Label: "Price"}})
 			vol = VolumeChart(c, candles, &view, VolumeChartOptions{Frame: ChartFrame{Label: "Volume"}})
+			volSt = mktState0(vol)
 		})
 	}, 820, 600)
 	tt.Frame()
-	if d := mktState0(vol).drawn; d != 60 {
+	if d := volSt.drawn; d != 60 {
 		t.Fatalf("volume drew %d bars", d)
 	}
 	tt.Key(0, ui.KeyTab)

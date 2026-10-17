@@ -23,7 +23,7 @@ type BranchSelectorOptions struct {
 
 // BranchSelectorResult is a built BranchSelector and its events.
 type BranchSelectorResult struct {
-	Element *ui.Element
+	Element ui.Element
 	changed bool
 	create  string
 }
@@ -82,7 +82,7 @@ func BranchSelector(c *ui.Context, selected *string, branches []Branch, opts Bra
 		ui.Icon(c, icons.Must("chevrons-up-down")).Size(14, 14).TextColor(k.TextMuted)
 	})
 	b := tr.Bounds()
-	ui.PopoverBase(c, tr, &s.open, func(panel *ui.Element) {
+	ui.PopoverBase(c, tr, &s.open, func(panel ui.Element) {
 		core.OverlayStyle(c, panel, overlay.OverlayAnchored(c, panel, b))
 		panel.Margin(6, 0, 0, 0).Padding(u * 2).Gap(u * 2).Width(300).MaxHeight(overlay.PopoverRoom(c, b)).AlignItems(ui.Stretch)
 		var first *Branch
@@ -100,7 +100,7 @@ func BranchSelector(c *ui.Context, selected *string, branches []Branch, opts Bra
 		}
 		in := input.TextInput(c, &s.query, input.TextInputOptions{Placeholder: core.Msg(c, "branch_selector.search"), Label: core.Msg(c, "branch_selector.search"),
 			Leading: func() { ui.Icon(c, icons.Must("search")).Size(14, 14).TextColor(k.TextMuted) }})
-		in.Input.AutoFocus()
+		core.AutoFocus(c, in.Input)
 		if in.Changed() {
 			s.hl, s.reveal = 0, true
 		}

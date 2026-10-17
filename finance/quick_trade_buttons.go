@@ -29,7 +29,7 @@ type QuickTradeButtonsOptions struct {
 
 // QuickTradeResult is built QuickTradeButtons and their trade.
 type QuickTradeResult struct {
-	Element  *ui.Element
+	Element  ui.Element
 	side     OrderSide
 	quantity float64
 }
@@ -110,7 +110,7 @@ func QuickTradeButtons(c *ui.Context, quantity *float64, opts QuickTradeButtonsO
 }
 
 // quickTradeButton is a large button tinted by its side.
-func quickTradeButton(c *ui.Context, label string, side OrderSide) *ui.Element {
+func quickTradeButton(c *ui.Context, label string, side OrderSide) ui.Element {
 	k := core.Tokens(c)
 	d := core.Density(c)
 	col := core.TrendColor(c, side.sign())

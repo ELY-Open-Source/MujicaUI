@@ -22,7 +22,7 @@ func TestFunnelChartReadout(t *testing.T) {
 		t.Fatalf("readout %q", got)
 	}
 	tt.Key(0, ui.KeyEscape)
-	b := h.res.Element.Bounds()
+	b := h.box(tt)
 	tt.Move(b.X+b.W/3, b.Y+4+232*0.6) // third stage band
 	if got := chartReadout(tt); got != "Vows · 100 · 25.0% of the stage before · 10.0% of the first" {
 		t.Fatalf("hover %q", got)

@@ -38,7 +38,7 @@ type OverlayOptions struct {
 }
 
 // Overlay shows content in a layer above the window while *open is true; Escape closes it.
-func Overlay(c *ui.Context, open *bool, opts OverlayOptions, content func()) *ui.Element {
+func Overlay(c *ui.Context, open *bool, opts OverlayOptions, content func()) ui.Element {
 	if opts.Dim && !opts.Modal {
 		panic("mujica: Overlay Dim requires Modal")
 	}
@@ -48,7 +48,7 @@ func Overlay(c *ui.Context, open *bool, opts OverlayOptions, content func()) *ui
 	site, focus := core.OverlaySite(c)
 	if !*open {
 		focus.Closed(c, site)
-		return nil
+		return ui.Element{}
 	}
 	k := core.Tokens(c)
 	inset := opts.Inset
@@ -60,7 +60,7 @@ func Overlay(c *ui.Context, open *bool, opts OverlayOptions, content func()) *ui
 		core.OverlayLayer(c, open)
 		var backClicked bool
 		shown := true
-		panel := ui.DialogBase(c, &shown, func(back, panel *ui.Element) {
+		panel := ui.DialogBase(c, &shown, func(back, panel ui.Element) {
 			backClicked = back.Clicked()
 			p := core.OverlayEnter(c, panel)
 			back.Padding(inset).Justify(overlayAlign(fy)).AlignItems(overlayAlign(fx))
@@ -79,7 +79,7 @@ func Overlay(c *ui.Context, open *bool, opts OverlayOptions, content func()) *ui
 		}
 		return panel
 	}
-	var panel *ui.Element
+	var panel ui.Element
 	ui.Overlay(c, func() {
 		w, h := c.Size()
 		panel = ui.Column(c).Absolute().Role(ui.RoleDialog).Label(opts.Label).Padding(core.Density(c).Unit() * 4).
@@ -143,7 +143,7 @@ func OverlayScrim(k theme.Tokens) ui.Color {
 }
 
 // OverlayAnchored is overlayEnter, held at 0 until the anchor b has been laid out.
-func OverlayAnchored(c *ui.Context, panel *ui.Element, b ui.Rect) float32 {
+func OverlayAnchored(c *ui.Context, panel ui.Element, b ui.Rect) float32 {
 	if b.W == 0 && b.H == 0 {
 		c.AnimationFrame()
 		return 0

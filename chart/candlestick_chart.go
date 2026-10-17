@@ -121,7 +121,7 @@ func CandlestickChart(c *ui.Context, candles []Candle, view *MarketView, opts Ca
 	m.yDomain()
 	m.alertsCheck()
 	res, plot := ch.Build(m.spec())
-	if plot != nil {
+	if plot.Valid() {
 		m.input(plot)
 	}
 	if s := opts.Sync; s != nil {

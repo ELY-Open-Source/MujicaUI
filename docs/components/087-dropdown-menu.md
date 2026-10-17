@@ -27,7 +27,7 @@ view := func(c *ui.Context) {
 ui.Render(view, 400, 300, 1)
 ```
 
-签名：`func DropdownMenu(c *ui.Context, label string, opts DropdownMenuOptions, build func(m *PopupMenu)) *ui.Element`，返回触发按钮。`build` 为 nil、或 `label` 与 `opts.Label` 都为空时 panic。
+签名：`func DropdownMenu(c *ui.Context, label string, opts DropdownMenuOptions, build func(m *PopupMenu)) ui.Element`，返回触发按钮。`build` 为 nil、或 `label` 与 `opts.Label` 都为空时 panic。
 
 ## 参数
 

@@ -82,7 +82,7 @@ func MultiChartLayout(c *ui.Context, state *MultiChartState, opts MultiChartLayo
 		grid := ui.Box(c).Grid().Columns(cols).Gap(u * 2).Height(h).FillWidth()
 		grid.Children(func() {
 			for i := range state.Count {
-				box := ui.Column(c).Key(i).MinWidth(0).MinHeight(0).Height((h - u*2*float32(rows-1)) / float32(rows)).Padding(u * 2).
+				box := ui.Column(c.Key(i)).MinWidth(0).MinHeight(0).Height((h - u*2*float32(rows-1)) / float32(rows)).Padding(u * 2).
 					Background(k.Surface).Radius(theme.CardRadius).Clip().Role(ui.RoleGroup).
 					Label(fmt.Sprintf(core.Msg(c, "multi_chart_layout.cell"), i+1, state.Cells[i].Symbol))
 				if i == state.Active && state.Count > 1 {

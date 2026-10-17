@@ -33,7 +33,7 @@ func (a *overlayApp) view(c *ui.Context) {
 		if input.Button(c, "Done", input.ButtonOptions{}).Clicked() {
 			a.open = false
 		}
-	}); p != nil {
+	}); p.Valid() {
 		a.panel = p.Bounds()
 	}
 }
@@ -178,7 +178,7 @@ func overlayCases() []overlayCase {
 		tt.Move(r.X+4, r.Y+4)
 	}
 	leave := func(tt *ui.Tester) { tt.Move(590, 390) }
-	anchor := func(c *ui.Context, open *bool) *ui.Element {
+	anchor := func(c *ui.Context, open *bool) ui.Element {
 		b := input.Button(c, "Anchor", input.ButtonOptions{})
 		if b.Clicked() {
 			*open = true

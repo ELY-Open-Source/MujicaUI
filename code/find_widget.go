@@ -50,7 +50,7 @@ type FindWidgetOptions struct {
 
 // FindWidgetResult is a FindWidget and what happened in this frame.
 type FindWidgetResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Moved reports navigation; Replaced counts replacements.
 	Moved    bool
 	Replaced int

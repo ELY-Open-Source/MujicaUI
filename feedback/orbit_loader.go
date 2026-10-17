@@ -9,7 +9,7 @@ import (
 )
 
 // OrbitLoader moves a diamond around a ring of diamonds.
-func OrbitLoader(c *ui.Context, opts LoaderOptions) *ui.Element {
+func OrbitLoader(c *ui.Context, opts LoaderOptions) ui.Element {
 	return loaderMark(c, opts, "orbit_loader", 1, 1600, func(p *ui.Painter, r ui.Rect, t float64, col ui.Color, still bool) {
 		cx, cy, rad := r.X+r.W/2, r.Y+r.H/2, r.W*0.36
 		at := func(turn float64) (float32, float32) {

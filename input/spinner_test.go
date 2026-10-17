@@ -49,15 +49,13 @@ func TestSpinnerMotion(t *testing.T) {
 		}
 	}, 100, 100)
 	a := encode(t, tt.Image())
-	time.Sleep(150 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(150 * time.Millisecond)
 	if bytes.Equal(a, encode(t, tt.Image())) {
 		t.Fatal("spinner did not turn")
 	}
 	tt.SetPreferences(ui.Preferences{ReduceMotion: true, TextScale: 1})
 	a = encode(t, tt.Image())
-	time.Sleep(150 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(150 * time.Millisecond)
 	if !bytes.Equal(a, encode(t, tt.Image())) {
 		t.Fatal("spinner turned under reduced motion")
 	}

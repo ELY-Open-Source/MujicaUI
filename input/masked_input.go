@@ -102,7 +102,7 @@ func MaskedInput(c *ui.Context, value *string, opts MaskedInputOptions) InputRes
 	k := core.Tokens(c)
 	var r InputResult
 	look := &textInputLook{disabled: opts.Disabled, err: opts.Error}
-	r.Element, r.Input = textInputFrame(c, look, func(frame *ui.Element) *ui.Element {
+	r.Element, r.Input = textInputFrame(c, look, func(frame ui.Element) ui.Element {
 		in := ui.Row(c).Grow(1).Focusable().Role(ui.RoleTextField).Label(opts.Label).Description(MaskFormat(opts.Mask, *value))
 		st := ui.Local(in, "masked_input", func() *maskedInputState { return &maskedInputState{caret: len(raw)} })
 		s := *st
@@ -116,8 +116,10 @@ func MaskedInput(c *ui.Context, value *string, opts MaskedInputOptions) InputRes
 				}
 			}
 		}
+		disabled := in.IsDisabled()
+		svc := c.Services()
 		in.HandleInput(func(ev ui.InputEvent) bool {
-			if in.IsDisabled() {
+			if disabled {
 				return false
 			}
 			raw = []rune(*value)
@@ -130,9 +132,9 @@ func MaskedInput(c *ui.Context, value *string, opts MaskedInputOptions) InputRes
 			case ui.InputCommand:
 				switch ev.Text {
 				case "paste":
-					insert(c.ReadClipboard())
+					insert(svc.ReadClipboard())
 				case "copy":
-					c.WriteClipboard(*value)
+					svc.WriteClipboard(*value)
 				default:
 					return false
 				}

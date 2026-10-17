@@ -64,7 +64,7 @@ type PomodoroTimerOptions struct {
 
 // PomodoroResult is the timer and what changed this frame.
 type PomodoroResult struct {
-	Element  *ui.Element
+	Element  ui.Element
 	changed  bool
 	finished PomodoroPhase
 	done     bool

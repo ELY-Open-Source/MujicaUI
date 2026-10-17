@@ -35,6 +35,7 @@ type FormFieldState struct {
 	asyncFor   uint64
 	asyncErr   string
 	pending    bool
+	owed       bool // blurred valid; the check starts once no form button is held
 	hasAsync   bool
 	check      func() string
 	refresh    func()
@@ -107,7 +108,7 @@ type FormScope struct {
 
 // FormParts are the parts of a Form.
 type FormParts struct {
-	Element          *ui.Element
+	Element          ui.Element
 	submitted, reset bool
 }
 
@@ -142,9 +143,10 @@ func Form(c *ui.Context, st *FormState, opts FormOptions, fields func(f *FormSco
 	col := ui.Column(c).Gap(d.Unit() * 5)
 	parts.Element = col
 	scope := &FormScope{st: st, horizontal: opts.Horizontal}
+	held := false
 	col.Children(func() {
 		// A new key after Reset drops the controls' drafts and errors.
-		ui.Box(c).Key(st.generation).Children(func() {
+		ui.Box(c.Key(st.generation)).Children(func() {
 			if opts.Horizontal {
 				formFieldGrid(c, func() { fields(scope) })
 			} else {
@@ -162,13 +164,17 @@ func Form(c *ui.Context, st *FormState, opts FormOptions, fields func(f *FormSco
 			if reset == "" {
 				reset = core.Msg(c, "form.reset")
 			}
-			if Button(c, submit, ButtonOptions{Loading: st.submitting || st.Awaiting}).Clicked() {
+			sb := Button(c, submit, ButtonOptions{Loading: st.submitting || st.Awaiting})
+			if sb.Clicked() {
 				st.Requested = true
 			}
-			if Button(c, reset, ButtonOptions{Variant: Secondary, Disabled: st.submitting}).Clicked() {
+			rb := Button(c, reset, ButtonOptions{Variant: Secondary, Disabled: st.submitting})
+			if rb.Clicked() {
 				formReset(st)
 				parts.reset = true
 			}
+			// A "Checking…" line would move the buttons under the pointer before the release.
+			held = sb.Pressed() || rb.Pressed()
 		})
 	})
 	if st.Requested {
@@ -180,7 +186,21 @@ func Form(c *ui.Context, st *FormState, opts FormOptions, fields func(f *FormSco
 	if st.Awaiting {
 		parts.submitted = formSettle(c, st)
 	}
+	if !held {
+		formStartOwed(c, st)
+	}
 	return parts
+}
+
+// formStartOwed starts the async checks of fields blurred while a form button was held.
+func formStartOwed(c *ui.Context, st *FormState) {
+	for _, name := range st.Order {
+		if f := st.Fields[name]; f != nil && f.owed {
+			f.owed = false
+			f.startAsync()
+			c.Invalidate()
+		}
+	}
 }
 
 // formStartSubmit validates every field and starts the async checks still owed.
@@ -188,7 +208,7 @@ func formStartSubmit(st *FormState) {
 	st.tried, st.Awaiting, st.formError = true, true, ""
 	for _, name := range st.Order {
 		f := st.Fields[name]
-		f.err = f.check()
+		f.err, f.owed = f.check(), false
 		if f.err == "" {
 			f.startAsync()
 		}
@@ -243,7 +263,7 @@ func formReset(st *FormState) {
 }
 
 // FormItem registers field name around the focusable element control returns.
-func FormItem[T any](c *ui.Context, f *FormScope, name string, value *T, opts FormItemOptions[T], control func() *ui.Element) *ui.Element {
+func FormItem[T any](c *ui.Context, f *FormScope, name string, value *T, opts FormItemOptions[T], control func() ui.Element) ui.Element {
 	st := f.st
 	if name == "" || opts.Label == "" {
 		panic("mujica: FormItem needs a name and a Label")
@@ -294,8 +314,8 @@ func FormItem[T any](c *ui.Context, f *FormScope, name string, value *T, opts Fo
 	if fs.pending {
 		desc = core.Msg(c, "form.checking")
 	}
-	var ctrl *ui.Element
-	field := formFieldBuild(c, name, opts.Label, FormFieldOptions{Required: opts.Required, Description: desc, Error: st.Error(name)}, f.horizontal, func() *ui.Element {
+	var ctrl ui.Element
+	field := formFieldBuild(c, name, opts.Label, FormFieldOptions{Required: opts.Required, Description: desc, Error: st.Error(name)}, f.horizontal, func() ui.Element {
 		ctrl = control()
 		return ctrl
 	})
@@ -304,9 +324,7 @@ func FormItem[T any](c *ui.Context, f *FormScope, name string, value *T, opts Fo
 	if fs.focused && !focused {
 		fs.touched = true
 		fs.err = fs.check()
-		if fs.err == "" {
-			fs.startAsync()
-		}
+		fs.owed = fs.err == ""
 		slog.Debug("mujica: form field blurred", "field", name, "valid", fs.err == "")
 	}
 	fs.focused = focused

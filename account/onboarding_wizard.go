@@ -28,7 +28,7 @@ type OnboardingWizardOptions struct {
 
 // OnboardingWizardResult reports completion or skipping.
 type OnboardingWizardResult struct {
-	Element           *ui.Element
+	Element           ui.Element
 	finished, skipped bool
 }
 
@@ -60,7 +60,7 @@ func OnboardingWizard(c *ui.Context, step *int, steps []WizardStep, opts Onboard
 		at := *step
 		navigation.Steps(c, &at, head, navigation.StepsOptions{Label: core.Msg(c, "onboarding_wizard.progress")})
 		cur := steps[*step]
-		ui.Column(c).Key(*step).Gap(d.Unit() * 3).Children(func() {
+		ui.Column(c.Key(*step)).Gap(d.Unit() * 3).Children(func() {
 			ui.Text(c, fmt.Sprintf(core.Msg(c, "onboarding_wizard.count"), *step+1, len(steps))).TextColor(k.TextMuted).FontSize(core.FontSize(c, theme.CaptionSize))
 			ui.Text(c, cur.Title).Font(theme.SerifFont).FontSize(core.FontSize(c, theme.H2Size)).FontWeight(600)
 			if cur.Description != "" {
@@ -84,7 +84,7 @@ func OnboardingWizard(c *ui.Context, step *int, steps []WizardStep, opts Onboard
 			if last {
 				next = core.Msg(c, "onboarding_wizard.finish")
 			}
-			if input.Button(c, next, input.ButtonOptions{Disabled: !ready}).AutoFocus().Clicked() && ready {
+			if core.AutoFocus(c, input.Button(c, next, input.ButtonOptions{Disabled: !ready})).Clicked() && ready {
 				if last {
 					r.finished = true
 				} else {

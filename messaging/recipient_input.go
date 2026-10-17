@@ -124,7 +124,7 @@ func RecipientInput(c *ui.Context, recipients *[]string, opts RecipientInputOpti
 			panel.Children(func() {
 				ui.Scroll(c).Shrink(1).Padding(4).Children(func() {
 					for i, ct := range s.matches {
-						row := ui.ButtonBase(c).Key(ct.Email).MinHeight(core.Density(c).ControlHeight()).Justify(ui.Start).Gap(8).Padding(0, 8).
+						row := ui.ButtonBase(c.Key(ct.Email)).MinHeight(core.Density(c).ControlHeight()).Justify(ui.Start).Gap(8).Padding(0, 8).
 							Radius(theme.ControlRadius).Role(ui.RoleListItem).Label(recipientFormat(ct)).FocusRing(false)
 						if i == s.hi || row.Hovered() {
 							row.Background(k.Selection)

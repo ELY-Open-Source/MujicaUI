@@ -42,7 +42,7 @@ func TestChordDiagramReadout(t *testing.T) {
 		t.Fatalf("chord %q", got)
 	}
 	tt.Key(0, ui.KeyEscape)
-	b := h.res.Element.Bounds()
+	b := h.box(tt)
 	cx, cy, rad := b.X+b.W/2, b.Y+120, float32(240)/2-30
 	tt.Move(cx+(rad+6)*0.5, cy-(rad+6)*0.866) // 30°: inside the first arc
 	if h.res.Point != 0 {
@@ -95,8 +95,9 @@ func TestChordDiagramDenseDataBoundedAndDisabled(t *testing.T) {
 	h := &chartHarness{build: func(c *ui.Context) ChartResult {
 		return ChordDiagram(c, names, matrix, ChordDiagramOptions{Frame: ChartFrame{Label: "Dense chords"}})
 	}}
+	var shown *[]int
+	h.built = func(r ChartResult) { shown = ui.Local(r.Element, "mujica.chord.visible", func() []int { return nil }) }
 	tt := ui.NewTester(h.view, 520, 420)
-	shown := ui.Local(h.res.Element, "mujica.chord.visible", func() []int { return nil })
 	if len(*shown) == 0 || len(*shown) > 360 {
 		t.Fatalf("built %d chords", len(*shown))
 	}

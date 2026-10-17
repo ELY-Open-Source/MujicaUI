@@ -12,7 +12,7 @@ import (
 )
 
 // input handles pan, zoom, alerts, drawings, and keyboard following.
-func (m *mktCore) input(plot *ui.Element) {
+func (m *mktCore) input(plot ui.Element) {
 	if plot.IsDisabled() {
 		return
 	}
@@ -20,7 +20,7 @@ func (m *mktCore) input(plot *ui.Element) {
 	room := m.room()
 	changed := false
 	plot.HandleInput(func(ev ui.InputEvent) bool {
-		if ev.Kind != ui.InputScroll || plot.IsDisabled() || ev.DY == 0 {
+		if ev.Kind != ui.InputScroll || ev.DY == 0 {
 			return false
 		}
 		f := 0.9
@@ -90,7 +90,7 @@ func (m *mktCore) input(plot *ui.Element) {
 	}
 }
 
-func (m *mktCore) alertsKeyboard(plot *ui.Element) {
+func (m *mktCore) alertsKeyboard(plot ui.Element) {
 	if m.opts.Alerts == nil || len(*m.opts.Alerts) == 0 || m.base != 0 {
 		return
 	}

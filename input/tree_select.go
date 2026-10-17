@@ -94,7 +94,7 @@ func TreeSelect(c *ui.Context, selected *[]string, nodes []TreeSelectNode, opts 
 			MultiSelectTags(c, selected, options, MultiSelectOptions{MaxTags: opts.MaxTags, Disabled: opts.Disabled})
 		}
 	})
-	ui.PopoverBase(c, tr, &st.open, func(panel *ui.Element) {
+	ui.PopoverBase(c, tr, &st.open, func(panel ui.Element) {
 		SelectPanel(c, panel)
 		panel.MinWidth(max(tr.Bounds().W, 260))
 		ui.Column(c).Gap(4).Children(func() {
@@ -219,7 +219,7 @@ func treeSelectFirstChild(n *TreeSelectNode, shown map[string]bool) string {
 }
 
 // treeSelectDescribe says what MyGo cannot set on custom rows (ui/element.go:282).
-func treeSelectDescribe(c *ui.Context, b *ui.Element, branch, open bool, state internal.CheckState) {
+func treeSelectDescribe(c *ui.Context, b ui.Element, branch, open bool, state internal.CheckState) {
 	var parts []string
 	if branch {
 		parts = append(parts, core.Msg(c, map[bool]string{true: "tree_select.expanded", false: "tree_select.collapsed"}[open]))
@@ -238,7 +238,7 @@ func treeSelectRowView(c *ui.Context, st *treeSelectState, selected *[]string, r
 	n := r.node
 	branch := len(n.Children) > 0
 	open := branch && (st.expanded[n.ID] || strings.TrimSpace(st.query) != "")
-	ui.Row(c).Key(n.ID).AlignItems(ui.Center).Gap(2).Padding(0, 0, 0, float32(r.depth)*18).Children(func() {
+	ui.Row(c.Key(n.ID)).AlignItems(ui.Center).Gap(2).Padding(0, 0, 0, float32(r.depth)*18).Children(func() {
 		arrow := ui.Box(c).Size(theme.MinHitSize, theme.MinHitSize).Shrink(0).Radius(theme.ControlRadius)
 		if branch {
 			arrow.Role(ui.RoleButton).Label(fmt.Sprintf(core.Msg(c, map[bool]string{true: "tree_select.collapse", false: "tree_select.expand"}[open]), n.Label))
@@ -255,7 +255,7 @@ func treeSelectRowView(c *ui.Context, st *treeSelectState, selected *[]string, r
 			})
 		}
 		state := treeSelectCheck(n, *selected, opts)
-		var b *ui.Element
+		var b ui.Element
 		if opts.Multiple {
 			on := state == internal.Checked
 			b = MultiSelectCheck(c, k, &on, state, n.Label, n.Disabled)

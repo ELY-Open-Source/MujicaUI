@@ -24,7 +24,7 @@ type EventEditorOptions struct {
 
 // EventEditorResult is the editor and its save or cancel.
 type EventEditorResult struct {
-	Element  *ui.Element
+	Element  ui.Element
 	saved    bool
 	canceled bool
 }
@@ -61,7 +61,7 @@ func EventEditor(c *ui.Context, ev *CalendarEvent, opts EventEditorOptions) Even
 	dr := &s.draft
 	problems := eventEditorProblems(c, *dr, s.tried)
 	root.Children(func() {
-		input.FormField(c, core.Msg(c, "event_editor.title"), input.FormFieldOptions{Required: true, Error: problems["title"]}, func() *ui.Element {
+		input.FormField(c, core.Msg(c, "event_editor.title"), input.FormFieldOptions{Required: true, Error: problems["title"]}, func() ui.Element {
 			return input.TextInput(c, &dr.Title, input.TextInputOptions{Label: core.Msg(c, "event_editor.title"), Disabled: opts.Disabled, Error: problems["title"]}).Input
 		})
 		input.Checkbox(c, &dr.AllDay, core.Msg(c, "event_editor.all_day"), input.CheckboxOptions{Disabled: opts.Disabled})
@@ -70,7 +70,7 @@ func EventEditor(c *ui.Context, ev *CalendarEvent, opts EventEditorOptions) Even
 				key string
 				t   *time.Time
 			}{{"event_editor.starts", &dr.Start}, {"event_editor.ends", &dr.End}} {
-				input.FormField(c, core.Msg(c, f.key), input.FormFieldOptions{Error: problems[f.key]}, func() *ui.Element {
+				input.FormField(c, core.Msg(c, f.key), input.FormFieldOptions{Error: problems[f.key]}, func() ui.Element {
 					if dr.AllDay {
 						day := core.DateOf(f.t.In(loc))
 						r := DatePicker(c, &day, DatePickerOptions{Label: core.Msg(c, f.key), WeekStart: opts.WeekStart, Disabled: opts.Disabled})
@@ -84,10 +84,10 @@ func EventEditor(c *ui.Context, ev *CalendarEvent, opts EventEditorOptions) Even
 				})
 			}
 		})
-		input.FormField(c, core.Msg(c, "event_editor.where"), input.FormFieldOptions{}, func() *ui.Element {
+		input.FormField(c, core.Msg(c, "event_editor.where"), input.FormFieldOptions{}, func() ui.Element {
 			return input.TextInput(c, &dr.Location, input.TextInputOptions{Label: core.Msg(c, "event_editor.where"), Disabled: opts.Disabled}).Input
 		})
-		input.FormField(c, core.Msg(c, "event_editor.guests"), input.FormFieldOptions{Description: core.Msg(c, "event_editor.guests_help")}, func() *ui.Element {
+		input.FormField(c, core.Msg(c, "event_editor.guests"), input.FormFieldOptions{Description: core.Msg(c, "event_editor.guests_help")}, func() ui.Element {
 			names := make([]string, len(dr.Attendees))
 			for i, a := range dr.Attendees {
 				names[i] = a.Name
@@ -101,11 +101,11 @@ func EventEditor(c *ui.Context, ev *CalendarEvent, opts EventEditorOptions) Even
 		if len(dr.Attendees) > 0 {
 			AttendeeList(c, dr.Attendees, AttendeeListOptions{Disabled: opts.Disabled})
 		}
-		input.FormField(c, core.Msg(c, "event_editor.reminders"), input.FormFieldOptions{}, func() *ui.Element {
+		input.FormField(c, core.Msg(c, "event_editor.reminders"), input.FormFieldOptions{}, func() ui.Element {
 			return ReminderPicker(c, &dr.Reminders, ReminderPickerOptions{Disabled: opts.Disabled}).Element
 		})
 		var rec RecurrenceResult
-		input.FormField(c, core.Msg(c, "recurrence_editor.repeat"), input.FormFieldOptions{}, func() *ui.Element {
+		input.FormField(c, core.Msg(c, "recurrence_editor.repeat"), input.FormFieldOptions{}, func() ui.Element {
 			rec = RecurrenceEditor(c, &dr.Repeat, RecurrenceEditorOptions{Start: core.DateOf(dr.Start.In(loc)), WeekStart: opts.WeekStart, Disabled: opts.Disabled})
 			return rec.Element
 		})

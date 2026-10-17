@@ -68,7 +68,7 @@ func layoutSlider(c *ui.Context, v *float64, label string, lo, hi float64, log f
 
 func layoutControls(c *ui.Context, fn func()) { ui.Row(c).Wrap().Gap(12).Children(fn) }
 
-func layoutFrame(c *ui.Context, h float32, fn func()) *ui.Element {
+func layoutFrame(c *ui.Context, h float32, fn func()) ui.Element {
 	return ui.Column(c).Height(h).Border(1, core.Tokens(c).Border).Radius(4).Clip().Children(fn)
 }
 

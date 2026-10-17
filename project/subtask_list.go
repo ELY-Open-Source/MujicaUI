@@ -88,7 +88,7 @@ func SubtaskList(c *ui.Context, subs *[]Subtask, opts SubtaskListOptions) core.C
 		removed := -1
 		ui.List(c, state, len(*subs), func(i int) {
 			s := &(*subs)[i]
-			row := ui.Row(c).Key(s.ID).MinHeight(d.ControlHeight()).Gap(d.Unit() * 2).AlignItems(ui.Center).Role(ui.RoleListItem)
+			row := ui.Row(c.Key(s.ID)).MinHeight(d.ControlHeight()).Gap(d.Unit() * 2).AlignItems(ui.Center).Role(ui.RoleListItem)
 			if id, ok := ui.Drop[subtaskDrag](row); ok {
 				if from := slices.IndexFunc(*subs, func(o Subtask) bool { return o.ID == string(id) }); from >= 0 {
 					move(from, i, "drag")

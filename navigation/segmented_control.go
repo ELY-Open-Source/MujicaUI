@@ -28,7 +28,7 @@ type SegmentedControlOptions struct {
 }
 
 // SegmentedControl chooses one of segments into *selected; Changed reports a new choice.
-func SegmentedControl(c *ui.Context, selected *int, segments []Segment, opts SegmentedControlOptions) *ui.Element {
+func SegmentedControl(c *ui.Context, selected *int, segments []Segment, opts SegmentedControlOptions) ui.Element {
 	if len(segments) == 0 {
 		panic("mujica: SegmentedControl needs at least one segment")
 	}

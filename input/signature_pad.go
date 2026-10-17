@@ -50,6 +50,7 @@ func SignaturePath(strokes [][]SignaturePoint) string {
 // signaturePadDrawing is the stroke in progress.
 type signaturePadDrawing struct {
 	active, ended bool
+	pad           ui.Handle
 }
 
 // SignaturePad records pointer strokes into *strokes; Changed reports a finished stroke or a clear.
@@ -73,8 +74,9 @@ func SignaturePad(c *ui.Context, strokes *[][]SignaturePoint, opts SignaturePadO
 		internal.Ring(pad, k.Focus, theme.CardRadius)
 		d := ui.Local(pad, "signature_pad", func() *signaturePadDrawing { return &signaturePadDrawing{} })
 		s := *d
+		pad.Bind(&s.pad)
 		pad.HandleInput(func(ev ui.InputEvent) bool {
-			if pad.IsDisabled() {
+			if disabled {
 				return false
 			}
 			pt := SignaturePoint{ev.X, ev.Y}
@@ -82,7 +84,7 @@ func SignaturePad(c *ui.Context, strokes *[][]SignaturePoint, opts SignaturePadO
 			case ev.Kind == ui.InputPointerDown && ev.Button == 0:
 				*strokes = append(*strokes, []SignaturePoint{pt})
 				s.active = true
-				pad.Focus()
+				s.pad.Focus()
 			case ev.Kind == ui.InputPointerMove && s.active && len(*strokes) > 0:
 				last := &(*strokes)[len(*strokes)-1]
 				if q := (*last)[len(*last)-1]; math.Hypot(float64(pt.X-q.X), float64(pt.Y-q.Y)) >= 1 {

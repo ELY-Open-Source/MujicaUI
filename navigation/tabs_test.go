@@ -186,8 +186,7 @@ func TestTabsStateColorsEase(t *testing.T) {
 	if got := tt.Image().RGBAAt(x, y); got == hover {
 		t.Fatal("hover color applied at once")
 	}
-	time.Sleep(theme.StateDuration + 40*time.Millisecond)
-	tt.Frame()
+	tt.Advance(theme.StateDuration + 40*time.Millisecond)
 	if got := tt.Image().RGBAAt(x, y); got != hover {
 		t.Fatalf("hover color %v after the transition, want %v", got, hover)
 	}

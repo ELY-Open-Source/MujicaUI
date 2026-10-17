@@ -43,7 +43,7 @@ func ChatContinues(prev, cur ChatEntry) bool {
 }
 
 // ChatMessage displays text, timestamps, edits and interaction slots.
-func ChatMessage(c *ui.Context, m ChatEntry, opts ChatMessageOptions) *ui.Element {
+func ChatMessage(c *ui.Context, m ChatEntry, opts ChatMessageOptions) ui.Element {
 	if m.Author == "" {
 		panic("mujica: ChatMessage needs an Author")
 	}

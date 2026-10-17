@@ -12,7 +12,7 @@ import (
 )
 
 // QuoteReply shows the author and a one-line excerpt of a quoted message; Clicked jumps to it.
-func QuoteReply(c *ui.Context, author, excerpt string) *ui.Element {
+func QuoteReply(c *ui.Context, author, excerpt string) ui.Element {
 	if author == "" {
 		panic("mujica: QuoteReply needs an author")
 	}

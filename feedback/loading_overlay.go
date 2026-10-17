@@ -22,7 +22,7 @@ type LoadingOverlayOptions struct {
 
 // LoadingOverlayResult is what a LoadingOverlay built and reported this frame.
 type LoadingOverlayResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Canceled reports the cancel button or Escape while loading.
 	Canceled bool
 }

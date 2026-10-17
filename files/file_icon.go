@@ -75,7 +75,7 @@ func fileKindColor(k theme.Tokens, kind FileKind) ui.Color {
 }
 
 // FileIcon shows file type or folder opening state.
-func FileIcon(c *ui.Context, name string, opts FileIconOptions) *ui.Element {
+func FileIcon(c *ui.Context, name string, opts FileIconOptions) ui.Element {
 	if opts.Size < 0 {
 		panic("mujica: FileIcon Size is negative")
 	}

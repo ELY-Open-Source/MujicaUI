@@ -19,7 +19,7 @@ type AgentProgressOptions struct {
 }
 
 // AgentProgress shows progress 0 to 1 and the current action.
-func AgentProgress(c *ui.Context, value float64, opts AgentProgressOptions) *ui.Element {
+func AgentProgress(c *ui.Context, value float64, opts AgentProgressOptions) ui.Element {
 	label := opts.Label
 	if label == "" {
 		label = core.Msg(c, "agent_progress.label")

@@ -55,7 +55,7 @@ func AlertDialog(c *ui.Context, open *bool, opts AlertDialogOptions) AlertDialog
 		cancelLabel = core.Msg(c, "alert_dialog.cancel")
 	}
 	shown, backClicked := true, false
-	panel := ui.DialogBase(c, &shown, func(back, panel *ui.Element) {
+	panel := ui.DialogBase(c, &shown, func(back, panel ui.Element) {
 		backClicked = back.Clicked()
 		st := ui.Local(panel, "mujica.alert", func() alertDialogState { return alertDialogState{} })
 		p := core.OverlayEnter(c, panel)
@@ -77,7 +77,7 @@ func AlertDialog(c *ui.Context, open *bool, opts AlertDialogOptions) AlertDialog
 		}
 		unlocked := opts.ConfirmText == "" || st.typed == opts.ConfirmText
 		dialogActions(c, func() {
-			if input.Button(c, cancelLabel, input.ButtonOptions{Variant: input.Secondary}).AutoFocus().Clicked() {
+			if core.AutoFocus(c, input.Button(c, cancelLabel, input.ButtonOptions{Variant: input.Secondary})).Clicked() {
 				res.Canceled = true
 			}
 			if input.Button(c, confirmLabel, input.ButtonOptions{Variant: input.Danger, Disabled: !unlocked}).Clicked() {

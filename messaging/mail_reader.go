@@ -42,7 +42,7 @@ type Mail struct {
 
 // MailReaderResult is a MailReader's element and this frame's events.
 type MailReaderResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Link contains the activated URL, or an empty string.
 	Link string
 	// Opened and Downloaded are attachment indexes, -1 for none.
@@ -122,7 +122,7 @@ func mailPlainBody(c *ui.Context, open *map[string]bool, body string) {
 				j++
 			}
 			chunk := strings.Join(lines[i:j], "\n")
-			ui.Box(c).Key(i).Children(func() {
+			ui.Box(c.Key(i)).Children(func() {
 				if quoted {
 					// Fold state is kept per quote text.
 					o := (*open)[chunk]

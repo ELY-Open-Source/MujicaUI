@@ -35,7 +35,7 @@ type ServiceStatusOptions struct {
 }
 
 // ServiceStatus lists service health and an overall summary.
-func ServiceStatus(c *ui.Context, services []ServiceItem, opts ServiceStatusOptions) *ui.Element {
+func ServiceStatus(c *ui.Context, services []ServiceItem, opts ServiceStatusOptions) ui.Element {
 	if opts.MaxHeight < 0 {
 		panic("mujica: ServiceStatus MaxHeight is negative")
 	}
@@ -75,7 +75,7 @@ func ServiceStatus(c *ui.Context, services []ServiceItem, opts ServiceStatusOpti
 		agent.AgentRows(c, len(services), func(i int) {
 			s := services[i]
 			word := serviceWord(c, s.Health)
-			ui.Row(c).Key(i).Gap(u*3).AlignItems(ui.Center).MinHeight(core.Density(c).ControlHeight()).Padding(u, u*3).
+			ui.Row(c.Key(i)).Gap(u*3).AlignItems(ui.Center).MinHeight(core.Density(c).ControlHeight()).Padding(u, u*3).
 				Label(s.Name + ", " + word).Children(func() {
 				ui.Column(c).Grow(1).Shrink(1).Children(func() {
 					ui.Text(c, s.Name).SingleLine()

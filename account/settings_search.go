@@ -32,7 +32,7 @@ type SettingsSearchOptions struct {
 
 // SettingsSearchResult carries the selected destination.
 type SettingsSearchResult struct {
-	Element *ui.Element
+	Element ui.Element
 	chosen  *SettingEntry
 }
 
@@ -135,7 +135,7 @@ func settingsSearchPlan(st *settingsSearchState, entries []SettingEntry, q strin
 func settingsSearchHit(c *ui.Context, e SettingEntry, q string, current bool) bool {
 	k := core.Tokens(c)
 	d := core.Density(c)
-	b := ui.ButtonBase(c).Key(e.ID).MinHeight(d.ControlHeight()).Padding(d.Unit(), d.Unit()*3).Justify(ui.Start).
+	b := ui.ButtonBase(c.Key(e.ID)).MinHeight(d.ControlHeight()).Padding(d.Unit(), d.Unit()*3).Justify(ui.Start).
 		Radius(theme.ControlRadius).Role(ui.RoleListItem).Label(e.Label).Description(e.Description).Selected(current).Gap(d.Unit() * 2)
 	internal.Ring(b, k.Focus, theme.ControlRadius)
 	switch {

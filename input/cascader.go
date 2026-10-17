@@ -62,6 +62,7 @@ type cascaderState struct {
 	requested map[string]bool
 	focus     []string
 	focusSet  bool
+	settling  bool // the popup opened this frame; MyGo records its opener before rows take focus
 }
 
 type cascaderKey struct{}
@@ -84,7 +85,7 @@ func Cascader(c *ui.Context, path *[]string, opts CascaderOptions) core.ChoiceRe
 		st.open = !st.open
 		if st.open {
 			st.active = slices.Clone(*path)
-			st.focus, st.focusSet = slices.Clone(*path), true
+			st.focus, st.focusSet, st.settling = slices.Clone(*path), true, true
 			if len(*path) == 0 {
 				st.focus = []string{""}
 			}
@@ -97,7 +98,7 @@ func Cascader(c *ui.Context, path *[]string, opts CascaderOptions) core.ChoiceRe
 		}
 		ui.Text(c, cascaderLabels(opts, *path)).SingleLine().Grow(1).Shrink(1)
 	})
-	ui.PopoverBase(c, tr, &st.open, func(panel *ui.Element) {
+	ui.PopoverBase(c, tr, &st.open, func(panel ui.Element) {
 		SelectPanel(c, panel)
 		panel.Padding(0)
 		ui.Row(c).AlignItems(ui.Stretch).Dividers(theme.BorderWidth, core.Tokens(c).Border).Children(func() {
@@ -108,6 +109,10 @@ func Cascader(c *ui.Context, path *[]string, opts CascaderOptions) core.ChoiceRe
 			}
 		})
 	})
+	if st.settling {
+		st.settling = false
+		c.Invalidate()
+	}
 	changed := !slices.Equal(before, *path)
 	if changed {
 		slog.Debug("mujica: cascader changed", "label", opts.Label, "path", *path)
@@ -147,7 +152,7 @@ func cascaderColumn(c *ui.Context, st *cascaderState, path *[]string, opts Casca
 		delete(st.requested, id)
 	}
 	deeper := false
-	col := ui.Column(c).Key(id).Width(180).FocusGroup(ui.Vertical)
+	col := ui.Column(c.Key(id)).Width(180).FocusGroup(ui.Vertical)
 	col.Children(func() {
 		switch {
 		case lv.Status == CascaderIdle || lv.Status == CascaderLoading:
@@ -188,10 +193,10 @@ func cascaderRow(c *ui.Context, st *cascaderState, path *[]string, opts Cascader
 	d := core.Density(c)
 	full := append(slices.Clone(prefix), n.Value)
 	depth := len(prefix)
-	b := ui.ButtonBase(c).Key(n.Value).Disabled(n.Disabled).MinHeight(d.ControlHeight()).Padding(0, d.Unit()*2).
+	b := ui.ButtonBase(c.Key(n.Value)).Disabled(n.Disabled).MinHeight(d.ControlHeight()).Padding(0, d.Unit()*2).
 		Gap(d.Unit() * 2).Justify(ui.Start).Radius(theme.ControlRadius).FillWidth().Role(ui.RoleListItem)
 	internal.Ring(b, k.Focus, theme.ControlRadius)
-	if st.focusSet && (slices.Equal(st.focus, full) || first && slices.Equal(st.focus, append(slices.Clone(prefix), ""))) {
+	if st.focusSet && !st.settling && (slices.Equal(st.focus, full) || first && slices.Equal(st.focus, append(slices.Clone(prefix), ""))) {
 		b.Focus()
 		st.focusSet = false
 	}

@@ -32,7 +32,7 @@ type DrawerOptions struct {
 }
 
 // Drawer shows a panel along a window edge while *open is true; Escape closes it.
-func Drawer(c *ui.Context, open *bool, opts DrawerOptions, content func()) *ui.Element {
+func Drawer(c *ui.Context, open *bool, opts DrawerOptions, content func()) ui.Element {
 	if opts.Title == "" {
 		panic("mujica: Drawer needs a Title")
 	}
@@ -45,12 +45,12 @@ func Drawer(c *ui.Context, open *bool, opts DrawerOptions, content func()) *ui.E
 	site, focus := core.OverlaySite(c)
 	if !*open {
 		focus.Closed(c, site)
-		return nil
+		return ui.Element{}
 	}
 	k := core.Tokens(c)
 	size := drawerSize(c, opts)
 	closed := false
-	body := func(panel *ui.Element, p float32) {
+	body := func(panel ui.Element, p float32) {
 		drawerPanel(c, panel, opts.Side, size, p)
 		panel.Label(opts.Title)
 		closed = dialogHeader(c, opts.Title, false, true, "drawer.close")
@@ -61,7 +61,7 @@ func Drawer(c *ui.Context, open *bool, opts DrawerOptions, content func()) *ui.E
 			dialogActions(c, opts.Actions)
 		}
 	}
-	var panel *ui.Element
+	var panel ui.Element
 	escaped := false
 	if opts.NonModal {
 		ui.Overlay(c, func() {
@@ -74,7 +74,7 @@ func Drawer(c *ui.Context, open *bool, opts DrawerOptions, content func()) *ui.E
 	} else {
 		core.OverlayLayer(c, open)
 		shown := true
-		panel = ui.DialogBase(c, &shown, func(back, panel *ui.Element) {
+		panel = ui.DialogBase(c, &shown, func(back, panel ui.Element) {
 			p := core.OverlayEnter(c, panel)
 			back.Background(OverlayScrim(k).Alpha(p))
 			drawerBackdrop(back, opts.Side)
@@ -107,7 +107,7 @@ func drawerSize(c *ui.Context, opts DrawerOptions) float32 {
 func drawerHorizontal(s DrawerSide) bool { return s == DrawerLeft || s == DrawerRight }
 
 // drawerBackdrop lines the panel up against its edge inside a modal backdrop.
-func drawerBackdrop(back *ui.Element, s DrawerSide) {
+func drawerBackdrop(back ui.Element, s DrawerSide) {
 	if drawerHorizontal(s) {
 		back.Row()
 	}
@@ -118,7 +118,7 @@ func drawerBackdrop(back *ui.Element, s DrawerSide) {
 }
 
 // drawerPlace puts a non-modal panel against its edge, shown by size.
-func drawerPlace(c *ui.Context, panel *ui.Element, s DrawerSide, size float32) {
+func drawerPlace(c *ui.Context, panel ui.Element, s DrawerSide, size float32) {
 	w, h := c.Size()
 	switch s {
 	case DrawerRight:
@@ -133,7 +133,7 @@ func drawerPlace(c *ui.Context, panel *ui.Element, s DrawerSide, size float32) {
 }
 
 // drawerPanel styles the panel at entrance progress p, sliding in from its edge.
-func drawerPanel(c *ui.Context, panel *ui.Element, s DrawerSide, size, p float32) {
+func drawerPanel(c *ui.Context, panel ui.Element, s DrawerSide, size, p float32) {
 	k := core.Tokens(c)
 	u := core.Density(c).Unit()
 	off := -(1 - p) * size

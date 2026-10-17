@@ -36,7 +36,7 @@ type IconOptions struct {
 type iconMissingKey struct{}
 
 // Icon shows a named icon; missing ones show a fallback.
-func Icon(c *ui.Context, name string, opts IconOptions) *ui.Element {
+func Icon(c *ui.Context, name string, opts IconOptions) ui.Element {
 	if name == "" {
 		panic("mujica: Icon needs a name")
 	}
@@ -62,7 +62,7 @@ func Icon(c *ui.Context, name string, opts IconOptions) *ui.Element {
 	return e
 }
 
-func iconMissing(c *ui.Context, name string, size float32, k theme.Tokens) *ui.Element {
+func iconMissing(c *ui.Context, name string, size float32, k theme.Tokens) ui.Element {
 	text := fmt.Sprintf(core.Msg(c, "icon.missing"), name)
 	e := ui.Box(c).Size(size, size).Shrink(0).Role(ui.RoleImage).Label(text).Tooltip(text)
 	logged := ui.Local(e, iconMissingKey{}, func() string { return "" })

@@ -58,7 +58,7 @@ type NewsFeedOptions struct {
 
 // NewsFeedView is a built NewsFeed and this frame's events.
 type NewsFeedView struct {
-	Element *ui.Element
+	Element ui.Element
 	Opened  string
 	// Symbol is the related code clicked; empty for none.
 	Symbol      string
@@ -136,7 +136,7 @@ func NewsFeed(c *ui.Context, s *NewsFeedState, items []NewsItem, opts NewsFeedOp
 					ui.Row(c).Gap(d.Unit() * 2).AlignItems(ui.Center).Wrap().Children(func() {
 						ui.Text(c, it.Source+" · "+chat.DateSeparatorWhen(c, it.Time, today)).FontSize(core.FontSize(c, theme.CaptionSize)).TextColor(k.TextMuted)
 						for _, sym := range it.Symbols {
-							ui.Row(c).Key(sym).Children(func() {
+							ui.Row(c.Key(sym)).Children(func() {
 								if SymbolBadge(c, MarketSymbol{Code: sym}, SymbolBadgeOptions{Clickable: true, Disabled: opts.Disabled}).Changed() {
 									v.Symbol = sym
 								}

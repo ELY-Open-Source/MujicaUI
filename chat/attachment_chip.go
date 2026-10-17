@@ -28,7 +28,7 @@ type Attachment struct {
 
 // AttachmentChipResult carries the chip and requested action.
 type AttachmentChipResult struct {
-	Element          *ui.Element
+	Element          ui.Element
 	removed, retried bool
 }
 

@@ -66,7 +66,7 @@ func ResourceGauge(c *ui.Context, readings []ResourceReading, opts ResourceGauge
 				panic(fmt.Sprintf("mujica: ResourceGauge reading %d needs a Name and 0 <= Used <= Total", i))
 			}
 			frac := r.Used / r.Total
-			ui.Column(c).Key(r.Name).Width(200).Gap(u).AlignItems(ui.Center).Children(func() {
+			ui.Column(c.Key(r.Name)).Width(200).Gap(u).AlignItems(ui.Center).Children(func() {
 				ui.Text(c, r.Name).FontWeight(600)
 				gauge := chart.Gauge(c, frac*100, chart.GaugeOptions{
 					Frame: chart.ChartFrame{Label: r.Name, Height: h, Status: opts.Status, Error: opts.Error}, Min: 0, Max: 100, Unit: "%",

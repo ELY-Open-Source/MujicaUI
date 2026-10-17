@@ -26,7 +26,7 @@ type staggerState struct {
 }
 
 // Stagger builds n items entering one after another, once.
-func Stagger(c *ui.Context, n int, opts StaggerOptions, item func(i int)) *ui.Element {
+func Stagger(c *ui.Context, n int, opts StaggerOptions, item func(i int)) ui.Element {
 	if n < 0 || opts.Interval < 0 || opts.Duration < 0 {
 		panic("mujica: Stagger needs non-negative n, Interval and Duration")
 	}
@@ -65,7 +65,7 @@ func Stagger(c *ui.Context, n int, opts StaggerOptions, item func(i int)) *ui.El
 	}
 	box.Children(func() {
 		for i := range upto {
-			ui.Column(c).Key(i).AlignItems(ui.Stretch).
+			ui.Column(c.Key(i)).AlignItems(ui.Stretch).
 				Transition(ui.ElementTransition{Duration: core.Motion(c, d), Enter: enter}).Children(func() { item(i) })
 		}
 	})

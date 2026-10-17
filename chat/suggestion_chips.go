@@ -22,7 +22,7 @@ type SuggestionChipsOptions struct {
 
 // SuggestionChipsView is built chips and the suggestion used this frame.
 type SuggestionChipsView struct {
-	Element *ui.Element
+	Element ui.Element
 	// Chosen is the suggestion clicked, empty for none.
 	Chosen string
 	// Sent asks to send Chosen now instead of filling.
@@ -47,7 +47,7 @@ func SuggestionChips(c *ui.Context, input *string, suggestions []string, opts Su
 			if s == "" {
 				panic("mujica: SuggestionChips with an empty suggestion")
 			}
-			b := ui.ButtonBase(c).Key(i).MinHeight(max(theme.MinHitSize, d.ControlHeight()-4)).Padding(0, d.Unit()*3).
+			b := ui.ButtonBase(c.Key(i)).MinHeight(max(theme.MinHitSize, d.ControlHeight()-4)).Padding(0, d.Unit()*3).
 				Gap(d.Unit()*2).Radius(theme.ControlRadius).Background(k.Surface).Border(theme.BorderWidth, k.ControlBorder).Label(s)
 			internal.Ring(b, k.Focus, theme.ControlRadius)
 			switch {

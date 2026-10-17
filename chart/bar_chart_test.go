@@ -44,7 +44,7 @@ func TestBarChartHoverStackedHorizontal(t *testing.T) {
 		tt := ui.NewTester(h.view, 520, 420)
 		tabTo(t, tt, "Tithes")
 		found := map[string]bool{}
-		b := h.res.Element.Bounds()
+		b := h.box(tt)
 		for y := b.Y + 30; y < b.Y+b.H-40; y += 4 {
 			for x := b.X + 60; x < b.X+b.W-16; x += 8 {
 				tt.Move(x, y)

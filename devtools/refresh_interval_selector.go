@@ -23,7 +23,7 @@ type RefreshIntervalSelectorOptions struct {
 
 // RefreshResult reports this frame's events.
 type RefreshResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Refresh requests caller loading, manually or after the interval.
 	Refresh bool
 	// Changed reports a new interval.

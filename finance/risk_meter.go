@@ -25,7 +25,7 @@ type RiskMeterOptions struct {
 }
 
 // RiskMeter shows level, from 1, on a named graded scale.
-func RiskMeter(c *ui.Context, level int, opts RiskMeterOptions) *ui.Element {
+func RiskMeter(c *ui.Context, level int, opts RiskMeterOptions) ui.Element {
 	levels := opts.Levels
 	if levels == nil {
 		for i := range 5 {

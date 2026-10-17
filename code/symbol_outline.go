@@ -63,7 +63,7 @@ type SymbolOutlineOptions struct {
 
 // SymbolOutlineResult carries the symbol to jump to.
 type SymbolOutlineResult struct {
-	Element *ui.Element
+	Element ui.Element
 	Jumped  *Symbol
 }
 

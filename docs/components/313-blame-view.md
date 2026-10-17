@@ -19,7 +19,7 @@ view := func(c *ui.Context) {
 ui.Render(view, 400, 300, 1)
 ```
 
-签名：`func BlameView(c *ui.Context, s *BlameViewState, lines []BlameLine, opts BlameViewOptions) *ui.Element`
+签名：`func BlameView(c *ui.Context, s *BlameViewState, lines []BlameLine, opts BlameViewOptions) ui.Element`
 
 ## 参数
 

@@ -23,7 +23,7 @@ type RenameInlineOptions struct {
 
 // RenameInlineResult is a RenameInline and its outcome in this frame.
 type RenameInlineResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Renamed reports a saved name; Canceled reports an abandoned edit.
 	Renamed, Canceled bool
 }
@@ -104,10 +104,10 @@ func RenameInline(c *ui.Context, name *string, editing *bool, opts RenameInlineO
 			*editing, st.active = false, false
 			slog.Debug("mujica: rename_inline end", "renamed", res.Renamed)
 		}
-		ui.Box(c).Key(st.gen).Grow(1).MinWidth(0).Children(func() {
+		ui.Box(c.Key(st.gen)).Grow(1).MinWidth(0).Children(func() {
 			in := input.TextInput(c, &st.draft, input.TextInputOptions{Label: core.Msg(c, "rename_inline.label"), Error: st.err})
 			in.Element.FillWidth()
-			in.Input.AutoFocus()
+			core.AutoFocus(c, in.Input)
 			if in.Changed() {
 				st.err = ""
 				renameTyped(st, *name, opts.Folder)
@@ -140,7 +140,7 @@ func renameCheck(c *ui.Context, name string, validate func(string) string) strin
 }
 
 // renameSelection marks the stem for replacement on initial input.
-func renameSelection(c *ui.Context, in *ui.Element, st *renameState) {
+func renameSelection(c *ui.Context, in ui.Element, st *renameState) {
 	k := core.Tokens(c)
 	stem := renameStem(st.draft, st.folder)
 	if st.stemSel && st.tail == "" {
@@ -149,8 +149,9 @@ func renameSelection(c *ui.Context, in *ui.Element, st *renameState) {
 			p.Fill(ui.Rect{X: r.X, Y: r.Y + 2, W: w, H: r.H - 4}, k.Selection, 2)
 		})
 	}
+	disabled := in.IsDisabled()
 	in.HandleInput(func(ev ui.InputEvent) bool {
-		if !st.stemSel || in.IsDisabled() {
+		if !st.stemSel || disabled {
 			return false
 		}
 		switch {

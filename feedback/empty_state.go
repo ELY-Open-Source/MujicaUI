@@ -38,7 +38,7 @@ type EmptyStateOptions struct {
 
 // EmptyStateResult is what an EmptyState built and reported this frame.
 type EmptyStateResult struct {
-	Element *ui.Element
+	Element ui.Element
 	Action  bool
 }
 

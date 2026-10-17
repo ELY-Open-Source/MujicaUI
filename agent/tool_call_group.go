@@ -64,7 +64,7 @@ func ToolCallGroup(c *ui.Context, open *bool, calls []ToolCall, opts ToolCallGro
 		})
 	}}, func() {
 		for _, call := range calls {
-			ui.Column(c).Key(call.ID).Children(func() { ToolCallCard(c, call, ToolCallCardOptions{Still: opts.Still}) })
+			ui.Column(c.Key(call.ID)).Children(func() { ToolCallCard(c, call, ToolCallCardOptions{Still: opts.Still}) })
 		}
 	})
 }

@@ -43,12 +43,12 @@ func tableColumnMenu(c *ui.Context, cols []tableColumn, sort *ui.SortOrder, layo
 			}
 		}
 	}
-	ui.PopoverBase(c, b, open, func(panel *ui.Element) {
+	ui.PopoverBase(c, b, open, func(panel ui.Element) {
 		panel.Background(k.Surface).Border(theme.BorderWidth, k.ControlBorder).Radius(theme.PopupRadius).
 			Padding(u * 2).Gap(u).MinWidth(240).MarginY(u)
 		for at, id := range order {
 			col := cols[slices.IndexFunc(cols, func(col tableColumn) bool { return col.ID == id })]
-			ui.Row(c).Key(id).Gap(u).AlignItems(ui.Center).Children(func() {
+			ui.Row(c.Key(id)).Gap(u).AlignItems(ui.Center).Children(func() {
 				if hidden != nil {
 					tableVisibility(c, col, hidden, visible)
 				} else {

@@ -146,7 +146,7 @@ func Sunburst(c *ui.Context, path *[]string, root ChartNode, opts SunburstOption
 			ChartText(p, ChartValue(c, sum, opts.Format), cx, cy+2, core.FontSize(c, theme.BodySize), k.Text, 0.5, 0)
 		}
 		r, plot := ch.Build(spec)
-		if plot != nil && !plot.IsDisabled() && plot.Shortcut(0, ui.KeyBackspace) && len(*path) > 0 {
+		if plot.Valid() && !plot.IsDisabled() && plot.Shortcut(0, ui.KeyBackspace) && len(*path) > 0 {
 			*path, res.value = (*path)[:len(*path)-1], true
 		}
 		res.Point, res.changed, res.retry = r.Point, r.changed, r.retry

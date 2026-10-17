@@ -47,7 +47,7 @@ const (
 
 // FileOperationResult is the panel and the user's answer this frame.
 type FileOperationResult struct {
-	Element  *ui.Element
+	Element  ui.Element
 	Canceled bool
 	// Resolved answers a conflict; ApplyAll extends that decision.
 	Resolved ConflictChoice

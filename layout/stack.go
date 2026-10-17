@@ -31,7 +31,7 @@ type StackOptions struct {
 }
 
 // Stack arranges children in a row or column. A child not built takes no room and no gap.
-func Stack(c *ui.Context, opts StackOptions, children func()) *ui.Element {
+func Stack(c *ui.Context, opts StackOptions, children func()) ui.Element {
 	if children == nil {
 		panic("mujica: Stack needs children")
 	}

@@ -21,7 +21,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func Terminal(c *ui.Context, s *TerminalState, opts TerminalOptions) *ui.Element`。`TerminalState` 零值是 80×24 空屏，由调用方持有；`Write(data)` 写入输出（须在界面线程，例如经 `Window.Update`），`Resize(cols, rows)`、`Lines()`、`LineText(i)`、`Select(a, b)`、`Selection()`、`ScrollBack(n)`、`Offset()`、`Cursor()`、`Size()` 供程序读取与控制。
+`func Terminal(c *ui.Context, s *TerminalState, opts TerminalOptions) ui.Element`。`TerminalState` 零值是 80×24 空屏，由调用方持有；`Write(data)` 写入输出（须在界面线程，例如经 `Window.Update`），`Resize(cols, rows)`、`Lines()`、`LineText(i)`、`Select(a, b)`、`Selection()`、`ScrollBack(n)`、`Offset()`、`Cursor()`、`Size()` 供程序读取与控制。
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |

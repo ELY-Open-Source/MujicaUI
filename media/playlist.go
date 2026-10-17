@@ -30,7 +30,7 @@ type PlaylistOptions struct {
 
 // PlaylistResult is the playlist's element and this frame's events.
 type PlaylistResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Played is the ID chosen by Enter or double click.
 	Played string
 	// Removed is the ID taken out of *items.

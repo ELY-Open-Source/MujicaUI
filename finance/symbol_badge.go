@@ -33,7 +33,7 @@ func SymbolBadge(c *ui.Context, s MarketSymbol, opts SymbolBadgeOptions) core.Ch
 	}
 	k := core.Tokens(c)
 	u := core.Density(c).Unit()
-	var e *ui.Element
+	var e ui.Element
 	wrap := ui.Row(c).Shrink(0).Disabled(opts.Disabled)
 	wrap.Children(func() {
 		if opts.Clickable {

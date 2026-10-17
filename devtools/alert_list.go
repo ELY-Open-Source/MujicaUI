@@ -42,7 +42,7 @@ type AlertListOptions struct {
 
 // AlertListResult reports this frame's request.
 type AlertListResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Ack and Silence report requested alert IDs; empty means idle.
 	Ack, Silence string
 }
@@ -97,7 +97,7 @@ func alertRow(c *ui.Context, a AlertItem, locked bool) (ack, silence bool) {
 	sev := [...]core.Severity{core.SeverityInfo, core.SeverityWarning, core.SeverityError}[a.Level]
 	word := core.Msg(c, [...]string{"alert_list.info", "alert_list.warning", "alert_list.critical"}[a.Level])
 	silenced := a.Silence.After(c.Now())
-	row := ui.Row(c).Key(a.ID).Gap(u*3).AlignItems(ui.Center).MinHeight(d.ControlHeight()+u*2).Padding(u*2, u*3).
+	row := ui.Row(c.Key(a.ID)).Gap(u*3).AlignItems(ui.Center).MinHeight(d.ControlHeight()+u*2).Padding(u*2, u*3).
 		Label(word + ", " + a.Title)
 	if tone, _ := core.SeverityLook(k, sev); a.Level == AlertCritical && !a.Acked {
 		row.DrawOver(func(p *ui.Painter, r ui.Rect) { p.Fill(ui.Rect{X: r.X, Y: r.Y, W: 3, H: r.H}, tone, 0) })

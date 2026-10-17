@@ -51,7 +51,7 @@ func SeverityLook(k theme.Tokens, s Severity) (ui.Color, *ui.SVG) {
 // AlertResult is what an Alert built and reported this frame.
 type AlertResult struct {
 	// Element is nil while the alert is closed.
-	Element *ui.Element
+	Element ui.Element
 	// Action reports a click on the action button.
 	Action bool
 	// Closed reports the user dismissing the alert.

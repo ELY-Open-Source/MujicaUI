@@ -14,7 +14,7 @@ view := func(c *ui.Context) {
 ui.Render(view, 400, 300, 1)
 ```
 
-签名：`func WaveLoader(c *ui.Context, opts LoaderOptions) *ui.Element`
+签名：`func WaveLoader(c *ui.Context, opts LoaderOptions) ui.Element`
 
 ## 参数
 

@@ -105,7 +105,7 @@ func datetimeGridCell(c *ui.Context, o, start, cursor int, cfg datetimeGridConfi
 		if focus {
 			cell.Focus()
 		} else if cfg.autoFocus {
-			cell.AutoFocus()
+			core.AutoFocus(c, cell)
 		}
 	}
 	fg := k.Text
@@ -172,7 +172,7 @@ type datetimeGridField struct {
 }
 
 // datetimeGridPicker draws f and its popup; reports a pick or clear.
-func datetimeGridPicker(c *ui.Context, f datetimeGridField, cfg datetimeGridConfig) (col *ui.Element, picked int, ok, cleared bool) {
+func datetimeGridPicker(c *ui.Context, f datetimeGridField, cfg datetimeGridConfig) (col ui.Element, picked int, ok, cleared bool) {
 	d := core.Density(c)
 	col = ui.Column(c).Width(d.ControlHeight() * 6).Gap(d.Unit()).AlignItems(ui.Stretch).Disabled(f.disabled)
 	open := ui.Local(col, "datetime-grid-open", func() bool { return false })

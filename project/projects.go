@@ -75,7 +75,7 @@ type WorkflowStatus struct {
 
 // ProjectResult exposes the element and task events.
 type ProjectResult struct {
-	Element *ui.Element
+	Element ui.Element
 	changed string
 	opened  string
 }
@@ -139,7 +139,7 @@ func projectDueText(c *ui.Context, due, today core.Date, done bool) (string, boo
 }
 
 // projectBar draws a named completion bar.
-func projectBar(c *ui.Context, frac float64, label string) *ui.Element {
+func projectBar(c *ui.Context, frac float64, label string) ui.Element {
 	k := core.Tokens(c)
 	return ui.Box(c).Height(6).FillWidth().Role(ui.RoleProgress).Label(label).Description(fmt.Sprintf("%d%%", int(frac*100))).
 		Draw(func(p *ui.Painter, r ui.Rect) {

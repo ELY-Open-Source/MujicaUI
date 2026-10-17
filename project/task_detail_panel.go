@@ -29,7 +29,7 @@ type TaskDetailPanelOptions struct {
 
 // TaskDetailResult exposes the panel, edits and close events.
 type TaskDetailResult struct {
-	Element *ui.Element
+	Element ui.Element
 	changed bool
 	closed  bool
 }

@@ -98,7 +98,7 @@ func chatDemoConversationItem(c *ui.Context, log func(string)) {
 		ui.Column(c).Width(420).Gap(4).Children(func() {
 			for i := range s.convs {
 				conv := &s.convs[i]
-				ui.Row(c).Key(conv.ID).Children(func() {
+				ui.Row(c.Key(conv.ID)).Children(func() {
 					v := chat.ConversationItem(c, conv, chat.ConversationItemOptions{Selected: s.selected && i == 0, Disabled: s.disabled})
 					switch {
 					case v.Opened:

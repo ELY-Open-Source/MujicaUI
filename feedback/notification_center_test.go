@@ -21,7 +21,7 @@ func notificationTester(items *[]Notification, last *NotificationCenterResult) *
 		core.Use(c, core.Settings{})
 		ui.Column(c).Height(560).Children(func() {
 			r := NotificationCenter(c, items, NotificationCenterOptions{})
-			r.Element = nil
+			r.Element = ui.Element{}
 			if r != (NotificationCenterResult{}) {
 				*last = r
 			}

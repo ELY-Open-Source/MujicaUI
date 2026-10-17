@@ -44,7 +44,7 @@ type StatusIndicatorOptions struct {
 }
 
 // StatusIndicator shows a status by its own shape and a word, never by color alone.
-func StatusIndicator(c *ui.Context, status Status, opts StatusIndicatorOptions) *ui.Element {
+func StatusIndicator(c *ui.Context, status Status, opts StatusIndicatorOptions) ui.Element {
 	key := "status_indicator." + status.String() // panics on an unknown Status
 	k := core.Tokens(c)
 	u := core.Density(c).Unit()

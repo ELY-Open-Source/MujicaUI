@@ -35,7 +35,7 @@ type shortcutsListState struct {
 }
 
 // KeyboardShortcutsList displays searchable, grouped shortcuts using visible rows.
-func KeyboardShortcutsList(c *ui.Context, query *string, groups []ShortcutGroup, opts KeyboardShortcutsListOptions) *ui.Element {
+func KeyboardShortcutsList(c *ui.Context, query *string, groups []ShortcutGroup, opts KeyboardShortcutsListOptions) ui.Element {
 	k := core.Tokens(c)
 	d := core.Density(c)
 	label := opts.Label
@@ -96,11 +96,11 @@ func shortcutsListPlan(st *shortcutsListState, groups []ShortcutGroup, q string)
 	}
 }
 
-func accountRows(c *ui.Context, n int, key func(int) any, row func(int)) *ui.Element {
+func accountRows(c *ui.Context, n int, key func(int) any, row func(int)) ui.Element {
 	if n <= 8 {
 		return ui.Column(c).Children(func() {
 			for i := range n {
-				ui.Column(c).Key(key(i)).Children(func() { row(i) })
+				ui.Column(c.Key(key(i))).Children(func() { row(i) })
 			}
 		})
 	}

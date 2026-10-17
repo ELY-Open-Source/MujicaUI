@@ -26,8 +26,7 @@ func click(t *testing.T, tt *ui.Tester, label string) {
 // await renders frames until done holds or 5 seconds pass.
 func await(tt *ui.Tester, done func() bool) {
 	for deadline := time.Now().Add(5 * time.Second); !done() && time.Now().Before(deadline); {
-		time.Sleep(20 * time.Millisecond)
-		tt.Frame()
+		tt.Advance(20 * time.Millisecond)
 	}
 }
 

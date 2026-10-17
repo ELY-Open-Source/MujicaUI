@@ -20,12 +20,12 @@ type PopoverOptions struct {
 }
 
 // Popover shows content below anchor, or above it, inside the window while *open is true.
-func Popover(c *ui.Context, anchor *ui.Element, open *bool, opts PopoverOptions, content func()) *ui.Element {
-	if anchor == nil {
+func Popover(c *ui.Context, anchor ui.Element, open *bool, opts PopoverOptions, content func()) ui.Element {
+	if !anchor.Valid() {
 		panic("mujica: Popover needs an anchor")
 	}
 	if !*open {
-		return nil
+		return ui.Element{}
 	}
 	core.OverlayLayer(c, open)
 	u := core.Density(c).Unit()
@@ -34,7 +34,7 @@ func Popover(c *ui.Context, anchor *ui.Element, open *bool, opts PopoverOptions,
 	if opts.Title != "" {
 		label = opts.Title
 	}
-	panel := ui.PopoverBase(c, anchor, open, func(panel *ui.Element) {
+	panel := ui.PopoverBase(c, anchor, open, func(panel ui.Element) {
 		core.OverlayStyle(c, panel, OverlayAnchored(c, panel, b))
 		panel.Margin(6, 0, 0, 0).Padding(u * 3).Gap(u * 2).MinWidth(PopoverWide(c, b.W)).MaxHeight(PopoverRoom(c, b)).Label(label)
 		if opts.Width > 0 {

@@ -21,7 +21,7 @@ view := func(c *ui.Context) {
 ui.Render(view, 400, 300, 1)
 ```
 
-签名：`func Popconfirm(c *ui.Context, anchor *ui.Element, open *bool, opts PopconfirmOptions) PopconfirmResult`。`anchor` 为 nil 或 `Title` 为空时 panic。
+签名：`func Popconfirm(c *ui.Context, anchor ui.Element, open *bool, opts PopconfirmOptions) PopconfirmResult`。`anchor` 为 nil 或 `Title` 为空时 panic。
 
 ## 参数
 

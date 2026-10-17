@@ -26,7 +26,7 @@ type ChartFrame struct {
 
 // ChartResult is a built chart and this frame's events.
 type ChartResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Point is the hovered or focused mark, -1 for none.
 	Point          int
 	changed, retry bool
@@ -69,7 +69,7 @@ type ChartSpec struct {
 	// Tooltip writes mark i's tooltip; nil splits Readout at " · ".
 	Tooltip func(i int) []ChartTooltipLine
 	// Input takes the plot's other input, as a ChartAnnotation's drags.
-	Input func(plot *ui.Element, r ui.Rect)
+	Input func(plot ui.Element, r ui.Rect)
 }
 
 // Chart frames a custom chart: legend, focus, keys, readout, tooltip and empty states.
@@ -120,10 +120,10 @@ func (ch *chart) Toggles(on bool) *map[string]bool {
 func (ch *chart) Hidden(name string) bool { return ch.st.hidden[name] }
 
 // Build lays out legend, plot and readout; returns the plot.
-func (ch *chart) Build(spec ChartSpec) (ChartResult, *ui.Element) {
+func (ch *chart) Build(spec ChartSpec) (ChartResult, ui.Element) {
 	c, k, st := ch.c, core.Tokens(ch.c), ch.st
 	u := core.Density(c).Unit()
-	var plot *ui.Element
+	var plot ui.Element
 	ch.Res.Element.Children(func() {
 		if len(spec.Legend) > 0 {
 			if name, ok := ChartLegend(c, spec.Hidden, spec.Legend, ChartLegendOptions{}).Toggled(); ok {
@@ -181,7 +181,7 @@ func (ch *chart) Build(spec ChartSpec) (ChartResult, *ui.Element) {
 }
 
 // input moves the keyboard mark, and takes clicks on marks.
-func (ch *chart) input(plot *ui.Element, spec ChartSpec) {
+func (ch *chart) input(plot ui.Element, spec ChartSpec) {
 	st := ch.st
 	if plot.IsDisabled() {
 		return

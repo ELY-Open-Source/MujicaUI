@@ -44,7 +44,7 @@ func TestNetworkGraphDragNodeAndPan(t *testing.T) {
 		return NetworkGraph(c, &s, graphNodes, graphEdges, NetworkGraphOptions{Frame: ChartFrame{Label: "House"}})
 	}}
 	tt := ui.NewTester(h.view, 520, 420)
-	b := h.res.Element.Bounds()
+	b := h.box(tt)
 	// The 10×10 layout fits 240-48 DIPs, centered in the plot.
 	cx, cy := b.X+b.W/2, b.Y+120
 	ax, ay := cx-96, cy-96

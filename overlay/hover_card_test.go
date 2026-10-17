@@ -48,8 +48,7 @@ func hoverCardShown(tt *ui.Tester) func() bool {
 
 // hoverCardSettle waits past both delays so any pending open or close has happened.
 func hoverCardSettle(tt *ui.Tester) {
-	time.Sleep(hoverCardTestDelay + 30*time.Millisecond)
-	tt.Frame()
+	tt.Advance(hoverCardTestDelay + 30*time.Millisecond)
 }
 
 func TestHoverCardPointerCanEnterCard(t *testing.T) {

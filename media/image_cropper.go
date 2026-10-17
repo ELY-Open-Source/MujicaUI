@@ -210,7 +210,7 @@ func cropperRotate(cr *ImageCrop, size image.Point, d int, aspect float64) {
 }
 
 // cropperPointer moves the frame, or resizes it by a corner.
-func cropperPointer(stage *ui.Element, cr *ImageCrop, r ui.Rect, size image.Point, scale, ox, oy float32, aspect float64) {
+func cropperPointer(stage ui.Element, cr *ImageCrop, r ui.Rect, size image.Point, scale, ox, oy float32, aspect float64) {
 	d := ui.Local(stage, cropperDrag{}, func() cropperDrag { return cropperDrag{} })
 	dx, dy, ok := stage.Dragged()
 	if !stage.Pressed() {

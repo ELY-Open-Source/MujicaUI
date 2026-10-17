@@ -91,7 +91,7 @@ func checkpointRow(c *ui.Context, p Checkpoint, current, locked bool) bool {
 	d := core.Density(c)
 	u := d.Unit()
 	asked := false
-	row := ui.Row(c).Key(p.ID).Gap(u*3).AlignItems(ui.Center).MinHeight(d.ControlHeight()+u*2).Padding(u*2, u*3)
+	row := ui.Row(c.Key(p.ID)).Gap(u*3).AlignItems(ui.Center).MinHeight(d.ControlHeight()+u*2).Padding(u*2, u*3)
 	if current {
 		row.Background(k.Selection)
 	}

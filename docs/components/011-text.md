@@ -21,7 +21,7 @@ view := func(c *ui.Context) {
 
 ## 参数
 
-`func Text(c *ui.Context, s string, opts TextOptions) *ui.Element`
+`func Text(c *ui.Context, s string, opts TextOptions) ui.Element`
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |

@@ -18,7 +18,7 @@ type DateSeparatorOptions struct {
 }
 
 // DateSeparator marks where a day's messages begin, localized.
-func DateSeparator(c *ui.Context, day core.Date, opts DateSeparatorOptions) *ui.Element {
+func DateSeparator(c *ui.Context, day core.Date, opts DateSeparatorOptions) ui.Element {
 	if !day.Valid() {
 		panic("mujica: DateSeparator needs a valid date")
 	}

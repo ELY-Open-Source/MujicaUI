@@ -16,7 +16,7 @@ view := func(c *ui.Context) {
 }
 ```
 
-签名：`func ActivityFeed(c *ui.Context, items []Activity, opts ActivityFeedOptions) *ui.Element`
+签名：`func ActivityFeed(c *ui.Context, items []Activity, opts ActivityFeedOptions) ui.Element`
 
 ## 参数
 

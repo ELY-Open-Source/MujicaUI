@@ -10,7 +10,7 @@ import (
 )
 
 // UnreadDivider marks where unread messages begin; count zero shows "New".
-func UnreadDivider(c *ui.Context, count int) *ui.Element {
+func UnreadDivider(c *ui.Context, count int) ui.Element {
 	if count < 0 {
 		panic("mujica: UnreadDivider count must not be negative")
 	}

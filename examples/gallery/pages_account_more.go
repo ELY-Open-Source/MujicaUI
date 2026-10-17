@@ -192,7 +192,7 @@ func accountCoachDemo(c *ui.Context, log func(string)) {
 		d.open, d.step = true, 0
 		log("tour started")
 	}
-	var compose, archive *ui.Element
+	var compose, archive ui.Element
 	ui.Row(c).Gap(48).Padding(8).Children(func() {
 		compose = input.Button(c, "Compose", input.ButtonOptions{Disabled: d.disabled})
 		archive = input.Button(c, "Archive", input.ButtonOptions{Variant: input.Secondary})

@@ -37,7 +37,7 @@ func TestTwoFactorInputPasteCompleteAndResend(t *testing.T) {
 	if resent != 1 {
 		t.Fatal("resend not reported")
 	}
-	opts.ResendAt = time.Now().Add(65 * time.Second)
+	opts.ResendAt = tt.Now().Add(65 * time.Second)
 	opts.Error = "That code has expired."
 	tt.Frame()
 	if !tt.HasText("Resend in 1:05") && !tt.HasText("Resend in 1:04") || !tt.HasText("That code has expired.") {

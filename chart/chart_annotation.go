@@ -123,7 +123,7 @@ type noteDrag struct {
 }
 
 // Drag handles movement; plot uses element coordinates.
-func (a ChartAnnotationPart) Drag(plotElement *ui.Element, plot ui.Rect) bool {
+func (a ChartAnnotationPart) Drag(plotElement ui.Element, plot ui.Rect) bool {
 	if plotElement.IsDisabled() {
 		return false
 	}
@@ -185,7 +185,7 @@ func (a ChartAnnotationPart) Drag(plotElement *ui.Element, plot ui.Rect) bool {
 	return true
 }
 
-func (a ChartAnnotationPart) keyboard(e *ui.Element) bool {
+func (a ChartAnnotationPart) keyboard(e ui.Element) bool {
 	index := ui.Local(e, "mujica.notes.key", func() int { return 0 })
 	dir := 0
 	if e.Shortcut(ui.Alt, ui.KeyPageDown) {

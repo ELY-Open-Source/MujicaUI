@@ -13,7 +13,7 @@ import (
 
 // PinnedMessagesResult is the list's element and this frame's events.
 type PinnedMessagesResult struct {
-	Element *ui.Element
+	Element ui.Element
 	// Jump requests navigation; Unpinned requests removing a pin.
 	Jump, Unpinned string
 }

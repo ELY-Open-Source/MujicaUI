@@ -50,7 +50,7 @@ func OrderConfirmDialog(c *ui.Context, open *bool, opts OrderConfirmDialogOption
 	was := *open
 	var st *orderConfirmState
 	overlay.Dialog(c, open, overlay.DialogOptions{Title: title, KeepOnBackdrop: true, HideClose: true, Actions: func() {
-		if input.Button(c, core.Msg(c, "order_confirm_dialog.cancel"), input.ButtonOptions{Variant: input.Secondary}).AutoFocus().Clicked() {
+		if core.AutoFocus(c, input.Button(c, core.Msg(c, "order_confirm_dialog.cancel"), input.ButtonOptions{Variant: input.Secondary})).Clicked() {
 			res.Canceled = true
 		}
 		locked := opts.Acknowledge != "" && !st.ack

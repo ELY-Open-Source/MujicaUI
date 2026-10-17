@@ -28,8 +28,8 @@ type PopconfirmResult struct {
 }
 
 // Popconfirm asks for a light confirmation by anchor; use AlertDialog for high-risk actions.
-func Popconfirm(c *ui.Context, anchor *ui.Element, open *bool, opts PopconfirmOptions) PopconfirmResult {
-	if anchor == nil {
+func Popconfirm(c *ui.Context, anchor ui.Element, open *bool, opts PopconfirmOptions) PopconfirmResult {
+	if !anchor.Valid() {
 		panic("mujica: Popconfirm needs an anchor")
 	}
 	if opts.Title == "" {
@@ -54,7 +54,7 @@ func Popconfirm(c *ui.Context, anchor *ui.Element, open *bool, opts PopconfirmOp
 	}
 	b := anchor.Bounds()
 	shown := true
-	ui.PopoverBase(c, anchor, &shown, func(panel *ui.Element) {
+	ui.PopoverBase(c, anchor, &shown, func(panel ui.Element) {
 		core.OverlayStyle(c, panel, OverlayAnchored(c, panel, b))
 		panel.Margin(6, 0, 0, 0).Padding(u * 3).Gap(u * 3).MaxWidth(PopoverWide(c, 320)).MaxHeight(PopoverRoom(c, b)).Role(ui.RoleAlertDialog).
 			Label(opts.Title).Description(opts.Description)
@@ -64,14 +64,14 @@ func Popconfirm(c *ui.Context, anchor *ui.Element, open *bool, opts PopconfirmOp
 			// Danger focuses Cancel, so a second Enter never runs the destructive action.
 			cb := input.Button(c, cancel, input.ButtonOptions{Variant: input.Secondary})
 			if opts.Danger {
-				cb.AutoFocus()
+				core.AutoFocus(c, cb)
 			}
 			if cb.Clicked() {
 				res.Canceled = true
 			}
 			ok := input.Button(c, confirm, input.ButtonOptions{Variant: variant})
 			if !opts.Danger {
-				ok.AutoFocus()
+				core.AutoFocus(c, ok)
 			}
 			if ok.Clicked() {
 				res.Confirmed = true

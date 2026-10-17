@@ -18,7 +18,7 @@ view := func(c *ui.Context) {
 }
 ```
 
-签名：`func Masonry(c *ui.Context, n int, opts MasonryOptions, item func(i int)) *ui.Element`
+签名：`func Masonry(c *ui.Context, n int, opts MasonryOptions, item func(i int)) ui.Element`
 
 ## 参数
 

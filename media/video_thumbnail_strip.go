@@ -94,7 +94,7 @@ func VideoThumbnailStrip(c *ui.Context, current *int, frames []StripFrame, opts 
 
 // stripCell draws one frame and reports a click on it.
 func stripCell(c *ui.Context, k theme.Tokens, f StripFrame, i int, on bool, fw, fh float32) bool {
-	cell := ui.Box(c).Key(i).Size(fw, fh).Shrink(0).Radius(theme.ControlRadius).Clip().Background(VideoBlack).
+	cell := ui.Box(c.Key(i)).Size(fw, fh).Shrink(0).Radius(theme.ControlRadius).Clip().Background(VideoBlack).
 		Cursor(ui.CursorPointer).AlignSelf(ui.Center)
 	edge, width := k.Border, theme.BorderWidth
 	if on {

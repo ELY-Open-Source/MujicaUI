@@ -29,7 +29,7 @@ type ButtonGroupOptions struct {
 
 // ButtonGroupResult is the group element and the item clicked this frame.
 type ButtonGroupResult struct {
-	Element *ui.Element
+	Element ui.Element
 	clicked int
 }
 
@@ -59,7 +59,7 @@ func ButtonGroup(c *ui.Context, items []ButtonGroupItem, opts ButtonGroupOptions
 			if it.Label == "" && it.Name == "" {
 				panic("mujica: icon-only ButtonGroupItem needs a Name")
 			}
-			b := ui.ButtonBase(c).Key(i).MinHeight(d.ControlHeight()).MinWidth(d.ControlHeight()).
+			b := ui.ButtonBase(c.Key(i)).MinHeight(d.ControlHeight()).MinWidth(d.ControlHeight()).
 				Padding(0, d.Unit()*3).Gap(d.Unit() * 2).Disabled(it.Disabled)
 			internal.Ring(b, k.Focus, theme.ControlRadius)
 			if it.Name != "" {

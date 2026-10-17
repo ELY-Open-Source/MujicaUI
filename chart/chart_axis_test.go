@@ -96,7 +96,7 @@ func partsChart(c *ui.Context, notes []ChartNote, crosshair bool) ChartResult {
 			return hair.Snap(len(pts), func(i int) (float32, float32) { return at(r, i) }, px, py)
 		},
 		Anchor: at,
-		Input:  func(plot *ui.Element, r ui.Rect) { notesPart.Drag(plot, plotOf(r)) },
+		Input:  func(plot ui.Element, r ui.Rect) { notesPart.Drag(plot, plotOf(r)) },
 		Draw: func(p *ui.Painter, r ui.Rect, active int) {
 			plot := plotOf(r)
 			grid.Draw(p, plot)

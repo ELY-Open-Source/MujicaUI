@@ -319,7 +319,7 @@ func (g *gallery) renameDialog(c *ui.Context, log func(string)) {
 			commit()
 		}
 	}}, func() {
-		input.FormField(c, g.t("New name", "新名称"), input.FormFieldOptions{Error: bad}, func() *ui.Element {
+		input.FormField(c, g.t("New name", "新名称"), input.FormFieldOptions{Error: bad}, func() ui.Element {
 			r := input.TextInput(c, &s.newName, input.TextInputOptions{Error: bad})
 			if r.Submitted() {
 				commit()

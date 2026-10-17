@@ -50,14 +50,12 @@ func TestUndoToastCountdownPauseAndClose(t *testing.T) {
 	_ = tt.Click("Delete")
 	r, _ := tt.Find("File deleted")
 	tt.Move(r.X+r.W/2, r.Y+r.H/2)
-	time.Sleep(90 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(90 * time.Millisecond)
 	if !open {
 		t.Fatal("hovered countdown ran out")
 	}
 	tt.Move(5, 5)
-	time.Sleep(90 * time.Millisecond)
-	tt.Frame()
+	tt.Advance(90 * time.Millisecond)
 	if open || !last.Expired || undos != 0 {
 		t.Fatalf("expiry: %v %+v %d", open, last, undos)
 	}

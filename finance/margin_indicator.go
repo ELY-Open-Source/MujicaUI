@@ -21,7 +21,7 @@ type MarginIndicatorOptions struct {
 }
 
 // MarginIndicator shows maintenance over equity against its two lines.
-func MarginIndicator(c *ui.Context, ratio float64, opts MarginIndicatorOptions) *ui.Element {
+func MarginIndicator(c *ui.Context, ratio float64, opts MarginIndicatorOptions) ui.Element {
 	warn, liq := opts.Warning, opts.Liquidation
 	if warn == 0 && liq == 0 {
 		warn, liq = 0.8, 1

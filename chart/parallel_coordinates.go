@@ -137,7 +137,7 @@ func ParallelCoordinates(c *ui.Context, filters *map[string][2]float64, axes []s
 	}
 	drag := ui.Local(ch.Res.Element, "mujica.pc.drag", func() pcDrag { return pcDrag{axis: -1} })
 	keyAxis := ui.Local(ch.Res.Element, "mujica.pc.axis", func() int { return 0 })
-	spec.Input = func(plot *ui.Element, r ui.Rect) {
+	spec.Input = func(plot ui.Element, r ui.Rect) {
 		if plot.IsDisabled() {
 			*drag = pcDrag{axis: -1}
 			return

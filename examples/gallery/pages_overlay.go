@@ -298,8 +298,8 @@ func hoverCardDemo(c *ui.Context, log func(string)) {
 			log("follow")
 		}
 	})
-	if (card != nil) != s.shown {
-		s.shown = card != nil
+	if card.Valid() != s.shown {
+		s.shown = card.Valid()
 		log(fmt.Sprintf("card shown = %v", s.shown))
 	}
 }

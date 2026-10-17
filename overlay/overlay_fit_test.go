@@ -58,7 +58,7 @@ func TestOverlayPanelFitsWindow(t *testing.T) {
 			if p := Overlay(c, &open, OverlayOptions{Modal: modal}, func() {
 				ui.Text(c, strings.Repeat(overlayLongText, 6))
 				input.Button(c, "Done", input.ButtonOptions{})
-			}); p != nil {
+			}); p.Valid() {
 				panel = p.Bounds()
 			}
 		}, 600, 400)

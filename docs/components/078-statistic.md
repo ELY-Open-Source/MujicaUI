@@ -20,7 +20,7 @@ ui.Render(view, 400, 300, 1)
 
 ## 参数
 
-`func Statistic(c *ui.Context, value float64, opts StatisticOptions) *ui.Element`。
+`func Statistic(c *ui.Context, value float64, opts StatisticOptions) ui.Element`。
 
 | 字段 | 类型 | 默认值 | 含义 |
 | --- | --- | --- | --- |

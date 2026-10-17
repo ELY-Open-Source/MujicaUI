@@ -14,7 +14,7 @@ view := func(c *ui.Context) {
 ui.Render(view, 400, 300, 1)
 ```
 
-签名：`func AgentStatus(c *ui.Context, state AgentState, opts AgentStatusOptions) *ui.Element`。未知状态 panic。
+签名：`func AgentStatus(c *ui.Context, state AgentState, opts AgentStatusOptions) ui.Element`。未知状态 panic。
 
 ## 参数
 

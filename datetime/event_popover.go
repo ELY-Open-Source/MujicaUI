@@ -26,7 +26,7 @@ type EventPopoverOptions struct {
 
 // EventPopoverResult is the popover and the action the user chose.
 type EventPopoverResult struct {
-	Element *ui.Element
+	Element ui.Element
 	edit    bool
 	del     bool
 }
@@ -38,7 +38,7 @@ func (r EventPopoverResult) Edit() bool { return r.edit }
 func (r EventPopoverResult) Delete() bool { return r.del }
 
 // EventPopover summarizes an event beside anchor while *open.
-func EventPopover(c *ui.Context, anchor *ui.Element, open *bool, ev CalendarEvent, opts EventPopoverOptions) EventPopoverResult {
+func EventPopover(c *ui.Context, anchor ui.Element, open *bool, ev CalendarEvent, opts EventPopoverOptions) EventPopoverResult {
 	loc := eventLocation("EventPopover", opts.Location)
 	k := core.Tokens(c)
 	d := core.Density(c)
@@ -47,7 +47,7 @@ func EventPopover(c *ui.Context, anchor *ui.Element, open *bool, ev CalendarEven
 		slog.Debug("mujica: event_popover close", "disabled", true)
 		*open = false
 	}
-	r.Element = ui.PopoverBase(c, anchor, open, func(panel *ui.Element) {
+	r.Element = ui.PopoverBase(c, anchor, open, func(panel ui.Element) {
 		core.OverlayStyle(c, panel, core.OverlayEnter(c, panel))
 		ww, wh := c.Size()
 		panel.Margin(d.Unit(), 0, 0, 0).Padding(d.Unit() * 4).Gap(d.Unit() * 2).Width(min(d.ControlHeight()*9, ww-16)).MaxHeight(wh - 16).

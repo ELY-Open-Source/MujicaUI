@@ -30,7 +30,7 @@ type MessageHeaderOptions struct {
 }
 
 // MessageHeader shows a message's model, time and status as icon and text.
-func MessageHeader(c *ui.Context, opts MessageHeaderOptions) *ui.Element {
+func MessageHeader(c *ui.Context, opts MessageHeaderOptions) ui.Element {
 	k := core.Tokens(c)
 	u := core.Density(c).Unit()
 	small := core.FontSize(c, theme.CaptionSize)

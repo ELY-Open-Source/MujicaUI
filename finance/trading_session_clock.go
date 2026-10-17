@@ -29,7 +29,7 @@ type TradingSessionClockOptions struct {
 	Now time.Time
 }
 
-func TradingSessionClock(c *ui.Context, markets []SessionMarket, opts TradingSessionClockOptions) *ui.Element {
+func TradingSessionClock(c *ui.Context, markets []SessionMarket, opts TradingSessionClockOptions) ui.Element {
 	now := opts.Now
 	if now.IsZero() {
 		now = c.Now()
@@ -43,7 +43,7 @@ func TradingSessionClock(c *ui.Context, markets []SessionMarket, opts TradingSes
 			tradingSessionCheck(m)
 			local := now.In(m.Location)
 			phase, next, nextPhase := tradingSessionPhase(m, local)
-			ui.Column(c).Key(m.Name).Gap(2).Children(func() {
+			ui.Column(c.Key(m.Name)).Gap(2).Children(func() {
 				ui.Text(c, m.Name).Font(theme.SerifFont).FontWeight(600)
 				ui.Text(c, local.Format("15:04 MST")).FontSize(size).TextColor(k.TextMuted).FontFeatures("tnum")
 			})

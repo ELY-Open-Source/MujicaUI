@@ -86,7 +86,7 @@ func Steps(c *ui.Context, current *int, steps []Step, opts StepsOptions) core.Ch
 func stepsItem(c *ui.Context, i, n int, s Step, st stepsState, vertical, tail, doneLine bool) bool {
 	k := core.Tokens(c)
 	u := core.Density(c).Unit()
-	var e *ui.Element
+	var e ui.Element
 	if s.Clickable {
 		e = ui.ButtonBase(c).Cursor(ui.CursorPointer)
 		internal.Ring(e, k.Focus, theme.ControlRadius)

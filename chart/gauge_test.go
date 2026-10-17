@@ -28,7 +28,7 @@ func TestGaugeReadoutNamesSegment(t *testing.T) {
 	tt.Key(0, ui.KeyEscape)
 	for _, full = range []bool{false, true} {
 		tt.Frame()
-		b := h.res.Element.Bounds()
+		b := h.box(tt)
 		cx := b.X + b.W/2
 		var cy, rad float32
 		if full {

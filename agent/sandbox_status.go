@@ -45,7 +45,7 @@ type SandboxStatusOptions struct {
 }
 
 // SandboxStatus shows sandbox state, resources and time left.
-func SandboxStatus(c *ui.Context, info SandboxInfo, opts SandboxStatusOptions) *ui.Element {
+func SandboxStatus(c *ui.Context, info SandboxInfo, opts SandboxStatusOptions) ui.Element {
 	agent := map[SandboxState]AgentState{SandboxStarting: AgentPlanning, SandboxRunning: AgentRunning, SandboxStopped: AgentSkipped, SandboxFailed: AgentFailed}
 	state, ok := agent[info.State]
 	if !ok {

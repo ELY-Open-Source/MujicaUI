@@ -24,7 +24,7 @@ type Commit struct {
 
 // GitListResult is a built version-control list and its events.
 type GitListResult struct {
-	Element            *ui.Element
+	Element            ui.Element
 	changed, submitted bool
 	action, item       string
 }

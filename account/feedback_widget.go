@@ -53,7 +53,7 @@ type FeedbackWidgetOptions struct {
 
 // FeedbackWidgetResult carries the submitted feedback.
 type FeedbackWidgetResult struct {
-	Element   *ui.Element
+	Element   ui.Element
 	feedback  Feedback
 	submitted bool
 }
@@ -106,7 +106,7 @@ func FeedbackWidget(c *ui.Context, s *FeedbackWidgetState, opts FeedbackWidgetOp
 						return fmt.Sprintf(core.Msg(c, "feedback_widget.short"), minLen)
 					}
 					return ""
-				}}, func() *ui.Element {
+				}}, func() ui.Element {
 				return input.TextArea(c, &s.Draft.Text, input.TextAreaOptions{MinHeight: 96, MaxLength: 2000, Disabled: locked}).Input
 			})
 			if opts.Attachments != nil {

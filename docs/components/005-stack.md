@@ -18,7 +18,7 @@ layout.Stack(c, layout.StackOptions{Horizontal: true, Gap: layout.SpaceM}, func(
 
 签名：
 
-- `func Stack(c *ui.Context, opts StackOptions, children func()) *ui.Element`
+- `func Stack(c *ui.Context, opts StackOptions, children func()) ui.Element`
 
 ## 参数
 

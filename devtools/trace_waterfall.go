@@ -142,7 +142,7 @@ func traceSpanRow(c *ui.Context, s WaterfallSpan, depth int, total time.Duration
 	k := core.Tokens(c)
 	d := core.Density(c)
 	u := d.Unit()
-	row := ui.ButtonBase(c).Key(s.ID).Justify(ui.Start).Gap(u*2).MinHeight(d.ControlHeight()).Padding(0, u*2).
+	row := ui.ButtonBase(c.Key(s.ID)).Justify(ui.Start).Gap(u*2).MinHeight(d.ControlHeight()).Padding(0, u*2).
 		Label(fmt.Sprintf("%s, %s, %s", s.Name, s.Service, agent.AgentDuration(s.Duration)))
 	internal.Ring(row, k.Focus, theme.ControlRadius)
 	if selected {

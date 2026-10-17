@@ -31,7 +31,7 @@ type MailListOptions struct {
 
 // MailListResult is a MailList's element and this frame's events.
 type MailListResult struct {
-	Element *ui.Element
+	Element ui.Element
 	changed bool
 	// Opened contains the ID activated by Enter or double-click.
 	Opened string

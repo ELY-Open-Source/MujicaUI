@@ -108,7 +108,7 @@ func DatetimeDayLabel(c *ui.Context, d Date) string {
 }
 
 // DatetimeField styles row as a single-line field: solid fill and fine border.
-func DatetimeField(c *ui.Context, row *ui.Element, invalid, readOnly bool) *ui.Element {
+func DatetimeField(c *ui.Context, row ui.Element, invalid, readOnly bool) ui.Element {
 	k := Tokens(c)
 	d := Density(c)
 	bg, border := k.Surface, k.ControlBorder
@@ -127,7 +127,7 @@ func DatetimeField(c *ui.Context, row *ui.Element, invalid, readOnly bool) *ui.E
 }
 
 // DatetimeTrigger is the popup button inside a field; Cmd+C copies its text.
-func DatetimeTrigger(c *ui.Context, text, placeholder, icon string) *ui.Element {
+func DatetimeTrigger(c *ui.Context, text, placeholder, icon string) ui.Element {
 	k := Tokens(c)
 	b := ui.ButtonBase(c).Grow(1).Shrink(1).Justify(ui.Start).Gap(Density(c).Unit() * 2).
 		MinHeight(theme.MinHitSize).Radius(theme.ControlRadius).Role(ui.RolePopUpButton)
@@ -147,13 +147,13 @@ func DatetimeTrigger(c *ui.Context, text, placeholder, icon string) *ui.Element 
 }
 
 // DatetimePopup shows fn below anchor while *open; a disabled or read-only anchor closes it.
-func DatetimePopup(c *ui.Context, anchor *ui.Element, open *bool, readOnly bool, fn func()) *ui.Element {
+func DatetimePopup(c *ui.Context, anchor ui.Element, open *bool, readOnly bool, fn func()) ui.Element {
 	d := Density(c)
 	if *open && (readOnly || anchor.IsDisabled()) {
 		slog.Debug("mujica: datetime popup closed by state", "readOnly", readOnly)
 		*open = false
 	}
-	return ui.PopoverBase(c, anchor, open, func(panel *ui.Element) {
+	return ui.PopoverBase(c, anchor, open, func(panel ui.Element) {
 		OverlayStyle(c, panel, OverlayEnter(c, panel))
 		panel.MaxWidth(d.ControlHeight()*7+d.Unit()*6+2*theme.BorderWidth).Margin(d.Unit(), 0, 0, 0).Padding(d.Unit() * 3).Gap(d.Unit() * 3)
 		fn()

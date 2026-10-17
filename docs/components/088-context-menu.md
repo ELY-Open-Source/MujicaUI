@@ -22,7 +22,7 @@ view := func(c *ui.Context) {
 ui.Render(view, 400, 300, 1)
 ```
 
-签名：`func ContextMenu(c *ui.Context, target *ui.Element, opts ContextMenuOptions, build func(m *PopupMenu)) *ui.Element`，返回 `target`。`target` 或 `build` 为 nil 时 panic。
+签名：`func ContextMenu(c *ui.Context, target ui.Element, opts ContextMenuOptions, build func(m *PopupMenu)) ui.Element`，返回 `target`。`target` 或 `build` 为 nil 时 panic。
 
 ## 参数
 
