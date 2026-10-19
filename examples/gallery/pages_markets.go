@@ -5,8 +5,8 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/data"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/input"
+	"github.com/ELY-Open-Source/MujicaUI/data"
+	"github.com/ELY-Open-Source/MujicaUI/input"
 )
 
 var marketsPages = []page{

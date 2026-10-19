@@ -8,7 +8,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ELY-Open-Source/MujicaUI/core"
 )
 
 func chatTester(w, h int, view func(c *ui.Context)) *ui.Tester {

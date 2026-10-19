@@ -3,7 +3,7 @@ package datetime_test
 import (
 	"time"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/datetime"
+	"github.com/ELY-Open-Source/MujicaUI/datetime"
 )
 
 func exampleEvents(loc *time.Location) []datetime.CalendarEvent {

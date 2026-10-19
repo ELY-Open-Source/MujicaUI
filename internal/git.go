@@ -5,7 +5,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/theme"
+	"github.com/ELY-Open-Source/MujicaUI/theme"
 )
 
 // CodeSpans colors a code line; inBlock carries block comments.

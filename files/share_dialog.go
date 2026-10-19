@@ -7,13 +7,13 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/display"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/icons"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/input"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/layout"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/overlay"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/theme"
+	"github.com/ELY-Open-Source/MujicaUI/core"
+	"github.com/ELY-Open-Source/MujicaUI/display"
+	"github.com/ELY-Open-Source/MujicaUI/icons"
+	"github.com/ELY-Open-Source/MujicaUI/input"
+	"github.com/ELY-Open-Source/MujicaUI/layout"
+	"github.com/ELY-Open-Source/MujicaUI/overlay"
+	"github.com/ELY-Open-Source/MujicaUI/theme"
 )
 
 // ShareMember is someone the item is shared with.

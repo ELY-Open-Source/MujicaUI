@@ -5,9 +5,9 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/feedback"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/icons"
+	"github.com/ELY-Open-Source/MujicaUI/core"
+	"github.com/ELY-Open-Source/MujicaUI/feedback"
+	"github.com/ELY-Open-Source/MujicaUI/icons"
 )
 
 // ChatEmptyKind is why a chat is empty; zero is ChatEmptyNew.

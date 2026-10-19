@@ -9,9 +9,9 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/data"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/icons"
+	"github.com/ELY-Open-Source/MujicaUI/core"
+	"github.com/ELY-Open-Source/MujicaUI/data"
+	"github.com/ELY-Open-Source/MujicaUI/icons"
 )
 
 // EvalCase is one evaluation case and its outcome.

@@ -5,8 +5,8 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/chart"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/input"
+	"github.com/ELY-Open-Source/MujicaUI/chart"
+	"github.com/ELY-Open-Source/MujicaUI/input"
 )
 
 func c2ViolinDemo(c *ui.Context, log func(string))  { c2DistributionDemo(c, log, "129", "ViolinPlot") }

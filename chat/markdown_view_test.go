@@ -6,7 +6,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ELY-Open-Source/MujicaUI/core"
 )
 
 const markdownViewSample = "# Decree\n\nBy order of **the Queen**, *all* guests use `the east door`.\n\n" +

@@ -6,10 +6,10 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/agent"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/chat"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/input"
+	"github.com/ELY-Open-Source/MujicaUI/agent"
+	"github.com/ELY-Open-Source/MujicaUI/chat"
+	"github.com/ELY-Open-Source/MujicaUI/core"
+	"github.com/ELY-Open-Source/MujicaUI/input"
 )
 
 func chatDemoWelcomeScreen(c *ui.Context, log func(string)) {

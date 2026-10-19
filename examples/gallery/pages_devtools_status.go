@@ -6,11 +6,11 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/chart"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/data"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/devtools"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/input"
+	"github.com/ELY-Open-Source/MujicaUI/chart"
+	"github.com/ELY-Open-Source/MujicaUI/core"
+	"github.com/ELY-Open-Source/MujicaUI/data"
+	"github.com/ELY-Open-Source/MujicaUI/devtools"
+	"github.com/ELY-Open-Source/MujicaUI/input"
 )
 
 type devDemoSettings struct {

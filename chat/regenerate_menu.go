@@ -5,9 +5,9 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/icons"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/overlay"
+	"github.com/ELY-Open-Source/MujicaUI/core"
+	"github.com/ELY-Open-Source/MujicaUI/icons"
+	"github.com/ELY-Open-Source/MujicaUI/overlay"
 )
 
 // RegenerateKind is what a RegenerateMenu choice asks for.

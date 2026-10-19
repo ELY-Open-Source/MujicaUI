@@ -6,7 +6,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ELY-Open-Source/MujicaUI/core"
 )
 
 func mktDemoTester(t *testing.T, id string) (*ui.Tester, *[]string) {

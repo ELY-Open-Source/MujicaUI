@@ -6,10 +6,10 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/chart"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/data"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/finance"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/input"
+	"github.com/ELY-Open-Source/MujicaUI/chart"
+	"github.com/ELY-Open-Source/MujicaUI/data"
+	"github.com/ELY-Open-Source/MujicaUI/finance"
+	"github.com/ELY-Open-Source/MujicaUI/input"
 )
 
 func marketsSentimentGaugeDemo(c *ui.Context, log func(string)) {

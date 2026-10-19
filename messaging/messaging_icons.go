@@ -1,7 +1,7 @@
 package messaging
 
 import (
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ELY-Open-Source/MujicaUI/core"
 )
 
 var (

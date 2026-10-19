@@ -5,7 +5,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/internal"
+	"github.com/ELY-Open-Source/MujicaUI/internal"
 )
 
 // WaveLoader draws a sine line flowing to the right.

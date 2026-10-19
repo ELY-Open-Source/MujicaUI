@@ -6,7 +6,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/account"
+	"github.com/ELY-Open-Source/MujicaUI/account"
 )
 
 type accountRecorderState struct {

@@ -3,8 +3,8 @@ package layout
 import (
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/theme"
+	"github.com/ELY-Open-Source/MujicaUI/core"
+	"github.com/ELY-Open-Source/MujicaUI/theme"
 )
 
 // Space is a spacing step scaled by the window's density. Zero picks the component's default.

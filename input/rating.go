@@ -8,9 +8,9 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/internal"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/theme"
+	"github.com/ELY-Open-Source/MujicaUI/core"
+	"github.com/ELY-Open-Source/MujicaUI/internal"
+	"github.com/ELY-Open-Source/MujicaUI/theme"
 )
 
 // RatingOptions configure a Rating. Max is 5 and Step 1 when zero.

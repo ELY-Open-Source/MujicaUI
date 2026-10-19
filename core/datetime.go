@@ -7,9 +7,9 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/icons"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/internal"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/theme"
+	"github.com/ELY-Open-Source/MujicaUI/icons"
+	"github.com/ELY-Open-Source/MujicaUI/internal"
+	"github.com/ELY-Open-Source/MujicaUI/theme"
 )
 
 // Date is a calendar day without clock or location; zero means none.

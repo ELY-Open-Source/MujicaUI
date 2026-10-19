@@ -8,7 +8,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ELY-Open-Source/MujicaUI/core"
 )
 
 var toolCallSample = ToolCall{ID: "1", Name: "read_file", Args: `{"path":"court/ledger.md","limit":40}`,

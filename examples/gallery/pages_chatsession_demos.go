@@ -7,9 +7,9 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/chat"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/icons"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/input"
+	"github.com/ELY-Open-Source/MujicaUI/chat"
+	"github.com/ELY-Open-Source/MujicaUI/icons"
+	"github.com/ELY-Open-Source/MujicaUI/input"
 )
 
 // chatHistory is the gallery's sample conversations, dated from now.

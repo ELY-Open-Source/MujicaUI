@@ -7,10 +7,10 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/data"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/internal"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/theme"
+	"github.com/ELY-Open-Source/MujicaUI/core"
+	"github.com/ELY-Open-Source/MujicaUI/data"
+	"github.com/ELY-Open-Source/MujicaUI/internal"
+	"github.com/ELY-Open-Source/MujicaUI/theme"
 )
 
 var sparkBarValues = []float64{3, -2, 4, 1, -3}

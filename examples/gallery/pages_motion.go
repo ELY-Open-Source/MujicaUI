@@ -1,7 +1,7 @@
 package main
 
 import (
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/feedback"
+	"github.com/ELY-Open-Source/MujicaUI/feedback"
 )
 
 var motionPages = []page{

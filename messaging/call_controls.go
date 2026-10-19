@@ -6,11 +6,11 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/display"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/input"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/media"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/theme"
+	"github.com/ELY-Open-Source/MujicaUI/core"
+	"github.com/ELY-Open-Source/MujicaUI/display"
+	"github.com/ELY-Open-Source/MujicaUI/input"
+	"github.com/ELY-Open-Source/MujicaUI/media"
+	"github.com/ELY-Open-Source/MujicaUI/theme"
 )
 
 // CallState is what the caller's call reports.

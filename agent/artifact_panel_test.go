@@ -5,7 +5,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ELY-Open-Source/MujicaUI/core"
 )
 
 var artifactCodeSample = Artifact{Title: "seating.go", Language: "go", Content: "package court\n\n// Seats maps guests to tables.\nfunc Seats() map[string]int {\n\treturn map[string]int{\"Sakiko\": 1}\n}\n"}

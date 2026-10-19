@@ -5,7 +5,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/data"
+	"github.com/ELY-Open-Source/MujicaUI/data"
 )
 
 func TestSentimentGaugeBandsAndBoundary(t *testing.T) {

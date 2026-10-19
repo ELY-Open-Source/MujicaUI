@@ -116,7 +116,7 @@ func (s *site) page(title, current, main string) string {
 		b.WriteString(`<main id="main" class="solo">` + main + `</main>`)
 	}
 	b.WriteString(`<footer class="foot"><div class="rule" aria-hidden="true"><span></span></div><p>MujicaUI 的组件是原生 Go（MyGo）控件，在桌面窗口里由 GPU 自绘。本站图片是这些控件渲染出的快照，浏览器不运行任何组件代码。</p>`)
-	b.WriteString(`<p>MujicaUI components are native Go (MyGo) widgets. The images here are rendered snapshots; this site runs no component code. Source: <a href="` + repoURL + `" rel="noopener">git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI</a></p></footer>`)
+	b.WriteString(`<p>MujicaUI components are native Go (MyGo) widgets. The images here are rendered snapshots; this site runs no component code. Source: <a href="` + repoURL + `" rel="noopener">github.com/ELY-Open-Source/MujicaUI</a></p></footer>`)
 	b.WriteString(`<script src="/app.js"></script></body></html>`)
 	return b.String()
 }

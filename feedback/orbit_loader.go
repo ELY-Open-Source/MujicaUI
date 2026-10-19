@@ -5,7 +5,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/internal"
+	"github.com/ELY-Open-Source/MujicaUI/internal"
 )
 
 // OrbitLoader moves a diamond around a ring of diamonds.

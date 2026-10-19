@@ -5,7 +5,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/theme"
+	"github.com/ELY-Open-Source/MujicaUI/theme"
 )
 
 // TestMediaChartInksContrast keeps every chart ink at 3:1 against Surface in both themes.

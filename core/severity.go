@@ -5,8 +5,8 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/icons"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/theme"
+	"github.com/ELY-Open-Source/MujicaUI/icons"
+	"github.com/ELY-Open-Source/MujicaUI/theme"
 )
 
 // Severity is the meaning of a message. The zero value is SeverityInfo.

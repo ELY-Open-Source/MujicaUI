@@ -6,11 +6,11 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/chart"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/data"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/feedback"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/input"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/navigation"
+	"github.com/ELY-Open-Source/MujicaUI/chart"
+	"github.com/ELY-Open-Source/MujicaUI/data"
+	"github.com/ELY-Open-Source/MujicaUI/feedback"
+	"github.com/ELY-Open-Source/MujicaUI/input"
+	"github.com/ELY-Open-Source/MujicaUI/navigation"
 )
 
 func motionInterruptDemo(c *ui.Context, log func(string)) {

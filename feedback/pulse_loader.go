@@ -3,7 +3,7 @@ package feedback
 import (
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/internal"
+	"github.com/ELY-Open-Source/MujicaUI/internal"
 )
 
 // PulseLoader shows one dot gently breathing, without a halo.

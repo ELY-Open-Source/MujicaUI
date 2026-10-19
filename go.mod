@@ -1,4 +1,4 @@
-module git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI
+module github.com/ELY-Open-Source/MujicaUI
 
 go 1.27.1
 

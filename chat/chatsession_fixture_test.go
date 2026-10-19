@@ -3,7 +3,7 @@ package chat
 import (
 	"time"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/icons"
+	"github.com/ELY-Open-Source/MujicaUI/icons"
 )
 
 // chatNow is the fixed clock of the chat session tests.

@@ -3,8 +3,8 @@ package core
 import (
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/internal"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/theme"
+	"github.com/ELY-Open-Source/MujicaUI/internal"
+	"github.com/ELY-Open-Source/MujicaUI/theme"
 )
 
 // IconAction is a square, borderless button showing icon, named label.

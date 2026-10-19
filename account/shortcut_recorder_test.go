@@ -6,7 +6,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/input"
+	"github.com/ELY-Open-Source/MujicaUI/input"
 )
 
 func shortcutRecorderTester(v *Shortcut, opts *ShortcutRecorderOptions, n *int) *ui.Tester {

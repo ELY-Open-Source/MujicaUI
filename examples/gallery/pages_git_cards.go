@@ -6,10 +6,10 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/agent"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/git"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/navigation"
+	"github.com/ELY-Open-Source/MujicaUI/agent"
+	"github.com/ELY-Open-Source/MujicaUI/core"
+	"github.com/ELY-Open-Source/MujicaUI/git"
+	"github.com/ELY-Open-Source/MujicaUI/navigation"
 )
 
 func gitPullRequestCardDemo(c *ui.Context, log func(string)) {

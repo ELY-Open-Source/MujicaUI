@@ -5,8 +5,8 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/input"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/messaging"
+	"github.com/ELY-Open-Source/MujicaUI/input"
+	"github.com/ELY-Open-Source/MujicaUI/messaging"
 )
 
 func callControlsDemo(c *ui.Context, log func(string)) {

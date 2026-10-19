@@ -5,9 +5,9 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/internal"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/theme"
+	"github.com/ELY-Open-Source/MujicaUI/core"
+	"github.com/ELY-Open-Source/MujicaUI/internal"
+	"github.com/ELY-Open-Source/MujicaUI/theme"
 )
 
 var contextSegmentsSample = []ContextSegment{{Label: "System", Tokens: 1200}, {Label: "History", Tokens: 58000}, {Label: "Attachments", Tokens: 24000}}

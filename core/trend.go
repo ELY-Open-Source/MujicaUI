@@ -6,7 +6,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/icons"
+	"github.com/ELY-Open-Source/MujicaUI/icons"
 )
 
 // Trend picks the rise color: green, or red (China).

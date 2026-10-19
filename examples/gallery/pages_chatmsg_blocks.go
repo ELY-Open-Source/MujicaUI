@@ -8,8 +8,8 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/chat"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/input"
+	"github.com/ELY-Open-Source/MujicaUI/chat"
+	"github.com/ELY-Open-Source/MujicaUI/input"
 )
 
 const chatmsgMarkdown = "## The Decree\n\nBy order of **the Queen**, *all* guests use `the east door`. See [the protocol](https://example.com/protocol).\n\n" +

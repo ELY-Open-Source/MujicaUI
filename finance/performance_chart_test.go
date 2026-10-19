@@ -6,7 +6,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/chart"
+	"github.com/ELY-Open-Source/MujicaUI/chart"
 )
 
 func TestPerformanceChartBenchmarkDrawdownAndKeys(t *testing.T) {

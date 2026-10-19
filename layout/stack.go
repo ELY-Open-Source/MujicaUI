@@ -3,7 +3,7 @@ package layout
 import (
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
+	"github.com/ELY-Open-Source/MujicaUI/core"
 )
 
 // StackAlign places children across a Stack's direction. Zero stretches a vertical stack and centers a horizontal one.

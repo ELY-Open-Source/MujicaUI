@@ -8,7 +8,7 @@ import (
 
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/internal"
+	"github.com/ELY-Open-Source/MujicaUI/internal"
 )
 
 // terminalCell is one grid character; zero is blank.
