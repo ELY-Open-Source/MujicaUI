@@ -7,7 +7,7 @@
 ## 安装
 
 ```sh
-go get git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI
+go get github.com/ELY-Open-Source/MujicaUI
 ```
 
 要求 Go 1.27.1 与 MyGo v0.2.10（见 [兼容表](docs/compat.md)）。
@@ -25,8 +25,8 @@ import (
 	"github.com/egoist/mygo"
 	"github.com/egoist/mygo/ui"
 
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/core"
-	"git.zacharyzhang.com/ZacharyZhang-NY/MujicaUI/input"
+	"github.com/ELY-Open-Source/MujicaUI/core"
+	"github.com/ELY-Open-Source/MujicaUI/input"
 )
 
 type app struct{ name string }
