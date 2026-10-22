@@ -3,6 +3,7 @@ package data
 import (
 	"fmt"
 	"image/color"
+	"runtime"
 	"slices"
 	"testing"
 
@@ -112,14 +113,18 @@ func TestListMultiple(t *testing.T) {
 	if err := tt.ClickWith(ui.Shift, "Item 6"); err != nil {
 		t.Fatal(err)
 	}
-	// Shift extends from the anchor click (MyGo keeps the pivot at item 1).
-	for id := 1; id <= 6; id++ {
+	// Shift extends from the Cmd-click on item 4; macOS keeps item 1, Windows and Linux replace it.
+	want := []int{4, 5, 6}
+	if runtime.GOOS == "darwin" {
+		want = append([]int{1}, want...)
+	}
+	for _, id := range want {
 		if !h.st.Selection.Has(id) {
 			t.Fatalf("item %d not chosen; %d chosen", id, h.st.Selection.Len())
 		}
 	}
-	if h.st.Selection.Len() != 6 {
-		t.Fatalf("chosen %d, want 6", h.st.Selection.Len())
+	if h.st.Selection.Len() != len(want) {
+		t.Fatalf("chosen %d, want %d", h.st.Selection.Len(), len(want))
 	}
 	tt.Key(ui.Cmd, ui.KeyA)
 	if h.st.Selection.Len() != 10 {

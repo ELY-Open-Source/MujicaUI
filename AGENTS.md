@@ -9,11 +9,11 @@ Planned: once 001–500 land, the root package splits into category sub-packages
 | Item | Value |
 | --- | --- |
 | Go | 1.27.1 (MyGo's minimum) |
-| MyGo | `github.com/egoist/mygo v0.5.5` (commit 4d8673c), pinned in go.mod |
+| MyGo | `github.com/egoist/mygo v0.6.2` (commit cf26587), pinned in go.mod |
 | Icons | Lucide 1.52.0, ISC, copied into `icons/svg` |
 | Web mirror | `examples/gallery -web :8080`: Go stdlib server drives the Gallery through `ui.NewTester` and streams frames to a canvas. The browser shows pixels; Go runs the components. |
 
-Read MyGo source before using an API: `go env GOMODCACHE`/github.com/egoist/mygo@v0.5.5 (`ui/*.go`, `docs/ui/*.md`, migration guide `docs/ui/migration.md`). Never guess.
+Read MyGo source before using an API: `go env GOMODCACHE`/github.com/egoist/mygo@v0.6.2 (`ui/*.go`, `docs/ui/*.md`, migration guide `docs/ui/migration.md`). Never guess.
 
 ## Layout
 
@@ -51,7 +51,7 @@ Gallery categories map to packages: Inputs, Choices, Forms, Essentials -> input;
 - Disabled blocks input before handling it (`Disabled(true)`); MyGo dims disabled elements, do not add opacity.
 - Copy shown by a component comes from `core.Msg(c, key)`; business copy comes from the caller.
 - `ui.Element` is a handle valid only during its build pass: no cross-frame caching, no goroutines touching elements, no element methods inside `HandleInput` or other callbacks (read state such as `IsDisabled` into a local during the build). Keep a `ui.Handle` for persistent identity and `c.Services()` for clipboard or URLs from callbacks. The absent element is `ui.Element{}`; test it with `.Valid()`.
-- Overlay content takes initial focus with `core.AutoFocus(c, e)`, not `e.AutoFocus()`: MyGo v0.5.5 records an overlay's opener after its content builds, so same-frame autofocus loses focus restore on close.
+- Overlay content takes initial focus with `core.AutoFocus(c, e)`, not `e.AutoFocus()`: MyGo v0.6.2 records an overlay's opener after its content builds, so same-frame autofocus loses focus restore on close.
 - Tests run on the Tester's virtual clock: `tt.Advance(d)` and `tt.Now()`, never `time.Sleep` or `time.Now()`; read element state inside the view.
 - Fail fast: panic on programmer errors (bad options); never swallow errors.
 - Log state transitions in composites with `slog.Debug("mujica: <component> <event>", ...)`. Never log passwords.

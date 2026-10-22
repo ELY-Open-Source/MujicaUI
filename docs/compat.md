@@ -4,8 +4,8 @@
 
 | 项 | 值 |
 | --- | --- |
-| Go | 1.27.1 及以上（MyGo v0.5.5 的 go.mod 要求） |
-| MyGo | v0.5.5，commit 4d8673c，固定在 go.mod 与 go.sum |
+| Go | 1.27.1 及以上（MyGo v0.6.2 的 go.mod 要求） |
+| MyGo | v0.6.2，commit cf26587，固定在 go.mod 与 go.sum |
 | 运行时依赖 | macOS：系统框架。Windows：无需 WebView2。Linux：GTK 3（MyGo 通过 GtkGLArea 绘制） |
 
 ## 已实测环境
