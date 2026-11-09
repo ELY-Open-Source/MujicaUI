@@ -68,8 +68,10 @@ func Switch(c *ui.Context, on *bool, label string, opts SwitchOptions) ui.Elemen
 				internal.FocusRing(p, r, theme.CardRadius, k.Focus)
 			}
 		})
-		inset := (switchH - switchK) / 2
-		x := inset + pos*(switchW-switchK-2*inset)
+		// Absolute places from inside the border.
+		innerW, innerH := switchW-2*theme.BorderWidth, switchH-2*theme.BorderWidth
+		inset := (innerH - switchK) / 2
+		x := inset + pos*(innerW-switchK-2*inset)
 		track.Children(func() {
 			t := ui.Box(c).Absolute().Left(x).Top(inset).Size(switchK, switchK).Radius(theme.ControlRadius).Background(thumb).Center()
 			if opts.Loading {
