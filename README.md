@@ -78,6 +78,7 @@ go run ./examples/gallery -web 127.0.0.1:8080 # 浏览器镜像，仅本机
 
 ## 文档
 
+- [文档站](https://mujicaui.zhangyanghaha0407.workers.dev)：每个组件的浅深主题快照与用法，由 `go run ./tools/site` 生成。
 - [组件文档](docs/components/)：每个组件一页。
 - [兼容与平台依赖](docs/compat.md)
 - [上游归并](docs/upstream.md)
