@@ -1,5 +1,7 @@
 # MujicaUI
 
+[![Listed on Awesome MyGo](https://awesomemygo.dev/badge.svg)](https://awesomemygo.dev/ui)
+
 宫廷哥特风格的 Go 桌面组件库，建立在 [MyGo](https://mygo.egoist.dev/docs/ui) 原生 UI 之上。象牙白与炭黑底色，酒红主色，旧金装饰线，衬线标题。100 个组件，浅深两套主题，三种密度。
 
 界面由 MyGo 在 GPU 上自绘，不使用 HTML、JavaScript 或 WebView。

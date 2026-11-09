@@ -11,6 +11,7 @@ var (
 	headingRe = regexp.MustCompile(`^(#{1,6})\s+(.*?)\s*#*\s*$`)
 	listRe    = regexp.MustCompile(`^(\s*)([-*+]|\d+[.)])\s+(.*)$`)
 	sepRe     = regexp.MustCompile(`^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$`)
+	imageRe   = regexp.MustCompile(`!\[([^\]]*)\]\(([^)\s]+)\)`)
 	linkRe    = regexp.MustCompile(`\[([^\]]+)\]\(([^)\s]+)\)`)
 	boldRe    = regexp.MustCompile(`\*\*([^*]+)\*\*`)
 	slugRe    = regexp.MustCompile(`[^\p{L}\p{N}]+`)
@@ -216,7 +217,7 @@ func leading(s string) int {
 	return len(s) - len(strings.TrimLeft(s, " \t"))
 }
 
-// inline renders code spans, links and bold; everything else is escaped text.
+// inline renders code spans, images, links and bold; the rest is escaped text.
 func (m markdown) inline(s string) string {
 	var b strings.Builder
 	for {
@@ -244,6 +245,7 @@ func (m markdown) inline(s string) string {
 
 func (m markdown) text(s string) string {
 	s = html.EscapeString(s)
+	s = imageRe.ReplaceAllString(s, `<img src="$2" alt="$1">`)
 	s = linkRe.ReplaceAllStringFunc(s, func(x string) string {
 		g := linkRe.FindStringSubmatch(x)
 		href := html.UnescapeString(g[2])

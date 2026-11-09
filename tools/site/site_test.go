@@ -27,7 +27,7 @@ func TestBuildFixture(t *testing.T) {
 		"var fixPages = []page{\n\t{ID: \"001\", Name: \"OAuthButtons\", ZhName: \"第三方登录按钮\", Category: fixCategory, Code: fixCode[\"x\"]},\n}\n")
 	writeFixture(t, root, "pkg/auth/testdata/snapshots/darwin/oauth_buttons-light.png", "png")
 	writeFixture(t, root, "pkg/auth/testdata/snapshots/darwin/oauth_buttons-dark.png", "png")
-	writeFixture(t, root, "README.md", "# MujicaUI\n\n见 [兼容](docs/compat.md)。\n")
+	writeFixture(t, root, "README.md", "# MujicaUI\n\n[![Listed](https://example.com/b.svg)](https://example.com/ui)\n\n见 [兼容](docs/compat.md)。\n")
 	writeFixture(t, root, "docs/compat.md", "# 兼容\n")
 	writeFixture(t, root, "docs/upstream.md", "# 上游\n")
 	writeFixture(t, root, "site/style.css", "body{}")
@@ -66,6 +66,13 @@ func TestBuildFixture(t *testing.T) {
 		if _, err := os.Stat(filepath.Join(out, rel)); err != nil {
 			t.Errorf("missing %s: %v", rel, err)
 		}
+	}
+	readme, err := os.ReadFile(filepath.Join(out, "readme", "index.html"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := `<a href="https://example.com/ui" rel="noopener"><img src="https://example.com/b.svg" alt="Listed"></a>`; !strings.Contains(string(readme), want) {
+		t.Errorf("readme missing linked badge %q", want)
 	}
 	index, err := os.ReadFile(filepath.Join(out, "index.html"))
 	if err != nil {
