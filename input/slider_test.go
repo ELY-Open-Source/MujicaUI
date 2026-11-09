@@ -47,6 +47,16 @@ func TestSliderKeysMoveOneStep(t *testing.T) {
 	}
 }
 
+func TestSliderLeavesLoneModifiersToTheWindow(t *testing.T) {
+	var ks sliderKey
+	if ks.release(ui.InputEvent{Kind: ui.InputKeyUp, Code: ui.CodeAltLeft}) || ks.up != 0 {
+		t.Fatalf("slider took a lone Alt release: up %v", ks.up)
+	}
+	if !ks.release(ui.InputEvent{Kind: ui.InputKeyUp, Key: ui.KeyRight}) || ks.up != ui.KeyRight {
+		t.Fatalf("slider missed Right: up %v", ks.up)
+	}
+}
+
 func TestSliderDragSnaps(t *testing.T) {
 	v, changes := 0.0, 0
 	tt := sliderTester(&v, SliderOptions{Min: 0, Max: 10, Step: 2}, &changes)

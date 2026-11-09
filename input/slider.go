@@ -77,19 +77,22 @@ type sliderKey struct {
 
 type sliderKeyID struct{}
 
+// release records a named key's release; a lone modifier's stays the window's.
+func (ks *sliderKey) release(ev ui.InputEvent) bool {
+	if ev.Kind != ui.InputKeyUp || ev.Key == ui.KeyUnknown {
+		return false
+	}
+	ks.up = ev.Key
+	return true
+}
+
 // SliderControl builds a SliderBase on a copy of v and returns where the pointer or a key moves v.
 func SliderControl(c *ui.Context, v float64, g SliderGeom, from, to float64) (s ui.Element, next float64, dragged bool) {
 	raw := v
 	s = ui.SliderBase(c, &raw, g.lo, g.hi)
 	ks := *ui.Local(s, sliderKeyID{}, func() *sliderKey { return &sliderKey{} })
 	// MyGo gives key downs to the base alone (ui/base.go:118); releases still reach this handler.
-	s.HandleInput(func(ev ui.InputEvent) bool {
-		if ev.Kind != ui.InputKeyUp {
-			return false
-		}
-		ks.up = ev.Key
-		return true
-	})
+	s.HandleInput(ks.release)
 	up := ks.up
 	ks.up = 0
 	if _, _, dragged = s.Dragged(); dragged {

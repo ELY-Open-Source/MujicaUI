@@ -71,12 +71,11 @@ func OverlayEscape(c *ui.Context, key any) bool {
 
 // overlaySiteState follows the focus of a layer after it closes.
 type overlaySiteState struct {
-	focusIn bool // the focus was inside the layer when it last showed
-	wait    int  // frames left to check the focus after a close
-	holding bool // the site holds the fallback focus
+	focusIn bool      // the focus was inside the layer when it last showed
+	panel   ui.Handle // the layer's panel, still focused until MyGo prunes it
+	holding bool      // the site holds the fallback focus
 }
 
-// OverlaySite builds the invisible focus fallback at a layer's call site.
 func OverlaySite(c *ui.Context) (ui.Element, *overlaySiteState) {
 	site := ui.Box(c).Size(0, 0).FocusRing(false)
 	st := ui.Local(site, "mujica.overlay.site", func() overlaySiteState { return overlaySiteState{} })
@@ -91,22 +90,22 @@ func OverlaySite(c *ui.Context) (ui.Element, *overlaySiteState) {
 
 // Shown records whether the focus is in the open layer's panel.
 func (st *overlaySiteState) Shown(panel ui.Element) {
-	st.focusIn, st.wait = panel.Valid() && panel.FocusWithin(), 0
+	st.focusIn = panel.Valid() && panel.FocusWithin()
+	if panel.Valid() {
+		panel.Bind(&st.panel)
+	}
 }
 
 // Closed moves a lost focus to the site once MyGo has had its chance to restore it.
 func (st *overlaySiteState) Closed(c *ui.Context, site ui.Element) {
-	if st.focusIn {
-		st.focusIn, st.wait = false, 2 // MyGo prunes the panel at the end of the next frame
-	}
-	if st.wait == 0 {
+	if !st.focusIn {
 		return
 	}
-	st.wait--
-	if st.wait > 0 {
-		c.AnimationFrame()
+	if st.panel.FocusWithin(c) {
+		c.AnimationFrame() // MyGo restores or drops the focus as it prunes the panel
 		return
 	}
+	st.focusIn = false
 	// The site itself counts as lost: it may inherit a vanished opener's positional ID.
 	if !c.Root().FocusWithin() || site.FocusWithin() {
 		slog.Debug("mujica: overlay focus fallback")

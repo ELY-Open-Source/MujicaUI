@@ -57,9 +57,11 @@ func TestConversationSearchAsyncAndChoose(t *testing.T) {
 	if !tt.HasText("Garden maze") {
 		t.Fatalf("results %q", tt.Texts())
 	}
-	if err := tt.Click("Garden maze"); err != nil {
-		t.Fatal(err)
+	r, ok := tt.Find("Garden maze") // the list row; its inner clickable row takes the press
+	if !ok {
+		t.Fatal("no Garden maze row")
 	}
+	tt.ClickAt(r.X+r.W/2, r.Y+r.H/2)
 	if b.chosen != "f" {
 		t.Fatalf("chose %q", b.chosen)
 	}

@@ -181,6 +181,7 @@ func Form(c *ui.Context, st *FormState, opts FormOptions, fields func(f *FormSco
 		st.Requested = false
 		if !st.submitting && !st.Awaiting {
 			formStartSubmit(st)
+			c.Invalidate() // the buttons built above read Awaiting
 		}
 	}
 	if st.Awaiting {
@@ -245,6 +246,7 @@ func formSettle(c *ui.Context, st *FormState) bool {
 	case pending:
 	default:
 		st.Awaiting, st.submitting = false, true
+		c.Invalidate() // views built before the form read Submitting
 		slog.Debug("mujica: form submitted")
 		return true
 	}

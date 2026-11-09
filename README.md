@@ -10,7 +10,7 @@
 go get github.com/ELY-Open-Source/MujicaUI
 ```
 
-要求 Go 1.27.1 与 MyGo v0.2.10（见 [兼容表](docs/compat.md)）。
+要求 Go 1.27.3 与 MyGo v0.8.3（见 [兼容表](docs/compat.md)）。
 
 ## 最小示例
 

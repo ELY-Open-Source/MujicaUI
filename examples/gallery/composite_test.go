@@ -117,7 +117,11 @@ func TestCompositeFormInvalidThenValid(t *testing.T) {
 	if !s.st.Submitting() {
 		t.Fatalf("no loading overlay in %q", tt.Texts())
 	}
-	click(t, tt, "Submit entry") // the overlay blocks a second submit
+	r, ok := tt.Find("Submit entry")
+	if !ok {
+		t.Fatal("no Submit entry button")
+	}
+	tt.ClickAt(r.X+r.W/2, r.Y+r.H/2) // the overlay blocks a second submit
 	await(tt, func() bool { return s.phase == formSucceeded })
 	if s.phase != formSucceeded || !tt.HasText("Entry received") {
 		t.Fatalf("phase %d, texts %q", s.phase, tt.Texts())

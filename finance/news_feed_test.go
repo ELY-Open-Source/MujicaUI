@@ -26,7 +26,11 @@ func TestNewsFeedReadSourceSymbolsAndKeyboard(t *testing.T) {
 	if got.Symbol != "AAPL" || s.Read["a"] {
 		t.Fatalf("symbol %+v read %v", got, s.Read)
 	}
-	_ = tt.Click("Alpha")
+	r, ok := tt.Find("Alpha") // the list row; its inner clickable row takes the press
+	if !ok {
+		t.Fatal("no Alpha row")
+	}
+	tt.ClickAt(r.X+r.W/2, r.Y+r.H/2)
 	if !s.Read["a"] || got.Opened != "a" {
 		t.Fatalf("read %v", s.Read)
 	}

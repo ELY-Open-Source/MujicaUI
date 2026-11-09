@@ -76,7 +76,11 @@ func TestOverlayModal(t *testing.T) {
 	if !tt.Focused("Done") {
 		t.Fatal("modal overlay did not take the focus")
 	}
-	_ = tt.Click("Behind")
+	r, ok := tt.Find("Behind")
+	if !ok {
+		t.Fatal("no Behind button")
+	}
+	tt.ClickAt(r.X+r.W/2, r.Y+r.H/2) // the backdrop covers it
 	if a.behind != 0 || a.open {
 		t.Fatalf("backdrop: behind %d open %v", a.behind, a.open)
 	}
