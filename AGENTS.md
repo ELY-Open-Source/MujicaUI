@@ -34,7 +34,7 @@ docs/components/     NNN-name.md, one page per component
 testdata/snapshots/  <os>/<name>-<light|dark>.png, shared by every package
 ```
 
-Gallery categories map to packages: Inputs, Choices, Forms, Essentials -> input; Date & Time, Calendar -> datetime; Feedback, Agent Ops & Motion -> feedback; Charts I, Charts II, Market Charts -> chart; Trading, Markets -> finance; Chat Messages, Chat Input, Chat Sessions -> chat; Terminal & Code -> code; Projects -> project; Files & Collaboration -> files; Messaging & Mail -> messaging; Dashboards & Dev Tools -> devtools; Settings & Account -> account. Imports point down only: core imports no category; a piece two categories need moves to core or internal.
+Gallery categories map to packages: Inputs, Choices, Forms, Essentials -> input; Date & Time, Calendar -> datetime; Feedback, Agent Ops & Motion -> feedback; Charts I, Charts II, Market Charts -> chart; Trading, Markets -> finance; Chat Messages, Chat Input, Chat Sessions -> chat; Terminal & Code -> code; Projects -> project; Files & Collaboration -> files; Messaging & Mail -> messaging; Dashboards & Dev Tools -> devtools; Settings & Account -> account; Diagrams -> diagram. Imports point down only: core imports no category; a piece two categories need moves to core or internal.
 
 ## Component rules
 

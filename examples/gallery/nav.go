@@ -57,6 +57,7 @@ var categoryZh = map[string]string{
 	"Dashboards & Dev Tools": "仪表盘与开发工具",
 	"Settings & Account":     "设置与账户",
 	"Essentials":             "通用补充",
+	"Diagrams":               "图表",
 }
 
 // matches reports whether p fits the search query in English or Chinese.

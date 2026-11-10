@@ -19,7 +19,7 @@ type page struct {
 func catalog() []page {
 	var all []page
 	for _, g := range [][]page{layoutPages, displayPages, inputPages, choicePages, formPages, datetimePages, navigationPages, dataPages, overlayPages, feedbackPages,
-		charts1Pages, charts2Pages, mktchartPages, tradingPages, marketsPages, chatmsgPages, chatinputPages, chatsessionPages, agentPages, motionPages, gitPages, codePages, mediaPages, projectsPages, filesPages, messagingPages, calendarPages, devtoolsPages, accountPages, essentialsPages} {
+		charts1Pages, charts2Pages, mktchartPages, tradingPages, marketsPages, chatmsgPages, chatinputPages, chatsessionPages, agentPages, motionPages, gitPages, codePages, mediaPages, projectsPages, filesPages, messagingPages, calendarPages, devtoolsPages, accountPages, essentialsPages, diagramPages} {
 		all = append(all, g...)
 	}
 	return all
