@@ -153,9 +153,9 @@ func TestAssigneePickerCompactHitAreas(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, label := range []string{"Select all", "Only Member"} {
-		r, ok := tt.Find(label)
-		if !ok || r.H < 28 {
-			t.Fatalf("%s hit height = %g", label, r.H)
+		box, ok := tt.AccessByRole(ui.RoleCheckBox, label)
+		if !ok || box.Bounds.H < 28 {
+			t.Fatalf("%s hit height = %g", label, box.Bounds.H)
 		}
 	}
 }

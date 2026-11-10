@@ -48,6 +48,8 @@ func TestCompositeSettingsSaveAndReset(t *testing.T) {
 	if !tt.HasText("Settings saved") || !tt.HasText("All changes saved") {
 		t.Fatalf("no saved toast in %q", tt.Texts())
 	}
+	// The toast can lie over the footer's buttons.
+	click(t, tt, "Dismiss notification")
 	click(t, tt, "Reset")
 	if s.draft != settingsInitial || !s.saved.reduce {
 		t.Fatalf("reset draft %+v, saved %+v", s.draft, s.saved)

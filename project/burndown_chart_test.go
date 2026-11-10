@@ -35,7 +35,7 @@ func TestBurndownChartReadoutAndKeys(t *testing.T) {
 	if !tt.HasText("Remaining") || !tt.HasText("Ideal") {
 		t.Fatalf("legend %v", tt.Texts())
 	}
-	tt.Key(0, ui.KeyTab)
+	// The legend is one Tab stop; the chart is next.
 	tt.Key(0, ui.KeyTab)
 	tt.Key(0, ui.KeyTab)
 	tt.Key(0, ui.KeyRight)

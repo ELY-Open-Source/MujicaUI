@@ -110,7 +110,8 @@ func TestTypewriterInvalidSpeedBoundary(t *testing.T) {
 }
 
 func TestTypewriterMinimumIntervalBoundary(t *testing.T) {
-	minimum := float64(time.Second) / float64(math.MaxInt64)
+	// One step above 2^63 ns: the slowest interval a Duration holds.
+	minimum := math.Nextafter(float64(time.Second)/float64(math.MaxInt64), 1)
 	tt, n := motionFrames(func(c *ui.Context) {
 		Typewriter(c, "letter", TypewriterOptions{Speed: minimum})
 	}, 200, 100)

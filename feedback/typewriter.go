@@ -34,13 +34,12 @@ func Typewriter(c *ui.Context, text string, opts TypewriterOptions) core.ChoiceR
 	if speed == 0 {
 		speed = 40
 	}
-	if math.IsNaN(speed) || math.IsInf(speed, 0) || speed < float64(time.Second)/float64(math.MaxInt64) || speed > float64(time.Second) {
+	// From 2^63 ns up, an interval overflows a Duration.
+	interval := float64(time.Second) / speed
+	if !(interval >= 1 && interval < float64(math.MaxInt64)) {
 		panic("mujica: Typewriter Speed must give a finite positive interval")
 	}
-	step := time.Duration(float64(time.Second) / speed)
-	if step <= 0 {
-		panic("mujica: Typewriter Speed interval exceeds time.Duration")
-	}
+	step := time.Duration(interval)
 	col := ui.Column(c).AlignItems(ui.Start).Gap(core.Density(c).Unit() * 2).Role(ui.RoleGroup).Label(text)
 	res := core.ChoiceResult{Element: col}
 	st := ui.Local(col, "typing", func() *typewriterState { return &typewriterState{last: c.Now()} })

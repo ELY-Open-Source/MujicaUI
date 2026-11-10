@@ -82,7 +82,6 @@ func TestHoldToConfirmSpaceHold(t *testing.T) {
 	n := 0
 	tt := ui.NewTester(func(c *ui.Context) {
 		core.Use(c, core.Settings{})
-		// A nanosecond hold completes in the frames between Space down and up.
 		if HoldToConfirm(c, "Drop table", HoldToConfirmOptions{Duration: time.Nanosecond}).Changed() {
 			n++
 		}
@@ -93,6 +92,13 @@ func TestHoldToConfirmSpaceHold(t *testing.T) {
 		t.Fatal("Enter confirmed")
 	}
 	tt.Key(0, ui.KeySpace)
+	if n != 0 {
+		t.Fatal("a Space tap confirmed with no time held")
+	}
+	tt.KeyDown(ui.KeySpace)
+	// Long enough for one frame to pass.
+	tt.Advance(100 * time.Millisecond)
+	tt.KeyUp(ui.KeySpace)
 	if n != 1 {
 		t.Fatalf("Space hold confirmed %d times", n)
 	}
