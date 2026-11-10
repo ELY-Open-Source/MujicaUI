@@ -14,6 +14,8 @@ func AutoFocus(c *ui.Context, e ui.Element) ui.Element {
 	case 1:
 		*step = 2
 		e.Focus()
+		// The view reads its focus in the frame after.
+		c.Invalidate()
 	}
 	return e
 }

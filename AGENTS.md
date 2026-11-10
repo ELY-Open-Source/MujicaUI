@@ -70,6 +70,8 @@ Gallery categories map to packages: Inputs, Choices, Forms, Essentials -> input;
 - `tt.Click(label)` refuses a label whose center reaches another control, as a `List` row over its clickable row: click it with `tt.Find` and `tt.ClickAt`.
 - Run `go vet ./... && go test ./...` before reporting done.
 - Each snapshot test renders in a fresh child process (snapshot_test.go), because MyGo's path-mask cache is process-wide. Order and neighbours never change pixels; `-run <Name> -update` is safe.
+- A snapshot is taken 400 ms after its input (`settle` in `internal/snaptest`): MyGo fades colors under Reduce Motion too, and the caret blinks off at 530 ms.
+- Goldens are kept for `darwin` and `linux`. A change in pixels is refreshed on both. A MyGo upgrade moves path edges and rounding: refresh every golden with `-update` and review what changed before committing.
 
 ## Gallery page
 

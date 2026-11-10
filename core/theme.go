@@ -137,7 +137,7 @@ func Tokens(c *ui.Context) theme.Tokens { return current(c).tokens }
 // Density returns the window's density.
 func Density(c *ui.Context) theme.Density { return current(c).density }
 
-// ColorFade eases background and border colors between states; MyGo skips it under reduced motion.
+// ColorFade eases background and border colors between states; MyGo keeps it under reduced motion.
 var ColorFade = ui.ElementTransition{Colors: true, Duration: theme.StateDuration}
 
 // Motion returns d, or zero when the desktop asks for reduced motion.

@@ -14,6 +14,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/egoist/mygo/ui"
 )
@@ -27,6 +28,9 @@ var Modes = []string{"light", "dark"}
 const child = "MUJICA_SNAPSHOT_CHILD"
 
 var ran sync.Map
+
+// settle outlasts the color fades and ends before the caret blinks.
+const settle = 400 * time.Millisecond
 
 // dir is the module's testdata/snapshots/<os>, whatever package runs the test.
 var dir = func() string {
@@ -60,6 +64,7 @@ func Run(t *testing.T, name string, w, h int, theme func(c *ui.Context, mode str
 		if drive != nil {
 			drive(tt)
 		}
+		tt.Advance(settle)
 		got := Encode(t, tt.Image())
 		path := filepath.Join(dir, name+"-"+m+".png")
 		if *update {
