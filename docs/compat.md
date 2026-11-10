@@ -6,6 +6,7 @@
 | --- | --- |
 | Go | 1.27.3 及以上（MyGo v0.8.3 的 go.mod 要求） |
 | MyGo | v0.8.3，commit 5add381，固定在 go.mod 与 go.sum |
+| pele-go | v0.2.0（Pele 1.10.0 的 Go 移植，MIT），固定在 go.mod 与 go.sum；只有 `diagram` 包导入，纯 Go，无 JS 运行时 |
 | 运行时依赖 | macOS：系统框架。Windows：无需 WebView2。Linux：GTK 3（MyGo 通过 GtkGLArea 绘制） |
 
 ## 已实测环境

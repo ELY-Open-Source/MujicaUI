@@ -50,6 +50,36 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
+## Mermaid documentation examples (diagram/testdata/corpus.json)
+
+Test data. The examples of Mermaid's syntax documentation, as Pele 1.13.0 collects them in `tests/corpus`, joined
+into one file. Sources: https://github.com/mermaid-js/mermaid, https://github.com/obsidianmd/pele
+
+```text
+The MIT License (MIT)
+
+Copyright (c) 2014 - 2022 Knut Sveidqvist
+Copyright (c) 2026 kepano
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
 ## Go module dependencies
 
 Linked, not copied. Licenses ship with each module.
@@ -57,6 +87,7 @@ Linked, not copied. Licenses ship with each module.
 | Module | Version | License |
 | --- | --- | --- |
 | github.com/egoist/mygo | v0.8.3 | MIT |
+| github.com/Broderick-Westrope/pele-go | v0.2.0 | MIT |
 | github.com/ebitengine/purego | v0.11.1 | Apache-2.0 |
 | github.com/go-text/typesetting | v0.3.5 | BSD-3-Clause OR Unlicense |
 | golang.org/x/image | v0.46.0 | BSD-3-Clause |

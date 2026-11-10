@@ -11,6 +11,7 @@ Planned: once 001–500 land, the root package splits into category sub-packages
 | Go | 1.27.3 (MyGo's minimum) |
 | MyGo | `github.com/egoist/mygo v0.8.3` (commit 5add381), pinned in go.mod |
 | Icons | Lucide 1.52.0, ISC, copied into `icons/svg` |
+| Diagrams | `github.com/Broderick-Westrope/pele-go v0.2.0` (MIT), pinned: Pele 1.10.0 in Go, Mermaid source to SVG, 33 types; only `diagram` imports it |
 | Web mirror | `examples/gallery -web :8080`: Go stdlib server drives the Gallery through `ui.NewTester` and streams frames to a canvas. The browser shows pixels; Go runs the components. |
 
 Read MyGo source before using an API: `go env GOMODCACHE`/github.com/egoist/mygo@v0.8.3 (`ui/*.go`, `docs/ui/*.md`, migration guide `docs/ui/migration.md`). Never guess.
@@ -23,6 +24,7 @@ core/                Use, Tokens, Density, Motion, FontSize, Msg; shared result 
 <category>/          one component per file, package = folder name:
                      layout display input datetime navigation data overlay feedback chart
                      finance chat agent git code media project files messaging devtools account
+                     diagram
 <category>/*_test.go tests beside the component; example_<group>_test.go compiled doc examples
 theme/               tokens, density, type, motion, contrast
 icons/               embedded Lucide icons: icons.Must("check")
@@ -56,6 +58,8 @@ Gallery categories map to packages: Inputs, Choices, Forms, Essentials -> input;
 - `HandleInput` returns false for keys it does not use. Lone modifiers arrive as `ui.KeyUnknown`; taking one keeps Alt from the menu bar.
 - Fail fast: panic on programmer errors (bad options); never swallow errors.
 - Log state transitions in composites with `slog.Debug("mujica: <component> <event>", ...)`. Never log passwords.
+- `diagram` walks pele-go's SVG into paths and text once (`parse`), with Mujica's tokens for Pele's (`tokens`). An element, attribute, transform or Pele token (`--_*`, `--pele-*`) the walker does not know is an error, never a guess, fallback or not: add it when pele-go moves. `testdata/corpus.json` holds Mermaid's documentation examples for all 33 types.
+- Pele passes a diagram's own `style` values through, and the walker reads them as a CSS user agent of this subset: colors as hex, names, `rgb()`, `hsl()` in degrees, `color-mix(in srgb)` and `var()`; opacity as a number or a percentage; lengths in px, pt, pc, in, cm, mm, q, em and rem; font-size keywords and percentages. A style beats an attribute, a later declaration an earlier one, em reads the element's final font size, and `var()` resolves in one place (`plain`, and `color` for colors). A value outside the subset (`calc()`, `inherit`, other units and color spaces) drops as CSS drops an invalid one and leaves the earlier value.
 - Files under 500 lines. Comments: one line, only when needed.
 
 ## Tests
